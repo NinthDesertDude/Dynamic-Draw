@@ -216,6 +216,12 @@
   <data name="LockAlphaTip" xml:space="preserve">
     <value>Preserves transparency so no brush strokes affect the transparency of the pixels.</value>
   </data>
+  <data name="MaximizeWindow" xml:space="preserve">
+    <value>Maximize window?</value>
+  </data>
+  <data name="MaximizeWindowTip" xml:space="preserve">
+    <value>Whether to maximize the window or not. Click to toggle.</value>
+  </data>
   <data name="MinDrawDistance" xml:space="preserve">
     <value>Minimum Draw Distance:</value>
   </data>

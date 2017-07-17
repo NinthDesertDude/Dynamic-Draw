@@ -2197,7 +2197,7 @@
     <value>True</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>25</value>
+    <value>26</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
     <value>96, 96</value>
@@ -2227,7 +2227,7 @@
     <value>System.Windows.Forms.Timer, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>winBrushFactory</value>
+    <value>WinBrushFactory</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>PaintDotNet.Effects.EffectConfigDialog, PaintDotNet.Effects, Version=4.16.6315.38530, Culture=neutral, PublicKeyToken=null</value>

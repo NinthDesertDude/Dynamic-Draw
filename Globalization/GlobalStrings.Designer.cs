@@ -358,6 +358,24 @@ namespace BrushFactory.Globalization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximize window?.
+        /// </summary>
+        internal static string MaximizeWindow {
+            get {
+                return ResourceManager.GetString("MaximizeWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Whether to maximize the window or not. Click to toggle..
+        /// </summary>
+        internal static string MaximizeWindowTip {
+            get {
+                return ResourceManager.GetString("MaximizeWindowTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Minimum Draw Distance:.
         /// </summary>
         internal static string MinDrawDistance {

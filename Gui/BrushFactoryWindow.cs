@@ -517,6 +517,11 @@ namespace BrushFactory
             bttnSymmetry.DataSource = symmetryOptions;
             bttnSymmetry.DisplayMember = "Item1";
             bttnSymmetry.ValueMember = "Item2";
+
+            //Forces the window to cover the screen without being maximized.
+            Left = Top = 0;
+            Width = Screen.PrimaryScreen.WorkingArea.Width;
+            Height = Screen.PrimaryScreen.WorkingArea.Height;
         }
         #endregion
 
@@ -2060,7 +2065,7 @@ namespace BrushFactory
             resources.ApplyResources(this.txtShiftSize, "txtShiftSize");
             this.txtShiftSize.Name = "txtShiftSize";
             // 
-            // winBrushFactory
+            // WinBrushFactory
             // 
             this.AcceptButton = this.bttnOk;
             resources.ApplyResources(this, "$this");
@@ -2072,7 +2077,7 @@ namespace BrushFactory
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.MaximizeBox = true;
-            this.Name = "winBrushFactory";
+            this.Name = "WinBrushFactory";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.WinBrushFactory_FormClosing);
             this.Load += new System.EventHandler(this.WinBrushFactory_DialogLoad);
             this.Shown += new System.EventHandler(this.WinBrushFactory_DialogShown);
@@ -2290,17 +2295,20 @@ namespace BrushFactory
             tabControls.Text = Globalization.GlobalStrings.TabControls;
             tabJitter.Text = Globalization.GlobalStrings.TabJitter;
             tabOther.Text = Globalization.GlobalStrings.TabOther;
+
             bttnBrushColor.Text = Globalization.GlobalStrings.BrushColor;
-            chkbxColorizeBrush.Text = Globalization.GlobalStrings.ColorizeBrush;
-            bttnUndo.Text = Globalization.GlobalStrings.Undo;
-            bttnRedo.Text = Globalization.GlobalStrings.Redo;
-            bttnOk.Text = Globalization.GlobalStrings.Ok;
-            bttnCustomBrushLocations.Text = Globalization.GlobalStrings.CustomBrushLocations;
             bttnCancel.Text = Globalization.GlobalStrings.Cancel;
             bttnClearBrushes.Text = Globalization.GlobalStrings.ClearBrushes;
             bttnClearSettings.Text = Globalization.GlobalStrings.ClearSettings;
+            bttnCustomBrushLocations.Text = Globalization.GlobalStrings.CustomBrushLocations;
+            bttnOk.Text = Globalization.GlobalStrings.Ok;
+            bttnUndo.Text = Globalization.GlobalStrings.Undo;
+            bttnRedo.Text = Globalization.GlobalStrings.Redo;
+
+            chkbxColorizeBrush.Text = Globalization.GlobalStrings.ColorizeBrush;
             chkbxLockAlpha.Text = Globalization.GlobalStrings.LockAlpha;
             chkbxOrientToMouse.Text = Globalization.GlobalStrings.OrientToMouse;
+
             grpbxBrushOptions.Text = Globalization.GlobalStrings.BrushOptions;
         }
 
