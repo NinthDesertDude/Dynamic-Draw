@@ -1,0 +1,381 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddFolder" xml:space="preserve">
+    <value>Add Folder</value>
+  </data>
+  <data name="AddFolderTip" xml:space="preserve">
+    <value>Browse for a directory to add to the list of places to load custom brushes from.</value>
+  </data>
+  <data name="Alpha" xml:space="preserve">
+    <value>Brush Transparency:</value>
+  </data>
+  <data name="BrushAlphaTip" xml:space="preserve">
+    <value>Brush transparency shortcut: Ctrl + A + Mouse Wheel. Sets the brush transparency, so it becomes opaque or see-through.</value>
+  </data>
+  <data name="BrushColor" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="BrushColorTip" xml:space="preserve">
+    <value>Lets you set the color of the brush.</value>
+  </data>
+  <data name="BrushLocations" xml:space="preserve">
+    <value>Custom Brush Directories To Auto-Load</value>
+  </data>
+  <data name="BrushLocationsTextboxTip" xml:space="preserve">
+    <value>Places to look for brushes appear here. Type a new address or use 'add folder' to add your own.</value>
+  </data>
+  <data name="BrushOptions" xml:space="preserve">
+    <value>Misc. brush options</value>
+  </data>
+  <data name="BrushRotationTip" xml:space="preserve">
+    <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
+  </data>
+  <data name="BrushSelectorTip" xml:space="preserve">
+    <value>Lets you choose another brush to use (or import your own).</value>
+  </data>
+  <data name="BrushSizeTip" xml:space="preserve">
+    <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>
+  </data>
+  <data name="BrushSmoothingTip" xml:space="preserve">
+    <value>Determines the smoothing on each brush stroke. Low values are jagged and fast to compute. High values are smooth and slow (and possibly blurry).</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CancelTip" xml:space="preserve">
+    <value>Quit without saving changes.</value>
+  </data>
+  <data name="CanvasZoom" xml:space="preserve">
+    <value>Canvas Zoom:</value>
+  </data>
+  <data name="CanvasZoomTip" xml:space="preserve">
+    <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.</value>
+  </data>
+  <data name="ClearBrushes" xml:space="preserve">
+    <value>Clear Custom Brushes</value>
+  </data>
+  <data name="ClearBrushesTip" xml:space="preserve">
+    <value>Removes any custom brushes that were added. The normal brushes will remain.</value>
+  </data>
+  <data name="ClearSettings" xml:space="preserve">
+    <value>Clear Settings</value>
+  </data>
+  <data name="ClearSettingsTip" xml:space="preserve">
+    <value>Resets all settings to the default values they had when the plugin first loaded.</value>
+  </data>
+  <data name="ColoringBlue" xml:space="preserve">
+    <value>Random Blueness:</value>
+  </data>
+  <data name="ColoringGreen" xml:space="preserve">
+    <value>Random Greenness:</value>
+  </data>
+  <data name="ColoringRed" xml:space="preserve">
+    <value>Random Redness:</value>
+  </data>
+  <data name="ColorizeBrush" xml:space="preserve">
+    <value>Colorize Brush</value>
+  </data>
+  <data name="ColorizeBrushTip" xml:space="preserve">
+    <value>When activated, the color of the brush is replaced by a solid color. Otherwise, the brush maintains its original colors and cannot use color shifting.</value>
+  </data>
+  <data name="CustomBrushLocations" xml:space="preserve">
+    <value>Custom Brush Locations</value>
+  </data>
+  <data name="CustomBrushLocationsTip" xml:space="preserve">
+    <value>Define where to look for brushes when this plugin loads.</value>
+  </data>
+  <data name="GeneralTooltip" xml:space="preserve">
+    <value>Middle click and drag to pan image. Right-click for options. Hover over items for details.</value>
+  </data>
+  <data name="LoadDefaultBrushes" xml:space="preserve">
+    <value>Load Default Brushes?</value>
+  </data>
+  <data name="LoadDefaultBrushesTip" xml:space="preserve">
+    <value>If turned off, only the circle brush and any custom brushes will be loaded.</value>
+  </data>
+  <data name="LockAlpha" xml:space="preserve">
+    <value>Lock Alpha</value>
+  </data>
+  <data name="LockAlphaTip" xml:space="preserve">
+    <value>Preserves transparency so no brush strokes affect the transparency of the pixels.</value>
+  </data>
+  <data name="MinDrawDistance" xml:space="preserve">
+    <value>Minimum Draw Distance:</value>
+  </data>
+  <data name="MinDrawDistanceTip" xml:space="preserve">
+    <value>Each brush stroke must be at least this far apart to have an effect. Used, for example, to make lines.</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="OkTip" xml:space="preserve">
+    <value>Apply changes and finish.</value>
+  </data>
+  <data name="OrientToMouse" xml:space="preserve">
+    <value>Rotate With Mouse</value>
+  </data>
+  <data name="OrientToMouseTip" xml:space="preserve">
+    <value>When activated, the brush rotates with the mouse. If the brush appears to point to the right, it will look accurate. If it does not, try adjusting rotation to fix it.</value>
+  </data>
+  <data name="RandHorzShift" xml:space="preserve">
+    <value>Horizontal Spray:</value>
+  </data>
+  <data name="RandHorzShiftTip" xml:space="preserve">
+    <value>While drawing, the brush will randomly be moved left or right this much.</value>
+  </data>
+  <data name="RandMaxAlpha" xml:space="preserve">
+    <value>Random Max Alpha:</value>
+  </data>
+  <data name="RandMaxAlphaTip" xml:space="preserve">
+    <value>While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more visible.</value>
+  </data>
+  <data name="RandMaxBlue" xml:space="preserve">
+    <value>Random Max Blue:</value>
+  </data>
+  <data name="RandMaxBlueTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more blue.</value>
+  </data>
+  <data name="RandMaxGreen" xml:space="preserve">
+    <value>Random Max Green:</value>
+  </data>
+  <data name="RandMaxGreenTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more green.</value>
+  </data>
+  <data name="RandMaxRed" xml:space="preserve">
+    <value>Random Max Red:</value>
+  </data>
+  <data name="RandMaxRedTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more red.</value>
+  </data>
+  <data name="RandMaxSize" xml:space="preserve">
+    <value>Random Max Size:</value>
+  </data>
+  <data name="RandMaxSizeTip" xml:space="preserve">
+    <value>While drawing, the size of the brush will randomly jitter so it will sometimes be normal size and sometimes up to this much bigger.</value>
+  </data>
+  <data name="RandMinAlpha" xml:space="preserve">
+    <value>Random Min Alpha:</value>
+  </data>
+  <data name="RandMinAlphaTip" xml:space="preserve">
+    <value>While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more transparent.</value>
+  </data>
+  <data name="RandMinBlue" xml:space="preserve">
+    <value>Random Min Blue:</value>
+  </data>
+  <data name="RandMinBlueTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less blue.</value>
+  </data>
+  <data name="RandMinGreen" xml:space="preserve">
+    <value>Random Min Green:</value>
+  </data>
+  <data name="RandMinGreenTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less green.</value>
+  </data>
+  <data name="RandMinRed" xml:space="preserve">
+    <value>Random Min Red:</value>
+  </data>
+  <data name="RandMinRedTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less red.</value>
+  </data>
+  <data name="RandMinSize" xml:space="preserve">
+    <value>Random Min Size:</value>
+  </data>
+  <data name="RandMinSizeTip" xml:space="preserve">
+    <value>While drawing, the size of the brush will randomly jitter so it will sometimes be normal size and sometimes up to this much smaller.</value>
+  </data>
+  <data name="RandRotLeft" xml:space="preserve">
+    <value>Random Rot to Left:</value>
+  </data>
+  <data name="RandRotLeftTip" xml:space="preserve">
+    <value>While drawing, the brush will randomly rotate so it will sometimes be angled this much to the left.</value>
+  </data>
+  <data name="RandRotRight" xml:space="preserve">
+    <value>Random Rot to Right:</value>
+  </data>
+  <data name="RandRotRightTip" xml:space="preserve">
+    <value>While drawing, the brush will randomly rotate so it will sometimes be angled this much to the right.</value>
+  </data>
+  <data name="RandVertShift" xml:space="preserve">
+    <value>Vertical Spray:</value>
+  </data>
+  <data name="RandVertShiftTip" xml:space="preserve">
+    <value>While drawing, the brush will randomly be moved up or down this much.</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="RedoTip" xml:space="preserve">
+    <value>Redo Shortcut: Ctrl + Y. Restores changes removed by undo, if possible.</value>
+  </data>
+  <data name="Rotation" xml:space="preserve">
+    <value>Brush Rotation:</value>
+  </data>
+  <data name="SavePreferences" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SavePreferencesTip" xml:space="preserve">
+    <value>Saves all changes in the preferences.</value>
+  </data>
+  <data name="ShiftAlpha" xml:space="preserve">
+    <value>Alpha Shift:</value>
+  </data>
+  <data name="ShiftAlphaTip" xml:space="preserve">
+    <value>Every time a brush stroke is applied, the brush will change transparency by this much.</value>
+  </data>
+  <data name="ShiftRotation" xml:space="preserve">
+    <value>Rotation Shift:</value>
+  </data>
+  <data name="ShiftRotationTip" xml:space="preserve">
+    <value>Every time a brush stroke is applied, the brush will tilt by this much.</value>
+  </data>
+  <data name="ShiftSize" xml:space="preserve">
+    <value>Size Shift:</value>
+  </data>
+  <data name="ShiftSizeTip" xml:space="preserve">
+    <value>Every time a brush stroke is applied, the brush size will change by this much.</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Brush Size:</value>
+  </data>
+  <data name="SymmetryTip" xml:space="preserve">
+    <value>While drawing, the brush can be mirrored horizontally and/or vertically.</value>
+  </data>
+  <data name="TabColor" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="TabControls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="TabJitter" xml:space="preserve">
+    <value>Jitter</value>
+  </data>
+  <data name="TabOther" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Brush Factory</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="UndoTip" xml:space="preserve">
+    <value>Undo Shortcut: Ctrl + Z. Undo the last drawing, if possible.</value>
+  </data>
+</root>
