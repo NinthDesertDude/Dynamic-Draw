@@ -11,6 +11,15 @@ namespace BrushFactory
     {
         #region Fields
         /// <summary>
+        /// Increments/decrements the alpha by an amount after each stroke.
+        /// </summary>
+        public int AlphaChange
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// The brush's transparency.
         /// </summary>
         public int BrushAlpha
@@ -50,6 +59,16 @@ namespace BrushFactory
         /// The brush's radius.
         /// </summary>
         public int BrushSize
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Contains a list of all custom brushes to reload. The dialog will
+        /// attempt to read the paths of each brush and add them if possible.
+        /// </summary>
+        public List<string> CustomBrushLocations
         {
             get;
             set;
@@ -246,30 +265,10 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Increments/decrements the alpha by an amount after each stroke.
+        /// Sets whether to draw horizontal, vertical, or radial reflections
+        /// of the current image.
         /// </summary>
-        public int AlphaChange
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Sets whether to draw horizontal and/or vertical reflections of the
-        /// current image.
-        /// </summary>
-        public int SymmetryMode
-        {
-            get;
-            set;
-        }
-
-
-        /// <summary>
-        /// Contains a list of all custom brushes to reload. The dialog will
-        /// attempt to read the paths of each brush and add them if possible.
-        /// </summary>
-        public List<string> CustomBrushLocations
+        public SymmetryMode Symmetry
         {
             get;
             set;
@@ -307,7 +306,7 @@ namespace BrushFactory
             int sizeChange,
             int rotChange,
             int alphaChange,
-            int symmetryMode,
+            SymmetryMode symmetry,
             List<string> customBrushLocations)
             : base()
         {
@@ -337,7 +336,7 @@ namespace BrushFactory
             SizeChange = sizeChange;
             RotChange = rotChange;
             AlphaChange = alphaChange;
-            SymmetryMode = symmetryMode;
+            Symmetry = symmetry;
             CustomBrushLocations = new List<string>(customBrushLocations);
         }
 
@@ -373,7 +372,7 @@ namespace BrushFactory
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;
-            SymmetryMode = other.SymmetryMode;
+            Symmetry = other.Symmetry;
             CustomBrushLocations = new List<string>(other.CustomBrushLocations);
         }
         #endregion

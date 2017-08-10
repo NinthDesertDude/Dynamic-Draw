@@ -217,7 +217,7 @@ namespace BrushFactory
         /// <summary>
         /// Contains the list of all symmetry options for using brush strokes.
         /// </summary>
-        BindingList<Tuple<string, string>> symmetryOptions;
+        BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
 
         /// <summary>
         /// Controls the brush transparency.
@@ -509,11 +509,21 @@ namespace BrushFactory
             bttnBrushSmoothing.ValueMember = "Method";
 
             //Configures items for the symmetry options combobox.
-            symmetryOptions = new BindingList<Tuple<string, string>>();
-            symmetryOptions.Add(new Tuple<string, string>("Symmetry: None", "None"));
-            symmetryOptions.Add(new Tuple<string, string>("Symmetry: Horizontal", "Horizontal"));
-            symmetryOptions.Add(new Tuple<string, string>("Symmetry: Vertical", "Vertical"));
-            symmetryOptions.Add(new Tuple<string, string>("Symmetry: Both", "Both"));
+            symmetryOptions = new BindingList<Tuple<string, SymmetryMode>>();
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: None", SymmetryMode.None));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: Horizontal", SymmetryMode.Horizontal));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: Vertical", SymmetryMode.Vertical));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: Both", SymmetryMode.Star2));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 3-point", SymmetryMode.Star3));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 4-point", SymmetryMode.Star4));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 5-point", SymmetryMode.Star5));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 6-point", SymmetryMode.Star6));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 7-point", SymmetryMode.Star7));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 8-point", SymmetryMode.Star8));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 9-point", SymmetryMode.Star9));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 10-point", SymmetryMode.Star10));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 11-point", SymmetryMode.Star11));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>("Symmetry: 12-point", SymmetryMode.Star12));
             bttnSymmetry.DataSource = symmetryOptions;
             bttnSymmetry.DisplayMember = "Item1";
             bttnSymmetry.ValueMember = "Item2";
@@ -534,7 +544,7 @@ namespace BrushFactory
         {
             theEffectToken = new PersistentSettings(20, "", 0, 0,
                 UserSettings.userPrimaryColor, 0, 0, 0, 0, 0, 0, 0, 0, false, true,
-                false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new List<string>());
+                false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SymmetryMode.None, new List<string>());
         }
 
         /// <summary>
@@ -620,7 +630,7 @@ namespace BrushFactory
             sliderShiftSize.Value = token.SizeChange;
             sliderShiftRotation.Value = token.RotChange;
             sliderShiftAlpha.Value  = token.AlphaChange;
-            bttnSymmetry.SelectedIndex = token.SymmetryMode;
+            bttnSymmetry.SelectedIndex = (int)token.Symmetry;
 
             //Re-applies color and alpha information.
             UpdateBrush();
@@ -660,7 +670,7 @@ namespace BrushFactory
             token.SizeChange = sliderShiftSize.Value;
             token.RotChange = sliderShiftRotation.Value;
             token.AlphaChange = sliderShiftAlpha.Value;
-            token.SymmetryMode = bttnSymmetry.SelectedIndex;
+            token.Symmetry = (SymmetryMode)bttnSymmetry.SelectedIndex;
             token.CustomBrushLocations = loadedBrushPaths;
         }
 
@@ -1009,16 +1019,20 @@ namespace BrushFactory
                     sliderRandMinBlue.Value == 0) ||
                     !chkbxColorizeBrush.Checked)
                 {
-                    //Draws the brush.
-                    g.DrawImage(
-                        bmpBrushRot,
-                        loc.X - (scaleFactor / 2),
-                        loc.Y - (scaleFactor / 2),
-                        scaleFactor,
-                        scaleFactor);
+                    //Draws the brush for normal and non-radial symmetry.
+                    if (bttnSymmetry.SelectedIndex < 4)
+                    {
+                        g.DrawImage(
+                            bmpBrushRot,
+                            loc.X - (scaleFactor / 2),
+                            loc.Y - (scaleFactor / 2),
+                            scaleFactor,
+                            scaleFactor);
+                    }
 
                     //Draws the brush horizontally reflected.
-                    if (bttnSymmetry.SelectedIndex == 1)
+                    if (bttnSymmetry.SelectedIndex ==
+                        (int)SymmetryMode.Horizontal)
                     {
                         g.DrawImage(
                             bmpBrushRot,
@@ -1027,9 +1041,11 @@ namespace BrushFactory
                             scaleFactor * -1,
                             scaleFactor);
                     }
-                    else if (bttnSymmetry.SelectedIndex == 2)
+
+                    //Draws the brush vertically reflected.
+                    else if (bttnSymmetry.SelectedIndex ==
+                        (int)SymmetryMode.Vertical)
                     {
-                        //Draws the brush vertically reflected.
                         g.DrawImage(
                             bmpBrushRot,
                             loc.X - (scaleFactor / 2),
@@ -1037,15 +1053,56 @@ namespace BrushFactory
                             scaleFactor,
                             scaleFactor * -1);
                     }
-                    else if (bttnSymmetry.SelectedIndex == 3)
+
+                    //Draws the brush horizontally and vertically reflected.
+                    else if (bttnSymmetry.SelectedIndex ==
+                        (int)SymmetryMode.Star2)
                     {
-                        //Draws the brush horizontally and vertically reflected.
                         g.DrawImage(
                             bmpBrushRot,
                             bmpCurrentDrawing.Width - (loc.X - (scaleFactor / 2)),
                             bmpCurrentDrawing.Height - (loc.Y - (scaleFactor / 2)),
                             scaleFactor * -1,
                             scaleFactor * -1);
+                    }
+
+                    //Draws the brush with radial reflections.
+                    else if (bttnSymmetry.SelectedIndex > 3)
+                    {
+                        //Gets the center of the image.
+                        Point center = new Point(
+                            (bmpCurrentDrawing.Width / 2) - (radius / 2),
+                            (bmpCurrentDrawing.Height / 2) - (radius / 2));
+
+                        //Gets the drawn location relative to center.
+                        Point locRelativeToCenter = new Point(
+                            loc.X - center.X,
+                            loc.Y - center.Y);
+
+                        //Gets the distance from the drawing point to center.
+                        var dist = Math.Sqrt(
+                            Math.Pow(locRelativeToCenter.X, 2) +
+                            Math.Pow(locRelativeToCenter.Y, 2));
+
+                        //Gets the angle of the drawing point.
+                        var angle = Math.Atan2(
+                            locRelativeToCenter.Y,
+                            locRelativeToCenter.X);
+
+                        //Draws an N-pt radial reflection.
+                        int numPoints = bttnSymmetry.SelectedIndex - 1;
+                        double angleIncrease = (2 * Math.PI) / numPoints;
+                        for (int i = 0; i < numPoints; i++)
+                        {
+                            g.DrawImage(
+                            bmpBrushRot,
+                            center.X + (float)(dist * Math.Cos(angle)),
+                            center.Y + (float)(dist * Math.Sin(angle)),
+                            scaleFactor,
+                            scaleFactor);
+                            
+                            angle += angleIncrease;
+                        }
                     }
                 }
                 else
@@ -1078,37 +1135,43 @@ namespace BrushFactory
                     destination[2] = new Point(xPos, yPos + scaleFactor);
 
                     //Draws the whole image and applies colorations and alpha.
-                    g.DrawImage(
-                        bmpBrushRot,
-                        destination,
-                        new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
-                        GraphicsUnit.Pixel,
-                        Utils.ColorImageAttr(
+                    if (bttnSymmetry.SelectedIndex < 4)
+                    {
+                        g.DrawImage(
                             bmpBrushRot,
-                            newRed,
-                            newGreen,
-                            newBlue,
-                            newAlpha));
+                            destination,
+                            new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
+                            GraphicsUnit.Pixel,
+                            Utils.ColorImageAttr(
+                                bmpBrushRot,
+                                newRed, newGreen, newBlue, newAlpha));
+                    }
 
                     //Handles drawing reflections.
-                    if (bttnSymmetry.SelectedIndex != 0)
+                    if (bttnSymmetry.SelectedIndex !=
+                        (int)SymmetryMode.None)
                     {
                         //Draws the brush horizontally reflected
-                        if (bttnSymmetry.SelectedIndex == 1)
+                        if (bttnSymmetry.SelectedIndex ==
+                            (int)SymmetryMode.Horizontal)
                         {
                             destination[0] = new Point(bmpCurrentDrawing.Width - xPos, yPos);
                             destination[1] = new Point(bmpCurrentDrawing.Width - xPos - scaleFactor, yPos);
                             destination[2] = new Point(bmpCurrentDrawing.Width - xPos, yPos + scaleFactor);
                         }
+
                         //Draws the brush vertically reflected.
-                        else if (bttnSymmetry.SelectedIndex == 2)
+                        else if (bttnSymmetry.SelectedIndex ==
+                            (int)SymmetryMode.Vertical)
                         {
                             destination[0] = new Point(xPos, bmpCurrentDrawing.Height - yPos);
                             destination[1] = new Point(xPos + scaleFactor, bmpCurrentDrawing.Height - yPos);
                             destination[2] = new Point(xPos, bmpCurrentDrawing.Height - yPos - scaleFactor);
                         }
+
                         //Draws the brush horizontally and vertically reflected.
-                        else if (bttnSymmetry.SelectedIndex == 3)
+                        else if (bttnSymmetry.SelectedIndex ==
+                            (int)SymmetryMode.Star2)
                         {
                             destination[0] = new Point(bmpCurrentDrawing.Width - xPos,
                                 bmpCurrentDrawing.Height - yPos);
@@ -1118,18 +1181,69 @@ namespace BrushFactory
                                 bmpCurrentDrawing.Height - yPos - scaleFactor);
                         }
 
-                        //Draws the whole image and applies colorations and alpha.
-                        g.DrawImage(
-                            bmpBrushRot,
-                            destination,
-                            new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
-                            GraphicsUnit.Pixel,
-                            Utils.ColorImageAttr(
+                        //Draws the non-radial reflection.
+                        if (bttnSymmetry.SelectedIndex < 4)
+                        {
+                            //Draws the whole image and applies colorations and alpha.
+                            g.DrawImage(
                                 bmpBrushRot,
-                                newRed,
-                                newGreen,
-                                newBlue,
-                                newAlpha));
+                                destination,
+                                new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
+                                GraphicsUnit.Pixel,
+                                Utils.ColorImageAttr(
+                                    bmpBrushRot,
+                                    newRed, newGreen, newBlue, newAlpha));
+                        }
+
+                        //Draws the brush with radial reflections.
+                        else if (bttnSymmetry.SelectedIndex > 3)
+                        {
+                            //Gets the center of the image.
+                            Point center = new Point(
+                                (bmpCurrentDrawing.Width / 2) - (radius / 2),
+                                (bmpCurrentDrawing.Height / 2) - (radius / 2));
+
+                            //Gets the drawn location relative to center.
+                            Point locRelativeToCenter = new Point(
+                                loc.X - center.X,
+                                loc.Y - center.Y);
+
+                            //Gets the distance from the drawing point to center.
+                            var dist = Math.Sqrt(
+                                Math.Pow(locRelativeToCenter.X, 2) +
+                                Math.Pow(locRelativeToCenter.Y, 2));
+
+                            //Gets the angle of the drawing point.
+                            var angle = Math.Atan2(
+                                locRelativeToCenter.Y,
+                                locRelativeToCenter.X);
+
+                            //Draws an N-pt radial reflection.
+                            int numPoints = bttnSymmetry.SelectedIndex - 1;
+                            double angleIncrease = (2 * Math.PI) / numPoints;
+                            for (int i = 0; i < numPoints; i++)
+                            {
+                                int posX = (int)(center.X + dist * Math.Cos(angle));
+                                int posY = (int)(center.Y + dist * Math.Sin(angle));
+
+                                destination[0] = new Point(posX, posY);
+                                destination[1] = new Point(posX + scaleFactor, posY);
+                                destination[2] = new Point(posX, posY + scaleFactor);
+
+                                g.DrawImage(
+                                    bmpBrushRot,
+                                    destination,
+                                    new Rectangle(0, 0,
+                                        bmpBrushRot.Width,
+                                        bmpBrushRot.Height),
+                                    GraphicsUnit.Pixel,
+                                    Utils.ColorImageAttr(
+                                        bmpBrushRot,
+                                        newRed, newGreen, newBlue, newAlpha));
+
+                                angle += angleIncrease;
+                            }
+                        }
                     }
                 }
             }
