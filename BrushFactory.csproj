@@ -114,6 +114,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SymmetryMode.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="PersistentSettings.cs" />
@@ -211,7 +212,8 @@
     <Content Include="Resources\icon.png" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>"C:\Program Files\paint.net\PaintDotNet.exe"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
