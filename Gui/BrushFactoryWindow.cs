@@ -2474,6 +2474,22 @@ namespace BrushFactory
                 BttnRedo_Click(this, e);
             }
 
+            // [ and Ctrl + [: Decrease brush size.
+            if (e.KeyCode == Keys.OemOpenBrackets && !e.Shift)
+            {
+                int newValue = e.Control ? sliderBrushSize.Value - 5 : sliderBrushSize.Value - 1;
+
+                sliderBrushSize.Value = Utils.Clamp(newValue, sliderBrushSize.Minimum, sliderBrushSize.Maximum);
+            }
+
+            // ] and Ctrl + ]: Increase brush size.
+            if (e.KeyCode == Keys.OemCloseBrackets && !e.Shift)
+            {
+                int newValue = e.Control ? sliderBrushSize.Value + 5 : sliderBrushSize.Value + 1;
+
+                sliderBrushSize.Value = Utils.Clamp(newValue, sliderBrushSize.Minimum, sliderBrushSize.Maximum);
+            }
+
             //Prevents alt from making the form lose focus.
             if (e.Alt)
             {
