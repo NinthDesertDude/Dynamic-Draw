@@ -727,7 +727,7 @@ namespace BrushFactory
             value = (string)key.GetValue("customBrushLocations");
             if (value != null)
             {
-                customBrushDirectories = value.Split('\n');
+                customBrushDirectories = value.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
             }
 
             key.Close();
