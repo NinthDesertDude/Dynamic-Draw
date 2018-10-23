@@ -30,7 +30,7 @@ namespace BrushFactory
         /// Stores the user's custom brushes by file and path until it can
         /// be copied to persistent settings, or ignored.
         /// </summary>
-        private List<string> loadedBrushPaths = new List<string>();
+        private HashSet<string> loadedBrushPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Whether the user is drawing on the image.
@@ -544,7 +544,7 @@ namespace BrushFactory
         {
             theEffectToken = new PersistentSettings(20, "", 0, 0,
                 UserSettings.userPrimaryColor, 0, 0, 0, 0, 0, 0, 0, 0, false, true,
-                false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SymmetryMode.None, new List<string>());
+                false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SymmetryMode.None, new HashSet<string>());
         }
 
         /// <summary>
@@ -560,17 +560,16 @@ namespace BrushFactory
             //Loads custom brushes if possible, but skips duplicates. This
             //method is called twice by Paint.NET for some reason, so this
             //ensures there are no duplicates. Brush names are unique.
-            if (token.CustomBrushLocations.Count > 0)
+            if (token.CustomBrushLocations.Count > 0 && !token.CustomBrushLocations.SetEquals(loadedBrushPaths))
             {
-                for (int i = 0; i < token.CustomBrushLocations.Count; i++)
+                foreach (string path in token.CustomBrushLocations)
                 {
-                    if (!loadedBrushPaths.Contains(token.CustomBrushLocations[i]))
+                    if (loadedBrushPaths.Add(path))
                     {
                         //Ensures the brush location is preserved, then loads
                         //the brush.
-                        loadedBrushPaths.Add(token.CustomBrushLocations[i]);
                         ImportBrushes(
-                            new string[] {token.CustomBrushLocations[i]},
+                            new string[] { path },
                             false,
                             false);
                     }
@@ -1405,10 +1404,10 @@ namespace BrushFactory
             List<string> pathsToReturn = new List<string>();
             foreach (string str in paths)
             {
-                if (str.EndsWith("png") || str.EndsWith("bmp") ||
-                    str.EndsWith("jpg") || str.EndsWith("gif") ||
-                    str.EndsWith("tif") || str.EndsWith("exif") ||
-                    str.EndsWith("jpeg") || str.EndsWith("tiff"))
+                if (str.EndsWith("png", StringComparison.OrdinalIgnoreCase) || str.EndsWith("bmp", StringComparison.OrdinalIgnoreCase) ||
+                    str.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
+                    str.EndsWith("tif", StringComparison.OrdinalIgnoreCase) || str.EndsWith("exif", StringComparison.OrdinalIgnoreCase) ||
+                    str.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("tiff", StringComparison.OrdinalIgnoreCase))
                 {
                     pathsToReturn.Add(str);
                 }

@@ -68,7 +68,7 @@ namespace BrushFactory
         /// Contains a list of all custom brushes to reload. The dialog will
         /// attempt to read the paths of each brush and add them if possible.
         /// </summary>
-        public List<string> CustomBrushLocations
+        public HashSet<string> CustomBrushLocations
         {
             get;
             set;
@@ -307,7 +307,7 @@ namespace BrushFactory
             int rotChange,
             int alphaChange,
             SymmetryMode symmetry,
-            List<string> customBrushLocations)
+            HashSet<string> customBrushLocations)
             : base()
         {
             BrushSize = brushSize;
@@ -337,7 +337,7 @@ namespace BrushFactory
             RotChange = rotChange;
             AlphaChange = alphaChange;
             Symmetry = symmetry;
-            CustomBrushLocations = new List<string>(customBrushLocations);
+            CustomBrushLocations = new HashSet<string>(customBrushLocations, customBrushLocations.Comparer);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace BrushFactory
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;
             Symmetry = other.Symmetry;
-            CustomBrushLocations = new List<string>(other.CustomBrushLocations);
+            CustomBrushLocations = new HashSet<string>(other.CustomBrushLocations, other.CustomBrushLocations.Comparer);
         }
         #endregion
 
