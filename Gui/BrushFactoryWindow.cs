@@ -1374,42 +1374,30 @@ namespace BrushFactory
 
         /// <summary>
         /// Returns a list of files in the given directories. Any invalid
-        /// or non-directory path is included directly in the output.
+        /// or non-directory path is ignored.
         /// </summary>
         private string[] FilesInDirectory(string[] dirs)
         {
-            List<string> paths = new List<string>();
+            List<string> pathsToReturn = new List<string>();
 
             foreach (string directory in dirs)
             {
                 try
                 {
-                    //The path must exist and be a directory.
-                    if (!File.Exists(directory) ||
-                        !File.GetAttributes(directory)
-                        .HasFlag(FileAttributes.Directory))
+                    //Excludes all non-image files.
+                    foreach (string str in Directory.EnumerateFiles(directory))
                     {
-                        paths.Add(directory);
+                        if (str.EndsWith("png", StringComparison.OrdinalIgnoreCase) || str.EndsWith("bmp", StringComparison.OrdinalIgnoreCase) ||
+                            str.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
+                            str.EndsWith("tif", StringComparison.OrdinalIgnoreCase) || str.EndsWith("exif", StringComparison.OrdinalIgnoreCase) ||
+                            str.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("tiff", StringComparison.OrdinalIgnoreCase))
+                        {
+                            pathsToReturn.Add(str);
+                        }
                     }
-
-                    paths.AddRange(Directory.GetFiles(directory));
                 }
                 catch
                 {
-                    paths.Add(directory);
-                }
-            }
-
-            //Excludes all non-image files.
-            List<string> pathsToReturn = new List<string>();
-            foreach (string str in paths)
-            {
-                if (str.EndsWith("png", StringComparison.OrdinalIgnoreCase) || str.EndsWith("bmp", StringComparison.OrdinalIgnoreCase) ||
-                    str.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
-                    str.EndsWith("tif", StringComparison.OrdinalIgnoreCase) || str.EndsWith("exif", StringComparison.OrdinalIgnoreCase) ||
-                    str.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("tiff", StringComparison.OrdinalIgnoreCase))
-                {
-                    pathsToReturn.Add(str);
                 }
             }
 
