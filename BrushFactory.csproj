@@ -92,7 +92,6 @@
       <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.SystemLayer.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -108,6 +107,7 @@
       <DependentUpon>BrushFactoryPreferences.cs</DependentUpon>
     </Compile>
     <Compile Include="Gui\BrushSelectorItem.cs" />
+    <Compile Include="Interop\SafeNativeMethods.cs" />
     <Compile Include="InterpolationItem.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
