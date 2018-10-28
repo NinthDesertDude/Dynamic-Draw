@@ -2222,6 +2222,14 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Determines whether the specified key is down.
+        /// </summary>
+        private static bool IsKeyDown(Keys key)
+        {
+            return Interop.SafeNativeMethods.GetKeyState((int)key) < 0;
+        }
+
+        /// <summary>
         /// Displays a context menu for changing background color options.
         /// </summary>
         /// <param name="sender">
@@ -2644,8 +2652,7 @@ namespace BrushFactory
             if (ModifierKeys == Keys.Control)
             {
                 //Ctrl + S + Wheel: Changes the brush size.
-                if (System.Windows.Input.Keyboard.IsKeyDown
-                    (System.Windows.Input.Key.S))
+                if (IsKeyDown(Keys.S))
                 {
                     int changeFactor = 10;
 
@@ -2677,8 +2684,7 @@ namespace BrushFactory
                 }
 
                 //Ctrl + R + Wheel: Changes the brush rotation.
-                else if (System.Windows.Input.Keyboard.IsKeyDown
-                    (System.Windows.Input.Key.R))
+                else if (IsKeyDown(Keys.R))
                 {
                     sliderBrushRotation.Value = Utils.Clamp(
                     sliderBrushRotation.Value + Math.Sign(e.Delta) * 20,
@@ -2687,8 +2693,7 @@ namespace BrushFactory
                 }
 
                 //Ctrl + A + Wheel: Changes the brush alpha.
-                else if (System.Windows.Input.Keyboard.IsKeyDown
-                    (System.Windows.Input.Key.A))
+                else if (IsKeyDown(Keys.A))
                 {
                     sliderBrushAlpha.Value = Utils.Clamp(
                     sliderBrushAlpha.Value + Math.Sign(e.Delta) * 10,
