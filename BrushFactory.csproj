@@ -101,6 +101,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abr\AbrBrush.cs" />
+    <Compile Include="Abr\AbrBrushCollection.cs" />
+    <Compile Include="Abr\AbrReader.cs" />
+    <Compile Include="Abr\Internal\BigEndianBinaryReader.cs" />
+    <Compile Include="Abr\Internal\BrushSectionParser.cs" />
+    <Compile Include="Abr\Internal\RLEHelper.cs" />
+    <Compile Include="Abr\Internal\SampledBrush.cs" />
+    <Compile Include="Abr\Internal\SampledBrushCollection.cs" />
     <Compile Include="Gui\BrushFactoryPreferences.cs">
       <SubType>Form</SubType>
     </Compile>

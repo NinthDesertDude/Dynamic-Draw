@@ -1,4 +1,5 @@
-﻿using BrushFactory.Properties;
+﻿using BrushFactory.Abr;
+using BrushFactory.Properties;
 using PaintDotNet;
 using PaintDotNet.Effects;
 using System;
@@ -1266,7 +1267,7 @@ namespace BrushFactory
             openFileDialog.Multiselect = true;
             openFileDialog.Title = "Load custom brushes";
             openFileDialog.Filter = "Supported images|" +
-                "*.png;*.bmp;*.jpg;*.gif;*.tif;*.exif*.jpeg;*.tiff;";
+                "*.png;*.bmp;*.jpg;*.gif;*.tif;*.exif*.jpeg;*.tiff;*.abr;";
 
             //Displays the dialog. Loads the files if it worked.
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -1301,40 +1302,89 @@ namespace BrushFactory
             {
                 try
                 {
-                    using (Bitmap bmp = (Bitmap)Image.FromFile(file))
+                    if (file.EndsWith(".abr", StringComparison.OrdinalIgnoreCase))
                     {
-                        //Creates the brush space.
-                        int size = Math.Max(bmp.Width, bmp.Height);
-                        bmpBrush = new Bitmap(size, size);
+                        try
+                        {
+                            using (AbrBrushCollection brushes = AbrReader.LoadBrushes(file))
+                            {
+                                for (int i = 0; i < brushes.Count; i++)
+                                {
+                                    AbrBrush item = brushes[i];
 
-                        //Pads the image to be square if needed, makes fully
-                        //opaque images use intensity for alpha, and draws the
-                        //altered loaded bitmap to the brush.
-                        Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
-                            Utils.MakeTransparent(bmp)), bmpBrush);
+                                    // Creates the brush space.
+                                    int size = Math.Max(item.Image.Width, item.Image.Height);
+                                    bmpBrush = new Bitmap(size, size);
+
+                                    //Pads the image to be square if needed, makes fully
+                                    //opaque images use intensity for alpha, and draws the
+                                    //altered loaded bitmap to the brush.
+                                    Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
+                                        Utils.MakeTransparent(item.Image)), bmpBrush);
+
+                                    string filename = item.Name;
+                                    if (string.IsNullOrEmpty(filename))
+                                    {
+                                        filename = string.Format(System.Globalization.CultureInfo.CurrentCulture,
+                                                                 Globalization.GlobalStrings.AbrBrushNameFallbackFormat,
+                                                                 i);
+                                    }
+
+                                    //Appends invisible spaces to files with the same name
+                                    //until they're unique.
+                                    while (loadedBrushes.Any(a => a.Name.Equals(filename, StringComparison.Ordinal)))
+                                    {
+                                        filename += " ";
+                                    }
+
+                                    //Adds the brush without the period at the end.
+                                    loadedBrushes.Add(new BrushSelectorItem(filename, bmpBrush));
+                                }
+                            }
+                        }
+                        catch (FormatException)
+                        {
+                            // The ABR version is not supported.
+                            continue;
+                        }
                     }
-
-                    //Gets the last word in the filename without the path.
-                    Regex getOnlyFilename = new Regex(@"[\w-]+\.");
-                    string filename = getOnlyFilename.Match(file).Value;
-
-                    //Removes the file extension dot.
-                    if (filename.EndsWith("."))
+                    else
                     {
-                        filename = filename.Remove(filename.Length - 1);
-                    }
+                        using (Bitmap bmp = (Bitmap)Image.FromFile(file))
+                        {
+                            //Creates the brush space.
+                            int size = Math.Max(bmp.Width, bmp.Height);
+                            bmpBrush = new Bitmap(size, size);
 
-                    //Appends invisible spaces to files with the same name
-                    //until they're unique.
-                    while (loadedBrushes.Any(a =>
-                        { return (a.Name.Equals(filename)); }))
-                    {
-                        filename += " ";
-                    }
+                            //Pads the image to be square if needed, makes fully
+                            //opaque images use intensity for alpha, and draws the
+                            //altered loaded bitmap to the brush.
+                            Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
+                                Utils.MakeTransparent(bmp)), bmpBrush);
+                        }
 
-                    //Adds the brush without the period at the end.
-                    loadedBrushes.Add(
-                        new BrushSelectorItem(filename, bmpBrush));
+                        //Gets the last word in the filename without the path.
+                        Regex getOnlyFilename = new Regex(@"[\w-]+\.");
+                        string filename = getOnlyFilename.Match(file).Value;
+
+                        //Removes the file extension dot.
+                        if (filename.EndsWith("."))
+                        {
+                            filename = filename.Remove(filename.Length - 1);
+                        }
+
+                        //Appends invisible spaces to files with the same name
+                        //until they're unique.
+                        while (loadedBrushes.Any(a =>
+                            { return (a.Name.Equals(filename)); }))
+                        {
+                            filename += " ";
+                        }
+
+                        //Adds the brush without the period at the end.
+                        loadedBrushes.Add(
+                            new BrushSelectorItem(filename, bmpBrush));
+                    }
 
                     if (doAddToSettings)
                     {
@@ -1390,7 +1440,8 @@ namespace BrushFactory
                         if (str.EndsWith("png", StringComparison.OrdinalIgnoreCase) || str.EndsWith("bmp", StringComparison.OrdinalIgnoreCase) ||
                             str.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
                             str.EndsWith("tif", StringComparison.OrdinalIgnoreCase) || str.EndsWith("exif", StringComparison.OrdinalIgnoreCase) ||
-                            str.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("tiff", StringComparison.OrdinalIgnoreCase))
+                            str.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("tiff", StringComparison.OrdinalIgnoreCase) ||
+                            str.EndsWith(".abr", StringComparison.OrdinalIgnoreCase))
                         {
                             pathsToReturn.Add(str);
                         }

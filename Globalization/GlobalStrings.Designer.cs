@@ -19,7 +19,7 @@ namespace BrushFactory.Globalization {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class GlobalStrings {
@@ -57,6 +57,33 @@ namespace BrushFactory.Globalization {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush {0}.
+        /// </summary>
+        internal static string AbrBrushNameFallbackFormat {
+            get {
+                return ResourceManager.GetString("AbrBrushNameFallbackFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported ABR version: {0}.
+        /// </summary>
+        internal static string AbrUnsupportedMajorVersionFormat {
+            get {
+                return ResourceManager.GetString("AbrUnsupportedMajorVersionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported ABR version: {0}.{1}.
+        /// </summary>
+        internal static string AbrUnsupportedMinorVersionFormat {
+            get {
+                return ResourceManager.GetString("AbrUnsupportedMinorVersionFormat", resourceCulture);
             }
         }
         
