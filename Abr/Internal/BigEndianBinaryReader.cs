@@ -234,7 +234,7 @@ namespace BrushFactory.Abr.Internal
         /// <summary>
         /// Reads the specified number of bytes from the stream.
         /// </summary>
-        /// <param name="count">The number of bytes to read..</param>
+        /// <param name="count">The number of bytes to read.</param>
         /// <returns>An array containing the specified bytes.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is negative.</exception>
         /// <exception cref="EndOfStreamException">The end of the stream has been reached.</exception>

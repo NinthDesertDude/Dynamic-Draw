@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace BrushFactory.Abr
 {
+    /// <summary>
+    /// A collection of AbrBrushes.
+    /// </summary>
     internal sealed class AbrBrushCollection : IReadOnlyList<AbrBrush>, IDisposable
     {
         private readonly List<AbrBrush> brushes;

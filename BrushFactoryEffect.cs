@@ -103,7 +103,7 @@ namespace BrushFactory
         {
             get
             {
-                return Globalization.GlobalStrings.Title;
+                return Localization.Strings.Title;
             }
         }
 

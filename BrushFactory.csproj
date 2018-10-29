@@ -12,7 +12,7 @@
     <AssemblyName>BrushFactory</AssemblyName>
     <StartupObject>
     </StartupObject>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -132,10 +132,10 @@
     </Compile>
     <Compile Include="RenderSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Globalization\GlobalStrings.Designer.cs">
+    <Compile Include="Localization\Strings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>GlobalStrings.resx</DependentUpon>
+      <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -178,9 +178,9 @@
     <None Include="Resources\BG.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Globalization\GlobalStrings.resx">
+    <EmbeddedResource Include="Localization\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>GlobalStrings.Designer.cs</LastGenOutput>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

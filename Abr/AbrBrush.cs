@@ -3,6 +3,9 @@ using System.Drawing;
 
 namespace BrushFactory.Abr
 {
+    /// <summary>
+    /// Contains data associated with a brush constructed from an ABR file.
+    /// </summary>
     internal sealed class AbrBrush : IDisposable
     {
         private Bitmap image;

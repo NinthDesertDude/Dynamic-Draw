@@ -30,6 +30,9 @@ using System.Linq;
 
 namespace BrushFactory.Abr
 {
+    /// <summary>
+    /// Reads the Abr file type to construct bitmaps.
+    /// </summary>
 	internal static class AbrReader
 	{
 		private enum BrushType : short
@@ -79,9 +82,10 @@ namespace BrushFactory.Abr
 							brushes = DecodeVersion6(reader, version);
 							break;
 						default:
-							throw new FormatException(string.Format(CultureInfo.CurrentCulture,
-																	Globalization.GlobalStrings.AbrUnsupportedMajorVersionFormat,
-																	version));
+							throw new FormatException(string.Format(
+                                CultureInfo.CurrentCulture,
+                                Localization.Strings.AbrUnsupportedMajorVersionFormat,
+								version));
 					}
 				}
 			}
@@ -275,9 +279,10 @@ namespace BrushFactory.Abr
 					unusedDataLength = 264L;
 					break;
 				default:
-					throw new FormatException(string.Format(CultureInfo.CurrentCulture,
-															Globalization.GlobalStrings.AbrUnsupportedMinorVersionFormat,
-															majorVersion, minorVersion));
+					throw new FormatException(string.Format(
+                        CultureInfo.CurrentCulture,
+						Localization.Strings.AbrUnsupportedMinorVersionFormat,
+						majorVersion, minorVersion));
 			}
 
 			BrushSectionParser parser = new BrushSectionParser(reader);
@@ -419,11 +424,34 @@ namespace BrushFactory.Abr
 			return new AbrBrushCollection(brushes);
 		}
 
-		private static unsafe AbrBrush CreateSampledBrush(int width, int height, int depth, byte[] alphaData, string name)
+        /// <summary>
+        /// Creates a brush with the given dimensions given bit depth, alpha
+        /// data, and name.
+        /// </summary>
+        /// <param name="width">Desired width.</param>
+        /// <param name="height">Desired height.</param>
+        /// <param name="bitDepth">Bit depth of the data.</param>
+        /// <param name="alphaData">
+        /// The pixel data, stored only as an alpha channel and flattened to a
+        /// 1-d array.
+        /// </param>
+        /// <param name="name">Desired brush name.</param>
+        /// <returns>
+        /// An AbrBrush with a bitmap constructed from the alpha data.
+        /// </returns>
+		private static unsafe AbrBrush CreateSampledBrush(
+            int width,
+            int height,
+            int bitDepth,
+            byte[] alphaData,
+            string name)
 		{
 			AbrBrush brush = new AbrBrush(width, height, name);
 
-			BitmapData bd = brush.Image.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+			BitmapData bd = brush.Image.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppArgb);
 
 			try
 			{
@@ -432,7 +460,7 @@ namespace BrushFactory.Abr
 					byte* scan0 = (byte*)bd.Scan0.ToPointer();
 					int stride = bd.Stride;
 
-					if (depth == 16)
+					if (bitDepth == 16)
 					{
 						int srcStride = width * 2;
 						for (int y = 0; y < height; y++)
@@ -479,6 +507,13 @@ namespace BrushFactory.Abr
 			return brush;
 		}
 
+        /// <summary>
+        /// Returns the size of the brush after scaling.
+        /// </summary>
+        /// <param name="maxEdgeLength">
+        /// Width or height, whichever is largest. Used to determine new size.
+        /// </param>
+        /// <returns>A Size with the new brush dimensions.</returns>
 		private static Size ComputeBrushSize(int originalWidth, int originalHeight, int maxEdgeLength)
 		{
 			Size thumbSize = Size.Empty;

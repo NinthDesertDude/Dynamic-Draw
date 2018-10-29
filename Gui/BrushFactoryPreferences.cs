@@ -77,16 +77,16 @@ namespace BrushFactory.Gui
         private void winBrushFactoryPreferences_DialogLoad(object sender, EventArgs e)
         {
             //Sets the text and tooltips based on language.
-            bttnCancel.Text = Globalization.GlobalStrings.Cancel;
-            bttnSave.Text = Globalization.GlobalStrings.SavePreferences;
-            chkbxLoadDefaultBrushes.Text = Globalization.GlobalStrings.LoadDefaultBrushes;
-            bttnAddFolder.Text = Globalization.GlobalStrings.AddFolder;
-            txtBrushLocations.Text = Globalization.GlobalStrings.BrushLocations;
-            tooltip.SetToolTip(bttnCancel, Globalization.GlobalStrings.CancelTip);
-            tooltip.SetToolTip(bttnSave, Globalization.GlobalStrings.SavePreferencesTip);
-            tooltip.SetToolTip(chkbxLoadDefaultBrushes, Globalization.GlobalStrings.LoadDefaultBrushesTip);
-            tooltip.SetToolTip(bttnAddFolder, Globalization.GlobalStrings.AddFolderTip);
-            tooltip.SetToolTip(txtbxBrushLocations, Globalization.GlobalStrings.BrushLocationsTextboxTip);
+            bttnCancel.Text = Localization.Strings.Cancel;
+            bttnSave.Text = Localization.Strings.SavePreferences;
+            chkbxLoadDefaultBrushes.Text = Localization.Strings.LoadDefaultBrushes;
+            bttnAddFolder.Text = Localization.Strings.AddFolder;
+            txtBrushLocations.Text = Localization.Strings.BrushLocations;
+            tooltip.SetToolTip(bttnCancel, Localization.Strings.CancelTip);
+            tooltip.SetToolTip(bttnSave, Localization.Strings.SavePreferencesTip);
+            tooltip.SetToolTip(chkbxLoadDefaultBrushes, Localization.Strings.LoadDefaultBrushesTip);
+            tooltip.SetToolTip(bttnAddFolder, Localization.Strings.AddFolderTip);
+            tooltip.SetToolTip(txtbxBrushLocations, Localization.Strings.BrushLocationsTextboxTip);
 
             InitSettings();
         }

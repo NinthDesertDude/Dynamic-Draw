@@ -850,7 +850,7 @@ namespace BrushFactory
             displayCanvasZoom = newZoomFactor;
             txtCanvasZoom.Text = String.Format(
                 "{0} {1:p0}",
-                Globalization.GlobalStrings.CanvasZoom,
+                Localization.Strings.CanvasZoom,
                 newZoomFactor);
 
             //Gets the new width and height, adjusted for zooming.
@@ -1325,9 +1325,10 @@ namespace BrushFactory
                                     string filename = item.Name;
                                     if (string.IsNullOrEmpty(filename))
                                     {
-                                        filename = string.Format(System.Globalization.CultureInfo.CurrentCulture,
-                                                                 Globalization.GlobalStrings.AbrBrushNameFallbackFormat,
-                                                                 i);
+                                        filename = string.Format(
+                                            System.Globalization.CultureInfo.CurrentCulture,
+                                            Localization.Strings.AbrBrushNameFallbackFormat,
+                                            i);
                                     }
 
                                     //Appends invisible spaces to files with the same name
@@ -2384,92 +2385,92 @@ namespace BrushFactory
 
             //Loads globalization texts for regional support.
             txtBrushAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.Alpha, sliderBrushAlpha.Value);
+                Localization.Strings.Alpha, sliderBrushAlpha.Value);
 
             txtBrushRotation.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.Rotation, sliderBrushRotation.Value);
+                Localization.Strings.Rotation, sliderBrushRotation.Value);
 
             txtBrushSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.Size, sliderBrushSize.Value);
+                Localization.Strings.Size, sliderBrushSize.Value);
 
             txtCanvasZoom.Text = String.Format("{0} {1}%",
-                Globalization.GlobalStrings.CanvasZoom, sliderCanvasZoom.Value);
+                Localization.Strings.CanvasZoom, sliderCanvasZoom.Value);
 
             txtMinDrawDistance.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.MinDrawDistance, sliderMinDrawDistance.Value);
+                Localization.Strings.MinDrawDistance, sliderMinDrawDistance.Value);
 
             txtRandHorzShift.Text = String.Format("{0} {1}%",
-                Globalization.GlobalStrings.RandHorzShift, sliderRandHorzShift.Value);
+                Localization.Strings.RandHorzShift, sliderRandHorzShift.Value);
 
             txtRandMaxSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxSize, sliderRandMaxSize.Value);
+                Localization.Strings.RandMaxSize, sliderRandMaxSize.Value);
 
             txtRandMinSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinSize, sliderRandMinSize.Value);
+                Localization.Strings.RandMinSize, sliderRandMinSize.Value);
 
             txtRandRotLeft.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.RandRotLeft, sliderRandRotLeft.Value);
+                Localization.Strings.RandRotLeft, sliderRandRotLeft.Value);
 
             txtRandRotRight.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.RandRotRight, sliderRandRotRight.Value);
+                Localization.Strings.RandRotRight, sliderRandRotRight.Value);
 
             txtRandMaxAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxAlpha, sliderRandMaxAlpha.Value);
+                Localization.Strings.RandMaxAlpha, sliderRandMaxAlpha.Value);
 
             txtRandMaxBlue.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxBlue, sliderRandMaxBlue.Value);
+                Localization.Strings.RandMaxBlue, sliderRandMaxBlue.Value);
 
             txtRandMaxGreen.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxGreen, sliderRandMaxGreen.Value);
+                Localization.Strings.RandMaxGreen, sliderRandMaxGreen.Value);
 
             txtRandMaxRed.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxRed, sliderRandMaxRed.Value);
+                Localization.Strings.RandMaxRed, sliderRandMaxRed.Value);
 
             txtRandMinAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinAlpha, sliderRandMinAlpha.Value);
+                Localization.Strings.RandMinAlpha, sliderRandMinAlpha.Value);
 
             txtRandMinBlue.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinBlue, sliderRandMinBlue.Value);
+                Localization.Strings.RandMinBlue, sliderRandMinBlue.Value);
 
             txtRandMinGreen.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinGreen, sliderRandMinGreen.Value);
+                Localization.Strings.RandMinGreen, sliderRandMinGreen.Value);
 
             txtRandMinRed.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinRed, sliderRandMinRed.Value);
+                Localization.Strings.RandMinRed, sliderRandMinRed.Value);
 
             txtRandVertShift.Text = String.Format("{0} {1}%",
-                Globalization.GlobalStrings.RandVertShift, sliderRandVertShift.Value);
+                Localization.Strings.RandVertShift, sliderRandVertShift.Value);
 
             txtShiftAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.ShiftAlpha, sliderShiftAlpha.Value);
+                Localization.Strings.ShiftAlpha, sliderShiftAlpha.Value);
 
             txtShiftRotation.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.ShiftRotation, sliderShiftRotation.Value);
+                Localization.Strings.ShiftRotation, sliderShiftRotation.Value);
 
             txtShiftSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.ShiftSize, sliderShiftSize.Value);
+                Localization.Strings.ShiftSize, sliderShiftSize.Value);
 
-            txtTooltip.Text = Globalization.GlobalStrings.GeneralTooltip;
+            txtTooltip.Text = Localization.Strings.GeneralTooltip;
 
-            tabColor.Text = Globalization.GlobalStrings.TabColor;
-            tabControls.Text = Globalization.GlobalStrings.TabControls;
-            tabJitter.Text = Globalization.GlobalStrings.TabJitter;
-            tabOther.Text = Globalization.GlobalStrings.TabOther;
+            tabColor.Text = Localization.Strings.TabColor;
+            tabControls.Text = Localization.Strings.TabControls;
+            tabJitter.Text = Localization.Strings.TabJitter;
+            tabOther.Text = Localization.Strings.TabOther;
 
-            bttnBrushColor.Text = Globalization.GlobalStrings.BrushColor;
-            bttnCancel.Text = Globalization.GlobalStrings.Cancel;
-            bttnClearBrushes.Text = Globalization.GlobalStrings.ClearBrushes;
-            bttnClearSettings.Text = Globalization.GlobalStrings.ClearSettings;
-            bttnCustomBrushLocations.Text = Globalization.GlobalStrings.CustomBrushLocations;
-            bttnOk.Text = Globalization.GlobalStrings.Ok;
-            bttnUndo.Text = Globalization.GlobalStrings.Undo;
-            bttnRedo.Text = Globalization.GlobalStrings.Redo;
+            bttnBrushColor.Text = Localization.Strings.BrushColor;
+            bttnCancel.Text = Localization.Strings.Cancel;
+            bttnClearBrushes.Text = Localization.Strings.ClearBrushes;
+            bttnClearSettings.Text = Localization.Strings.ClearSettings;
+            bttnCustomBrushLocations.Text = Localization.Strings.CustomBrushLocations;
+            bttnOk.Text = Localization.Strings.Ok;
+            bttnUndo.Text = Localization.Strings.Undo;
+            bttnRedo.Text = Localization.Strings.Redo;
 
-            chkbxColorizeBrush.Text = Globalization.GlobalStrings.ColorizeBrush;
-            chkbxLockAlpha.Text = Globalization.GlobalStrings.LockAlpha;
-            chkbxOrientToMouse.Text = Globalization.GlobalStrings.OrientToMouse;
+            chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
+            chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
+            chkbxOrientToMouse.Text = Localization.Strings.OrientToMouse;
 
-            grpbxBrushOptions.Text = Globalization.GlobalStrings.BrushOptions;
+            grpbxBrushOptions.Text = Localization.Strings.BrushOptions;
         }
 
         /// <summary>
@@ -2609,7 +2610,7 @@ namespace BrushFactory
         {
             displayCanvas.Focus();
 
-            txtTooltip.Text = Globalization.GlobalStrings.GeneralTooltip;
+            txtTooltip.Text = Localization.Strings.GeneralTooltip;
         }
 
         /// <summary>
@@ -2844,7 +2845,7 @@ namespace BrushFactory
         {
             displayCanvas.Focus();
 
-            txtTooltip.Text = Globalization.GlobalStrings.GeneralTooltip;
+            txtTooltip.Text = Localization.Strings.GeneralTooltip;
         }
 
         /// <summary>
@@ -2878,7 +2879,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnBrushColor_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.BrushColorTip;
+            txtTooltip.Text = Localization.Strings.BrushColorTip;
         }
 
         /// <summary>
@@ -2928,7 +2929,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnBrushSelector_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.BrushSelectorTip;
+            txtTooltip.Text = Localization.Strings.BrushSelectorTip;
         }
 
         /// <summary>
@@ -2962,7 +2963,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.BrushSmoothingTip;
+            txtTooltip.Text = Localization.Strings.BrushSmoothingTip;
         }
 
         /// <summary>
@@ -2981,7 +2982,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnCancel_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.CancelTip;
+            txtTooltip.Text = Localization.Strings.CancelTip;
         }
 
         /// <summary>
@@ -2997,7 +2998,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnClearBrushes_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.ClearBrushesTip;
+            txtTooltip.Text = Localization.Strings.ClearBrushesTip;
         }
 
         /// <summary>
@@ -3013,7 +3014,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnClearSettings_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.ClearSettingsTip;
+            txtTooltip.Text = Localization.Strings.ClearSettingsTip;
         }
 
         /// <summary>
@@ -3045,7 +3046,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnOk_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.OkTip;
+            txtTooltip.Text = Localization.Strings.OkTip;
         }
 
         /// <summary>
@@ -3061,7 +3062,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnPreferences_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.CustomBrushLocationsTip;
+            txtTooltip.Text = Localization.Strings.CustomBrushLocationsTip;
         }
 
         /// <summary>
@@ -3118,7 +3119,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnRedo_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RedoTip;
+            txtTooltip.Text = Localization.Strings.RedoTip;
         }
 
         /// <summary>
@@ -3175,7 +3176,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnUndo_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.UndoTip;
+            txtTooltip.Text = Localization.Strings.UndoTip;
         }
 
         /// <summary>
@@ -3183,7 +3184,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.SymmetryTip;
+            txtTooltip.Text = Localization.Strings.SymmetryTip;
         }
 
         /// <summary>
@@ -3200,7 +3201,7 @@ namespace BrushFactory
         /// </summary>
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.ColorizeBrushTip;
+            txtTooltip.Text = Localization.Strings.ColorizeBrushTip;
         }
 
         /// <summary>
@@ -3208,7 +3209,7 @@ namespace BrushFactory
         /// </summary>
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.LockAlphaTip;
+            txtTooltip.Text = Localization.Strings.LockAlphaTip;
         }
 
         /// <summary>
@@ -3216,7 +3217,7 @@ namespace BrushFactory
         /// </summary>
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.OrientToMouseTip;
+            txtTooltip.Text = Localization.Strings.OrientToMouseTip;
         }
 
         /// <summary>
@@ -3224,7 +3225,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderBrushAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.BrushAlphaTip;
+            txtTooltip.Text = Localization.Strings.BrushAlphaTip;
         }
 
         /// <summary>
@@ -3234,7 +3235,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtBrushAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.Alpha,
+                Localization.Strings.Alpha,
                 sliderBrushAlpha.Value);
 
             UpdateBrush();
@@ -3245,7 +3246,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.BrushSizeTip;
+            txtTooltip.Text = Localization.Strings.BrushSizeTip;
         }
 
         /// <summary>
@@ -3255,7 +3256,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtBrushSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.Size,
+                Localization.Strings.Size,
                 sliderBrushSize.Value);
 
             //Updates to show changes in the brush indicator.
@@ -3267,7 +3268,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderBrushRotation_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.BrushRotationTip;
+            txtTooltip.Text = Localization.Strings.BrushRotationTip;
         }
 
         /// <summary>
@@ -3277,7 +3278,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtBrushRotation.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.Rotation,
+                Localization.Strings.Rotation,
                 sliderBrushRotation.Value);
         }
 
@@ -3286,7 +3287,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderCanvasZoom_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.CanvasZoomTip;
+            txtTooltip.Text = Localization.Strings.CanvasZoomTip;
         }
 
         /// <summary>
@@ -3302,7 +3303,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.MinDrawDistanceTip;
+            txtTooltip.Text = Localization.Strings.MinDrawDistanceTip;
         }
 
         /// <summary>
@@ -3312,7 +3313,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtMinDrawDistance.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.MinDrawDistance,
+                Localization.Strings.MinDrawDistance,
                 sliderMinDrawDistance.Value);
         }
 
@@ -3321,7 +3322,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandHorzShift_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandHorzShiftTip;
+            txtTooltip.Text = Localization.Strings.RandHorzShiftTip;
         }
 
         /// <summary>
@@ -3331,7 +3332,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandHorzShift.Text = String.Format("{0} {1}%",
-                Globalization.GlobalStrings.RandHorzShift,
+                Localization.Strings.RandHorzShift,
                 sliderRandHorzShift.Value);
         }
 
@@ -3340,7 +3341,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMaxAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMaxAlphaTip;
+            txtTooltip.Text = Localization.Strings.RandMaxAlphaTip;
         }
 
         /// <summary>
@@ -3350,7 +3351,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMaxAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxAlpha,
+                Localization.Strings.RandMaxAlpha,
                 sliderRandMaxAlpha.Value);
         }
 
@@ -3359,7 +3360,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMaxBlue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMaxBlueTip;
+            txtTooltip.Text = Localization.Strings.RandMaxBlueTip;
         }
 
         /// <summary>
@@ -3369,7 +3370,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMaxBlue.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxBlue,
+                Localization.Strings.RandMaxBlue,
                 sliderRandMaxBlue.Value);
         }
 
@@ -3378,7 +3379,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMaxGreen_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMaxGreenTip;
+            txtTooltip.Text = Localization.Strings.RandMaxGreenTip;
         }
 
         /// <summary>
@@ -3388,7 +3389,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMaxGreen.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxGreen,
+                Localization.Strings.RandMaxGreen,
                 sliderRandMaxGreen.Value);
         }
 
@@ -3397,7 +3398,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMaxRed_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMaxRedTip;
+            txtTooltip.Text = Localization.Strings.RandMaxRedTip;
         }
 
         /// <summary>
@@ -3407,7 +3408,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMaxRed.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxRed,
+                Localization.Strings.RandMaxRed,
                 sliderRandMaxRed.Value);
         }
 
@@ -3416,7 +3417,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMaxSizeTip;
+            txtTooltip.Text = Localization.Strings.RandMaxSizeTip;
         }
 
         /// <summary>
@@ -3426,7 +3427,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMaxSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMaxSize,
+                Localization.Strings.RandMaxSize,
                 sliderRandMaxSize.Value);
         }
 
@@ -3435,7 +3436,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMinAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMinAlphaTip;
+            txtTooltip.Text = Localization.Strings.RandMinAlphaTip;
         }
 
         /// <summary>
@@ -3445,7 +3446,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMinAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinAlpha,
+                Localization.Strings.RandMinAlpha,
                 sliderRandMinAlpha.Value);
         }
 
@@ -3454,7 +3455,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMinBlue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMinBlueTip;
+            txtTooltip.Text = Localization.Strings.RandMinBlueTip;
         }
 
         /// <summary>
@@ -3464,7 +3465,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMinBlue.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinBlue,
+                Localization.Strings.RandMinBlue,
                 sliderRandMinBlue.Value);
         }
 
@@ -3473,7 +3474,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMinGreen_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMinGreenTip;
+            txtTooltip.Text = Localization.Strings.RandMinGreenTip;
         }
 
         /// <summary>
@@ -3483,7 +3484,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMinGreen.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinGreen,
+                Localization.Strings.RandMinGreen,
                 sliderRandMinGreen.Value);
         }
 
@@ -3492,7 +3493,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMinRed_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMinRedTip;
+            txtTooltip.Text = Localization.Strings.RandMinRedTip;
         }
 
         /// <summary>
@@ -3502,7 +3503,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMinRed.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinRed,
+                Localization.Strings.RandMinRed,
                 sliderRandMinRed.Value);
         }
 
@@ -3511,7 +3512,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandMinSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandMinSizeTip;
+            txtTooltip.Text = Localization.Strings.RandMinSizeTip;
         }
 
         /// <summary>
@@ -3521,7 +3522,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandMinSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.RandMinSize,
+                Localization.Strings.RandMinSize,
                 sliderRandMinSize.Value);
         }
 
@@ -3530,7 +3531,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandRotLeft_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandRotLeftTip;
+            txtTooltip.Text = Localization.Strings.RandRotLeftTip;
         }
 
         /// <summary>
@@ -3540,7 +3541,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandRotLeft.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.RandRotLeft,
+                Localization.Strings.RandRotLeft,
                 sliderRandRotLeft.Value);
         }
 
@@ -3549,7 +3550,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandRotRight_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandRotRightTip;
+            txtTooltip.Text = Localization.Strings.RandRotRightTip;
         }
 
         /// <summary>
@@ -3559,7 +3560,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandRotRight.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.RandRotRight,
+                Localization.Strings.RandRotRight,
                 sliderRandRotRight.Value);
         }
 
@@ -3568,7 +3569,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderRandVertShift_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.RandVertShiftTip;
+            txtTooltip.Text = Localization.Strings.RandVertShiftTip;
         }
 
         /// <summary>
@@ -3578,7 +3579,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtRandVertShift.Text = String.Format("{0} {1}%",
-                Globalization.GlobalStrings.RandVertShift,
+                Localization.Strings.RandVertShift,
                 sliderRandVertShift.Value);
         }
 
@@ -3587,7 +3588,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderShiftAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.ShiftAlphaTip;
+            txtTooltip.Text = Localization.Strings.ShiftAlphaTip;
         }
 
         /// <summary>
@@ -3597,7 +3598,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtShiftAlpha.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.ShiftAlpha,
+                Localization.Strings.ShiftAlpha,
                 sliderShiftAlpha.Value);
         }
 
@@ -3606,7 +3607,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.ShiftRotationTip;
+            txtTooltip.Text = Localization.Strings.ShiftRotationTip;
         }
 
         /// <summary>
@@ -3616,7 +3617,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtShiftRotation.Text = String.Format("{0} {1}°",
-                Globalization.GlobalStrings.ShiftRotation,
+                Localization.Strings.ShiftRotation,
                 sliderShiftRotation.Value);
         }
 
@@ -3625,7 +3626,7 @@ namespace BrushFactory
         /// </summary>
         private void SliderShiftSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Globalization.GlobalStrings.ShiftSizeTip;
+            txtTooltip.Text = Localization.Strings.ShiftSizeTip;
         }
 
         /// <summary>
@@ -3635,7 +3636,7 @@ namespace BrushFactory
         {
             //Uses localized text drawn from a resource file.
             txtShiftSize.Text = String.Format("{0} {1}",
-                Globalization.GlobalStrings.ShiftSize,
+                Localization.Strings.ShiftSize,
                 sliderShiftSize.Value);
         }
 
