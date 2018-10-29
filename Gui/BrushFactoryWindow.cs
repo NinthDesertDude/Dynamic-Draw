@@ -727,7 +727,9 @@ namespace BrushFactory
             value = (string)key.GetValue("customBrushLocations");
             if (value != null)
             {
-                customBrushDirectories = value.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                customBrushDirectories = value.Split(
+                    new[] { "\r\n", "\r", "\n" },
+                    StringSplitOptions.RemoveEmptyEntries);
             }
 
             key.Close();
@@ -2521,20 +2523,41 @@ namespace BrushFactory
                 BttnRedo_Click(this, e);
             }
 
-            // [ and Ctrl + [: Decrease brush size.
-            if (e.KeyCode == Keys.OemOpenBrackets && !e.Shift)
-            {
-                int newValue = e.Control ? sliderBrushSize.Value - 5 : sliderBrushSize.Value - 1;
+            // [, Ctrl + [ increase rotation, alpha, size. ], Ctrl + ] decrease.
+            int amountChange = 0;
 
-                sliderBrushSize.Value = Utils.Clamp(newValue, sliderBrushSize.Minimum, sliderBrushSize.Maximum);
-            }
-
-            // ] and Ctrl + ]: Increase brush size.
             if (e.KeyCode == Keys.OemCloseBrackets && !e.Shift)
             {
-                int newValue = e.Control ? sliderBrushSize.Value + 5 : sliderBrushSize.Value + 1;
+                amountChange = e.Control ? 5 : 1;
+            }
+            else if (e.KeyCode == Keys.OemOpenBrackets && !e.Shift)
+            {
+                amountChange = e.Control ? -5 : -1;
+            }
 
-                sliderBrushSize.Value = Utils.Clamp(newValue, sliderBrushSize.Minimum, sliderBrushSize.Maximum);
+            if (amountChange != 0)
+            {
+                if (IsKeyDown(Keys.R))
+                {
+                    sliderBrushRotation.Value = Utils.Clamp(
+                        sliderBrushRotation.Value + amountChange,
+                        sliderBrushRotation.Minimum,
+                        sliderBrushRotation.Maximum);
+                }
+                else if (IsKeyDown(Keys.A))
+                {
+                    sliderBrushAlpha.Value = Utils.Clamp(
+                        sliderBrushAlpha.Value + amountChange,
+                        sliderBrushAlpha.Minimum,
+                        sliderBrushAlpha.Maximum);
+                }
+                else
+                {
+                    sliderBrushSize.Value = Utils.Clamp(
+                        sliderBrushSize.Value + amountChange,
+                        sliderBrushSize.Minimum,
+                        sliderBrushSize.Maximum);
+                }
             }
 
             //Prevents alt from making the form lose focus.
