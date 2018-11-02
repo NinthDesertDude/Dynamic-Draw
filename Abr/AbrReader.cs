@@ -9,16 +9,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-// Portions of this file has been adapted from:
-/////////////////////////////////////////////////////////////////////////////////
-// Paint.NET                                                                   //
-// Copyright (C) dotPDN LLC, Rick Brewster, Tom Jackson, and contributors.     //
-// Portions Copyright (C) Microsoft Corporation. All Rights Reserved.          //
-// See src/Resources/Files/License.txt for full licensing and attribution      //
-// details.                                                                    //
-// .                                                                           //
-/////////////////////////////////////////////////////////////////////////////////
-
 using BrushFactory.Abr.Internal;
 using System;
 using System.Collections.Generic;
@@ -395,7 +385,7 @@ namespace BrushFactory.Abr
 
 							foreach (SampledBrush item in scaledBrushes.OrderByDescending(p => p.Diameter))
 							{
-								Size size = ComputeBrushSize(originalWidth, originalHeight, item.Diameter);
+								Size size = Utils.ComputeBrushSize(originalWidth, originalHeight, item.Diameter);
 
 								AbrBrush scaledBrush = new AbrBrush(size.Width, size.Height, item.Name);
 
@@ -505,44 +495,6 @@ namespace BrushFactory.Abr
 			}
 
 			return brush;
-		}
-
-        /// <summary>
-        /// Returns the size of the brush after scaling.
-        /// </summary>
-        /// <param name="maxEdgeLength">
-        /// Width or height, whichever is largest. Used to determine new size.
-        /// </param>
-        /// <returns>A Size with the new brush dimensions.</returns>
-		private static Size ComputeBrushSize(int originalWidth, int originalHeight, int maxEdgeLength)
-		{
-			Size thumbSize = Size.Empty;
-
-			if (originalWidth <= 0 || originalHeight <= 0)
-			{
-				thumbSize.Width = 1;
-				thumbSize.Height = 1;
-			}
-			else if (originalWidth > originalHeight)
-			{
-				int longSide = Math.Min(originalWidth, maxEdgeLength);
-				thumbSize.Width = longSide;
-				thumbSize.Height = Math.Max(1, (originalHeight * longSide) / originalWidth);
-			}
-			else if (originalHeight > originalWidth)
-			{
-				int longSide = Math.Min(originalHeight, maxEdgeLength);
-				thumbSize.Width = Math.Max(1, (originalWidth * longSide) / originalHeight);
-				thumbSize.Height = longSide;
-			}
-			else
-			{
-				int longSide = Math.Min(originalWidth, maxEdgeLength);
-				thumbSize.Width = longSide;
-				thumbSize.Height = longSide;
-			}
-
-			return thumbSize;
 		}
 	}
 }
