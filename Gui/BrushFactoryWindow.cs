@@ -487,6 +487,11 @@ namespace BrushFactory
         /// Provides useful messages when hovering over controls.
         /// </summary>
         private Label txtTooltip;
+
+        /// <summary>
+        /// A temporary folder that is deleted when the dialog exits.
+        /// </summary>
+        private TempDirectory tempDir;
         #endregion
 
         #region Constructors
@@ -496,6 +501,10 @@ namespace BrushFactory
         public WinBrushFactory()
         {
             InitializeComponent();
+
+            TempDirectory.CleanupPreviousDirectories();
+            tempDir = new TempDirectory();
+
             InitBrushes();
 
             //Configures items for the smoothing method combobox.
@@ -693,6 +702,24 @@ namespace BrushFactory
             e.Graphics.FillRectangle(colorBrush,
                 new Rectangle(displayCanvasBG.Right, 0, ClientRectangle.Width - displayCanvasBG.Right,
                 this.ClientRectangle.Height));
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (tempDir != null)
+                {
+                    tempDir.Dispose();
+                    tempDir = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
         #endregion
 
@@ -2604,11 +2631,11 @@ namespace BrushFactory
                 timerRepositionUpdate.Enabled = true;
 
                 //Adds to the list of undo operations.
-                string path = Path.GetTempPath();
+                string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
 
                 //Saves the drawing to the file and saves the file path.
-                bmpCurrentDrawing.Save(path + "HistoryBmp" + undoHistory.Count + ".undo");
-                undoHistory.Push(path + "HistoryBmp" + undoHistory.Count + ".undo");
+                bmpCurrentDrawing.Save(path);
+                undoHistory.Push(path);
                 if (!bttnUndo.Enabled)
                 {
                     bttnUndo.Enabled = true;
@@ -3108,9 +3135,9 @@ namespace BrushFactory
             if (File.Exists(fileAndPath))
             {
                 //Saves the drawing to the file for undo.
-                string path = Path.GetTempPath();
-                bmpCurrentDrawing.Save(path + "HistoryBmp" + undoHistory.Count + ".undo");
-                undoHistory.Push(path + "HistoryBmp" + undoHistory.Count + ".undo");
+                string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
+                bmpCurrentDrawing.Save(path);
+                undoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
@@ -3165,9 +3192,9 @@ namespace BrushFactory
             if (File.Exists(fileAndPath))
             {
                 //Saves the drawing to the file for redo.
-                string path = Path.GetTempPath();
-                bmpCurrentDrawing.Save(path + "HistoryBmp" + redoHistory.Count + ".redo");
-                redoHistory.Push(path + "HistoryBmp" + redoHistory.Count + ".redo");
+                string path = tempDir.GetTempPathName("HistoryBmp" + redoHistory.Count + ".redo");
+                bmpCurrentDrawing.Save(path);
+                redoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
