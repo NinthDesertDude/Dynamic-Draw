@@ -1,4 +1,14 @@
-﻿using PaintDotNet;
+﻿// Portions of this file has been adapted from:
+/////////////////////////////////////////////////////////////////////////////////
+// Paint.NET                                                                   //
+// Copyright (C) dotPDN LLC, Rick Brewster, Tom Jackson, and contributors.     //
+// Portions Copyright (C) Microsoft Corporation. All Rights Reserved.          //
+// See src/Resources/Files/License.txt for full licensing and attribution      //
+// details.                                                                    //
+// .                                                                           //
+/////////////////////////////////////////////////////////////////////////////////
+
+using PaintDotNet;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -459,6 +469,66 @@ namespace BrushFactory
                 return newBmp;
             }
         }
-        #endregion
-    }
+
+		/// <summary>
+		/// Returns the size of the brush after scaling.
+		/// </summary>
+		/// <param name="maxEdgeLength">
+		/// Width or height, whichever is largest. Used to determine new size.
+		/// </param>
+		/// <returns>A Size with the new brush dimensions.</returns>
+		public static Size ComputeBrushSize(int originalWidth, int originalHeight, int maxEdgeLength)
+		{
+			Size thumbSize = Size.Empty;
+
+			if (originalWidth <= 0 || originalHeight <= 0)
+			{
+				thumbSize.Width = 1;
+				thumbSize.Height = 1;
+			}
+			else if (originalWidth > originalHeight)
+			{
+				int longSide = Math.Min(originalWidth, maxEdgeLength);
+				thumbSize.Width = longSide;
+				thumbSize.Height = Math.Max(1, (originalHeight * longSide) / originalWidth);
+			}
+			else if (originalHeight > originalWidth)
+			{
+				int longSide = Math.Min(originalHeight, maxEdgeLength);
+				thumbSize.Width = Math.Max(1, (originalWidth * longSide) / originalHeight);
+				thumbSize.Height = longSide;
+			}
+			else
+			{
+				int longSide = Math.Min(originalWidth, maxEdgeLength);
+				thumbSize.Width = longSide;
+				thumbSize.Height = longSide;
+			}
+
+			return thumbSize;
+		}
+
+		/// <summary>
+		/// Downscales the image to the specified size.
+		/// </summary>
+		/// <param name="image">The image.</param>
+		/// <param name="newSize">The new size.</param>
+		/// <returns>The downscaled image.</returns>
+		public static Bitmap DownscaleImage(Bitmap image, Size newSize)
+		{
+			Bitmap scaled = new Bitmap(newSize.Width, newSize.Height);
+
+			using (Graphics gr = Graphics.FromImage(scaled))
+			{
+				gr.SmoothingMode = SmoothingMode.HighQuality;
+				gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+				gr.DrawImage(image, 0, 0, newSize.Width, newSize.Height);
+			}
+
+			return scaled;
+		}
+		#endregion
+	}
 }

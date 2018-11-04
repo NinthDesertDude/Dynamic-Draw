@@ -1326,6 +1326,8 @@ namespace BrushFactory
             bool doAddToSettings,
             bool doDisplayErrors)
         {
+            int maxBrushSize = sliderBrushSize.Maximum;
+
             //Attempts to load a bitmap from a file to use as a brush.
             foreach (string file in filePaths)
             {
@@ -1343,13 +1345,30 @@ namespace BrushFactory
 
                                     // Creates the brush space.
                                     int size = Math.Max(item.Image.Width, item.Image.Height);
+
+                                    Bitmap scaledBrush = null;
+                                    if (size > maxBrushSize)
+                                    {
+                                        size = maxBrushSize;
+
+                                        Size newImageSize = Utils.ComputeBrushSize(item.Image.Width, item.Image.Height, maxBrushSize);
+
+                                        scaledBrush = Utils.DownscaleImage(item.Image, newImageSize);
+                                    }
+
                                     bmpBrush = new Bitmap(size, size);
 
                                     //Pads the image to be square if needed, makes fully
                                     //opaque images use intensity for alpha, and draws the
                                     //altered loaded bitmap to the brush.
                                     Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
-                                        Utils.MakeTransparent(item.Image)), bmpBrush);
+                                        Utils.MakeTransparent(scaledBrush ?? item.Image)), bmpBrush);
+
+                                    if (scaledBrush != null)
+                                    {
+                                        scaledBrush.Dispose();
+                                        scaledBrush = null;
+                                    }
 
                                     string filename = item.Name;
                                     if (string.IsNullOrEmpty(filename))
@@ -1384,13 +1403,30 @@ namespace BrushFactory
                         {
                             //Creates the brush space.
                             int size = Math.Max(bmp.Width, bmp.Height);
+
+                            Bitmap scaledBrush = null;
+                            if (size > maxBrushSize)
+                            {
+                                size = maxBrushSize;
+
+                                Size newImageSize = Utils.ComputeBrushSize(bmp.Width, bmp.Height, maxBrushSize);
+
+                                scaledBrush = Utils.DownscaleImage(bmp, newImageSize);
+                            }
+
                             bmpBrush = new Bitmap(size, size);
 
                             //Pads the image to be square if needed, makes fully
                             //opaque images use intensity for alpha, and draws the
                             //altered loaded bitmap to the brush.
                             Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
-                                Utils.MakeTransparent(bmp)), bmpBrush);
+                                Utils.MakeTransparent(scaledBrush ?? bmp)), bmpBrush);
+
+                            if (scaledBrush != null)
+                            {
+                                scaledBrush.Dispose();
+                                scaledBrush = null;
+                            }
                         }
 
                         //Gets the last word in the filename without the path.
