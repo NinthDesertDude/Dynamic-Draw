@@ -2553,16 +2553,6 @@ namespace BrushFactory
         /// </summary>
         private void WinBrushFactory_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //Deletes all temporary files stored as undo/redo history.
-            string path = Path.GetTempPath();
-            List<string> files = new List<string>();
-            files.AddRange(Directory.GetFiles(path, "HistoryBmp*.undo"));
-            files.AddRange(Directory.GetFiles(path, "HistoryBmp*.redo"));
-            foreach (string file in files)
-            {
-                File.Delete(file);
-            }
-
             //Disposes all form bitmaps.
             bmpBrush.Dispose();
             bmpBrushEffects.Dispose();
