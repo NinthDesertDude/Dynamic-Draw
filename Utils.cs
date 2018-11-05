@@ -471,15 +471,9 @@ namespace BrushFactory
                 return new Size(1, 1);
             }
 
-            int shortestSide = (int)Math.Ceiling(
-                maxDimensionSize / (float)origHeight * origWidth);
+            double scaleRatio = Math.Min((double)maxDimensionSize / origWidth, (double)maxDimensionSize / origHeight);
 
-            if (origWidth >= origHeight)
-            {
-                return new Size(maxDimensionSize, shortestSide);
-            }
-
-            return new Size(shortestSide, maxDimensionSize);
+            return new Size((int)Math.Round(origWidth * scaleRatio), (int)Math.Round(origHeight * scaleRatio));
         }
 
         /// <summary>
