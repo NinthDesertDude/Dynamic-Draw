@@ -32,6 +32,8 @@ namespace BrushFactory
             }
             set
             {
+                bmpToRender?.Dispose();
+
                 bmpToRender = value;
             }
         }
