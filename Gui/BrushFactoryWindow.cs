@@ -717,6 +717,11 @@ namespace BrushFactory
                     tempDir.Dispose();
                     tempDir = null;
                 }
+
+                //Disposes all form bitmaps.
+                bmpBrush?.Dispose();
+                bmpBrushEffects?.Dispose();
+                bmpCurrentDrawing?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -2296,7 +2301,6 @@ namespace BrushFactory
             this.KeyPreview = true;
             this.MaximizeBox = true;
             this.Name = "WinBrushFactory";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.WinBrushFactory_FormClosing);
             this.Load += new System.EventHandler(this.WinBrushFactory_DialogLoad);
             this.Shown += new System.EventHandler(this.WinBrushFactory_DialogShown);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.WinBrushFactory_KeyDown);
@@ -2545,18 +2549,6 @@ namespace BrushFactory
         {
             MinimumSize = new Size(835, 526);
             MaximumSize = Size;
-        }
-
-        /// <summary>
-        /// Disposes resources and deletes temporary files when the window
-        /// closes for any reason.
-        /// </summary>
-        private void WinBrushFactory_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            //Disposes all form bitmaps.
-            bmpBrush.Dispose();
-            bmpBrushEffects.Dispose();
-            bmpCurrentDrawing.Dispose();
         }
 
         /// <summary>
