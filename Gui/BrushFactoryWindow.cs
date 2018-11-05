@@ -1353,7 +1353,7 @@ namespace BrushFactory
 
                                         Size newImageSize = Utils.ComputeBrushSize(item.Image.Width, item.Image.Height, maxBrushSize);
 
-                                        scaledBrush = Utils.DownscaleImage(item.Image, newImageSize);
+                                        scaledBrush = Utils.ScaleImage(item.Image, newImageSize);
                                     }
 
                                     bmpBrush = new Bitmap(size, size);
@@ -1411,7 +1411,7 @@ namespace BrushFactory
 
                                 Size newImageSize = Utils.ComputeBrushSize(bmp.Width, bmp.Height, maxBrushSize);
 
-                                scaledBrush = Utils.DownscaleImage(bmp, newImageSize);
+                                scaledBrush = Utils.ScaleImage(bmp, newImageSize);
                             }
 
                             bmpBrush = new Bitmap(size, size);

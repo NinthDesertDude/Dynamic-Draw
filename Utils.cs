@@ -1,14 +1,4 @@
-﻿// Portions of this file has been adapted from:
-/////////////////////////////////////////////////////////////////////////////////
-// Paint.NET                                                                   //
-// Copyright (C) dotPDN LLC, Rick Brewster, Tom Jackson, and contributors.     //
-// Portions Copyright (C) Microsoft Corporation. All Rights Reserved.          //
-// See src/Resources/Files/License.txt for full licensing and attribution      //
-// details.                                                                    //
-// .                                                                           //
-/////////////////////////////////////////////////////////////////////////////////
-
-using PaintDotNet;
+﻿using PaintDotNet;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -470,65 +460,50 @@ namespace BrushFactory
             }
         }
 
-		/// <summary>
-		/// Returns the size of the brush after scaling.
-		/// </summary>
-		/// <param name="maxEdgeLength">
-		/// Width or height, whichever is largest. Used to determine new size.
-		/// </param>
-		/// <returns>A Size with the new brush dimensions.</returns>
-		public static Size ComputeBrushSize(int originalWidth, int originalHeight, int maxEdgeLength)
-		{
-			Size thumbSize = Size.Empty;
+        /// <summary>
+        /// Computes the new brush size ratio given the dimensions and desired
+        /// size of the longest dimension.
+        /// </summary>
+        public static Size ComputeBrushSize(int origWidth, int origHeight, int maxDimensionSize)
+        {
+            if (origWidth == 0 || origHeight == 0)
+            {
+                return new Size(1, 1);
+            }
 
-			if (originalWidth <= 0 || originalHeight <= 0)
-			{
-				thumbSize.Width = 1;
-				thumbSize.Height = 1;
-			}
-			else if (originalWidth > originalHeight)
-			{
-				int longSide = Math.Min(originalWidth, maxEdgeLength);
-				thumbSize.Width = longSide;
-				thumbSize.Height = Math.Max(1, (originalHeight * longSide) / originalWidth);
-			}
-			else if (originalHeight > originalWidth)
-			{
-				int longSide = Math.Min(originalHeight, maxEdgeLength);
-				thumbSize.Width = Math.Max(1, (originalWidth * longSide) / originalHeight);
-				thumbSize.Height = longSide;
-			}
-			else
-			{
-				int longSide = Math.Min(originalWidth, maxEdgeLength);
-				thumbSize.Width = longSide;
-				thumbSize.Height = longSide;
-			}
+            int shortestSide = (int)Math.Ceiling(
+                maxDimensionSize / (float)origHeight * origWidth);
 
-			return thumbSize;
-		}
+            if (origWidth >= origHeight)
+            {
+                return new Size(maxDimensionSize, shortestSide);
+            }
 
-		/// <summary>
-		/// Downscales the image to the specified size.
-		/// </summary>
-		/// <param name="image">The image.</param>
-		/// <param name="newSize">The new size.</param>
-		/// <returns>The downscaled image.</returns>
-		public static Bitmap DownscaleImage(Bitmap image, Size newSize)
-		{
-			Bitmap scaled = new Bitmap(newSize.Width, newSize.Height);
+            return new Size(shortestSide, maxDimensionSize);
+        }
 
-			using (Graphics gr = Graphics.FromImage(scaled))
-			{
-				gr.SmoothingMode = SmoothingMode.HighQuality;
-				gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        /// <summary>
+        /// Returns a copy of the image scaled to the given size.
+        /// </summary>
+        /// <param name="origBmp">
+        /// The image to clone and scale.
+        /// </param>
+        /// <param name="newSize">
+        /// The new width and height of the image.
+        /// </param>
+        public static Bitmap ScaleImage(Bitmap origBmp, Size newSize)
+        {
+            //Creates the new image and a graphic canvas to draw the rotation.
+            Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height);
+            using (Graphics g = Graphics.FromImage(newBmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-				gr.DrawImage(image, 0, 0, newSize.Width, newSize.Height);
-			}
-
-			return scaled;
-		}
+                g.DrawImage(origBmp, 0, 0, newSize.Width, newSize.Height);
+                return newBmp;
+            }
+        }
 		#endregion
 	}
 }
