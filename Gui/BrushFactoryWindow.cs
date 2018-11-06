@@ -3097,9 +3097,9 @@ namespace BrushFactory
             bttnOk.Enabled = false;
 
             //Sets the bitmap to draw. Locks to prevent concurrency.
-            lock (RenderSettings.BmpToRender)
+            lock (RenderSettings.SurfaceToRender)
             {
-                RenderSettings.BmpToRender = new Bitmap(bmpCurrentDrawing);
+                RenderSettings.SurfaceToRender = Surface.CopyFromBitmap(bmpCurrentDrawing);
             }
 
             //Updates the saved effect settings and OKs the effect.

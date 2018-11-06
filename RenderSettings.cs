@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+﻿using PaintDotNet;
 
 namespace BrushFactory
 {
@@ -8,8 +8,8 @@ namespace BrushFactory
     static class RenderSettings
     {
         #region Fields
-        //The bitmap to render as the final product.
-        private static Bitmap bmpToRender;
+        //The surface to render as the final product.
+        private static Surface surfaceToRender;
 
         //Whether or not to save settings for the dialog.
         private static bool doApplyEffect;
@@ -22,17 +22,19 @@ namespace BrushFactory
 
         #region Properties
         /// <summary>
-        /// The bitmap to render as the final product.
+        /// The surface to render as the final product.
         /// </summary>
-        public static Bitmap BmpToRender
+        public static Surface SurfaceToRender
         {
             get
             {
-                return bmpToRender;
+                return surfaceToRender;
             }
             set
             {
-                bmpToRender = value;
+                surfaceToRender?.Dispose();
+
+                surfaceToRender = value;
             }
         }
 
@@ -83,7 +85,7 @@ namespace BrushFactory
         /// </summary>
         public static void Clear()
         {
-            BmpToRender = new Bitmap(1, 1);
+            SurfaceToRender = new Surface(1, 1);
             doApplyEffect = false;
             effectApplied = false;
         }

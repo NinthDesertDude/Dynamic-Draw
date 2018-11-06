@@ -206,21 +206,9 @@ namespace BrushFactory
                 //The effect should only render once.
                 RenderSettings.EffectApplied = true;
 
-                using (Graphics g = new RenderArgs(dstArgs.Surface).Graphics)
-                {
-                    //Copies the drawn image, clipping it to the selection.
-                    g.CompositingMode = CompositingMode.SourceCopy;
-                    Region region = new Region(EnvironmentParameters
-                        .GetSelection(srcArgs.Bounds).GetRegionData());
-                    g.SetClip(region, CombineMode.Replace);
-
-                    g.DrawImage(RenderSettings.BmpToRender, 0, 0,
-                        RenderSettings.BmpToRender.Width,
-                        RenderSettings.BmpToRender.Height);
-
-                    //TODO: This copies perfectly, but can't handle clipping to a region.
-                    //Utils.CopyBitmapPure(RenderSettings.BmpToRender, dstArgs.Bitmap);
-                }
+                dstArgs.Surface.CopySurface(
+                    RenderSettings.SurfaceToRender,
+                    EnvironmentParameters.GetSelection(srcArgs.Bounds));
             }
         }
         #endregion
