@@ -15,6 +15,30 @@ namespace BrushFactory.Gui
             CenterToScreen();
         }
 
+        #region Methods (overridden)
+        /// <summary>
+        /// Configures the drawing area and loads text localizations.
+        /// </summary>
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            //Sets the text and tooltips based on language.
+            bttnCancel.Text = Localization.Strings.Cancel;
+            bttnSave.Text = Localization.Strings.SavePreferences;
+            chkbxLoadDefaultBrushes.Text = Localization.Strings.LoadDefaultBrushes;
+            bttnAddFolder.Text = Localization.Strings.AddFolder;
+            txtBrushLocations.Text = Localization.Strings.BrushLocations;
+            tooltip.SetToolTip(bttnCancel, Localization.Strings.CancelTip);
+            tooltip.SetToolTip(bttnSave, Localization.Strings.SavePreferencesTip);
+            tooltip.SetToolTip(chkbxLoadDefaultBrushes, Localization.Strings.LoadDefaultBrushesTip);
+            tooltip.SetToolTip(bttnAddFolder, Localization.Strings.AddFolderTip);
+            tooltip.SetToolTip(txtbxBrushLocations, Localization.Strings.BrushLocationsTextboxTip);
+
+            InitSettings();
+        }
+        #endregion
+
         #region Methods (not event handlers)
         /// <summary>
         /// Retrieves values from the registry for the gui.
@@ -71,25 +95,6 @@ namespace BrushFactory.Gui
         #endregion
 
         #region Methods (event handlers)
-        /// <summary>
-        /// Configures the drawing area and loads text localizations.
-        /// </summary>
-        private void winBrushFactoryPreferences_DialogLoad(object sender, EventArgs e)
-        {
-            //Sets the text and tooltips based on language.
-            bttnCancel.Text = Localization.Strings.Cancel;
-            bttnSave.Text = Localization.Strings.SavePreferences;
-            chkbxLoadDefaultBrushes.Text = Localization.Strings.LoadDefaultBrushes;
-            bttnAddFolder.Text = Localization.Strings.AddFolder;
-            txtBrushLocations.Text = Localization.Strings.BrushLocations;
-            tooltip.SetToolTip(bttnCancel, Localization.Strings.CancelTip);
-            tooltip.SetToolTip(bttnSave, Localization.Strings.SavePreferencesTip);
-            tooltip.SetToolTip(chkbxLoadDefaultBrushes, Localization.Strings.LoadDefaultBrushesTip);
-            tooltip.SetToolTip(bttnAddFolder, Localization.Strings.AddFolderTip);
-            tooltip.SetToolTip(txtbxBrushLocations, Localization.Strings.BrushLocationsTextboxTip);
-
-            InitSettings();
-        }
 
         /// <summary>
         /// Allows the user to browse for a folder to add as a directory.

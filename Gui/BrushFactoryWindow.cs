@@ -684,6 +684,274 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Configures the drawing area and loads text localizations.
+        /// </summary>
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            //Sets the sizes of the canvas and drawing region.
+            displayCanvas.Size = new RenderArgs(EffectSourceSurface).Bitmap.Size;
+            bmpCurrentDrawing = new Bitmap(displayCanvas.Width, displayCanvas.Height);
+            Utils.CopyBitmapPure(new RenderArgs(EffectSourceSurface).Bitmap, bmpCurrentDrawing);
+
+            //Sets the canvas dimensions.
+            displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
+            displayCanvas.Top = (displayCanvasBG.Height - displayCanvas.Height) / 2;
+
+            //Adds versioning information to the window title.
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            this.Text = EffectPlugin.StaticName + " (version " +
+                version.Major + "." +
+                version.Minor + ")";
+
+            //Loads globalization texts for regional support.
+            txtBrushAlpha.Text = String.Format("{0} {1}",
+                Localization.Strings.Alpha, sliderBrushAlpha.Value);
+
+            txtBrushRotation.Text = String.Format("{0} {1}°",
+                Localization.Strings.Rotation, sliderBrushRotation.Value);
+
+            txtBrushSize.Text = String.Format("{0} {1}",
+                Localization.Strings.Size, sliderBrushSize.Value);
+
+            txtCanvasZoom.Text = String.Format("{0} {1}%",
+                Localization.Strings.CanvasZoom, sliderCanvasZoom.Value);
+
+            txtMinDrawDistance.Text = String.Format("{0} {1}",
+                Localization.Strings.MinDrawDistance, sliderMinDrawDistance.Value);
+
+            txtRandHorzShift.Text = String.Format("{0} {1}%",
+                Localization.Strings.RandHorzShift, sliderRandHorzShift.Value);
+
+            txtRandMaxSize.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMaxSize, sliderRandMaxSize.Value);
+
+            txtRandMinSize.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMinSize, sliderRandMinSize.Value);
+
+            txtRandRotLeft.Text = String.Format("{0} {1}°",
+                Localization.Strings.RandRotLeft, sliderRandRotLeft.Value);
+
+            txtRandRotRight.Text = String.Format("{0} {1}°",
+                Localization.Strings.RandRotRight, sliderRandRotRight.Value);
+
+            txtRandMaxAlpha.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMaxAlpha, sliderRandMaxAlpha.Value);
+
+            txtRandMaxBlue.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMaxBlue, sliderRandMaxBlue.Value);
+
+            txtRandMaxGreen.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMaxGreen, sliderRandMaxGreen.Value);
+
+            txtRandMaxRed.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMaxRed, sliderRandMaxRed.Value);
+
+            txtRandMinAlpha.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMinAlpha, sliderRandMinAlpha.Value);
+
+            txtRandMinBlue.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMinBlue, sliderRandMinBlue.Value);
+
+            txtRandMinGreen.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMinGreen, sliderRandMinGreen.Value);
+
+            txtRandMinRed.Text = String.Format("{0} {1}",
+                Localization.Strings.RandMinRed, sliderRandMinRed.Value);
+
+            txtRandVertShift.Text = String.Format("{0} {1}%",
+                Localization.Strings.RandVertShift, sliderRandVertShift.Value);
+
+            txtShiftAlpha.Text = String.Format("{0} {1}",
+                Localization.Strings.ShiftAlpha, sliderShiftAlpha.Value);
+
+            txtShiftRotation.Text = String.Format("{0} {1}°",
+                Localization.Strings.ShiftRotation, sliderShiftRotation.Value);
+
+            txtShiftSize.Text = String.Format("{0} {1}",
+                Localization.Strings.ShiftSize, sliderShiftSize.Value);
+
+            txtTooltip.Text = Localization.Strings.GeneralTooltip;
+
+            tabColor.Text = Localization.Strings.TabColor;
+            tabControls.Text = Localization.Strings.TabControls;
+            tabJitter.Text = Localization.Strings.TabJitter;
+            tabOther.Text = Localization.Strings.TabOther;
+
+            bttnBrushColor.Text = Localization.Strings.BrushColor;
+            bttnCancel.Text = Localization.Strings.Cancel;
+            bttnClearBrushes.Text = Localization.Strings.ClearBrushes;
+            bttnClearSettings.Text = Localization.Strings.ClearSettings;
+            bttnCustomBrushLocations.Text = Localization.Strings.CustomBrushLocations;
+            bttnOk.Text = Localization.Strings.Ok;
+            bttnUndo.Text = Localization.Strings.Undo;
+            bttnRedo.Text = Localization.Strings.Redo;
+
+            chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
+            chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
+            chkbxOrientToMouse.Text = Localization.Strings.OrientToMouse;
+
+            grpbxBrushOptions.Text = Localization.Strings.BrushOptions;
+        }
+
+        /// <summary>
+        /// Sets the form resize restrictions.
+        /// </summary>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+            MinimumSize = new Size(835, 526);
+            MaximumSize = Size;
+        }
+
+        /// <summary>
+        /// Handles keypresses for global commands.
+        /// </summary>
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            //Ctrl + Z: Undo.
+            if (e.Control && e.KeyCode == Keys.Z)
+            {
+                BttnUndo_Click(this, e);
+            }
+
+            //Ctrl + Y: Redo.
+            if (e.Control && e.KeyCode == Keys.Y)
+            {
+                BttnRedo_Click(this, e);
+            }
+
+            // [, Ctrl + [ increase rotation, alpha, size. ], Ctrl + ] decrease.
+            int amountChange = 0;
+
+            if (e.KeyCode == Keys.OemCloseBrackets && !e.Shift)
+            {
+                amountChange = e.Control ? 5 : 1;
+            }
+            else if (e.KeyCode == Keys.OemOpenBrackets && !e.Shift)
+            {
+                amountChange = e.Control ? -5 : -1;
+            }
+
+            if (amountChange != 0)
+            {
+                if (IsKeyDown(Keys.R))
+                {
+                    sliderBrushRotation.Value = Utils.Clamp(
+                        sliderBrushRotation.Value + amountChange,
+                        sliderBrushRotation.Minimum,
+                        sliderBrushRotation.Maximum);
+                }
+                else if (IsKeyDown(Keys.A))
+                {
+                    sliderBrushAlpha.Value = Utils.Clamp(
+                        sliderBrushAlpha.Value + amountChange,
+                        sliderBrushAlpha.Minimum,
+                        sliderBrushAlpha.Maximum);
+                }
+                else
+                {
+                    sliderBrushSize.Value = Utils.Clamp(
+                        sliderBrushSize.Value + amountChange,
+                        sliderBrushSize.Minimum,
+                        sliderBrushSize.Maximum);
+                }
+            }
+
+            //Prevents alt from making the form lose focus.
+            if (e.Alt)
+            {
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Zooms in and out of the drawing region.
+        /// </summary>
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            //Ctrl + Wheel: Changes the brush size.
+            if (ModifierKeys == Keys.Control)
+            {
+                //Ctrl + S + Wheel: Changes the brush size.
+                if (IsKeyDown(Keys.S))
+                {
+                    int changeFactor = 10;
+
+                    if (sliderBrushSize.Value < 5)
+                    {
+                        changeFactor = 1;
+                    }
+                    else if (sliderBrushSize.Value < 10)
+                    {
+                        changeFactor = 2;
+                    }
+                    else if (sliderBrushSize.Value < 30)
+                    {
+                        changeFactor = 5;
+                    }
+                    else if (sliderBrushSize.Value < 100)
+                    {
+                        changeFactor = 10;
+                    }
+                    else
+                    {
+                        changeFactor = 20;
+                    }
+
+                    sliderBrushSize.Value = Utils.Clamp(
+                    sliderBrushSize.Value + Math.Sign(e.Delta) * changeFactor,
+                    sliderBrushSize.Minimum,
+                    sliderBrushSize.Maximum);
+                }
+
+                //Ctrl + R + Wheel: Changes the brush rotation.
+                else if (IsKeyDown(Keys.R))
+                {
+                    sliderBrushRotation.Value = Utils.Clamp(
+                    sliderBrushRotation.Value + Math.Sign(e.Delta) * 20,
+                    sliderBrushRotation.Minimum,
+                    sliderBrushRotation.Maximum);
+                }
+
+                //Ctrl + A + Wheel: Changes the brush alpha.
+                else if (IsKeyDown(Keys.A))
+                {
+                    sliderBrushAlpha.Value = Utils.Clamp(
+                    sliderBrushAlpha.Value + Math.Sign(e.Delta) * 10,
+                    sliderBrushAlpha.Minimum,
+                    sliderBrushAlpha.Maximum);
+                }
+
+                //Ctrl + Wheel: Zooms the canvas in/out.
+                else
+                {
+                    Zoom(e.Delta, true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Recalculates the drawing region to maintain accuracy on resize.
+        /// </summary>
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            if (displayCanvas != null)
+            {
+                displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
+                displayCanvas.Top = (displayCanvasBG.Height - displayCanvas.Height) / 2;
+            }
+        }
+
+        /// <summary>
         /// Repaints only the visible areas of the drawing region.
         /// </summary>
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -2301,11 +2569,6 @@ namespace BrushFactory
             this.KeyPreview = true;
             this.MaximizeBox = true;
             this.Name = "WinBrushFactory";
-            this.Load += new System.EventHandler(this.WinBrushFactory_DialogLoad);
-            this.Shown += new System.EventHandler(this.WinBrushFactory_DialogShown);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.WinBrushFactory_KeyDown);
-            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.DisplayCanvas_MouseWheel);
-            this.Resize += new System.EventHandler(this.WinBrushFactory_Resize);
             this.displayCanvasBG.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).EndInit();
             this.tabJitter.ResumeLayout(false);
@@ -2432,195 +2695,6 @@ namespace BrushFactory
         #endregion
 
         #region Methods (event handlers)
-        /// <summary>
-        /// Configures the drawing area and loads text localizations.
-        /// </summary>
-        private void WinBrushFactory_DialogLoad(object sender, EventArgs e)
-        {
-            //Sets the sizes of the canvas and drawing region.
-            displayCanvas.Size = new RenderArgs(EffectSourceSurface).Bitmap.Size;
-            bmpCurrentDrawing = new Bitmap(displayCanvas.Width, displayCanvas.Height);
-            Utils.CopyBitmapPure(new RenderArgs(EffectSourceSurface).Bitmap, bmpCurrentDrawing);
-
-            //Sets the canvas dimensions.
-            displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
-            displayCanvas.Top = (displayCanvasBG.Height - displayCanvas.Height) / 2;
-
-            //Adds versioning information to the window title.
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            this.Text = EffectPlugin.StaticName + " (version " +
-                version.Major + "." +
-                version.Minor + ")";
-
-            //Loads globalization texts for regional support.
-            txtBrushAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.Alpha, sliderBrushAlpha.Value);
-
-            txtBrushRotation.Text = String.Format("{0} {1}°",
-                Localization.Strings.Rotation, sliderBrushRotation.Value);
-
-            txtBrushSize.Text = String.Format("{0} {1}",
-                Localization.Strings.Size, sliderBrushSize.Value);
-
-            txtCanvasZoom.Text = String.Format("{0} {1}%",
-                Localization.Strings.CanvasZoom, sliderCanvasZoom.Value);
-
-            txtMinDrawDistance.Text = String.Format("{0} {1}",
-                Localization.Strings.MinDrawDistance, sliderMinDrawDistance.Value);
-
-            txtRandHorzShift.Text = String.Format("{0} {1}%",
-                Localization.Strings.RandHorzShift, sliderRandHorzShift.Value);
-
-            txtRandMaxSize.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxSize, sliderRandMaxSize.Value);
-
-            txtRandMinSize.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinSize, sliderRandMinSize.Value);
-
-            txtRandRotLeft.Text = String.Format("{0} {1}°",
-                Localization.Strings.RandRotLeft, sliderRandRotLeft.Value);
-
-            txtRandRotRight.Text = String.Format("{0} {1}°",
-                Localization.Strings.RandRotRight, sliderRandRotRight.Value);
-
-            txtRandMaxAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxAlpha, sliderRandMaxAlpha.Value);
-
-            txtRandMaxBlue.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxBlue, sliderRandMaxBlue.Value);
-
-            txtRandMaxGreen.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxGreen, sliderRandMaxGreen.Value);
-
-            txtRandMaxRed.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxRed, sliderRandMaxRed.Value);
-
-            txtRandMinAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinAlpha, sliderRandMinAlpha.Value);
-
-            txtRandMinBlue.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinBlue, sliderRandMinBlue.Value);
-
-            txtRandMinGreen.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinGreen, sliderRandMinGreen.Value);
-
-            txtRandMinRed.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinRed, sliderRandMinRed.Value);
-
-            txtRandVertShift.Text = String.Format("{0} {1}%",
-                Localization.Strings.RandVertShift, sliderRandVertShift.Value);
-
-            txtShiftAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.ShiftAlpha, sliderShiftAlpha.Value);
-
-            txtShiftRotation.Text = String.Format("{0} {1}°",
-                Localization.Strings.ShiftRotation, sliderShiftRotation.Value);
-
-            txtShiftSize.Text = String.Format("{0} {1}",
-                Localization.Strings.ShiftSize, sliderShiftSize.Value);
-
-            txtTooltip.Text = Localization.Strings.GeneralTooltip;
-
-            tabColor.Text = Localization.Strings.TabColor;
-            tabControls.Text = Localization.Strings.TabControls;
-            tabJitter.Text = Localization.Strings.TabJitter;
-            tabOther.Text = Localization.Strings.TabOther;
-
-            bttnBrushColor.Text = Localization.Strings.BrushColor;
-            bttnCancel.Text = Localization.Strings.Cancel;
-            bttnClearBrushes.Text = Localization.Strings.ClearBrushes;
-            bttnClearSettings.Text = Localization.Strings.ClearSettings;
-            bttnCustomBrushLocations.Text = Localization.Strings.CustomBrushLocations;
-            bttnOk.Text = Localization.Strings.Ok;
-            bttnUndo.Text = Localization.Strings.Undo;
-            bttnRedo.Text = Localization.Strings.Redo;
-
-            chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
-            chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
-            chkbxOrientToMouse.Text = Localization.Strings.OrientToMouse;
-
-            grpbxBrushOptions.Text = Localization.Strings.BrushOptions;
-        }
-
-        /// <summary>
-        /// Sets the form resize restrictions.
-        /// </summary>
-        private void WinBrushFactory_DialogShown(object sender, EventArgs e)
-        {
-            MinimumSize = new Size(835, 526);
-            MaximumSize = Size;
-        }
-
-        /// <summary>
-        /// Handles keypresses for global commands.
-        /// </summary>
-        private void WinBrushFactory_KeyDown(object sender, KeyEventArgs e)
-        {
-            //Ctrl + Z: Undo.
-            if (e.Control && e.KeyCode == Keys.Z)
-            {
-                BttnUndo_Click(this, e);
-            }
-
-            //Ctrl + Y: Redo.
-            if (e.Control && e.KeyCode == Keys.Y)
-            {
-                BttnRedo_Click(this, e);
-            }
-
-            // [, Ctrl + [ increase rotation, alpha, size. ], Ctrl + ] decrease.
-            int amountChange = 0;
-
-            if (e.KeyCode == Keys.OemCloseBrackets && !e.Shift)
-            {
-                amountChange = e.Control ? 5 : 1;
-            }
-            else if (e.KeyCode == Keys.OemOpenBrackets && !e.Shift)
-            {
-                amountChange = e.Control ? -5 : -1;
-            }
-
-            if (amountChange != 0)
-            {
-                if (IsKeyDown(Keys.R))
-                {
-                    sliderBrushRotation.Value = Utils.Clamp(
-                        sliderBrushRotation.Value + amountChange,
-                        sliderBrushRotation.Minimum,
-                        sliderBrushRotation.Maximum);
-                }
-                else if (IsKeyDown(Keys.A))
-                {
-                    sliderBrushAlpha.Value = Utils.Clamp(
-                        sliderBrushAlpha.Value + amountChange,
-                        sliderBrushAlpha.Minimum,
-                        sliderBrushAlpha.Maximum);
-                }
-                else
-                {
-                    sliderBrushSize.Value = Utils.Clamp(
-                        sliderBrushSize.Value + amountChange,
-                        sliderBrushSize.Minimum,
-                        sliderBrushSize.Maximum);
-                }
-            }
-
-            //Prevents alt from making the form lose focus.
-            if (e.Alt)
-            {
-                e.Handled = true;
-            }
-        }
-
-        /// <summary>
-        /// Recalculates the drawing region to maintain accuracy on resize.
-        /// </summary>
-        private void WinBrushFactory_Resize(object sender, EventArgs e)
-        {
-            displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
-            displayCanvas.Top = (displayCanvasBG.Height - displayCanvas.Height) / 2;
-        }
-
         /// <summary>
         /// Sets up image panning and drawing to occur with mouse movement.
         /// </summary>
@@ -2759,72 +2833,6 @@ namespace BrushFactory
                     }
 
                     displayCanvas.Refresh();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Zooms in and out of the drawing region.
-        /// </summary>
-        private void DisplayCanvas_MouseWheel(object sender, MouseEventArgs e)
-        {
-            //Ctrl + Wheel: Changes the brush size.
-            if (ModifierKeys == Keys.Control)
-            {
-                //Ctrl + S + Wheel: Changes the brush size.
-                if (IsKeyDown(Keys.S))
-                {
-                    int changeFactor = 10;
-
-                    if (sliderBrushSize.Value < 5)
-                    {
-                        changeFactor = 1;
-                    }
-                    else if (sliderBrushSize.Value < 10)
-                    {
-                        changeFactor = 2;
-                    }
-                    else if (sliderBrushSize.Value < 30)
-                    {
-                        changeFactor = 5;
-                    }
-                    else if (sliderBrushSize.Value < 100)
-                    {
-                        changeFactor = 10;
-                    }
-                    else
-                    {
-                        changeFactor = 20;
-                    }
-
-                    sliderBrushSize.Value = Utils.Clamp(
-                    sliderBrushSize.Value + Math.Sign(e.Delta) * changeFactor,
-                    sliderBrushSize.Minimum,
-                    sliderBrushSize.Maximum);
-                }
-
-                //Ctrl + R + Wheel: Changes the brush rotation.
-                else if (IsKeyDown(Keys.R))
-                {
-                    sliderBrushRotation.Value = Utils.Clamp(
-                    sliderBrushRotation.Value + Math.Sign(e.Delta) * 20,
-                    sliderBrushRotation.Minimum,
-                    sliderBrushRotation.Maximum);
-                }
-
-                //Ctrl + A + Wheel: Changes the brush alpha.
-                else if (IsKeyDown(Keys.A))
-                {
-                    sliderBrushAlpha.Value = Utils.Clamp(
-                    sliderBrushAlpha.Value + Math.Sign(e.Delta) * 10,
-                    sliderBrushAlpha.Minimum,
-                    sliderBrushAlpha.Maximum);
-                }
-
-                //Ctrl + Wheel: Zooms the canvas in/out.
-                else
-                {
-                    Zoom(e.Delta, true);
                 }
             }
         }
