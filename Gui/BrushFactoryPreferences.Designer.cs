@@ -117,7 +117,6 @@
             this.Controls.Add(this.txtbxBrushLocations);
             this.Name = "BrushFactoryPreferences";
             this.Text = "Preferences";
-            this.Load += new System.EventHandler(this.winBrushFactoryPreferences_DialogLoad);
             this.ResumeLayout(false);
             this.PerformLayout();
 
