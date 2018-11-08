@@ -1,15 +1,22 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using BrushFactory.Properties;
-using Microsoft.Win32;
 
 namespace BrushFactory.Gui
 {
-    public partial class BrushFactoryPreferences : Form
+    internal partial class BrushFactoryPreferences : Form
     {
-        public BrushFactoryPreferences()
+        private readonly IBrushFactorySettings settings;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BrushFactoryPreferences" /> class.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="settings"/> is null.</exception>
+        public BrushFactoryPreferences(IBrushFactorySettings settings)
         {
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             InitializeComponent();
             Icon = Resources.Icon;
             CenterToScreen();
@@ -35,62 +42,24 @@ namespace BrushFactory.Gui
             tooltip.SetToolTip(bttnAddFolder, Localization.Strings.AddFolderTip);
             tooltip.SetToolTip(txtbxBrushLocations, Localization.Strings.BrushLocationsTextboxTip);
 
-            InitSettings();
+            chkbxLoadDefaultBrushes.Checked = settings.UseDefaultBrushes;
+            foreach (string item in settings.CustomBrushDirectories)
+            {
+                txtbxBrushLocations.AppendText(item + Environment.NewLine);
+            }
         }
         #endregion
 
         #region Methods (not event handlers)
         /// <summary>
-        /// Retrieves values from the registry for the gui.
-        /// </summary>
-        public void InitSettings()
-        {
-            RegistryKey key;
-
-            //Opens or creates the key for the plugin.
-            key = Registry.CurrentUser
-                .CreateSubKey("software", true)
-                .CreateSubKey("paint.net_brushfactory", true);
-
-            string useDefBrushes = (string)key.GetValue("useDefaultBrushes");
-            string customBrushLocs = (string)key.GetValue("customBrushLocations");
-
-            //Uses the keys if they exist, or creates them otherwise.
-            if (useDefBrushes == null)
-            {
-                key.SetValue("useDefaultBrushes", true);
-            }
-            else
-            {
-                chkbxLoadDefaultBrushes.Checked = Boolean.Parse(useDefBrushes);
-            }
-            if (customBrushLocs == null)
-            {
-                key.SetValue("customBrushLocations", String.Empty);
-            }
-            else
-            {
-                txtbxBrushLocations.Text = customBrushLocs;
-            }
-
-            key.Close();
-        }
-
-        /// <summary>
         /// Saves values to the registry from the gui.
         /// </summary>
         public void SaveSettings()
         {
-            RegistryKey key;
+            string[] values = txtbxBrushLocations.Text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-            //Opens or creates the key for the plugin.
-            key = Registry.CurrentUser
-                .CreateSubKey("software", true)
-                .CreateSubKey("paint.net_brushfactory", true);
-
-            key.SetValue("useDefaultBrushes", chkbxLoadDefaultBrushes.Checked);
-            key.SetValue("customBrushLocations", txtbxBrushLocations.Text);
-            key.Close();
+            settings.CustomBrushDirectories = new HashSet<string>(values, StringComparer.OrdinalIgnoreCase);
+            settings.UseDefaultBrushes = chkbxLoadDefaultBrushes.Checked;
         }
         #endregion
 

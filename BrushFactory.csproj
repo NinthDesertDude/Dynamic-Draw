@@ -95,6 +95,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
@@ -114,7 +115,9 @@
     <Compile Include="Gui\BrushFactoryPreferences.Designer.cs">
       <DependentUpon>BrushFactoryPreferences.cs</DependentUpon>
     </Compile>
+    <Compile Include="Gui\BrushFactorySettings.cs" />
     <Compile Include="Gui\BrushSelectorItem.cs" />
+    <Compile Include="Gui\IBrushFactorySettings.cs" />
     <Compile Include="Interop\SafeNativeMethods.cs" />
     <Compile Include="InterpolationItem.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
