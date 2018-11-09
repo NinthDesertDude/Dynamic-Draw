@@ -132,7 +132,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtTooltip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>9, 472</value>
+    <value>9, 515</value>
   </data>
   <data name="txtTooltip.Size" type="System.Drawing.Size, System.Drawing">
     <value>630, 20</value>
@@ -196,7 +196,7 @@
     <value>9, 6</value>
   </data>
   <data name="displayCanvasBG.Size" type="System.Drawing.Size, System.Drawing">
-    <value>630, 460</value>
+    <value>630, 503</value>
   </data>
   <data name="displayCanvasBG.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -709,7 +709,7 @@
     <value>4, 22</value>
   </data>
   <data name="tabJitter.Size" type="System.Drawing.Size, System.Drawing">
-    <value>175, 472</value>
+    <value>175, 515</value>
   </data>
   <data name="tabJitter.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -792,6 +792,76 @@
   <data name="&gt;&gt;sliderMinDrawDistance.ZOrder" xml:space="preserve">
     <value>11</value>
   </data>
+  <data name="bttnAddBrushes.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wwAADsMBx2+oZAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMS4zjST9ZwAAAZpJREFUOE+tkbtq
+        AlEQhu3SJqWEgG8QqzQptMkDpLOwiMZiK6s8QJpAqiS2XlBE8IaKioqKJoqJiMWKFsI2XkC8sLik2XYy
+        s0wiwUsU8lV7zsz5//lndf9OKBQyplIpAx8PBwXeEonEPR/3B13N9DAQCAwikcgrfR80CTrfkLvH41FI
+        hL4pDpd/oarq2Wg0EobDoZ6vVuyKoCjKcbFYfEwmk1CpVGCxWJi4tIImoTh8/CGbzZpxukE4HIZmswmT
+        yeSJS9sBgBNy9fl8L16vFwqFAnS7XZjP5w/cspler2eZTqcX+FDCfczi8TjUajXAewXHvuW2dfr9vqFc
+        Lov4F8DtdkMwGASXywWlUgkkSXqXZfmUW9fJ5/MWdFIwP2QyGSCRRqMBnU5HGx3HPufWdfDxnd1u11xj
+        sRik02mgTZPQeDwe4MKuuXUz7XZb73Q6ZZvNpglEo1FAUahWq0BTLZfL7e7ftFotoyAInw6HQ3PO5XIU
+        YYZbv+KWv6nX6yYUUK1WK/j9/g9RFI+5tD+Y/xIjPOPWj/hqBzrdFyN0E+dYfunYAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="bttnAddBrushes.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="bttnAddBrushes.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 238</value>
+  </data>
+  <data name="bttnAddBrushes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 32</value>
+  </data>
+  <data name="bttnAddBrushes.TabIndex" type="System.Int32, mscorlib">
+    <value>31</value>
+  </data>
+  <data name="bttnAddBrushes.Text" xml:space="preserve">
+    <value>Add Brushes...</value>
+  </data>
+  <data name="bttnAddBrushes.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
+  </data>
+  <data name="&gt;&gt;bttnAddBrushes.Name" xml:space="preserve">
+    <value>bttnAddBrushes</value>
+  </data>
+  <data name="&gt;&gt;bttnAddBrushes.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;bttnAddBrushes.Parent" xml:space="preserve">
+    <value>tabControls</value>
+  </data>
+  <data name="&gt;&gt;bttnAddBrushes.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="dummyImageList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>340, 17</value>
+  </metadata>
+  <data name="dummyImageList.ImageSize" type="System.Drawing.Size, System.Drawing">
+    <value>24, 24</value>
+  </data>
+  <data name="bttnBrushSelector.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 57</value>
+  </data>
+  <data name="bttnBrushSelector.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 175</value>
+  </data>
+  <data name="bttnBrushSelector.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="&gt;&gt;bttnBrushSelector.Name" xml:space="preserve">
+    <value>bttnBrushSelector</value>
+  </data>
+  <data name="&gt;&gt;bttnBrushSelector.Type" xml:space="preserve">
+    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=1.6.0.29308, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;bttnBrushSelector.Parent" xml:space="preserve">
+    <value>tabControls</value>
+  </data>
+  <data name="&gt;&gt;bttnBrushSelector.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <data name="bttnRedo.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
@@ -805,7 +875,7 @@
     <value>NoControl</value>
   </data>
   <data name="bttnRedo.Location" type="System.Drawing.Point, System.Drawing">
-    <value>90, 245</value>
+    <value>89, 438</value>
   </data>
   <data name="bttnRedo.Size" type="System.Drawing.Size, System.Drawing">
     <value>77, 23</value>
@@ -826,7 +896,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;bttnRedo.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="chkbxColorizeBrush.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -835,7 +905,7 @@
     <value>NoControl</value>
   </data>
   <data name="chkbxColorizeBrush.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 90</value>
+    <value>11, 283</value>
   </data>
   <data name="chkbxColorizeBrush.Size" type="System.Drawing.Size, System.Drawing">
     <value>93, 17</value>
@@ -856,7 +926,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;chkbxColorizeBrush.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="sliderBrushAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -868,7 +938,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 135</value>
+    <value>10, 328</value>
   </data>
   <data name="sliderBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
@@ -886,7 +956,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;sliderBrushAlpha.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="txtBrushAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -895,7 +965,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 117</value>
+    <value>10, 310</value>
   </data>
   <data name="txtBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
@@ -919,7 +989,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;txtBrushAlpha.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="txtBrushSize.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -928,7 +998,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 203</value>
+    <value>10, 396</value>
   </data>
   <data name="txtBrushSize.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
@@ -952,7 +1022,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;txtBrushSize.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="sliderBrushSize.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -964,7 +1034,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 220</value>
+    <value>10, 413</value>
   </data>
   <data name="sliderBrushSize.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
@@ -982,7 +1052,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;sliderBrushSize.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="sliderBrushRotation.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -994,7 +1064,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 178</value>
+    <value>10, 371</value>
   </data>
   <data name="sliderBrushRotation.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
@@ -1012,7 +1082,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;sliderBrushRotation.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>8</value>
   </data>
   <data name="txtBrushRotation.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1021,7 +1091,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 160</value>
+    <value>10, 353</value>
   </data>
   <data name="txtBrushRotation.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
@@ -1045,13 +1115,13 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;txtBrushRotation.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>9</value>
   </data>
   <data name="bttnOk.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="bttnOk.Location" type="System.Drawing.Point, System.Drawing">
-    <value>8, 290</value>
+    <value>7, 483</value>
   </data>
   <data name="bttnOk.Size" type="System.Drawing.Size, System.Drawing">
     <value>77, 23</value>
@@ -1072,7 +1142,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;bttnOk.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>10</value>
   </data>
   <data name="bttnBrushColor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1081,7 +1151,7 @@
     <value>NoControl</value>
   </data>
   <data name="bttnBrushColor.Location" type="System.Drawing.Point, System.Drawing">
-    <value>118, 52</value>
+    <value>113, 276</value>
   </data>
   <data name="bttnBrushColor.Size" type="System.Drawing.Size, System.Drawing">
     <value>47, 28</value>
@@ -1102,7 +1172,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;bttnBrushColor.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>11</value>
   </data>
   <data name="bttnUndo.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1117,7 +1187,7 @@
     <value>NoControl</value>
   </data>
   <data name="bttnUndo.Location" type="System.Drawing.Point, System.Drawing">
-    <value>8, 245</value>
+    <value>7, 438</value>
   </data>
   <data name="bttnUndo.Size" type="System.Drawing.Size, System.Drawing">
     <value>77, 23</value>
@@ -1138,7 +1208,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;bttnUndo.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>12</value>
   </data>
   <data name="bttnCancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1147,7 +1217,7 @@
     <value>NoControl</value>
   </data>
   <data name="bttnCancel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>90, 290</value>
+    <value>89, 483</value>
   </data>
   <data name="bttnCancel.Size" type="System.Drawing.Size, System.Drawing">
     <value>77, 23</value>
@@ -1168,7 +1238,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;bttnCancel.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>13</value>
   </data>
   <data name="sliderCanvasZoom.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1198,7 +1268,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;sliderCanvasZoom.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>14</value>
   </data>
   <data name="txtCanvasZoom.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1231,46 +1301,7 @@
     <value>tabControls</value>
   </data>
   <data name="&gt;&gt;txtCanvasZoom.ZOrder" xml:space="preserve">
-    <value>13</value>
-  </data>
-  <data name="bttnBrushSelector.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="bttnBrushSelector.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 8.25pt</value>
-  </data>
-  <data name="bttnBrushSelector.IntegralHeight" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="bttnBrushSelector.ItemHeight" type="System.Int32, mscorlib">
-    <value>25</value>
-  </data>
-  <data name="bttnBrushSelector.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 52</value>
-  </data>
-  <data name="bttnBrushSelector.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 0, 0, 0</value>
-  </data>
-  <data name="bttnBrushSelector.MaxDropDownItems" type="System.Int32, mscorlib">
-    <value>9</value>
-  </data>
-  <data name="bttnBrushSelector.Size" type="System.Drawing.Size, System.Drawing">
-    <value>99, 31</value>
-  </data>
-  <data name="bttnBrushSelector.TabIndex" type="System.Int32, mscorlib">
     <value>15</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.Name" xml:space="preserve">
-    <value>bttnBrushSelector</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.ZOrder" xml:space="preserve">
-    <value>14</value>
   </data>
   <data name="tabControls.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
@@ -1279,7 +1310,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabControls.Size" type="System.Drawing.Size, System.Drawing">
-    <value>175, 472</value>
+    <value>175, 515</value>
   </data>
   <data name="tabControls.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -1804,7 +1835,7 @@
     <value>4, 22</value>
   </data>
   <data name="tabColor.Size" type="System.Drawing.Size, System.Drawing">
-    <value>175, 472</value>
+    <value>175, 515</value>
   </data>
   <data name="tabColor.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -2149,7 +2180,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabOther.Size" type="System.Drawing.Size, System.Drawing">
-    <value>175, 472</value>
+    <value>175, 515</value>
   </data>
   <data name="tabOther.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -2176,7 +2207,7 @@
     <value>646, 0</value>
   </data>
   <data name="tabBar.Size" type="System.Drawing.Size, System.Drawing">
-    <value>183, 498</value>
+    <value>183, 541</value>
   </data>
   <data name="tabBar.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -2209,7 +2240,7 @@
     <value>None</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>829, 498</value>
+    <value>829, 541</value>
   </data>
   <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
@@ -2226,10 +2257,16 @@
   <data name="&gt;&gt;timerRepositionUpdate.Type" xml:space="preserve">
     <value>System.Windows.Forms.Timer, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="&gt;&gt;dummyImageList.Name" xml:space="preserve">
+    <value>dummyImageList</value>
+  </data>
+  <data name="&gt;&gt;dummyImageList.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ImageList, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>WinBrushFactory</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>PaintDotNet.Effects.EffectConfigDialog, PaintDotNet.Effects, Version=4.16.6315.38530, Culture=neutral, PublicKeyToken=null</value>
+    <value>PaintDotNet.Effects.EffectConfigDialog, PaintDotNet.Effects, Version=4.104.6882.34660, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

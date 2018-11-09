@@ -26,7 +26,17 @@ namespace BrushFactory
         /// <summary>
         /// Creates the list of brushes used by the brush selector.
         /// </summary>
-        private BindingList<BrushSelectorItem> loadedBrushes;
+        private BrushSelectorItemCollection loadedBrushes;
+
+        /// <summary>
+        /// The ListViewItem cache containing the visible items in the brush ListView
+        /// </summary>
+        private ListViewItem[] brushListViewCache;
+
+        /// <summary>
+        /// The starting index in the ListViewItem cache
+        /// </summary>
+        private int cacheStartIndex;
 
         /// <summary>
         /// Stores the user's custom brushes by file and path until it can
@@ -101,9 +111,19 @@ namespace BrushFactory
         private Button bttnBrushColor;
 
         /// <summary>
-        /// Displays a list of brushes to choose from.
+        /// The ListView that displays the brush thumbnail images to the user
         /// </summary>
-        private ComboBox bttnBrushSelector;
+        private DoubleBufferedListView bttnBrushSelector;
+
+        /// <summary>
+        /// An empty image list that allows the brush thumbnail size to be changed.
+        /// </summary>
+        private ImageList dummyImageList;
+
+        /// <summary>
+        /// The button used to add brushes
+        /// </summary>
+        private Button bttnAddBrushes;
 
         /// <summary>
         /// Handles the smoothing (interpolation) of each brush stroke.
@@ -511,7 +531,7 @@ namespace BrushFactory
             TempDirectory.CleanupPreviousDirectories();
             tempDir = new TempDirectory();
 
-            loadedBrushes = new BindingList<BrushSelectorItem>();
+            loadedBrushes = new BrushSelectorItemCollection();
 
             //Configures items for the smoothing method combobox.
             smoothingMethods = new BindingList<InterpolationItem>();
@@ -594,22 +614,22 @@ namespace BrushFactory
 
             //Attempts to find the brush's index in the current list of
             //brushes, by name. If it doesn't exist, it's set to default: "".
-            int brushIndex = loadedBrushes.ToList()
-                .FindIndex(o => o.Name.Equals(token.BrushName));
+            int brushIndex = loadedBrushes.FindIndex(o => o.Name.Equals(token.BrushName));
 
             //Doesn't copy custom brushes and brushes that weren't found.
+
+            bttnBrushSelector.SelectedIndices.Clear();
             if (token.BrushName.Equals("") ||
-                token.BrushName.Equals(BrushSelectorItem.CustomBrush.Name) ||
                 brushIndex == -1)
             {
-                if (bttnBrushSelector.Items.Count > 0)
+                if (bttnBrushSelector.VirtualListSize > 0)
                 {
-                    bttnBrushSelector.SelectedIndex = 0;
+                    bttnBrushSelector.SelectedIndices.Add(0);
                 }
             }
             else
             {
-                bttnBrushSelector.SelectedIndex = brushIndex;
+                bttnBrushSelector.SelectedIndices.Add(brushIndex);
             }
 
             //Sets the brush color to the primary color if it was transparent.
@@ -663,7 +683,9 @@ namespace BrushFactory
             var token = (PersistentSettings)EffectToken;
 
             token.BrushSize = sliderBrushSize.Value;
-            token.BrushName = (bttnBrushSelector.SelectedItem as BrushSelectorItem)?.Name ?? string.Empty;
+            int index = bttnBrushSelector.SelectedIndices.Count > 0 ? bttnBrushSelector.SelectedIndices[0] : -1;
+
+            token.BrushName = index >= 0 ? loadedBrushes[index].Name : string.Empty;
             token.BrushColor = bttnBrushColor.BackColor;
             token.BrushRotation = sliderBrushRotation.Value;
             token.BrushAlpha = sliderBrushAlpha.Value;
@@ -796,6 +818,7 @@ namespace BrushFactory
             bttnOk.Text = Localization.Strings.Ok;
             bttnUndo.Text = Localization.Strings.Undo;
             bttnRedo.Text = Localization.Strings.Redo;
+            bttnAddBrushes.Text = Localization.Strings.AddBrushes;
 
             chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
             chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
@@ -832,7 +855,7 @@ namespace BrushFactory
 
             InitBrushes();
 
-            MinimumSize = new Size(835, 526);
+            MinimumSize = new Size(835, 580);
             MaximumSize = Size;
         }
 
@@ -1034,6 +1057,11 @@ namespace BrushFactory
         {
             if (disposing)
             {
+                if (loadedBrushes != null)
+                {
+                    loadedBrushes.Dispose();
+                    loadedBrushes = null;
+                }
                 if (tempDir != null)
                 {
                     tempDir.Dispose();
@@ -1085,13 +1113,6 @@ namespace BrushFactory
                 loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
                 loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
             }
-
-            loadedBrushes.Add(BrushSelectorItem.CustomBrush);
-
-            //Enables dynamic binding and sets the list.
-            bttnBrushSelector.DataSource = loadedBrushes;
-            bttnBrushSelector.DisplayMember = "Name";
-            bttnBrushSelector.ValueMember = "Brush";
 
             //Loads any custom brushes.
             ImportBrushes(FilesInDirectory(settings.CustomBrushDirectories), true, false);
@@ -1625,6 +1646,7 @@ namespace BrushFactory
             bool doDisplayErrors)
         {
             int maxBrushSize = sliderBrushSize.Maximum;
+            int maxThumbnailHeight = GetListViewItemHeight();
 
             //Attempts to load a bitmap from a file to use as a brush.
             foreach (string file in filePaths)
@@ -1637,6 +1659,8 @@ namespace BrushFactory
                         {
                             using (AbrBrushCollection brushes = AbrReader.LoadBrushes(file))
                             {
+                                string location = Path.GetFileName(file);
+
                                 for (int i = 0; i < brushes.Count; i++)
                                 {
                                     AbrBrush item = brushes[i];
@@ -1685,7 +1709,8 @@ namespace BrushFactory
                                     }
 
                                     //Adds the brush without the period at the end.
-                                    loadedBrushes.Add(new BrushSelectorItem(filename, bmpBrush));
+                                    loadedBrushes.Add(
+                                        new BrushSelectorItem(filename, location, bmpBrush, tempDir.GetRandomFileName(), maxThumbnailHeight));
                                 }
                             }
                         }
@@ -1745,9 +1770,11 @@ namespace BrushFactory
                             filename += " ";
                         }
 
+                        string location = Path.GetDirectoryName(file);
+
                         //Adds the brush without the period at the end.
                         loadedBrushes.Add(
-                            new BrushSelectorItem(filename, bmpBrush));
+                            new BrushSelectorItem(filename, location, bmpBrush, tempDir.GetRandomFileName(), maxThumbnailHeight));
                     }
 
                     if (doAddToSettings)
@@ -1756,13 +1783,15 @@ namespace BrushFactory
                         loadedBrushPaths.Add(file);
                     }
 
-                    //Removes the custom brush so it can be appended on the end.
-                    loadedBrushes.Remove(BrushSelectorItem.CustomBrush);
-                    loadedBrushes.Add(BrushSelectorItem.CustomBrush);
+                    bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
 
                     //Makes the newest brush active (and not the custom brush).
-                    bttnBrushSelector.SelectedIndex =
-                        bttnBrushSelector.Items.Count - 2;
+                    bttnBrushSelector.SelectedIndices.Clear();
+
+                    int selectedIndex = loadedBrushes.Count - 1;
+
+                    bttnBrushSelector.SelectedIndices.Add(selectedIndex);
+                    bttnBrushSelector.EnsureVisible(selectedIndex);
                 }
                 catch (ArgumentException)
                 {
@@ -1817,6 +1846,36 @@ namespace BrushFactory
             }
 
             return pathsToReturn.ToArray();
+        }
+
+        /// <summary>
+        /// Gets the height of a single ListView item.
+        /// </summary>
+        /// <returns>The height of a single ListView item.</returns>
+        private int GetListViewItemHeight()
+        {
+            if (bttnBrushSelector.VirtualListSize == 0)
+            {
+                // Suspend the ListView painting while the dummy item is added and removed.
+                bttnBrushSelector.BeginUpdate();
+
+                // Add and remove a dummy item to get the ListView item height.
+                loadedBrushes.Add(new BrushSelectorItem("Dummy", Resources.BrCircle));
+                bttnBrushSelector.VirtualListSize = 1;
+
+                int itemHeight = bttnBrushSelector.GetItemRect(0, ItemBoundsPortion.Entire).Height;
+
+                bttnBrushSelector.VirtualListSize = 0;
+                loadedBrushes.Clear();
+
+                bttnBrushSelector.EndUpdate();
+
+                return itemHeight;
+            }
+            else
+            {
+                return bttnBrushSelector.GetItemRect(0, ItemBoundsPortion.Entire).Height;
+            }
         }
 
         /// <summary>
@@ -1886,6 +1945,9 @@ namespace BrushFactory
             this.txtMinDrawDistance = new System.Windows.Forms.Label();
             this.sliderMinDrawDistance = new System.Windows.Forms.TrackBar();
             this.tabControls = new System.Windows.Forms.TabPage();
+            this.bttnAddBrushes = new System.Windows.Forms.Button();
+            this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
+            this.dummyImageList = new System.Windows.Forms.ImageList(this.components);
             this.bttnRedo = new System.Windows.Forms.Button();
             this.chkbxColorizeBrush = new System.Windows.Forms.CheckBox();
             this.sliderBrushAlpha = new System.Windows.Forms.TrackBar();
@@ -1900,7 +1962,6 @@ namespace BrushFactory
             this.bttnCancel = new System.Windows.Forms.Button();
             this.sliderCanvasZoom = new System.Windows.Forms.TrackBar();
             this.txtCanvasZoom = new System.Windows.Forms.Label();
-            this.bttnBrushSelector = new System.Windows.Forms.ComboBox();
             this.grpbxBrushOptions = new System.Windows.Forms.GroupBox();
             this.bttnSymmetry = new System.Windows.Forms.ComboBox();
             this.chkbxLockAlpha = new System.Windows.Forms.CheckBox();
@@ -2163,6 +2224,8 @@ namespace BrushFactory
             // tabControls
             // 
             this.tabControls.BackColor = System.Drawing.Color.Transparent;
+            this.tabControls.Controls.Add(this.bttnAddBrushes);
+            this.tabControls.Controls.Add(this.bttnBrushSelector);
             this.tabControls.Controls.Add(this.bttnRedo);
             this.tabControls.Controls.Add(this.chkbxColorizeBrush);
             this.tabControls.Controls.Add(this.sliderBrushAlpha);
@@ -2177,10 +2240,41 @@ namespace BrushFactory
             this.tabControls.Controls.Add(this.bttnCancel);
             this.tabControls.Controls.Add(this.sliderCanvasZoom);
             this.tabControls.Controls.Add(this.txtCanvasZoom);
-            this.tabControls.Controls.Add(this.bttnBrushSelector);
             resources.ApplyResources(this.tabControls, "tabControls");
             this.tabControls.Name = "tabControls";
             // 
+            // bttnAddBrushes
+            //
+            resources.ApplyResources(this.bttnAddBrushes, "bttnAddBrushes");
+            this.bttnAddBrushes.Name = "bttnAddBrushes";
+            this.bttnAddBrushes.UseVisualStyleBackColor = true;
+            this.bttnAddBrushes.Click += new System.EventHandler(this.BttnAddBrushes_Click);
+            this.bttnAddBrushes.MouseEnter += new System.EventHandler(this.BttnAddBrushes_MouseEnter);
+            //
+            // bttnBrushSelector
+            //
+            this.bttnBrushSelector.LargeImageList = this.dummyImageList;
+            resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
+            this.bttnBrushSelector.MultiSelect = false;
+            this.bttnBrushSelector.Name = "bttnBrushSelector";
+            this.bttnBrushSelector.OwnerDraw = true;
+            this.bttnBrushSelector.ShowItemToolTips = true;
+            this.bttnBrushSelector.UseCompatibleStateImageBehavior = false;
+            this.bttnBrushSelector.VirtualMode = true;
+            this.bttnBrushSelector.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.BttnBrushSelector_CacheVirtualItems);
+            this.bttnBrushSelector.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.BttnBrushSelector_DrawColumnHeader);
+            this.bttnBrushSelector.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.BttnBrushSelector_DrawItem);
+            this.bttnBrushSelector.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.BttnBrushSelector_DrawSubItem);
+            this.bttnBrushSelector.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.BttnBrushSelector_RetrieveVirtualItem);
+            this.bttnBrushSelector.SelectedIndexChanged += new System.EventHandler(this.BttnBrushSelector_SelectedIndexChanged);
+            this.bttnBrushSelector.MouseEnter += new System.EventHandler(this.BttnBrushSelector_MouseEnter);
+            //
+            // dummyImageList
+            //
+            this.dummyImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            resources.ApplyResources(this.dummyImageList, "dummyImageList");
+            this.dummyImageList.TransparentColor = System.Drawing.Color.Transparent;
+            //
             // bttnRedo
             // 
             resources.ApplyResources(this.bttnRedo, "bttnRedo");
@@ -2302,20 +2396,6 @@ namespace BrushFactory
             resources.ApplyResources(this.txtCanvasZoom, "txtCanvasZoom");
             this.txtCanvasZoom.BackColor = System.Drawing.Color.Transparent;
             this.txtCanvasZoom.Name = "txtCanvasZoom";
-            // 
-            // bttnBrushSelector
-            // 
-            resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
-            this.bttnBrushSelector.BackColor = System.Drawing.Color.White;
-            this.bttnBrushSelector.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.bttnBrushSelector.DropDownHeight = 140;
-            this.bttnBrushSelector.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.bttnBrushSelector.DropDownWidth = 20;
-            this.bttnBrushSelector.FormattingEnabled = true;
-            this.bttnBrushSelector.Name = "bttnBrushSelector";
-            this.bttnBrushSelector.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.BttnBrushSelector_DrawItem);
-            this.bttnBrushSelector.SelectedIndexChanged += new System.EventHandler(this.BttnBrushSelector_SelectedIndexChanged);
-            this.bttnBrushSelector.MouseEnter += new System.EventHandler(this.BttnBrushSelector_MouseEnter);
             // 
             // grpbxBrushOptions
             // 
@@ -2953,6 +3033,22 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Displays a dialog allowing the user to add new brushes.
+        /// </summary>
+        private void BttnAddBrushes_Click(object sender, EventArgs e)
+        {
+            ImportBrushes(true);
+        }
+
+        /// <summary>
+        /// Sets a tooltip.
+        /// </summary>
+        private void BttnAddBrushes_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.AddBrushesTip;
+        }
+
+        /// <summary>
         /// Sets the new color of the brush.
         /// </summary>
         private void BttnBrushColor_Click(object sender, EventArgs e)
@@ -2987,45 +3083,115 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Draws the current item's image and text. This is automatically
-        /// called for each item to be drawn.
+        /// Handles the CacheVirtualItems event of the bttnBrushSelector control.
         /// </summary>
-        private void BttnBrushSelector_DrawItem(object sender, DrawItemEventArgs e)
+        private void BttnBrushSelector_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
         {
-            //Constrains the image drawing space of each item's picture so it
-            //draws without distortion, which is why size is height * height.
-            Rectangle pictureLocation = new Rectangle(2, e.Bounds.Top,
-                e.Bounds.Height, e.Bounds.Height);
-
-            //Repaints white over the image and text area.
-            e.Graphics.FillRectangle(
-                Brushes.White,
-                new Rectangle(2, e.Bounds.Top, e.Bounds.Width, e.Bounds.Height));
-
-            //Draws the image of the current item to be repainted.
-            if (loadedBrushes[e.Index].Brush != null)
+            // Check if the cache needs to be refreshed.
+            if (brushListViewCache != null && e.StartIndex >= cacheStartIndex && e.EndIndex <= cacheStartIndex + brushListViewCache.Length)
             {
-                e.Graphics.DrawImage(loadedBrushes[e.Index].Brush, pictureLocation);
+                // If the newly requested cache is a subset of the old cache,
+                // no need to rebuild everything, so do nothing.
+                return;
             }
 
-            //Draws the text of the current item to be repainted.
-            //Draws the custom brush text centered as there is no picture.
-            if (bttnBrushSelector.Items[e.Index] == BrushSelectorItem.CustomBrush)
+            cacheStartIndex = e.StartIndex;
+            // The indexes are inclusive.
+            int length = e.EndIndex - e.StartIndex + 1;
+            brushListViewCache = new ListViewItem[length];
+
+            // Fill the cache with the appropriate ListViewItems.
+            for (int i = 0; i < length; i++)
             {
-                e.Graphics.DrawString(
-                    bttnBrushSelector.GetItemText(bttnBrushSelector.Items[e.Index]),
-                    bttnBrushSelector.Font,
-                    Brushes.Black,
-                    new Point(e.Bounds.X + 4, e.Bounds.Y + 6));
+                int itemIndex = cacheStartIndex + i;
+
+                BrushSelectorItem brush = loadedBrushes[itemIndex];
+                string name = brush.Name;
+                string tooltipText;
+
+                if (!string.IsNullOrEmpty(brush.Location))
+                {
+                    tooltipText = name + "\n" + brush.Location;
+                }
+                else
+                {
+                    tooltipText = name;
+                }
+
+                brushListViewCache[i] = new ListViewItem
+                {
+                    // When the text is an empty string it will not
+                    // be included ListViewItem size calculation.
+                    Text = string.Empty,
+                    ImageIndex = itemIndex,
+                    ToolTipText = tooltipText
+                };
+            }
+        }
+
+        /// <summary>
+        /// Handles the DrawColumnHeader event of the bttnBrushSelector control.
+        /// </summary>
+        private void BttnBrushSelector_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            e.DrawDefault = true;
+        }
+
+        /// <summary>
+        /// Handles the DrawItem event of the bttnBrushSelector control.
+        /// </summary>
+        private void BttnBrushSelector_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            BrushSelectorItem item = loadedBrushes[e.ItemIndex];
+
+            Rectangle drawRect = new Rectangle(e.Bounds.Left, e.Bounds.Top, item.BrushWidth, item.BrushHeight);
+
+            // The brush image is always square.
+            if (item.BrushHeight > e.Bounds.Height)
+            {
+                drawRect.Width = item.BrushWidth * e.Bounds.Height / item.BrushHeight;
+                drawRect.Height = e.Bounds.Height;
+            }
+
+            // Center the image.
+            if (drawRect.Width < e.Bounds.Width)
+            {
+                drawRect.X = e.Bounds.X + ((e.Bounds.Width - drawRect.Width) / 2);
+            }
+            if (drawRect.Height < e.Bounds.Height)
+            {
+                drawRect.Y = e.Bounds.Y + ((e.Bounds.Height - drawRect.Height) / 2);
+            }
+
+            Bitmap thumbnail = item.Thumbnail;
+
+            if (thumbnail == null ||
+                drawRect.Width != thumbnail.Width ||
+                drawRect.Height != thumbnail.Height)
+            {
+                item.GenerateListViewThumbnail(e.Bounds.Height, e.Item.Selected);
+                thumbnail = item.Thumbnail;
+            }
+
+            if (e.Item.Selected)
+            {
+                e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
+                e.DrawFocusRectangle();
             }
             else
             {
-                e.Graphics.DrawString(
-                    bttnBrushSelector.GetItemText(bttnBrushSelector.Items[e.Index]),
-                    bttnBrushSelector.Font,
-                    Brushes.Black,
-                    new Point(e.Bounds.X + pictureLocation.Width, e.Bounds.Y + 6));
+                e.DrawBackground();
             }
+
+            e.Graphics.DrawImage(thumbnail, drawRect);
+        }
+
+        /// <summary>
+        /// Handles the DrawSubItem event of the bttnBrushSelector control.
+        /// </summary>
+        private void BttnBrushSelector_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            e.DrawDefault = true;
         }
 
         /// <summary>
@@ -3037,29 +3203,79 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Handles the RetrieveVirtualItem event of the bttnBrushSelector control.
+        /// </summary>
+        private void BttnBrushSelector_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
+        {
+            if (brushListViewCache != null && e.ItemIndex >= cacheStartIndex && e.ItemIndex < cacheStartIndex + brushListViewCache.Length)
+            {
+                e.Item = brushListViewCache[e.ItemIndex - cacheStartIndex];
+            }
+            else
+            {
+                BrushSelectorItem brush = loadedBrushes[e.ItemIndex];
+                string name = brush.Name;
+                string tooltipText;
+
+                if (!string.IsNullOrEmpty(brush.Location))
+                {
+                    tooltipText = name + "\n" + brush.Location;
+                }
+                else
+                {
+                    tooltipText = name;
+                }
+
+                e.Item = new ListViewItem
+                {
+                    // When the text is an empty string it will not
+                    // be included ListViewItem size calculation.
+                    Text = string.Empty,
+                    ImageIndex = e.ItemIndex,
+                    ToolTipText = tooltipText
+                };
+            }
+        }
+
+        /// <summary>
         /// Sets the brush when the user changes it with the selector.
         /// </summary>
         private void BttnBrushSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Gets the currently selected item.
-            BrushSelectorItem currentItem =
-                (bttnBrushSelector.SelectedItem as BrushSelectorItem);
 
-            //Opens a file dialog for the user to load brushes.
-            if (currentItem.Name.Equals(BrushSelectorItem.CustomBrush.Name))
+            if (bttnBrushSelector.SelectedIndices.Count > 0)
             {
-                ImportBrushes(true);
-            }
+                int index = bttnBrushSelector.SelectedIndices[0];
 
-            //Sets the brush otherwise.
-            else
-            {
-                bmpBrush = Utils.FormatImage(
-                    new Bitmap(currentItem.Brush),
-                    PixelFormat.Format32bppArgb);
-            }
+                if (index >= 0)
+                {
+                    int previousItemIndex = bttnBrushSelector.PreviousItemIndex;
 
-            UpdateBrush();
+                    if (previousItemIndex >= 0)
+                    {
+                        BrushSelectorItem previousItem = loadedBrushes[previousItemIndex];
+                        if (previousItem.State == BrushSelectorItemState.Memory)
+                        {
+                            previousItem.ToDisk();
+                        }
+                    }
+
+                    BrushSelectorItem currentItem = loadedBrushes[index];
+
+                    if (currentItem.State == BrushSelectorItemState.Disk)
+                    {
+                        currentItem.ToMemory();
+                    }
+
+                    bmpBrush?.Dispose();
+                    bmpBrush = Utils.FormatImage(
+                        new Bitmap(currentItem.Brush),
+                        PixelFormat.Format32bppArgb);
+
+                    UpdateBrush();
+                }
+            }
         }
 
         /// <summary>
