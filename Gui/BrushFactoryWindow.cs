@@ -1,6 +1,7 @@
 ﻿using BrushFactory.Abr;
 using BrushFactory.Properties;
 using PaintDotNet;
+using PaintDotNet.AppModel;
 using PaintDotNet.Effects;
 using System;
 using System.Collections.Generic;
@@ -492,6 +493,11 @@ namespace BrushFactory
         /// A temporary folder that is deleted when the dialog exits.
         /// </summary>
         private TempDirectory tempDir;
+
+        /// <summary>
+        /// The saved user interface settings.
+        /// </summary>
+        private BrushFactorySettings settings;
         #endregion
 
         #region Constructors
@@ -505,7 +511,7 @@ namespace BrushFactory
             TempDirectory.CleanupPreviousDirectories();
             tempDir = new TempDirectory();
 
-            InitBrushes();
+            loadedBrushes = new BindingList<BrushSelectorItem>();
 
             //Configures items for the smoothing method combobox.
             smoothingMethods = new BindingList<InterpolationItem>();
@@ -596,7 +602,10 @@ namespace BrushFactory
                 token.BrushName.Equals(BrushSelectorItem.CustomBrush.Name) ||
                 brushIndex == -1)
             {
-                bttnBrushSelector.SelectedIndex = 0;
+                if (bttnBrushSelector.Items.Count > 0)
+                {
+                    bttnBrushSelector.SelectedIndex = 0;
+                }
             }
             else
             {
@@ -654,7 +663,7 @@ namespace BrushFactory
             var token = (PersistentSettings)EffectToken;
 
             token.BrushSize = sliderBrushSize.Value;
-            token.BrushName = (bttnBrushSelector.SelectedItem as BrushSelectorItem).Name;
+            token.BrushName = (bttnBrushSelector.SelectedItem as BrushSelectorItem)?.Name ?? string.Empty;
             token.BrushColor = bttnBrushColor.BackColor;
             token.BrushRotation = sliderBrushRotation.Value;
             token.BrushAlpha = sliderBrushAlpha.Value;
@@ -801,6 +810,27 @@ namespace BrushFactory
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
+            IUserFilesService userFilesService = (IUserFilesService)Services.GetService(typeof(IUserFilesService));
+
+            string path = Path.Combine(userFilesService.UserFilesPath, "BrushFactorySettings.xml");
+
+            settings = new BrushFactorySettings(path);
+            try
+            {
+                // Loading the settings is split into a separate method to allow the defaults
+                // to be used if an error occurs.
+                settings.LoadSavedSettings();
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            InitBrushes();
 
             MinimumSize = new Size(835, 526);
             MaximumSize = Size;
@@ -973,6 +1003,30 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing" /> event.
+        /// </summary>
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+
+            if (!e.Cancel)
+            {
+                try
+                {
+                    settings?.SaveChangedSettings();
+                }
+                catch (IOException ex)
+                {
+                    MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
@@ -1005,39 +1059,10 @@ namespace BrushFactory
         {
             bmpBrush = new Bitmap(Resources.BrCircle);
 
-            //Configures the default list of brushes for the brush selector.
-            loadedBrushes = new BindingList<BrushSelectorItem>();
-
-            // Retrieves values from the registry for the gui.
-            Microsoft.Win32.RegistryKey key =
-                Microsoft.Win32.Registry.CurrentUser
-                .CreateSubKey("software", true)
-                .CreateSubKey("paint.net_brushfactory", true);
-
-            //Gets whether default brushes should be used.
-            bool useDefaultBrushes = true;
-            string value = (string)key.GetValue("useDefaultBrushes");
-            if (value != null)
-            {
-                Boolean.TryParse(value, out useDefaultBrushes);
-            }
-
-            //Gets the desired locations to load custom brushes from.
-            string[] customBrushDirectories = { };
-            value = (string)key.GetValue("customBrushLocations");
-            if (value != null)
-            {
-                customBrushDirectories = value.Split(
-                    new[] { "\r\n", "\r", "\n" },
-                    StringSplitOptions.RemoveEmptyEntries);
-            }
-
-            key.Close();
-
             //Loads stored brushes.
             loadedBrushes.Add(new BrushSelectorItem("Circle 1", Resources.BrCircle));
 
-            if (useDefaultBrushes)
+            if (settings.UseDefaultBrushes)
             {
                 loadedBrushes.Add(new BrushSelectorItem("Circle 2", Resources.BrCircleMedium));
                 loadedBrushes.Add(new BrushSelectorItem("Circle 3", Resources.BrCircleHard));
@@ -1069,7 +1094,7 @@ namespace BrushFactory
             bttnBrushSelector.ValueMember = "Brush";
 
             //Loads any custom brushes.
-            ImportBrushes(FilesInDirectory(customBrushDirectories), true, false);
+            ImportBrushes(FilesInDirectory(settings.CustomBrushDirectories), true, false);
         }
 
         /// <summary>
@@ -1765,7 +1790,7 @@ namespace BrushFactory
         /// Returns a list of files in the given directories. Any invalid
         /// or non-directory path is ignored.
         /// </summary>
-        private string[] FilesInDirectory(string[] dirs)
+        private string[] FilesInDirectory(IEnumerable<string> dirs)
         {
             List<string> pathsToReturn = new List<string>();
 
@@ -2679,17 +2704,20 @@ namespace BrushFactory
             Color setColor = bttnBrushColor.BackColor;
             float multAlpha = 1 - (sliderBrushAlpha.Value / 100f);
 
-            //Applies the color and alpha changes.
-            bmpBrushEffects = new Bitmap(bmpBrush);
+            if (bmpBrush != null)
+            {
+                //Applies the color and alpha changes.
+                bmpBrushEffects = new Bitmap(bmpBrush);
 
-            //Colorizes the image only if enabled.
-            if (chkbxColorizeBrush.Checked)
-            {
-                Utils.ColorImage(bmpBrushEffects, setColor, multAlpha);
-            }
-            else
-            {
-                Utils.ColorImage(bmpBrushEffects, multAlpha);
+                //Colorizes the image only if enabled.
+                if (chkbxColorizeBrush.Checked)
+                {
+                    Utils.ColorImage(bmpBrushEffects, setColor, multAlpha);
+                }
+                else
+                {
+                    Utils.ColorImage(bmpBrushEffects, multAlpha);
+                }
             }
         }
         #endregion
@@ -3130,7 +3158,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnPreferences_Click(object sender, EventArgs e)
         {
-            new Gui.BrushFactoryPreferences().ShowDialog();
+            new Gui.BrushFactoryPreferences(settings).ShowDialog();
         }
 
         /// <summary>
