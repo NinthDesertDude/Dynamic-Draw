@@ -126,6 +126,12 @@
   <data name="AbrUnsupportedMinorVersionFormat" xml:space="preserve">
     <value>Unsupported ABR version: {0}.{1}</value>
   </data>
+  <data name="AddBrushes" xml:space="preserve">
+    <value>Add Brushes...</value>
+  </data>
+  <data name="AddBrushesTip" xml:space="preserve">
+    <value>Select additional brushes to add to the list.</value>
+  </data>
   <data name="AddFolder" xml:space="preserve">
     <value>Add Folder</value>
   </data>
@@ -157,7 +163,7 @@
     <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
   </data>
   <data name="BrushSelectorTip" xml:space="preserve">
-    <value>Lets you choose another brush to use (or import your own).</value>
+    <value>Lets you choose another brush to use.</value>
   </data>
   <data name="BrushSizeTip" xml:space="preserve">
     <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>

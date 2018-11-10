@@ -88,6 +88,24 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Brushes....
+        /// </summary>
+        internal static string AddBrushes {
+            get {
+                return ResourceManager.GetString("AddBrushes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select additional brushes to add to the list..
+        /// </summary>
+        internal static string AddBrushesTip {
+            get {
+                return ResourceManager.GetString("AddBrushesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Folder.
         /// </summary>
         internal static string AddFolder {
@@ -178,7 +196,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lets you choose another brush to use (or import your own)..
+        ///   Looks up a localized string similar to Lets you choose another brush to use..
         /// </summary>
         internal static string BrushSelectorTip {
             get {

@@ -117,6 +117,10 @@
     </Compile>
     <Compile Include="Gui\BrushFactorySettings.cs" />
     <Compile Include="Gui\BrushSelectorItem.cs" />
+    <Compile Include="Gui\BrushSelectorItemCollection.cs" />
+    <Compile Include="Gui\DoubleBufferedListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Gui\IBrushFactorySettings.cs" />
     <Compile Include="Interop\SafeNativeMethods.cs" />
     <Compile Include="InterpolationItem.cs" />
@@ -221,6 +225,7 @@
     <None Include="Resources\BrGravel.png" />
     <None Include="Resources\BrSpark.png" />
     <None Include="Resources\icon.ico" />
+    <None Include="Resources\AddBrushIcon.png" />
     <Content Include="Resources\icon.png" />
   </ItemGroup>
   <PropertyGroup>
