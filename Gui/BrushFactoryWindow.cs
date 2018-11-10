@@ -1113,6 +1113,7 @@ namespace BrushFactory
                 loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
                 loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
             }
+            bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
 
             //Loads any custom brushes.
             ImportBrushes(FilesInDirectory(settings.CustomBrushDirectories), true, false);
