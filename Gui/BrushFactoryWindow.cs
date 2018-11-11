@@ -45,6 +45,17 @@ namespace BrushFactory
         private HashSet<string> loadedBrushPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
+        /// Indicates whether the brushes from need to be imported from the
+        /// collection of loaded brush paths stored in the effect token.
+        /// </summary>
+        private bool importBrushesFromToken;
+
+        /// <summary>
+        /// The selected brush name from the effect token.
+        /// </summary>
+        private string tokenSelectedBrushName;
+
+        /// <summary>
         /// Whether the user is drawing on the image.
         /// </summary>
         private bool isUserDrawing = false;
@@ -598,39 +609,12 @@ namespace BrushFactory
             //ensures there are no duplicates. Brush names are unique.
             if (token.CustomBrushLocations.Count > 0 && !token.CustomBrushLocations.SetEquals(loadedBrushPaths))
             {
-                foreach (string path in token.CustomBrushLocations)
-                {
-                    if (loadedBrushPaths.Add(path))
-                    {
-                        //Ensures the brush location is preserved, then loads
-                        //the brush.
-                        ImportBrushes(
-                            new string[] { path },
-                            false,
-                            false);
-                    }
-                }
+                loadedBrushPaths.UnionWith(token.CustomBrushLocations);
+
+                importBrushesFromToken = true;
             }
 
-            //Attempts to find the brush's index in the current list of
-            //brushes, by name. If it doesn't exist, it's set to default: "".
-            int brushIndex = loadedBrushes.FindIndex(o => o.Name.Equals(token.BrushName));
-
-            //Doesn't copy custom brushes and brushes that weren't found.
-
-            bttnBrushSelector.SelectedIndices.Clear();
-            if (token.BrushName.Equals("") ||
-                brushIndex == -1)
-            {
-                if (bttnBrushSelector.VirtualListSize > 0)
-                {
-                    bttnBrushSelector.SelectedIndices.Add(0);
-                }
-            }
-            else
-            {
-                bttnBrushSelector.SelectedIndices.Add(brushIndex);
-            }
+            tokenSelectedBrushName = token.BrushName;
 
             //Sets the brush color to the primary color if it was transparent.
             //Else, copies it. This works since the user colors are opaque.
@@ -1113,9 +1097,20 @@ namespace BrushFactory
                 loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
                 loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
             }
+            bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
 
             //Loads any custom brushes.
-            ImportBrushes(FilesInDirectory(settings.CustomBrushDirectories), true, false);
+
+            if (importBrushesFromToken)
+            {
+                importBrushesFromToken = false;
+
+                ImportBrushes(loadedBrushPaths, false, false);
+            }
+            else
+            {
+                ImportBrushes(FilesInDirectory(settings.CustomBrushDirectories), true, false); 
+            }
         }
 
         /// <summary>
@@ -1641,7 +1636,7 @@ namespace BrushFactory
         /// Errors should only be displayed if it's a user-initiated action.
         /// </param>
         private bool ImportBrushes(
-            string[] filePaths,
+            IReadOnlyCollection<string> filePaths,
             bool doAddToSettings,
             bool doDisplayErrors)
         {
@@ -1784,14 +1779,6 @@ namespace BrushFactory
                     }
 
                     bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
-
-                    //Makes the newest brush active (and not the custom brush).
-                    bttnBrushSelector.SelectedIndices.Clear();
-
-                    int selectedIndex = loadedBrushes.Count - 1;
-
-                    bttnBrushSelector.SelectedIndices.Add(selectedIndex);
-                    bttnBrushSelector.EnsureVisible(selectedIndex);
                 }
                 catch (ArgumentException)
                 {
@@ -1811,6 +1798,23 @@ namespace BrushFactory
                     return false;
                 }
             }
+
+            //Makes the newest brush active unless the user has a previously selected brush.
+            bttnBrushSelector.SelectedIndices.Clear();
+
+            int selectedIndex = loadedBrushes.Count - 1;
+
+            if (!string.IsNullOrEmpty(tokenSelectedBrushName))
+            {
+                int index = loadedBrushes.FindIndex(b => b.Name.Equals(tokenSelectedBrushName));
+                if (index >= 0)
+                {
+                    selectedIndex = index;
+                }
+            }
+
+            bttnBrushSelector.SelectedIndices.Add(selectedIndex);
+            bttnBrushSelector.EnsureVisible(selectedIndex);
 
             return true;
         }
