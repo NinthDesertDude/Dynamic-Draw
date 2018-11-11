@@ -45,7 +45,7 @@ namespace BrushFactory
         private HashSet<string> loadedBrushPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Indicates whether the brushes from need to be imported from the
+        /// Indicates whether the brushes need to be imported from the
         /// collection of loaded brush paths stored in the effect token.
         /// </summary>
         private bool importBrushesFromToken;
