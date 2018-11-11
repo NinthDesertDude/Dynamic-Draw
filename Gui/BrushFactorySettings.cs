@@ -210,7 +210,7 @@ namespace BrushFactory
                 }
             }
 
-            using (FileStream stream = new FileStream(settingsPath, FileMode.OpenOrCreate, FileAccess.Write))
+            using (FileStream stream = new FileStream(settingsPath, FileMode.Create, FileAccess.Write))
             {
                 DataContractSerializer serializer = new DataContractSerializer(typeof(BrushFactorySettings));
                 serializer.WriteObject(stream, this);
