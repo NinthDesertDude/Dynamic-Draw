@@ -1784,6 +1784,9 @@ namespace BrushFactory
                 {
                     continue;
                 }
+                catch (DirectoryNotFoundException)
+                {
+                }
                 catch (FileNotFoundException)
                 {
                     continue;
