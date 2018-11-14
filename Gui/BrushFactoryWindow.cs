@@ -1071,6 +1071,13 @@ namespace BrushFactory
         {
             bmpBrush = new Bitmap(Resources.BrCircle);
 
+            if (loadedBrushes.Count > 0)
+            {
+                // Disposes and removes all of the existing items in the collection.
+                bttnBrushSelector.VirtualListSize = 0;
+                loadedBrushes.Clear();
+            }
+
             //Loads stored brushes.
             loadedBrushes.Add(new BrushSelectorItem("Circle 1", Resources.BrCircle));
 
