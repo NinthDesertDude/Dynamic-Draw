@@ -993,6 +993,11 @@ namespace BrushFactory
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(Point loc, int radius)
         {
+            if (bmpBrushEffects == null)
+            {
+                return;
+            }
+
             //Stores the differences in mouse coordinates for some settings.
             int deltaX;
             int deltaY;
