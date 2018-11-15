@@ -12,6 +12,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -529,6 +530,27 @@ namespace BrushFactory
         /// The saved user interface settings.
         /// </summary>
         private BrushFactorySettings settings;
+
+        /// <summary>
+        /// The background worker used to load brushes.
+        /// </summary>
+        private BackgroundWorker backgroundWorker;
+
+        /// <summary>
+        /// Indicates whether the user is canceling the dialog.
+        /// </summary>
+        private bool formClosePending;
+
+        /// <summary>
+        /// Indicates that the background worker should reload the brushes
+        /// after it is canceled.
+        /// </summary>
+        private bool reinitializeBrushes;
+
+        /// <summary>
+        /// The brush loading progress bar
+        /// </summary>
+        private ProgressBar brushLoadProgressBar;
         #endregion
 
         #region Constructors
@@ -1016,6 +1038,16 @@ namespace BrushFactory
         {
             base.OnFormClosing(e);
 
+            if (backgroundWorker.IsBusy)
+            {
+                e.Cancel = true;
+                if (DialogResult == DialogResult.Cancel)
+                {
+                    formClosePending = true;
+                    backgroundWorker.CancelAsync();
+                }
+            }
+
             if (!e.Cancel)
             {
                 try
@@ -1069,6 +1101,16 @@ namespace BrushFactory
         /// </summary>
         private void InitBrushes()
         {
+            if (backgroundWorker.IsBusy)
+            {
+                // Signal the background worker to abort and call this method when it completes.
+                // This prevents a few crashes caused by race conditions when modifying the brush
+                // collection from multiple threads.
+                reinitializeBrushes = true;
+                backgroundWorker.CancelAsync();
+                return;
+            }
+
             bmpBrush = new Bitmap(Resources.BrCircle);
 
             if (loadedBrushes.Count > 0)
@@ -1112,11 +1154,11 @@ namespace BrushFactory
             {
                 importBrushesFromToken = false;
 
-                ImportBrushes(loadedBrushPaths, false, false);
+                ImportBrushesFromFiles(loadedBrushPaths, false, false);
             }
             else
             {
-                ImportBrushes(FilesInDirectory(settings.CustomBrushDirectories), true, false); 
+                ImportBrushesFromDirectories(settings.CustomBrushDirectories);
             }
         }
 
@@ -1602,12 +1644,11 @@ namespace BrushFactory
         /// <summary>
         /// Presents an open file dialog to the user, allowing them to select
         /// any number of brush files to load and add as the custom brushes.
-        /// Returns false if the user cancels or an error occurred.
         /// </summary>
         /// <param name="doAddToSettings">
         /// If true, the brush will be added to the settings.
         /// </param>
-        private bool ImportBrushes(bool doAddToSettings)
+        private void ImportBrushes(bool doAddToSettings)
         {
             //Configures a dialog to get the brush(es) path(s).
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -1622,10 +1663,8 @@ namespace BrushFactory
             //Displays the dialog. Loads the files if it worked.
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                return ImportBrushes(openFileDialog.FileNames, doAddToSettings, true);
+                ImportBrushesFromFiles(openFileDialog.FileNames, doAddToSettings, true);
             }
-
-            return false;
         }
 
         /// <summary>
@@ -1642,198 +1681,52 @@ namespace BrushFactory
         /// <param name="displayError">
         /// Errors should only be displayed if it's a user-initiated action.
         /// </param>
-        private bool ImportBrushes(
+        private void ImportBrushesFromFiles(
             IReadOnlyCollection<string> filePaths,
             bool doAddToSettings,
             bool doDisplayErrors)
         {
-            int maxBrushSize = sliderBrushSize.Maximum;
-            int maxThumbnailHeight = GetListViewItemHeight();
-
-            //Attempts to load a bitmap from a file to use as a brush.
-            foreach (string file in filePaths)
+            if (!backgroundWorker.IsBusy)
             {
-                try
-                {
-                    if (file.EndsWith(".abr", StringComparison.OrdinalIgnoreCase))
-                    {
-                        try
-                        {
-                            using (AbrBrushCollection brushes = AbrReader.LoadBrushes(file))
-                            {
-                                string location = Path.GetFileName(file);
+                int listViewItemHeight = GetListViewItemHeight();
+                int maxBrushSize = sliderBrushSize.Maximum;
 
-                                for (int i = 0; i < brushes.Count; i++)
-                                {
-                                    AbrBrush item = brushes[i];
+                WorkerArgs workerArgs = new WorkerArgs(filePaths, doAddToSettings, doDisplayErrors, listViewItemHeight, maxBrushSize);
+                bttnAddBrushes.Visible = false;
+                brushLoadProgressBar.Visible = true;
 
-                                    // Creates the brush space.
-                                    int size = Math.Max(item.Image.Width, item.Image.Height);
-
-                                    Bitmap scaledBrush = null;
-                                    if (size > maxBrushSize)
-                                    {
-                                        size = maxBrushSize;
-
-                                        Size newImageSize = Utils.ComputeBrushSize(item.Image.Width, item.Image.Height, maxBrushSize);
-
-                                        scaledBrush = Utils.ScaleImage(item.Image, newImageSize);
-                                    }
-
-                                    bmpBrush = new Bitmap(size, size);
-
-                                    //Pads the image to be square if needed, makes fully
-                                    //opaque images use intensity for alpha, and draws the
-                                    //altered loaded bitmap to the brush.
-                                    Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
-                                        Utils.MakeTransparent(scaledBrush ?? item.Image)), bmpBrush);
-
-                                    if (scaledBrush != null)
-                                    {
-                                        scaledBrush.Dispose();
-                                        scaledBrush = null;
-                                    }
-
-                                    string filename = item.Name;
-                                    if (string.IsNullOrEmpty(filename))
-                                    {
-                                        filename = string.Format(
-                                            System.Globalization.CultureInfo.CurrentCulture,
-                                            Localization.Strings.AbrBrushNameFallbackFormat,
-                                            i);
-                                    }
-
-                                    //Appends invisible spaces to files with the same name
-                                    //until they're unique.
-                                    while (loadedBrushes.Any(a => a.Name.Equals(filename, StringComparison.Ordinal)))
-                                    {
-                                        filename += " ";
-                                    }
-
-                                    //Adds the brush without the period at the end.
-                                    loadedBrushes.Add(
-                                        new BrushSelectorItem(filename, location, bmpBrush, tempDir.GetRandomFileName(), maxThumbnailHeight));
-                                }
-                            }
-                        }
-                        catch (FormatException)
-                        {
-                            // The ABR version is not supported.
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        using (Bitmap bmp = (Bitmap)Image.FromFile(file))
-                        {
-                            //Creates the brush space.
-                            int size = Math.Max(bmp.Width, bmp.Height);
-
-                            Bitmap scaledBrush = null;
-                            if (size > maxBrushSize)
-                            {
-                                size = maxBrushSize;
-
-                                Size newImageSize = Utils.ComputeBrushSize(bmp.Width, bmp.Height, maxBrushSize);
-
-                                scaledBrush = Utils.ScaleImage(bmp, newImageSize);
-                            }
-
-                            bmpBrush = new Bitmap(size, size);
-
-                            //Pads the image to be square if needed, makes fully
-                            //opaque images use intensity for alpha, and draws the
-                            //altered loaded bitmap to the brush.
-                            Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
-                                Utils.MakeTransparent(scaledBrush ?? bmp)), bmpBrush);
-
-                            if (scaledBrush != null)
-                            {
-                                scaledBrush.Dispose();
-                                scaledBrush = null;
-                            }
-                        }
-
-                        //Gets the last word in the filename without the path.
-                        Regex getOnlyFilename = new Regex(@"[\w-]+\.");
-                        string filename = getOnlyFilename.Match(file).Value;
-
-                        //Removes the file extension dot.
-                        if (filename.EndsWith("."))
-                        {
-                            filename = filename.Remove(filename.Length - 1);
-                        }
-
-                        //Appends invisible spaces to files with the same name
-                        //until they're unique.
-                        while (loadedBrushes.Any(a =>
-                            { return (a.Name.Equals(filename)); }))
-                        {
-                            filename += " ";
-                        }
-
-                        string location = Path.GetDirectoryName(file);
-
-                        //Adds the brush without the period at the end.
-                        loadedBrushes.Add(
-                            new BrushSelectorItem(filename, location, bmpBrush, tempDir.GetRandomFileName(), maxThumbnailHeight));
-                    }
-
-                    if (doAddToSettings)
-                    {
-                        //Adds the brush location into settings.
-                        loadedBrushPaths.Add(file);
-                    }
-
-                    bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
-                }
-                catch (ArgumentException)
-                {
-                    continue;
-                }
-                catch (DirectoryNotFoundException)
-                {
-                }
-                catch (FileNotFoundException)
-                {
-                    continue;
-                }
-                catch (OutOfMemoryException)
-                {
-                    if (doDisplayErrors)
-                    {
-                        MessageBox.Show("Cannot load brush: out of memory.");
-                    }
-
-                    return false;
-                }
+                backgroundWorker.RunWorkerAsync(workerArgs);
             }
+        }
 
-            //Makes the newest brush active unless the user has a previously selected brush.
-            bttnBrushSelector.SelectedIndices.Clear();
-
-            int selectedIndex = loadedBrushes.Count - 1;
-
-            if (!string.IsNullOrEmpty(tokenSelectedBrushName))
+        /// <summary>
+        /// Attempts to load any brush files from the specified directories and add them as custom
+        /// brushes. This does not interact with the user.
+        /// </summary>
+        /// <param name="directories">
+        /// The search directories.
+        /// </param>
+        private void ImportBrushesFromDirectories(IEnumerable<string> directories)
+        {
+            if (!backgroundWorker.IsBusy)
             {
-                int index = loadedBrushes.FindIndex(b => b.Name.Equals(tokenSelectedBrushName));
-                if (index >= 0)
-                {
-                    selectedIndex = index;
-                }
+                int listViewItemHeight = GetListViewItemHeight();
+                int maxBrushSize = sliderBrushSize.Maximum;
+
+                WorkerArgs workerArgs = new WorkerArgs(directories, listViewItemHeight, maxBrushSize);
+                bttnAddBrushes.Visible = false;
+                brushLoadProgressBar.Visible = true;
+
+                backgroundWorker.RunWorkerAsync(workerArgs);
             }
-
-            bttnBrushSelector.SelectedIndices.Add(selectedIndex);
-            bttnBrushSelector.EnsureVisible(selectedIndex);
-
-            return true;
         }
 
         /// <summary>
         /// Returns a list of files in the given directories. Any invalid
         /// or non-directory path is ignored.
         /// </summary>
-        private string[] FilesInDirectory(IEnumerable<string> dirs)
+        /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
+        private IReadOnlyCollection<string> FilesInDirectory(IEnumerable<string> dirs, BackgroundWorker backgroundWorker)
         {
             List<string> pathsToReturn = new List<string>();
 
@@ -1844,6 +1737,11 @@ namespace BrushFactory
                     //Excludes all non-image files.
                     foreach (string str in Directory.EnumerateFiles(directory))
                     {
+                        if (backgroundWorker.CancellationPending)
+                        {
+                            throw new OperationCanceledException();
+                        }
+
                         if (str.EndsWith("png", StringComparison.OrdinalIgnoreCase) || str.EndsWith("bmp", StringComparison.OrdinalIgnoreCase) ||
                             str.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
                             str.EndsWith("tif", StringComparison.OrdinalIgnoreCase) || str.EndsWith("exif", StringComparison.OrdinalIgnoreCase) ||
@@ -1854,12 +1752,21 @@ namespace BrushFactory
                         }
                     }
                 }
-                catch
+                catch (ArgumentException)
+                {
+                }
+                catch (IOException)
+                {
+                }
+                catch (SecurityException)
+                {
+                }
+                catch (UnauthorizedAccessException)
                 {
                 }
             }
 
-            return pathsToReturn.ToArray();
+            return pathsToReturn;
         }
 
         /// <summary>
@@ -2005,6 +1912,8 @@ namespace BrushFactory
             this.txtShiftRotation = new System.Windows.Forms.Label();
             this.sliderShiftSize = new System.Windows.Forms.TrackBar();
             this.txtShiftSize = new System.Windows.Forms.Label();
+            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.brushLoadProgressBar = new System.Windows.Forms.ProgressBar();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.tabJitter.SuspendLayout();
@@ -2254,6 +2163,7 @@ namespace BrushFactory
             this.tabControls.Controls.Add(this.bttnCancel);
             this.tabControls.Controls.Add(this.sliderCanvasZoom);
             this.tabControls.Controls.Add(this.txtCanvasZoom);
+            this.tabControls.Controls.Add(this.brushLoadProgressBar);
             resources.ApplyResources(this.tabControls, "tabControls");
             this.tabControls.Name = "tabControls";
             // 
@@ -2675,6 +2585,19 @@ namespace BrushFactory
             resources.ApplyResources(this.txtShiftSize, "txtShiftSize");
             this.txtShiftSize.Name = "txtShiftSize";
             // 
+            // backgroundWorker
+            // 
+            this.backgroundWorker.WorkerReportsProgress = true;
+            this.backgroundWorker.WorkerSupportsCancellation = true;
+            this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker_DoWork);
+            this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundWorker_ProgressChanged);
+            this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
+            // 
+            // brushLoadProgressBar
+            // 
+            resources.ApplyResources(this.brushLoadProgressBar, "brushLoadProgressBar");
+            this.brushLoadProgressBar.Name = "brushLoadProgressBar";
+            // 
             // WinBrushFactory
             // 
             this.AcceptButton = this.bttnOk;
@@ -2814,9 +2737,292 @@ namespace BrushFactory
                 }
             }
         }
+
+        /// <summary>
+        /// Updates the brush ListView item count.
+        /// </summary>
+        private void UpdateListViewVirtualItemCount(int count)
+        {
+            if (bttnBrushSelector.InvokeRequired)
+            {
+                bttnBrushSelector.Invoke(new Action<int>((int value) => bttnBrushSelector.VirtualListSize = value), count);
+            }
+            else
+            {
+                bttnBrushSelector.VirtualListSize = count;
+            }
+        }
         #endregion
 
         #region Methods (event handlers)
+        private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
+            WorkerArgs args = (WorkerArgs)e.Argument;
+
+            try
+            {
+                IReadOnlyCollection<string> filePaths;
+                if (args.SearchDirectories != null)
+                {
+                    filePaths = FilesInDirectory(args.SearchDirectories, backgroundWorker);
+                }
+                else
+                {
+                    filePaths = args.FilePaths;
+                }
+
+                int done = 0;
+                int total = filePaths.Count;
+
+                int maxThumbnailHeight = args.ListViewItemHeight;
+                int maxBrushSize = args.MaxBrushSize;
+
+                //Attempts to load a bitmap from a file to use as a brush.
+                foreach (string file in filePaths)
+                {
+                    if (backgroundWorker.CancellationPending)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                    backgroundWorker.ReportProgress(GetProgressPercentage(done, total));
+                    done++;
+
+                    try
+                    {
+                        if (file.EndsWith(".abr", StringComparison.OrdinalIgnoreCase))
+                        {
+                            try
+                            {
+                                using (AbrBrushCollection brushes = AbrReader.LoadBrushes(file))
+                                {
+                                    string location = Path.GetFileName(file);
+
+                                    total += brushes.Count;
+
+                                    for (int i = 0; i < brushes.Count; i++)
+                                    {
+                                        if (backgroundWorker.CancellationPending)
+                                        {
+                                            e.Cancel = true;
+                                            return;
+                                        }
+
+                                        backgroundWorker.ReportProgress(GetProgressPercentage(done, total));
+                                        done++;
+
+                                        AbrBrush item = brushes[i];
+
+                                        // Creates the brush space.
+                                        int size = Math.Max(item.Image.Width, item.Image.Height);
+
+                                        Bitmap scaledBrush = null;
+                                        if (size > maxBrushSize)
+                                        {
+                                            size = maxBrushSize;
+
+                                            Size newImageSize = Utils.ComputeBrushSize(item.Image.Width, item.Image.Height, maxBrushSize);
+
+                                            scaledBrush = Utils.ScaleImage(item.Image, newImageSize);
+                                        }
+
+                                        Bitmap brushImage = new Bitmap(size, size);
+
+                                        //Pads the image to be square if needed, makes fully
+                                        //opaque images use intensity for alpha, and draws the
+                                        //altered loaded bitmap to the brush.
+                                        Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
+                                            Utils.MakeTransparent(scaledBrush ?? item.Image)), brushImage);
+
+                                        if (scaledBrush != null)
+                                        {
+                                            scaledBrush.Dispose();
+                                            scaledBrush = null;
+                                        }
+
+                                        string filename = item.Name;
+                                        if (string.IsNullOrEmpty(filename))
+                                        {
+                                            filename = string.Format(System.Globalization.CultureInfo.CurrentCulture,
+                                                                     Localization.Strings.AbrBrushNameFallbackFormat,
+                                                                     i);
+                                        }
+
+                                        //Appends invisible spaces to files with the same name
+                                        //until they're unique.
+                                        while (loadedBrushes.Any(a => a.Name.Equals(filename, StringComparison.Ordinal)))
+                                        {
+                                            filename += " ";
+                                        }
+
+                                        // Add the brush to the list and generate the ListView thumbnail.
+
+                                        loadedBrushes.Add(
+                                            new BrushSelectorItem(filename, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
+
+                                        if ((i % 2) == 0)
+                                        {
+                                            UpdateListViewVirtualItemCount(loadedBrushes.Count);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (FormatException)
+                            {
+                                // The ABR version is not supported.
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            Bitmap brushImage = null;
+
+                            using (Bitmap bmp = (Bitmap)Image.FromFile(file))
+                            {
+                                //Creates the brush space.
+                                int size = Math.Max(bmp.Width, bmp.Height);
+
+                                Bitmap scaledBrush = null;
+                                if (size > maxBrushSize)
+                                {
+                                    size = maxBrushSize;
+
+                                    Size newImageSize = Utils.ComputeBrushSize(bmp.Width, bmp.Height, maxBrushSize);
+
+                                    scaledBrush = Utils.ScaleImage(bmp, newImageSize);
+                                }
+
+                                brushImage = new Bitmap(size, size);
+
+                                //Pads the image to be square if needed, makes fully
+                                //opaque images use intensity for alpha, and draws the
+                                //altered loaded bitmap to the brush.
+                                Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
+                                    Utils.MakeTransparent(scaledBrush ?? bmp)), brushImage);
+
+                                if (scaledBrush != null)
+                                {
+                                    scaledBrush.Dispose();
+                                    scaledBrush = null;
+                                }
+                            }
+
+                            //Gets the last word in the filename without the path.
+                            Regex getOnlyFilename = new Regex(@"[\w-]+\.");
+                            string filename = getOnlyFilename.Match(file).Value;
+
+                            //Removes the file extension dot.
+                            if (filename.EndsWith("."))
+                            {
+                                filename = filename.Remove(filename.Length - 1);
+                            }
+
+                            //Appends invisible spaces to files with the same name
+                            //until they're unique.
+                            while (loadedBrushes.Any(a =>
+                            { return (a.Name.Equals(filename)); }))
+                            {
+                                filename += " ";
+                            }
+
+                            string location = Path.GetDirectoryName(file);
+
+                            //Adds the brush without the period at the end.
+                            loadedBrushes.Add(
+                                new BrushSelectorItem(filename, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
+
+                            if ((done % 2) == 0)
+                            {
+                                UpdateListViewVirtualItemCount(loadedBrushes.Count);
+                            }
+                        }
+
+                        if (args.AddtoSettings)
+                        {
+                            //Adds the brush location into settings.
+                            loadedBrushPaths.Add(file);
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                    }
+                    catch (FileNotFoundException)
+                    {
+                    }
+                }
+
+                e.Result = args;
+            }
+            catch (OperationCanceledException)
+            {
+                e.Cancel = true;
+            }
+
+            int GetProgressPercentage(double done, double total)
+            {
+                return (int)((done / total) * 100.0).Clamp(0.0, 100.0);
+            }
+        }
+
+        private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            brushLoadProgressBar.Value = e.ProgressPercentage;
+        }
+
+        private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+            {
+                if (formClosePending)
+                {
+                    Close();
+                }
+                else if (reinitializeBrushes)
+                {
+                    InitBrushes();
+                }
+            }
+            else
+            {
+                WorkerArgs workerArgs = (WorkerArgs)e.Result;
+
+                if (e.Error != null && workerArgs.DisplayErrors)
+                {
+                    MessageBox.Show(this, e.Error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
+
+                    if (loadedBrushes.Count > 0)
+                    {
+                        // Select the user's previous brush if it is present, otherwise select the last added brush.
+                        int selectedItemIndex = loadedBrushes.Count - 1;
+
+                        if (!string.IsNullOrEmpty(tokenSelectedBrushName))
+                        {
+                            int index = loadedBrushes.FindIndex(b => b.Name.Equals(tokenSelectedBrushName));
+                            if (index >= 0)
+                            {
+                                selectedItemIndex = index;
+                            }
+                        }
+
+                        bttnBrushSelector.SelectedIndices.Clear();
+                        bttnBrushSelector.SelectedIndices.Add(selectedItemIndex);
+                        bttnBrushSelector.EnsureVisible(selectedItemIndex);
+                    }
+                }
+                brushLoadProgressBar.Value = 0;
+                brushLoadProgressBar.Visible = false;
+                bttnAddBrushes.Visible = true;
+            }
+        }
+
         /// <summary>
         /// Sets up image panning and drawing to occur with mouse movement.
         /// </summary>
@@ -4068,6 +4274,76 @@ namespace BrushFactory
             displayCanvas.Location = new Point(canvasNewPosX, canvasNewPosY);
             displayCanvas.Refresh();
         }
+        #endregion
+
+        #region Nested classes
+        private sealed class WorkerArgs
+        {
+            /// <summary>
+            /// Gets the file paths used when adding image files.
+            /// </summary>
+            public IReadOnlyCollection<string> FilePaths { get; }
+
+            /// <summary>
+            /// Gets the directories that are searched for image files.
+            /// </summary>
+            public IEnumerable<string> SearchDirectories { get; }
+
+            /// <summary>
+            /// Gets a value indicating whether the files will be added to the settings.
+            /// </summary>
+            public bool AddtoSettings { get; }
+
+            /// <summary>
+            /// Gets a value indicating whether error messages should be displayed.
+            /// </summary>
+            public bool DisplayErrors { get; }
+
+            /// <summary>
+            /// Gets the height of a single ListView item.
+            /// </summary>
+            public int ListViewItemHeight { get; }
+
+            /// <summary>
+            /// Gets the maximum size of a brush.
+            /// </summary>
+            public int MaxBrushSize { get; }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="WorkerArgs"/> class.
+            /// </summary>
+            /// <param name="filePaths">The file paths used when adding image files.</param>
+            /// <param name="addtoSettings"><c>true</c> if the files will be added to the settings; otherwise, <c>false</c>.</param>
+            /// <param name="displayErrors"><c>true</c> error messages should be displayed; otherwise, <c>false</c>.</param>
+            /// <param name="listViewItemHeight">The height of a single ListView item.</param>
+            /// <param name="maxBrushSize">The maximum size of a brush.</param>
+            public WorkerArgs(IReadOnlyCollection<string> filePaths, bool addtoSettings, bool displayErrors,
+                int listViewItemHeight, int maxBrushSize)
+            {
+                FilePaths = filePaths;
+                SearchDirectories = null;
+                AddtoSettings = addtoSettings;
+                DisplayErrors = displayErrors;
+                ListViewItemHeight = listViewItemHeight;
+                MaxBrushSize = maxBrushSize;
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="WorkerArgs"/> class.
+            /// </summary>
+            /// <param name="directories">The directories that are searched for image files.</param>
+            /// <param name="listViewItemHeight">The height of a single ListView item.</param>
+            /// <param name="maxBrushSize">The maximum size of a brush.</param>
+            public WorkerArgs(IEnumerable<string> directories, int listViewItemHeight, int maxBrushSize)
+            {
+                FilePaths = null;
+                SearchDirectories = directories;
+                AddtoSettings = true;
+                DisplayErrors = false;
+                ListViewItemHeight = listViewItemHeight;
+                MaxBrushSize = maxBrushSize;
+            }
+        } 
         #endregion
     }
 }
