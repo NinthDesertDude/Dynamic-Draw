@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="timerRepositionUpdate.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+    <value>183, 17</value>
   </metadata>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="txtTooltip.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
@@ -162,6 +162,24 @@
   <data name="displayCanvasBG.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
   </data>
+  <data name="displayCanvas.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="displayCanvas.InitialImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="displayCanvas.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="displayCanvas.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="displayCanvas.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 100</value>
+  </data>
+  <data name="displayCanvas.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
   <data name="&gt;&gt;displayCanvas.Name" xml:space="preserve">
     <value>displayCanvas</value>
   </data>
@@ -195,252 +213,6 @@
   <data name="&gt;&gt;displayCanvasBG.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="displayCanvas.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="displayCanvas.InitialImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
-  <data name="displayCanvas.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="displayCanvas.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 0, 0, 0</value>
-  </data>
-  <data name="displayCanvas.Size" type="System.Drawing.Size, System.Drawing">
-    <value>100, 100</value>
-  </data>
-  <data name="displayCanvas.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;displayCanvas.Name" xml:space="preserve">
-    <value>displayCanvas</value>
-  </data>
-  <data name="&gt;&gt;displayCanvas.Type" xml:space="preserve">
-    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;displayCanvas.Parent" xml:space="preserve">
-    <value>displayCanvasBG</value>
-  </data>
-  <data name="&gt;&gt;displayCanvas.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;sliderRandVertShift.Name" xml:space="preserve">
-    <value>sliderRandVertShift</value>
-  </data>
-  <data name="&gt;&gt;sliderRandVertShift.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandVertShift.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandVertShift.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;txtRandVertShift.Name" xml:space="preserve">
-    <value>txtRandVertShift</value>
-  </data>
-  <data name="&gt;&gt;txtRandVertShift.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandVertShift.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandVertShift.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;sliderRandHorzShift.Name" xml:space="preserve">
-    <value>sliderRandHorzShift</value>
-  </data>
-  <data name="&gt;&gt;sliderRandHorzShift.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandHorzShift.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandHorzShift.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;txtRandHorzShift.Name" xml:space="preserve">
-    <value>txtRandHorzShift</value>
-  </data>
-  <data name="&gt;&gt;txtRandHorzShift.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandHorzShift.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandHorzShift.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.Name" xml:space="preserve">
-    <value>sliderRandMaxAlpha</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.Name" xml:space="preserve">
-    <value>txtRandMaxAlpha</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.Name" xml:space="preserve">
-    <value>sliderRandMinAlpha</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinAlpha.Name" xml:space="preserve">
-    <value>txtRandMinAlpha</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinAlpha.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinAlpha.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxSize.Name" xml:space="preserve">
-    <value>sliderRandMaxSize</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxSize.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxSize.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxSize.Name" xml:space="preserve">
-    <value>txtRandMaxSize</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxSize.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxSize.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinSize.Name" xml:space="preserve">
-    <value>sliderRandMinSize</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinSize.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinSize.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinSize.Name" xml:space="preserve">
-    <value>txtRandMinSize</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinSize.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinSize.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotRight.Name" xml:space="preserve">
-    <value>sliderRandRotRight</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotRight.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotRight.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotRight.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotRight.Name" xml:space="preserve">
-    <value>txtRandRotRight</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotRight.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotRight.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotRight.ZOrder" xml:space="preserve">
-    <value>13</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotLeft.Name" xml:space="preserve">
-    <value>sliderRandRotLeft</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotLeft.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotLeft.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandRotLeft.ZOrder" xml:space="preserve">
-    <value>14</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotLeft.Name" xml:space="preserve">
-    <value>txtRandRotLeft</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotLeft.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotLeft.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandRotLeft.ZOrder" xml:space="preserve">
-    <value>15</value>
-  </data>
-  <data name="tabJitter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 22</value>
-  </data>
-  <data name="tabJitter.Size" type="System.Drawing.Size, System.Drawing">
-    <value>175, 515</value>
-  </data>
-  <data name="tabJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="tabJitter.Text" xml:space="preserve">
-    <value>Jitter</value>
-  </data>
-  <data name="&gt;&gt;tabJitter.Name" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;tabJitter.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabJitter.Parent" xml:space="preserve">
-    <value>tabBar</value>
-  </data>
-  <data name="&gt;&gt;tabJitter.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
   <data name="sliderRandVertShift.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
@@ -457,7 +229,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandVertShift.TabIndex" type="System.Int32, mscorlib">
-    <value>33</value>
+    <value>8</value>
   </data>
   <data name="&gt;&gt;sliderRandVertShift.Name" xml:space="preserve">
     <value>sliderRandVertShift</value>
@@ -517,7 +289,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandHorzShift.TabIndex" type="System.Int32, mscorlib">
-    <value>31</value>
+    <value>7</value>
   </data>
   <data name="&gt;&gt;sliderRandHorzShift.Name" xml:space="preserve">
     <value>sliderRandHorzShift</value>
@@ -577,7 +349,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMaxAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>30</value>
+    <value>6</value>
   </data>
   <data name="&gt;&gt;sliderRandMaxAlpha.Name" xml:space="preserve">
     <value>sliderRandMaxAlpha</value>
@@ -640,7 +412,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
+    <value>5</value>
   </data>
   <data name="&gt;&gt;sliderRandMinAlpha.Name" xml:space="preserve">
     <value>sliderRandMinAlpha</value>
@@ -703,7 +475,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMaxSize.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="&gt;&gt;sliderRandMaxSize.Name" xml:space="preserve">
     <value>sliderRandMaxSize</value>
@@ -763,7 +535,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMinSize.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>1</value>
   </data>
   <data name="&gt;&gt;sliderRandMinSize.Name" xml:space="preserve">
     <value>sliderRandMinSize</value>
@@ -823,7 +595,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandRotRight.TabIndex" type="System.Int32, mscorlib">
-    <value>26</value>
+    <value>4</value>
   </data>
   <data name="&gt;&gt;sliderRandRotRight.Name" xml:space="preserve">
     <value>sliderRandRotRight</value>
@@ -886,7 +658,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandRotLeft.TabIndex" type="System.Int32, mscorlib">
-    <value>24</value>
+    <value>3</value>
   </data>
   <data name="&gt;&gt;sliderRandRotLeft.Name" xml:space="preserve">
     <value>sliderRandRotLeft</value>
@@ -932,6 +704,30 @@
   </data>
   <data name="&gt;&gt;txtRandRotLeft.ZOrder" xml:space="preserve">
     <value>15</value>
+  </data>
+  <data name="tabJitter.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 22</value>
+  </data>
+  <data name="tabJitter.Size" type="System.Drawing.Size, System.Drawing">
+    <value>175, 515</value>
+  </data>
+  <data name="tabJitter.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="tabJitter.Text" xml:space="preserve">
+    <value>Jitter</value>
+  </data>
+  <data name="&gt;&gt;tabJitter.Name" xml:space="preserve">
+    <value>tabJitter</value>
+  </data>
+  <data name="&gt;&gt;tabJitter.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;tabJitter.Parent" xml:space="preserve">
+    <value>tabBar</value>
+  </data>
+  <data name="&gt;&gt;tabJitter.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="txtMinDrawDistance.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -982,7 +778,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderMinDrawDistance.TabIndex" type="System.Int32, mscorlib">
-    <value>37</value>
+    <value>4</value>
   </data>
   <data name="&gt;&gt;sliderMinDrawDistance.Name" xml:space="preserve">
     <value>sliderMinDrawDistance</value>
@@ -995,237 +791,6 @@
   </data>
   <data name="&gt;&gt;sliderMinDrawDistance.ZOrder" xml:space="preserve">
     <value>11</value>
-  </data>
-  <data name="&gt;&gt;bttnAddBrushes.Name" xml:space="preserve">
-    <value>bttnAddBrushes</value>
-  </data>
-  <data name="&gt;&gt;bttnAddBrushes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnAddBrushes.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnAddBrushes.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.Name" xml:space="preserve">
-    <value>bttnBrushSelector</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.Type" xml:space="preserve">
-    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=1.6.0.22072, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSelector.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;bttnRedo.Name" xml:space="preserve">
-    <value>bttnRedo</value>
-  </data>
-  <data name="&gt;&gt;bttnRedo.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnRedo.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnRedo.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;chkbxColorizeBrush.Name" xml:space="preserve">
-    <value>chkbxColorizeBrush</value>
-  </data>
-  <data name="&gt;&gt;chkbxColorizeBrush.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;chkbxColorizeBrush.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;chkbxColorizeBrush.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushAlpha.Name" xml:space="preserve">
-    <value>sliderBrushAlpha</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushAlpha.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushAlpha.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;txtBrushAlpha.Name" xml:space="preserve">
-    <value>txtBrushAlpha</value>
-  </data>
-  <data name="&gt;&gt;txtBrushAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtBrushAlpha.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;txtBrushAlpha.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;txtBrushSize.Name" xml:space="preserve">
-    <value>txtBrushSize</value>
-  </data>
-  <data name="&gt;&gt;txtBrushSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtBrushSize.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;txtBrushSize.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushSize.Name" xml:space="preserve">
-    <value>sliderBrushSize</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushSize.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushSize.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushRotation.Name" xml:space="preserve">
-    <value>sliderBrushRotation</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushRotation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushRotation.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;sliderBrushRotation.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;txtBrushRotation.Name" xml:space="preserve">
-    <value>txtBrushRotation</value>
-  </data>
-  <data name="&gt;&gt;txtBrushRotation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtBrushRotation.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;txtBrushRotation.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;bttnOk.Name" xml:space="preserve">
-    <value>bttnOk</value>
-  </data>
-  <data name="&gt;&gt;bttnOk.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnOk.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnOk.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushColor.Name" xml:space="preserve">
-    <value>bttnBrushColor</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushColor.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushColor.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushColor.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;bttnUndo.Name" xml:space="preserve">
-    <value>bttnUndo</value>
-  </data>
-  <data name="&gt;&gt;bttnUndo.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnUndo.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnUndo.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="&gt;&gt;bttnCancel.Name" xml:space="preserve">
-    <value>bttnCancel</value>
-  </data>
-  <data name="&gt;&gt;bttnCancel.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnCancel.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;bttnCancel.ZOrder" xml:space="preserve">
-    <value>13</value>
-  </data>
-  <data name="&gt;&gt;sliderCanvasZoom.Name" xml:space="preserve">
-    <value>sliderCanvasZoom</value>
-  </data>
-  <data name="&gt;&gt;sliderCanvasZoom.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderCanvasZoom.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;sliderCanvasZoom.ZOrder" xml:space="preserve">
-    <value>14</value>
-  </data>
-  <data name="&gt;&gt;txtCanvasZoom.Name" xml:space="preserve">
-    <value>txtCanvasZoom</value>
-  </data>
-  <data name="&gt;&gt;txtCanvasZoom.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtCanvasZoom.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;txtCanvasZoom.ZOrder" xml:space="preserve">
-    <value>15</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.Name" xml:space="preserve">
-    <value>brushLoadProgressBar</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ProgressBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.ZOrder" xml:space="preserve">
-    <value>16</value>
-  </data>
-  <data name="tabControls.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 22</value>
-  </data>
-  <data name="tabControls.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
-  </data>
-  <data name="tabControls.Size" type="System.Drawing.Size, System.Drawing">
-    <value>175, 515</value>
-  </data>
-  <data name="tabControls.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="tabControls.Text" xml:space="preserve">
-    <value>Controls</value>
-  </data>
-  <data name="&gt;&gt;tabControls.Name" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;tabControls.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabControls.Parent" xml:space="preserve">
-    <value>tabBar</value>
-  </data>
-  <data name="&gt;&gt;tabControls.ZOrder" xml:space="preserve">
-    <value>0</value>
   </data>
   <data name="bttnAddBrushes.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1250,7 +815,7 @@
     <value>160, 32</value>
   </data>
   <data name="bttnAddBrushes.TabIndex" type="System.Int32, mscorlib">
-    <value>31</value>
+    <value>3</value>
   </data>
   <data name="bttnAddBrushes.Text" xml:space="preserve">
     <value>Add Brushes...</value>
@@ -1271,7 +836,7 @@
     <value>0</value>
   </data>
   <metadata name="dummyImageList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>340, 17</value>
+    <value>361, 17</value>
   </metadata>
   <data name="dummyImageList.ImageSize" type="System.Drawing.Size, System.Drawing">
     <value>24, 24</value>
@@ -1283,13 +848,13 @@
     <value>160, 175</value>
   </data>
   <data name="bttnBrushSelector.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
+    <value>2</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Name" xml:space="preserve">
     <value>bttnBrushSelector</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Type" xml:space="preserve">
-    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=1.6.0.22072, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=1.7.0.43008, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Parent" xml:space="preserve">
     <value>tabControls</value>
@@ -1316,7 +881,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnRedo.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
+    <value>10</value>
   </data>
   <data name="bttnRedo.Text" xml:space="preserve">
     <value>Redo</value>
@@ -1346,7 +911,7 @@
     <value>93, 17</value>
   </data>
   <data name="chkbxColorizeBrush.TabIndex" type="System.Int32, mscorlib">
-    <value>27</value>
+    <value>4</value>
   </data>
   <data name="chkbxColorizeBrush.Text" xml:space="preserve">
     <value>Colorize Brush</value>
@@ -1379,7 +944,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>25</value>
+    <value>6</value>
   </data>
   <data name="&gt;&gt;sliderBrushAlpha.Name" xml:space="preserve">
     <value>sliderBrushAlpha</value>
@@ -1505,7 +1070,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>22</value>
+    <value>7</value>
   </data>
   <data name="&gt;&gt;sliderBrushRotation.Name" xml:space="preserve">
     <value>sliderBrushRotation</value>
@@ -1562,7 +1127,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnOk.TabIndex" type="System.Int32, mscorlib">
-    <value>26</value>
+    <value>11</value>
   </data>
   <data name="bttnOk.Text" xml:space="preserve">
     <value>Ok</value>
@@ -1592,7 +1157,7 @@
     <value>47, 28</value>
   </data>
   <data name="bttnBrushColor.TabIndex" type="System.Int32, mscorlib">
-    <value>20</value>
+    <value>5</value>
   </data>
   <data name="bttnBrushColor.Text" xml:space="preserve">
     <value>Color</value>
@@ -1628,7 +1193,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnUndo.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>9</value>
   </data>
   <data name="bttnUndo.Text" xml:space="preserve">
     <value>Undo</value>
@@ -1658,7 +1223,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnCancel.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>12</value>
   </data>
   <data name="bttnCancel.Text" xml:space="preserve">
     <value>Cancel</value>
@@ -1691,7 +1256,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderCanvasZoom.TabIndex" type="System.Int32, mscorlib">
-    <value>16</value>
+    <value>1</value>
   </data>
   <data name="&gt;&gt;sliderCanvasZoom.Name" xml:space="preserve">
     <value>sliderCanvasZoom</value>
@@ -1738,65 +1303,56 @@
   <data name="&gt;&gt;txtCanvasZoom.ZOrder" xml:space="preserve">
     <value>15</value>
   </data>
-  <data name="&gt;&gt;bttnSymmetry.Name" xml:space="preserve">
-    <value>bttnSymmetry</value>
+  <data name="brushLoadProgressBar.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
-  <data name="&gt;&gt;bttnSymmetry.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="brushLoadProgressBar.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 238</value>
   </data>
-  <data name="&gt;&gt;bttnSymmetry.Parent" xml:space="preserve">
-    <value>grpbxBrushOptions</value>
+  <data name="brushLoadProgressBar.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 23</value>
   </data>
-  <data name="&gt;&gt;bttnSymmetry.ZOrder" xml:space="preserve">
+  <data name="brushLoadProgressBar.TabIndex" type="System.Int32, mscorlib">
+    <value>32</value>
+  </data>
+  <data name="&gt;&gt;brushLoadProgressBar.Name" xml:space="preserve">
+    <value>brushLoadProgressBar</value>
+  </data>
+  <data name="&gt;&gt;brushLoadProgressBar.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ProgressBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;brushLoadProgressBar.Parent" xml:space="preserve">
+    <value>tabControls</value>
+  </data>
+  <data name="&gt;&gt;brushLoadProgressBar.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="tabControls.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 22</value>
+  </data>
+  <data name="tabControls.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="tabControls.Size" type="System.Drawing.Size, System.Drawing">
+    <value>175, 515</value>
+  </data>
+  <data name="tabControls.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="&gt;&gt;chkbxLockAlpha.Name" xml:space="preserve">
-    <value>chkbxLockAlpha</value>
+  <data name="tabControls.Text" xml:space="preserve">
+    <value>Controls</value>
   </data>
-  <data name="&gt;&gt;chkbxLockAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;tabControls.Name" xml:space="preserve">
+    <value>tabControls</value>
   </data>
-  <data name="&gt;&gt;chkbxLockAlpha.Parent" xml:space="preserve">
-    <value>grpbxBrushOptions</value>
+  <data name="&gt;&gt;tabControls.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;chkbxLockAlpha.ZOrder" xml:space="preserve">
-    <value>1</value>
+  <data name="&gt;&gt;tabControls.Parent" xml:space="preserve">
+    <value>tabBar</value>
   </data>
-  <data name="&gt;&gt;chkbxOrientToMouse.Name" xml:space="preserve">
-    <value>chkbxOrientToMouse</value>
-  </data>
-  <data name="&gt;&gt;chkbxOrientToMouse.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;chkbxOrientToMouse.Parent" xml:space="preserve">
-    <value>grpbxBrushOptions</value>
-  </data>
-  <data name="&gt;&gt;chkbxOrientToMouse.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="grpbxBrushOptions.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 188</value>
-  </data>
-  <data name="grpbxBrushOptions.Size" type="System.Drawing.Size, System.Drawing">
-    <value>160, 89</value>
-  </data>
-  <data name="grpbxBrushOptions.TabIndex" type="System.Int32, mscorlib">
+  <data name="&gt;&gt;tabControls.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <data name="grpbxBrushOptions.Text" xml:space="preserve">
-    <value>Misc. brush options</value>
-  </data>
-  <data name="&gt;&gt;grpbxBrushOptions.Name" xml:space="preserve">
-    <value>grpbxBrushOptions</value>
-  </data>
-  <data name="&gt;&gt;grpbxBrushOptions.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;grpbxBrushOptions.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;grpbxBrushOptions.ZOrder" xml:space="preserve">
-    <value>12</value>
   </data>
   <data name="bttnSymmetry.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -1820,7 +1376,7 @@
     <value>153, 21</value>
   </data>
   <data name="bttnSymmetry.TabIndex" type="System.Int32, mscorlib">
-    <value>42</value>
+    <value>8</value>
   </data>
   <data name="&gt;&gt;bttnSymmetry.Name" xml:space="preserve">
     <value>bttnSymmetry</value>
@@ -1847,7 +1403,7 @@
     <value>80, 17</value>
   </data>
   <data name="chkbxLockAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
+    <value>7</value>
   </data>
   <data name="chkbxLockAlpha.Text" xml:space="preserve">
     <value>Lock Alpha</value>
@@ -1877,7 +1433,7 @@
     <value>118, 17</value>
   </data>
   <data name="chkbxOrientToMouse.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
+    <value>6</value>
   </data>
   <data name="chkbxOrientToMouse.Text" xml:space="preserve">
     <value>Rotate With Mouse</value>
@@ -1894,224 +1450,32 @@
   <data name="&gt;&gt;chkbxOrientToMouse.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="&gt;&gt;tabColor.Name" xml:space="preserve">
-    <value>tabColor</value>
+  <data name="grpbxBrushOptions.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 188</value>
   </data>
-  <data name="&gt;&gt;tabColor.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="grpbxBrushOptions.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 89</value>
   </data>
-  <data name="&gt;&gt;tabColor.Parent" xml:space="preserve">
-    <value>tabBar</value>
+  <data name="grpbxBrushOptions.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
   </data>
-  <data name="&gt;&gt;tabColor.ZOrder" xml:space="preserve">
-    <value>2</value>
+  <data name="grpbxBrushOptions.Text" xml:space="preserve">
+    <value>Misc. brush options</value>
   </data>
-  <data name="&gt;&gt;tabOther.Name" xml:space="preserve">
+  <data name="&gt;&gt;grpbxBrushOptions.Name" xml:space="preserve">
+    <value>grpbxBrushOptions</value>
+  </data>
+  <data name="&gt;&gt;grpbxBrushOptions.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;grpbxBrushOptions.Parent" xml:space="preserve">
     <value>tabOther</value>
   </data>
-  <data name="&gt;&gt;tabOther.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabOther.Parent" xml:space="preserve">
-    <value>tabBar</value>
-  </data>
-  <data name="&gt;&gt;tabOther.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="tabBar.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Right</value>
-  </data>
-  <data name="tabBar.Location" type="System.Drawing.Point, System.Drawing">
-    <value>646, 0</value>
-  </data>
-  <data name="tabBar.Size" type="System.Drawing.Size, System.Drawing">
-    <value>183, 541</value>
-  </data>
-  <data name="tabBar.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;tabBar.Name" xml:space="preserve">
-    <value>tabBar</value>
-  </data>
-  <data name="&gt;&gt;tabBar.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabControl, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabBar.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;tabBar.ZOrder" xml:space="preserve">
-    <value>0</value>
+  <data name="&gt;&gt;grpbxBrushOptions.ZOrder" xml:space="preserve">
+    <value>12</value>
   </data>
   <data name="tabColor.AutoScroll" type="System.Boolean, mscorlib">
     <value>True</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxBlue.Name" xml:space="preserve">
-    <value>txtRandMaxBlue</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxBlue.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxBlue.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxBlue.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxBlue.Name" xml:space="preserve">
-    <value>sliderRandMaxBlue</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxBlue.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxBlue.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxBlue.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxGreen.Name" xml:space="preserve">
-    <value>txtRandMaxGreen</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxGreen.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxGreen.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxGreen.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxGreen.Name" xml:space="preserve">
-    <value>sliderRandMaxGreen</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxGreen.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxGreen.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxGreen.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxRed.Name" xml:space="preserve">
-    <value>txtRandMaxRed</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxRed.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxRed.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxRed.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxRed.Name" xml:space="preserve">
-    <value>sliderRandMaxRed</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxRed.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxRed.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxRed.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinBlue.Name" xml:space="preserve">
-    <value>txtRandMinBlue</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinBlue.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinBlue.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinBlue.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinBlue.Name" xml:space="preserve">
-    <value>sliderRandMinBlue</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinBlue.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinBlue.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinBlue.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinGreen.Name" xml:space="preserve">
-    <value>txtRandMinGreen</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinGreen.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinGreen.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinGreen.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinGreen.Name" xml:space="preserve">
-    <value>sliderRandMinGreen</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinGreen.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinGreen.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinGreen.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinRed.Name" xml:space="preserve">
-    <value>txtRandMinRed</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinRed.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinRed.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;txtRandMinRed.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinRed.Name" xml:space="preserve">
-    <value>sliderRandMinRed</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinRed.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinRed.Parent" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMinRed.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="tabColor.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 22</value>
-  </data>
-  <data name="tabColor.Size" type="System.Drawing.Size, System.Drawing">
-    <value>175, 515</value>
-  </data>
-  <data name="tabColor.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="tabColor.Text" xml:space="preserve">
-    <value>Color</value>
-  </data>
-  <data name="&gt;&gt;tabColor.Name" xml:space="preserve">
-    <value>tabColor</value>
-  </data>
-  <data name="&gt;&gt;tabColor.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabColor.Parent" xml:space="preserve">
-    <value>tabBar</value>
-  </data>
-  <data name="&gt;&gt;tabColor.ZOrder" xml:space="preserve">
-    <value>2</value>
   </data>
   <data name="txtRandMaxBlue.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -2162,7 +1526,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMaxBlue.TabIndex" type="System.Int32, mscorlib">
-    <value>34</value>
+    <value>6</value>
   </data>
   <data name="&gt;&gt;sliderRandMaxBlue.Name" xml:space="preserve">
     <value>sliderRandMaxBlue</value>
@@ -2225,7 +1589,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMaxGreen.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
+    <value>4</value>
   </data>
   <data name="&gt;&gt;sliderRandMaxGreen.Name" xml:space="preserve">
     <value>sliderRandMaxGreen</value>
@@ -2288,7 +1652,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMaxRed.TabIndex" type="System.Int32, mscorlib">
-    <value>30</value>
+    <value>2</value>
   </data>
   <data name="&gt;&gt;sliderRandMaxRed.Name" xml:space="preserve">
     <value>sliderRandMaxRed</value>
@@ -2351,7 +1715,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMinBlue.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
+    <value>5</value>
   </data>
   <data name="&gt;&gt;sliderRandMinBlue.Name" xml:space="preserve">
     <value>sliderRandMinBlue</value>
@@ -2414,7 +1778,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMinGreen.TabIndex" type="System.Int32, mscorlib">
-    <value>26</value>
+    <value>3</value>
   </data>
   <data name="&gt;&gt;sliderRandMinGreen.Name" xml:space="preserve">
     <value>sliderRandMinGreen</value>
@@ -2477,7 +1841,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMinRed.TabIndex" type="System.Int32, mscorlib">
-    <value>24</value>
+    <value>1</value>
   </data>
   <data name="&gt;&gt;sliderRandMinRed.Name" xml:space="preserve">
     <value>sliderRandMinRed</value>
@@ -2491,152 +1855,29 @@
   <data name="&gt;&gt;sliderRandMinRed.ZOrder" xml:space="preserve">
     <value>11</value>
   </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.Name" xml:space="preserve">
-    <value>bttnCustomBrushLocations</value>
-  </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSmoothing.Name" xml:space="preserve">
-    <value>bttnBrushSmoothing</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSmoothing.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSmoothing.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;bttnBrushSmoothing.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.Name" xml:space="preserve">
-    <value>bttnClearSettings</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.Name" xml:space="preserve">
-    <value>bttnClearBrushes</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftAlpha.Name" xml:space="preserve">
-    <value>sliderShiftAlpha</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftAlpha.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftAlpha.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;txtShiftAlpha.Name" xml:space="preserve">
-    <value>txtShiftAlpha</value>
-  </data>
-  <data name="&gt;&gt;txtShiftAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtShiftAlpha.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;txtShiftAlpha.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftRotation.Name" xml:space="preserve">
-    <value>sliderShiftRotation</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftRotation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftRotation.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftRotation.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;txtShiftRotation.Name" xml:space="preserve">
-    <value>txtShiftRotation</value>
-  </data>
-  <data name="&gt;&gt;txtShiftRotation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtShiftRotation.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;txtShiftRotation.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftSize.Name" xml:space="preserve">
-    <value>sliderShiftSize</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftSize.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;sliderShiftSize.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;txtShiftSize.Name" xml:space="preserve">
-    <value>txtShiftSize</value>
-  </data>
-  <data name="&gt;&gt;txtShiftSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtShiftSize.Parent" xml:space="preserve">
-    <value>tabOther</value>
-  </data>
-  <data name="&gt;&gt;txtShiftSize.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="tabOther.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="tabColor.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
   </data>
-  <data name="tabOther.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
-  </data>
-  <data name="tabOther.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="tabColor.Size" type="System.Drawing.Size, System.Drawing">
     <value>175, 515</value>
   </data>
-  <data name="tabOther.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+  <data name="tabColor.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
   </data>
-  <data name="tabOther.Text" xml:space="preserve">
-    <value>Other</value>
+  <data name="tabColor.Text" xml:space="preserve">
+    <value>Color</value>
   </data>
-  <data name="&gt;&gt;tabOther.Name" xml:space="preserve">
-    <value>tabOther</value>
+  <data name="&gt;&gt;tabColor.Name" xml:space="preserve">
+    <value>tabColor</value>
   </data>
-  <data name="&gt;&gt;tabOther.Type" xml:space="preserve">
+  <data name="&gt;&gt;tabColor.Type" xml:space="preserve">
     <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;tabOther.Parent" xml:space="preserve">
+  <data name="&gt;&gt;tabColor.Parent" xml:space="preserve">
     <value>tabBar</value>
   </data>
-  <data name="&gt;&gt;tabOther.ZOrder" xml:space="preserve">
-    <value>3</value>
+  <data name="&gt;&gt;tabColor.ZOrder" xml:space="preserve">
+    <value>2</value>
   </data>
   <data name="bttnCustomBrushLocations.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -2654,7 +1895,7 @@
     <value>154, 23</value>
   </data>
   <data name="bttnCustomBrushLocations.TabIndex" type="System.Int32, mscorlib">
-    <value>42</value>
+    <value>12</value>
   </data>
   <data name="bttnCustomBrushLocations.Text" xml:space="preserve">
     <value>Custom Brush Locations</value>
@@ -2696,7 +1937,7 @@
     <value>153, 21</value>
   </data>
   <data name="bttnBrushSmoothing.TabIndex" type="System.Int32, mscorlib">
-    <value>41</value>
+    <value>11</value>
   </data>
   <data name="&gt;&gt;bttnBrushSmoothing.Name" xml:space="preserve">
     <value>bttnBrushSmoothing</value>
@@ -2726,7 +1967,7 @@
     <value>154, 23</value>
   </data>
   <data name="bttnClearSettings.TabIndex" type="System.Int32, mscorlib">
-    <value>40</value>
+    <value>10</value>
   </data>
   <data name="bttnClearSettings.Text" xml:space="preserve">
     <value>Clear Settings</value>
@@ -2759,7 +2000,7 @@
     <value>154, 23</value>
   </data>
   <data name="bttnClearBrushes.TabIndex" type="System.Int32, mscorlib">
-    <value>39</value>
+    <value>9</value>
   </data>
   <data name="bttnClearBrushes.Text" xml:space="preserve">
     <value>Clear Custom Brushes</value>
@@ -2792,7 +2033,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderShiftAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>8</value>
+    <value>3</value>
   </data>
   <data name="&gt;&gt;sliderShiftAlpha.Name" xml:space="preserve">
     <value>sliderShiftAlpha</value>
@@ -2852,7 +2093,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderShiftRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
+    <value>2</value>
   </data>
   <data name="&gt;&gt;sliderShiftRotation.Name" xml:space="preserve">
     <value>sliderShiftRotation</value>
@@ -2912,7 +2153,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderShiftSize.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
+    <value>1</value>
   </data>
   <data name="&gt;&gt;sliderShiftSize.Name" xml:space="preserve">
     <value>sliderShiftSize</value>
@@ -2956,30 +2197,60 @@
   <data name="&gt;&gt;txtShiftSize.ZOrder" xml:space="preserve">
     <value>9</value>
   </data>
-  <metadata name="backgroundWorker.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>485, 17</value>
+  <data name="tabOther.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 22</value>
+  </data>
+  <data name="tabOther.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="tabOther.Size" type="System.Drawing.Size, System.Drawing">
+    <value>175, 515</value>
+  </data>
+  <data name="tabOther.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="tabOther.Text" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="&gt;&gt;tabOther.Name" xml:space="preserve">
+    <value>tabOther</value>
+  </data>
+  <data name="&gt;&gt;tabOther.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;tabOther.Parent" xml:space="preserve">
+    <value>tabBar</value>
+  </data>
+  <data name="&gt;&gt;tabOther.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="tabBar.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="tabBar.Location" type="System.Drawing.Point, System.Drawing">
+    <value>646, 0</value>
+  </data>
+  <data name="tabBar.Size" type="System.Drawing.Size, System.Drawing">
+    <value>183, 541</value>
+  </data>
+  <data name="tabBar.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;tabBar.Name" xml:space="preserve">
+    <value>tabBar</value>
+  </data>
+  <data name="&gt;&gt;tabBar.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabControl, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;tabBar.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tabBar.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="brushLoadingWorker.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
   </metadata>
-  <data name="brushLoadProgressBar.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 238</value>
-  </data>
-  <data name="brushLoadProgressBar.Size" type="System.Drawing.Size, System.Drawing">
-    <value>160, 23</value>
-  </data>
-  <data name="brushLoadProgressBar.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.Name" xml:space="preserve">
-    <value>brushLoadProgressBar</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ProgressBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.Parent" xml:space="preserve">
-    <value>tabControls</value>
-  </data>
-  <data name="&gt;&gt;brushLoadProgressBar.ZOrder" xml:space="preserve">
-    <value>16</value>
-  </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -2997,6 +2268,9 @@
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
     <value>829, 541</value>
+  </data>
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
@@ -3019,10 +2293,10 @@
   <data name="&gt;&gt;dummyImageList.Type" xml:space="preserve">
     <value>System.Windows.Forms.ImageList, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;backgroundWorker.Name" xml:space="preserve">
-    <value>backgroundWorker</value>
+  <data name="&gt;&gt;brushLoadingWorker.Name" xml:space="preserve">
+    <value>brushLoadingWorker</value>
   </data>
-  <data name="&gt;&gt;backgroundWorker.Type" xml:space="preserve">
+  <data name="&gt;&gt;brushLoadingWorker.Type" xml:space="preserve">
     <value>System.ComponentModel.BackgroundWorker, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">

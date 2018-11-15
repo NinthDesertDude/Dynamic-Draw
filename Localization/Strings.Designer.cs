@@ -241,6 +241,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your custom brushes couldn&apos;t be loaded. You can try defining them again..
+        /// </summary>
+        internal static string CannotLoadSettingsError {
+            get {
+                return ResourceManager.GetString("CannotLoadSettingsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Canvas Zoom:.
         /// </summary>
         internal static string CanvasZoom {

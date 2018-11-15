@@ -275,69 +275,39 @@ namespace BrushFactory
         }
         #endregion
 
-        #region Constructors
         /// <summary>
-        /// Calls and sets up dialog settings to be stored.
+        /// Creates a new settings token.
         /// </summary>
-        public PersistentSettings(
-            int brushSize,
-            string brushName,
-            int brushRotation,
-            int brushAlpha,
-            Color brushColor,
-            int randMaxAlpha,
-            int randMinAlpha,
-            int randMaxSize,
-            int randMinSize,
-            int randRotLeft,
-            int randRotRight,
-            int randHorzShift,
-            int randVertShift,
-            bool doRotateWithMouse,
-            bool doColorizeBrush,
-            bool doLockAlpha,
-            int minDrawDistance,
-            int randMaxR,
-            int randMaxG,
-            int randMaxB,
-            int randMinR,
-            int randMinG,
-            int randMinB,
-            int sizeChange,
-            int rotChange,
-            int alphaChange,
-            SymmetryMode symmetry,
-            HashSet<string> customBrushLocations)
-            : base()
+        public PersistentSettings()
         {
-            BrushSize = brushSize;
-            BrushName = brushName;
-            BrushRotation = brushRotation;
-            BrushAlpha = brushAlpha;
-            BrushColor = brushColor;
-            RandMaxAlpha = randMaxAlpha;
-            RandMinAlpha = randMinAlpha;
-            RandMaxSize = randMaxSize;
-            RandMinSize = randMinSize;
-            RandRotLeft = randRotLeft;
-            RandRotRight = randRotRight;
-            RandHorzShift = randHorzShift;
-            RandVertShift = randVertShift;
-            DoRotateWithMouse = doRotateWithMouse;
-            DoColorizeBrush = doColorizeBrush;
-            DoLockAlpha = doLockAlpha;
-            MinDrawDistance = minDrawDistance;
-            RandMaxR = randMaxR;
-            RandMaxG = randMaxG;
-            RandMaxB = randMaxB;
-            RandMinR = randMinR;
-            RandMinG = randMinG;
-            RandMinB = randMinB;
-            SizeChange = sizeChange;
-            RotChange = rotChange;
-            AlphaChange = alphaChange;
-            Symmetry = symmetry;
-            CustomBrushLocations = new HashSet<string>(customBrushLocations, customBrushLocations.Comparer);
+            BrushSize = 20;
+            BrushName = string.Empty;
+            BrushRotation = 0;
+            BrushAlpha = 0;
+            BrushColor = UserSettings.userPrimaryColor;
+            RandMaxAlpha = 0;
+            RandMinAlpha = 0;
+            RandMaxSize = 0;
+            RandMinSize = 0;
+            RandRotLeft = 0;
+            RandRotRight = 0;
+            RandHorzShift = 0;
+            RandVertShift = 0;
+            DoRotateWithMouse = false;
+            DoColorizeBrush = true;
+            DoLockAlpha = false;
+            MinDrawDistance = 0;
+            RandMaxR = 0;
+            RandMaxG = 0;
+            RandMaxB = 0;
+            RandMinR = 0;
+            RandMinG = 0;
+            RandMinB = 0;
+            SizeChange = 0;
+            RotChange = 0;
+            AlphaChange = 0;
+            Symmetry = SymmetryMode.None;
+            CustomBrushLocations = new HashSet<string>();
         }
 
         /// <summary>
@@ -373,11 +343,11 @@ namespace BrushFactory
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;
             Symmetry = other.Symmetry;
-            CustomBrushLocations = new HashSet<string>(other.CustomBrushLocations, other.CustomBrushLocations.Comparer);
+            CustomBrushLocations = new HashSet<string>(
+                other.CustomBrushLocations,
+                other.CustomBrushLocations.Comparer);
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Copies all settings to another token.
         /// </summary>
@@ -385,6 +355,5 @@ namespace BrushFactory
         {
             return new PersistentSettings(this);
         }
-        #endregion
     }
 }

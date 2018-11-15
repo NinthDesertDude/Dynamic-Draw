@@ -23,82 +23,7 @@ namespace BrushFactory
     /// </summary>
     public class WinBrushFactory : EffectConfigDialog
     {
-        #region Fields
-        /// <summary>
-        /// Creates the list of brushes used by the brush selector.
-        /// </summary>
-        private BrushSelectorItemCollection loadedBrushes;
-
-        /// <summary>
-        /// The ListViewItem cache containing the visible items in the brush ListView
-        /// </summary>
-        private ListViewItem[] brushListViewCache;
-
-        /// <summary>
-        /// The starting index in the ListViewItem cache
-        /// </summary>
-        private int cacheStartIndex;
-
-        /// <summary>
-        /// Stores the user's custom brushes by file and path until it can
-        /// be copied to persistent settings, or ignored.
-        /// </summary>
-        private HashSet<string> loadedBrushPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Indicates whether the brushes need to be imported from the
-        /// collection of loaded brush paths stored in the effect token.
-        /// </summary>
-        private bool importBrushesFromToken;
-
-        /// <summary>
-        /// The selected brush name from the effect token.
-        /// </summary>
-        private string tokenSelectedBrushName;
-
-        /// <summary>
-        /// Whether the user is drawing on the image.
-        /// </summary>
-        private bool isUserDrawing = false;
-
-        /// <summary>
-        /// Whether the user is panning the image.
-        /// </summary>
-        private bool isUserPanning = false;
-
-        /// <summary>
-        /// Stores the current mouse location.
-        /// </summary>
-        private Point mouseLoc = new Point();
-
-        /// <summary>
-        /// Stores the mouse location at the last place a brush stroke was
-        /// successfully applied. Used exclusively by minimum draw distance.
-        /// </summary>
-        private Point? mouseLocBrush;
-
-        /// <summary>
-        /// Stores the previous mouse location.
-        /// </summary>
-        private Point mouseLocPrev = new Point();
-
-        /// <summary>
-        /// Sets up a randomizer for brush dynamics.
-        /// </summary>
-        private Random random = new Random();
-
-        /// <summary>
-        ///Stores a list of temporary files by name, to be used by redo. Files
-        ///will be reloaded to redo changes.
-        /// </summary>
-        private Stack<string> redoHistory = new Stack<string>();
-
-        /// <summary>
-        ///Stores a list of temporary files by name, to be used by undo. Files
-        ///will be reloaded to undo changes.
-        /// </summary>
-        private Stack<string> undoHistory = new Stack<string>();
-
+        #region Fields (Non Gui)
         /// <summary>
         /// Contains the current brush (without modifications like alpha).
         /// </summary>
@@ -118,13 +43,124 @@ namespace BrushFactory
         private Bitmap bmpCurrentDrawing = new Bitmap(1, 1);
 
         /// <summary>
-        /// Controls the color (not alpha) of the drawing brush.
+        /// Loads user's custom brushes asynchronously.
         /// </summary>
-        private Button bttnBrushColor;
+        private BackgroundWorker brushLoadingWorker;
 
         /// <summary>
-        /// The ListView that displays the brush thumbnail images to the user
+        /// Stores the zoom percentage for the drawing region.
         /// </summary>
+        private float displayCanvasZoom = 1;
+
+        /// <summary>
+        /// Whether the brush loading worker should reload brushes after cancelation.
+        /// </summary>
+        private bool doReinitializeBrushes;
+
+        /// <summary>
+        /// Indicates whether the brushes need to be imported from the
+        /// collection of loaded brush paths stored in the effect token.
+        /// </summary>
+        private bool importBrushesFromToken;
+
+        private bool isFormClosing;
+
+        /// <summary>
+        /// Determines the direction of alpha shifting, which can be growing
+        /// (true) or shrinking (false). Used by the alpha shift slider.
+        /// </summary>
+        private bool isGrowingAlpha = true;
+
+        /// <summary>
+        /// Determines the direction of size shifting, which can be growing
+        /// (true) or shrinking (false). Used by the size shift slider.
+        /// </summary>
+        private bool isGrowingSize = true;
+
+        private bool isUserDrawing = false;
+        private bool isUserPanning = false;
+
+        /// <summary>
+        /// Creates the list of brushes used by the brush selector.
+        /// </summary>
+        private BrushSelectorItemCollection loadedBrushes;
+
+        /// <summary>
+        /// Stores the user's custom brushes by file and path until it can
+        /// be copied to persistent settings, or ignored.
+        /// </summary>
+        private HashSet<string> loadedBrushPaths =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Stores the current mouse location.
+        /// </summary>
+        private Point mouseLoc = new Point();
+
+        /// <summary>
+        /// Stores the mouse location at the last place a brush stroke was
+        /// successfully applied. Used exclusively by minimum draw distance.
+        /// </summary>
+        private Point? mouseLocBrush;
+
+        /// <summary>
+        /// Stores the previous mouse location.
+        /// </summary>
+        private Point mouseLocPrev = new Point();
+
+        private BrushFactorySettings settings;
+
+        /// <summary>
+        /// The outline of the user's selection.
+        /// </summary>
+        private PdnRegion selectionOutline;
+
+        /// <summary>
+        /// Contains the list of all interpolation options for applying brush
+        /// strokes.
+        /// </summary>
+        BindingList<InterpolationItem> smoothingMethods;
+
+        /// <summary>
+        /// Contains the list of all symmetry options for using brush strokes.
+        /// </summary>
+        BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
+
+        /// <summary>
+        /// The folder used to store undo/redo images, and deleted on exit.
+        /// </summary>
+        private TempDirectory tempDir;
+
+        /// <summary>
+        /// The selected brush name from the effect token.
+        /// </summary>
+        private string tokenSelectedBrushName;
+
+        private Random random = new Random();
+
+        /// <summary>
+        /// List of temporary file names to load to perform redo.
+        /// </summary>
+        private Stack<string> redoHistory = new Stack<string>();
+
+        /// <summary>
+        /// List of temporary file names to load to perform undo.
+        /// </summary>
+        private Stack<string> undoHistory = new Stack<string>();
+
+        /// <summary>
+        /// A list of all visible items in the brush selector for thumbnails.
+        /// </summary>
+        private ListViewItem[] visibleBrushes;
+
+        /// <summary>
+        /// The starting index in the brush selector cache.
+        /// </summary>
+        private int visibleBrushesIndex;
+        #endregion
+
+        #region Fields (Gui)
+        private Button bttnBrushColor;
         private DoubleBufferedListView bttnBrushSelector;
 
         /// <summary>
@@ -132,50 +168,16 @@ namespace BrushFactory
         /// </summary>
         private ImageList dummyImageList;
 
-        /// <summary>
-        /// The button used to add brushes
-        /// </summary>
         private Button bttnAddBrushes;
-
-        /// <summary>
-        /// Handles the smoothing (interpolation) of each brush stroke.
-        /// </summary>
         private ComboBox bttnBrushSmoothing;
-
-        /// <summary>
-        /// Allows the user to cancel and exit without applying the effect.
-        /// </summary>
         private Button bttnCancel;
-
-        /// <summary>
-        /// Removes all custom brushes imported by the user.
-        /// </summary>
         private Button bttnClearBrushes;
-
-        /// <summary>
-        /// Resets all settings to their default values.
-        /// </summary>
         private Button bttnClearSettings;
-
-        /// <summary>
-        /// Sets permanent directories to browse for brushes on load.
-        /// </summary>
         private Button bttnCustomBrushLocations;
-
-        /// <summary>
-        /// Allows the user to accept and apply the effect.
-        /// </summary>
         private Button bttnOk;
-
-        /// <summary>
-        /// Allows the user to redo a previously undone change.
-        /// </summary>
         private Button bttnRedo;
-
-        /// <summary>
-        /// Allows the user to undo a committed change.
-        /// </summary>
         private Button bttnUndo;
+        private ProgressBar brushLoadProgressBar;
 
         /// <summary>
         /// When active, the brush color will be replaced with the chosen
@@ -199,98 +201,17 @@ namespace BrushFactory
         /// </summary>
         private CheckBox chkbxOrientToMouse;
 
-        /// <summary>
-        /// All non-GUI controls must register the components container as the
-        /// parent so they can be disposed when the form exits.
-        /// </summary>
         private IContainer components;
-
-        /// <summary>
-        /// Contains the current image being drawn on.
-        /// </summary>
         internal PictureBox displayCanvas;
-
-        /// <summary>
-        /// Draws a checkerboard background behind the drawing region.
-        /// </summary>
         private Panel displayCanvasBG;
-
-        /// <summary>
-        /// Stores the zoom percentage for the drawing region.
-        /// </summary>
-        private float displayCanvasZoom = 1;
-
-        /// <summary>
-        /// Labels the miscellaneous brush options area.
-        /// </summary>
         private GroupBox grpbxBrushOptions;
-
-        /// <summary>
-        /// Determines the direction of alpha shifting, which can be growing
-        /// (true) or shrinking (false). Used by the alpha shift slider.
-        /// </summary>
-        private bool isGrowingAlpha = true;
-
-        /// <summary>
-        /// Determines the direction of size shifting, which can be growing
-        /// (true) or shrinking (false). Used by the size shift slider.
-        /// </summary>
-        private bool isGrowingSize = true;
-
-        /// <summary>
-        /// The outline of the user's selection.
-        /// </summary>
-        private PdnRegion selectionOutline;
-
-        /// <summary>
-        /// Contains the list of all interpolation options for applying brush
-        /// strokes.
-        /// </summary>
-        BindingList<InterpolationItem> smoothingMethods;
-
-        /// <summary>
-        /// Contains the list of all symmetry options for using brush strokes.
-        /// </summary>
-        BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
-
-        /// <summary>
-        /// Controls the brush transparency.
-        /// </summary>
         private TrackBar sliderBrushAlpha;
-
-        /// <summary>
-        /// Controls the brush orientation.
-        /// </summary>
         private TrackBar sliderBrushRotation;
-
-        /// <summary>
-        /// Controls the size of the drawing brush.
-        /// </summary>
         private TrackBar sliderBrushSize;
-
-        /// <summary>
-        /// Controls the zooming factor for the drawing region.
-        /// </summary>
         private TrackBar sliderCanvasZoom;
-
-        /// <summary>
-        /// Controls the maximum brush color blueness.
-        /// </summary>
         private TrackBar sliderRandMaxBlue;
-
-        /// <summary>
-        /// Controls the maximum brush color greenness.
-        /// </summary>
         private TrackBar sliderRandMaxGreen;
-
-        /// <summary>
-        /// Controls the maximum brush color redness.
-        /// </summary>
         private TrackBar sliderRandMaxRed;
-
-        /// <summary>
-        /// Controls the minimum brush color blueness.
-        /// </summary>
         private TrackBar sliderRandMinBlue;
 
         /// <summary>
@@ -300,99 +221,23 @@ namespace BrushFactory
         /// </summary>
         private TrackBar sliderMinDrawDistance;
 
-        /// <summary>
-        /// Controls the minimum brush color greenness.
-        /// </summary>
         private TrackBar sliderRandMinGreen;
-
-        /// <summary>
-        /// Controls the minimum brush color redness.
-        /// </summary>
         private TrackBar sliderRandMinRed;
-
-        /// <summary>
-        /// Randomly repositions the brush left or right while drawing.
-        /// </summary>
         private TrackBar sliderRandHorzShift;
-
-        /// <summary>
-        /// Controls the maximum transparency amount.
-        /// </summary>
         private TrackBar sliderRandMaxAlpha;
-
-        /// <summary>
-        /// Controls the maximum brush size range.
-        /// </summary>
         private TrackBar sliderRandMaxSize;
-
-        /// <summary>
-        /// Controls the minimum transparency amount.
-        /// </summary>
         private TrackBar sliderRandMinAlpha;
-
-        /// <summary>
-        /// Controls the minimum brush size range.
-        /// </summary>
         private TrackBar sliderRandMinSize;
-
-        /// <summary>
-        /// Controls the minimum brush rotation range, which is negative.
-        /// </summary>
         private TrackBar sliderRandRotLeft;
-
-        /// <summary>
-        /// Controls the maximum brush rotation range, which is positive.
-        /// </summary>
         private TrackBar sliderRandRotRight;
-
-        /// <summary>
-        /// Randomly repositions the brush up or down while drawing.
-        /// </summary>
         private TrackBar sliderRandVertShift;
-
-        /// <summary>
-        /// Allows the brush transparency to change by adding this value,
-        /// which may be negative, on each successful brush stroke.
-        /// </summary>
         private TrackBar sliderShiftAlpha;
-
-        /// <summary>
-        /// Allows the brush rotation to change by adding this value, which
-        /// may be negative, on each successful brush stroke.
-        /// </summary>
         private TrackBar sliderShiftRotation;
-
-        /// <summary>
-        /// Allows the brush size to change by adding this value, which may be
-        /// negative, on each successful brush stroke.
-        /// </summary>
         private TrackBar sliderShiftSize;
-
-        /// <summary>
-        /// Contains all tab pages.
-        /// </summary>
         private TabControl tabBar;
-
-        /// <summary>
-        /// Contains the main, important controls.
-        /// </summary>
         private TabPage tabControls;
-
-        /// <summary>
-        /// Contains controls for randomly changing brush settings without
-        /// regard to the previous randomly-selected settings.
-        /// </summary>
         private TabPage tabJitter;
-
-        /// <summary>
-        /// Contains a collection of more complex or less used options.
-        /// </summary>
         private TabPage tabColor;
-
-        /// <summary>
-        /// Contains controls for incrementing brush settings a specified
-        /// amount on each successful brush stroke.
-        /// </summary>
         private TabPage tabOther;
 
         /// <summary>
@@ -401,156 +246,30 @@ namespace BrushFactory
         /// </summary>
         private Timer timerRepositionUpdate;
 
-        /// <summary>
-        /// Draws the name of the brush transparency slider.
-        /// </summary>
         private Label txtBrushAlpha;
-
-        /// <summary>
-        /// Draws the name of the brush rotation slider.
-        /// </summary>
         private Label txtBrushRotation;
-
-        /// <summary>
-        /// Draws the name of the brush size slider.
-        /// </summary>
         private Label txtBrushSize;
-
-        /// <summary>
-        /// Draws the name of the canvas zoom slider.
-        /// </summary>
         private Label txtCanvasZoom;
-
-        /// <summary>
-        /// Draws the name of the maximum blueness slider.
-        /// </summary>
         private Label txtRandMaxBlue;
-
-        /// <summary>
-        /// Draws the name of the maximum greenness slider.
-        /// </summary>
         private Label txtRandMaxGreen;
-
-        /// <summary>
-        /// Draws the name of the maximum redness slider.
-        /// </summary>
         private Label txtRandMaxRed;
-
-        /// <summary>
-        /// Draws the name of the minimum blueness slider.
-        /// </summary>
         private Label txtRandMinBlue;
-
-        /// <summary>
-        /// Draws the name of the minimum drawing distance slider.
-        /// </summary>
         private Label txtMinDrawDistance;
-
-        /// <summary>
-        /// Draws the name of the minimum greenness slider.
-        /// </summary>
         private Label txtRandMinGreen;
-
-        /// <summary>
-        /// Draws the name of the minimum redness slider.
-        /// </summary>
         private Label txtRandMinRed;
-
-        /// <summary>
-        /// Draws the name of the random horizontal shift slider.
-        /// </summary>
         private Label txtRandHorzShift;
-
-        /// <summary>
-        /// Draws the name of the random rotation to the right slider.
-        /// </summary>
         private Label txtRandRotRight;
-
-        /// <summary>
-        /// Draws the name of the random rotation to the left slider.
-        /// </summary>
         private Label txtRandRotLeft;
-
-        /// <summary>
-        /// Draws the name of the random max alpha slider.
-        /// </summary>
         private Label txtRandMaxAlpha;
-
-        /// <summary>
-        /// Draws the name of the random max size slider.
-        /// </summary>
         private Label txtRandMaxSize;
-
-        /// <summary>
-        /// Draws the name of the random min alpha slider.
-        /// </summary>
         private Label txtRandMinAlpha;
-
-        /// <summary>
-        /// Draws the name of the random min size slider.
-        /// </summary>
         private Label txtRandMinSize;
-
-        /// <summary>
-        /// Draws the name of the random vertical shift slider.
-        /// </summary>
         private Label txtRandVertShift;
-
-        /// <summary>
-        /// Draws the name of the shift alpha slider.
-        /// </summary>
         private Label txtShiftAlpha;
-
-        /// <summary>
-        /// Draws the name of the shift rotation slider.
-        /// </summary>
         private Label txtShiftRotation;
-
-        /// <summary>
-        /// Draws the name of the shift size slider.
-        /// </summary>
         private Label txtShiftSize;
-
-        /// <summary>
-        /// The user can enable symmetry to draw mirrored brush strokes.
-        /// </summary>
         private ComboBox bttnSymmetry;
-
-        /// <summary>
-        /// Provides useful messages when hovering over controls.
-        /// </summary>
         private Label txtTooltip;
-
-        /// <summary>
-        /// A temporary folder that is deleted when the dialog exits.
-        /// </summary>
-        private TempDirectory tempDir;
-
-        /// <summary>
-        /// The saved user interface settings.
-        /// </summary>
-        private BrushFactorySettings settings;
-
-        /// <summary>
-        /// The background worker used to load brushes.
-        /// </summary>
-        private BackgroundWorker backgroundWorker;
-
-        /// <summary>
-        /// Indicates whether the user is canceling the dialog.
-        /// </summary>
-        private bool formClosePending;
-
-        /// <summary>
-        /// Indicates that the background worker should reload the brushes
-        /// after it is canceled.
-        /// </summary>
-        private bool reinitializeBrushes;
-
-        /// <summary>
-        /// The brush loading progress bar
-        /// </summary>
-        private ProgressBar brushLoadProgressBar;
         #endregion
 
         #region Constructors
@@ -611,9 +330,7 @@ namespace BrushFactory
         /// </summary>
         protected override void InitialInitToken()
         {
-            theEffectToken = new PersistentSettings(20, "", 0, 0,
-                UserSettings.userPrimaryColor, 0, 0, 0, 0, 0, 0, 0, 0, false, true,
-                false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SymmetryMode.None, new HashSet<string>());
+            theEffectToken = new PersistentSettings();
         }
 
         /// <summary>
@@ -688,36 +405,38 @@ namespace BrushFactory
         {
             var token = (PersistentSettings)EffectToken;
 
-            token.BrushSize = sliderBrushSize.Value;
-            int index = bttnBrushSelector.SelectedIndices.Count > 0 ? bttnBrushSelector.SelectedIndices[0] : -1;
+            int index = bttnBrushSelector.SelectedIndices.Count > 0
+                ? bttnBrushSelector.SelectedIndices[0]
+                : -1;
 
-            token.BrushName = index >= 0 ? loadedBrushes[index].Name : string.Empty;
-            token.BrushColor = bttnBrushColor.BackColor;
-            token.BrushRotation = sliderBrushRotation.Value;
+            token.AlphaChange = sliderShiftAlpha.Value;
             token.BrushAlpha = sliderBrushAlpha.Value;
+            token.BrushColor = bttnBrushColor.BackColor;
+            token.BrushName = index >= 0 ? loadedBrushes[index].Name : string.Empty;
+            token.BrushRotation = sliderBrushRotation.Value;
+            token.BrushSize = sliderBrushSize.Value;
+            token.CustomBrushLocations = loadedBrushPaths;
+            token.DoColorizeBrush = chkbxColorizeBrush.Checked;
+            token.DoLockAlpha = chkbxLockAlpha.Checked;
+            token.DoRotateWithMouse = chkbxOrientToMouse.Checked;
+            token.MinDrawDistance = sliderMinDrawDistance.Value;
             token.RandHorzShift = sliderRandHorzShift.Value;
             token.RandMaxAlpha = sliderRandMaxAlpha.Value;
+            token.RandMaxB = sliderRandMaxBlue.Value;
+            token.RandMaxG = sliderRandMaxGreen.Value;
+            token.RandMaxR = sliderRandMaxRed.Value;
             token.RandMaxSize = sliderRandMaxSize.Value;
             token.RandMinAlpha = sliderRandMinAlpha.Value;
+            token.RandMinB = sliderRandMinBlue.Value;
+            token.RandMinG = sliderRandMinGreen.Value;
+            token.RandMinR = sliderRandMinRed.Value;
             token.RandMinSize = sliderRandMinSize.Value;
             token.RandRotLeft = sliderRandRotLeft.Value;
             token.RandRotRight = sliderRandRotRight.Value;
             token.RandVertShift = sliderRandVertShift.Value;
-            token.DoRotateWithMouse = chkbxOrientToMouse.Checked;
-            token.DoColorizeBrush = chkbxColorizeBrush.Checked;
-            token.DoLockAlpha = chkbxLockAlpha.Checked;
-            token.MinDrawDistance = sliderMinDrawDistance.Value;
-            token.RandMaxR = sliderRandMaxRed.Value;
-            token.RandMaxG = sliderRandMaxGreen.Value;
-            token.RandMaxB = sliderRandMaxBlue.Value;
-            token.RandMinR = sliderRandMinRed.Value;
-            token.RandMinG = sliderRandMinGreen.Value;
-            token.RandMinB = sliderRandMinBlue.Value;
-            token.SizeChange = sliderShiftSize.Value;
             token.RotChange = sliderShiftRotation.Value;
-            token.AlphaChange = sliderShiftAlpha.Value;
+            token.SizeChange = sliderShiftSize.Value;
             token.Symmetry = (SymmetryMode)bttnSymmetry.SelectedIndex;
-            token.CustomBrushLocations = loadedBrushPaths;
         }
 
         /// <summary>
@@ -738,75 +457,75 @@ namespace BrushFactory
 
             //Adds versioning information to the window title.
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            this.Text = EffectPlugin.StaticName + " (version " +
+            Text = EffectPlugin.StaticName + " (version " +
                 version.Major + "." +
                 version.Minor + ")";
 
             //Loads globalization texts for regional support.
-            txtBrushAlpha.Text = String.Format("{0} {1}",
+            txtBrushAlpha.Text = string.Format("{0} {1}",
                 Localization.Strings.Alpha, sliderBrushAlpha.Value);
 
-            txtBrushRotation.Text = String.Format("{0} {1}°",
+            txtBrushRotation.Text = string.Format("{0} {1}°",
                 Localization.Strings.Rotation, sliderBrushRotation.Value);
 
-            txtBrushSize.Text = String.Format("{0} {1}",
+            txtBrushSize.Text = string.Format("{0} {1}",
                 Localization.Strings.Size, sliderBrushSize.Value);
 
-            txtCanvasZoom.Text = String.Format("{0} {1}%",
+            txtCanvasZoom.Text = string.Format("{0} {1}%",
                 Localization.Strings.CanvasZoom, sliderCanvasZoom.Value);
 
-            txtMinDrawDistance.Text = String.Format("{0} {1}",
+            txtMinDrawDistance.Text = string.Format("{0} {1}",
                 Localization.Strings.MinDrawDistance, sliderMinDrawDistance.Value);
 
-            txtRandHorzShift.Text = String.Format("{0} {1}%",
+            txtRandHorzShift.Text = string.Format("{0} {1}%",
                 Localization.Strings.RandHorzShift, sliderRandHorzShift.Value);
 
-            txtRandMaxSize.Text = String.Format("{0} {1}",
+            txtRandMaxSize.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMaxSize, sliderRandMaxSize.Value);
 
-            txtRandMinSize.Text = String.Format("{0} {1}",
+            txtRandMinSize.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMinSize, sliderRandMinSize.Value);
 
-            txtRandRotLeft.Text = String.Format("{0} {1}°",
+            txtRandRotLeft.Text = string.Format("{0} {1}°",
                 Localization.Strings.RandRotLeft, sliderRandRotLeft.Value);
 
-            txtRandRotRight.Text = String.Format("{0} {1}°",
+            txtRandRotRight.Text = string.Format("{0} {1}°",
                 Localization.Strings.RandRotRight, sliderRandRotRight.Value);
 
-            txtRandMaxAlpha.Text = String.Format("{0} {1}",
+            txtRandMaxAlpha.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMaxAlpha, sliderRandMaxAlpha.Value);
 
-            txtRandMaxBlue.Text = String.Format("{0} {1}",
+            txtRandMaxBlue.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMaxBlue, sliderRandMaxBlue.Value);
 
-            txtRandMaxGreen.Text = String.Format("{0} {1}",
+            txtRandMaxGreen.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMaxGreen, sliderRandMaxGreen.Value);
 
-            txtRandMaxRed.Text = String.Format("{0} {1}",
+            txtRandMaxRed.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMaxRed, sliderRandMaxRed.Value);
 
-            txtRandMinAlpha.Text = String.Format("{0} {1}",
+            txtRandMinAlpha.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMinAlpha, sliderRandMinAlpha.Value);
 
-            txtRandMinBlue.Text = String.Format("{0} {1}",
+            txtRandMinBlue.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMinBlue, sliderRandMinBlue.Value);
 
-            txtRandMinGreen.Text = String.Format("{0} {1}",
+            txtRandMinGreen.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMinGreen, sliderRandMinGreen.Value);
 
-            txtRandMinRed.Text = String.Format("{0} {1}",
+            txtRandMinRed.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMinRed, sliderRandMinRed.Value);
 
-            txtRandVertShift.Text = String.Format("{0} {1}%",
+            txtRandVertShift.Text = string.Format("{0} {1}%",
                 Localization.Strings.RandVertShift, sliderRandVertShift.Value);
 
-            txtShiftAlpha.Text = String.Format("{0} {1}",
+            txtShiftAlpha.Text = string.Format("{0} {1}",
                 Localization.Strings.ShiftAlpha, sliderShiftAlpha.Value);
 
-            txtShiftRotation.Text = String.Format("{0} {1}°",
+            txtShiftRotation.Text = string.Format("{0} {1}°",
                 Localization.Strings.ShiftRotation, sliderShiftRotation.Value);
 
-            txtShiftSize.Text = String.Format("{0} {1}",
+            txtShiftSize.Text = string.Format("{0} {1}",
                 Localization.Strings.ShiftSize, sliderShiftSize.Value);
 
             txtTooltip.Text = Localization.Strings.GeneralTooltip;
@@ -816,6 +535,7 @@ namespace BrushFactory
             tabJitter.Text = Localization.Strings.TabJitter;
             tabOther.Text = Localization.Strings.TabOther;
 
+            bttnAddBrushes.Text = Localization.Strings.AddBrushes;
             bttnBrushColor.Text = Localization.Strings.BrushColor;
             bttnCancel.Text = Localization.Strings.Cancel;
             bttnClearBrushes.Text = Localization.Strings.ClearBrushes;
@@ -824,7 +544,6 @@ namespace BrushFactory
             bttnOk.Text = Localization.Strings.Ok;
             bttnUndo.Text = Localization.Strings.Undo;
             bttnRedo.Text = Localization.Strings.Redo;
-            bttnAddBrushes.Text = Localization.Strings.AddBrushes;
 
             chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
             chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
@@ -839,24 +558,30 @@ namespace BrushFactory
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            IUserFilesService userFilesService = (IUserFilesService)Services.GetService(typeof(IUserFilesService));
+
+            IUserFilesService userFilesService =
+                (IUserFilesService)Services.GetService(typeof(IUserFilesService));
 
             string path = Path.Combine(userFilesService.UserFilesPath, "BrushFactorySettings.xml");
-
             settings = new BrushFactorySettings(path);
+
             try
             {
                 // Loading the settings is split into a separate method to allow the defaults
                 // to be used if an error occurs.
                 settings.LoadSavedSettings();
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (ex is IOException || ex is UnauthorizedAccessException)
+                {
+                    MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
+                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             InitBrushes();
@@ -1028,7 +753,7 @@ namespace BrushFactory
 
             e.Graphics.FillRectangle(colorBrush,
                 new Rectangle(displayCanvasBG.Right, 0, ClientRectangle.Width - displayCanvasBG.Right,
-                this.ClientRectangle.Height));
+                ClientRectangle.Height));
         }
 
         /// <summary>
@@ -1038,13 +763,13 @@ namespace BrushFactory
         {
             base.OnFormClosing(e);
 
-            if (backgroundWorker.IsBusy)
+            if (brushLoadingWorker.IsBusy)
             {
                 e.Cancel = true;
                 if (DialogResult == DialogResult.Cancel)
                 {
-                    formClosePending = true;
-                    backgroundWorker.CancelAsync();
+                    isFormClosing = true;
+                    brushLoadingWorker.CancelAsync();
                 }
             }
 
@@ -1054,13 +779,17 @@ namespace BrushFactory
                 {
                     settings?.SaveChangedSettings();
                 }
-                catch (IOException ex)
+                catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (ex is IOException || ex is UnauthorizedAccessException)
+                    {
+                        MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
+                            Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
@@ -1068,7 +797,10 @@ namespace BrushFactory
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing">
+        ///     <c>true</c> to release both managed and unmanaged resources;
+        ///     <c>false</c> to release only unmanaged resources.
+        /// </param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -1101,13 +833,13 @@ namespace BrushFactory
         /// </summary>
         private void InitBrushes()
         {
-            if (backgroundWorker.IsBusy)
+            if (brushLoadingWorker.IsBusy)
             {
                 // Signal the background worker to abort and call this method when it completes.
                 // This prevents a few crashes caused by race conditions when modifying the brush
                 // collection from multiple threads.
-                reinitializeBrushes = true;
-                backgroundWorker.CancelAsync();
+                doReinitializeBrushes = true;
+                brushLoadingWorker.CancelAsync();
                 return;
             }
 
@@ -1149,7 +881,6 @@ namespace BrushFactory
             bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
 
             //Loads any custom brushes.
-
             if (importBrushesFromToken)
             {
                 importBrushesFromToken = false;
@@ -1240,10 +971,8 @@ namespace BrushFactory
 
             //Updates the canvas zoom factor.
             displayCanvasZoom = newZoomFactor;
-            txtCanvasZoom.Text = String.Format(
-                "{0} {1:p0}",
-                Localization.Strings.CanvasZoom,
-                newZoomFactor);
+            txtCanvasZoom.Text = string.Format(
+                "{0} {1:p0}", Localization.Strings.CanvasZoom, newZoomFactor);
 
             //Gets the new width and height, adjusted for zooming.
             int zoomWidth = (int)(bmpCurrentDrawing.Width * newZoomFactor);
@@ -1643,7 +1372,8 @@ namespace BrushFactory
 
         /// <summary>
         /// Presents an open file dialog to the user, allowing them to select
-        /// any number of brush files to load and add as the custom brushes.
+        /// any number of brush files to load and add as custom brushes.
+        /// Returns false if the user cancels or an error occurred.
         /// </summary>
         /// <param name="doAddToSettings">
         /// If true, the brush will be added to the settings.
@@ -1657,7 +1387,7 @@ namespace BrushFactory
             openFileDialog.InitialDirectory = defPath;
             openFileDialog.Multiselect = true;
             openFileDialog.Title = "Load custom brushes";
-            openFileDialog.Filter = "Supported images|" +
+            openFileDialog.Filter = "Images and abr brushes|" +
                 "*.png;*.bmp;*.jpg;*.gif;*.tif;*.exif*.jpeg;*.tiff;*.abr;";
 
             //Displays the dialog. Loads the files if it worked.
@@ -1686,7 +1416,7 @@ namespace BrushFactory
             bool doAddToSettings,
             bool doDisplayErrors)
         {
-            if (!backgroundWorker.IsBusy)
+            if (!brushLoadingWorker.IsBusy)
             {
                 int listViewItemHeight = GetListViewItemHeight();
                 int maxBrushSize = sliderBrushSize.Maximum;
@@ -1695,7 +1425,7 @@ namespace BrushFactory
                 bttnAddBrushes.Visible = false;
                 brushLoadProgressBar.Visible = true;
 
-                backgroundWorker.RunWorkerAsync(workerArgs);
+                brushLoadingWorker.RunWorkerAsync(workerArgs);
             }
         }
 
@@ -1708,7 +1438,7 @@ namespace BrushFactory
         /// </param>
         private void ImportBrushesFromDirectories(IEnumerable<string> directories)
         {
-            if (!backgroundWorker.IsBusy)
+            if (!brushLoadingWorker.IsBusy)
             {
                 int listViewItemHeight = GetListViewItemHeight();
                 int maxBrushSize = sliderBrushSize.Maximum;
@@ -1717,7 +1447,7 @@ namespace BrushFactory
                 bttnAddBrushes.Visible = false;
                 brushLoadProgressBar.Visible = true;
 
-                backgroundWorker.RunWorkerAsync(workerArgs);
+                brushLoadingWorker.RunWorkerAsync(workerArgs);
             }
         }
 
@@ -1752,17 +1482,15 @@ namespace BrushFactory
                         }
                     }
                 }
-                catch (ArgumentException)
+                catch (Exception ex)
                 {
-                }
-                catch (IOException)
-                {
-                }
-                catch (SecurityException)
-                {
-                }
-                catch (UnauthorizedAccessException)
-                {
+                    if (!(ex is ArgumentException ||
+                        ex is IOException ||
+                        ex is SecurityException ||
+                        ex is UnauthorizedAccessException))
+                    {
+                        throw;
+                    }
                 }
             }
 
@@ -1770,9 +1498,9 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Gets the height of a single ListView item.
+        /// Returns the height of one thumbnail in the list view, which is
+        /// used to compute the number on screen.
         /// </summary>
-        /// <returns>The height of a single ListView item.</returns>
         private int GetListViewItemHeight()
         {
             if (bttnBrushSelector.VirtualListSize == 0)
@@ -1867,7 +1595,6 @@ namespace BrushFactory
             this.sliderMinDrawDistance = new System.Windows.Forms.TrackBar();
             this.tabControls = new System.Windows.Forms.TabPage();
             this.bttnAddBrushes = new System.Windows.Forms.Button();
-            this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
             this.dummyImageList = new System.Windows.Forms.ImageList(this.components);
             this.bttnRedo = new System.Windows.Forms.Button();
             this.chkbxColorizeBrush = new System.Windows.Forms.CheckBox();
@@ -1883,6 +1610,7 @@ namespace BrushFactory
             this.bttnCancel = new System.Windows.Forms.Button();
             this.sliderCanvasZoom = new System.Windows.Forms.TrackBar();
             this.txtCanvasZoom = new System.Windows.Forms.Label();
+            this.brushLoadProgressBar = new System.Windows.Forms.ProgressBar();
             this.grpbxBrushOptions = new System.Windows.Forms.GroupBox();
             this.bttnSymmetry = new System.Windows.Forms.ComboBox();
             this.chkbxLockAlpha = new System.Windows.Forms.CheckBox();
@@ -1912,8 +1640,8 @@ namespace BrushFactory
             this.txtShiftRotation = new System.Windows.Forms.Label();
             this.sliderShiftSize = new System.Windows.Forms.TrackBar();
             this.txtShiftSize = new System.Windows.Forms.Label();
-            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.brushLoadProgressBar = new System.Windows.Forms.ProgressBar();
+            this.brushLoadingWorker = new System.ComponentModel.BackgroundWorker();
+            this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.tabJitter.SuspendLayout();
@@ -2168,37 +1896,19 @@ namespace BrushFactory
             this.tabControls.Name = "tabControls";
             // 
             // bttnAddBrushes
-            //
+            // 
             resources.ApplyResources(this.bttnAddBrushes, "bttnAddBrushes");
             this.bttnAddBrushes.Name = "bttnAddBrushes";
             this.bttnAddBrushes.UseVisualStyleBackColor = true;
             this.bttnAddBrushes.Click += new System.EventHandler(this.BttnAddBrushes_Click);
             this.bttnAddBrushes.MouseEnter += new System.EventHandler(this.BttnAddBrushes_MouseEnter);
-            //
-            // bttnBrushSelector
-            //
-            this.bttnBrushSelector.LargeImageList = this.dummyImageList;
-            resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
-            this.bttnBrushSelector.MultiSelect = false;
-            this.bttnBrushSelector.Name = "bttnBrushSelector";
-            this.bttnBrushSelector.OwnerDraw = true;
-            this.bttnBrushSelector.ShowItemToolTips = true;
-            this.bttnBrushSelector.UseCompatibleStateImageBehavior = false;
-            this.bttnBrushSelector.VirtualMode = true;
-            this.bttnBrushSelector.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.BttnBrushSelector_CacheVirtualItems);
-            this.bttnBrushSelector.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.BttnBrushSelector_DrawColumnHeader);
-            this.bttnBrushSelector.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.BttnBrushSelector_DrawItem);
-            this.bttnBrushSelector.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.BttnBrushSelector_DrawSubItem);
-            this.bttnBrushSelector.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.BttnBrushSelector_RetrieveVirtualItem);
-            this.bttnBrushSelector.SelectedIndexChanged += new System.EventHandler(this.BttnBrushSelector_SelectedIndexChanged);
-            this.bttnBrushSelector.MouseEnter += new System.EventHandler(this.BttnBrushSelector_MouseEnter);
-            //
+            // 
             // dummyImageList
-            //
+            // 
             this.dummyImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
             resources.ApplyResources(this.dummyImageList, "dummyImageList");
             this.dummyImageList.TransparentColor = System.Drawing.Color.Transparent;
-            //
+            // 
             // bttnRedo
             // 
             resources.ApplyResources(this.bttnRedo, "bttnRedo");
@@ -2320,6 +2030,11 @@ namespace BrushFactory
             resources.ApplyResources(this.txtCanvasZoom, "txtCanvasZoom");
             this.txtCanvasZoom.BackColor = System.Drawing.Color.Transparent;
             this.txtCanvasZoom.Name = "txtCanvasZoom";
+            // 
+            // brushLoadProgressBar
+            // 
+            resources.ApplyResources(this.brushLoadProgressBar, "brushLoadProgressBar");
+            this.brushLoadProgressBar.Name = "brushLoadProgressBar";
             // 
             // grpbxBrushOptions
             // 
@@ -2585,18 +2300,31 @@ namespace BrushFactory
             resources.ApplyResources(this.txtShiftSize, "txtShiftSize");
             this.txtShiftSize.Name = "txtShiftSize";
             // 
-            // backgroundWorker
+            // brushLoadingWorker
             // 
-            this.backgroundWorker.WorkerReportsProgress = true;
-            this.backgroundWorker.WorkerSupportsCancellation = true;
-            this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker_DoWork);
-            this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundWorker_ProgressChanged);
-            this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
+            this.brushLoadingWorker.WorkerReportsProgress = true;
+            this.brushLoadingWorker.WorkerSupportsCancellation = true;
+            this.brushLoadingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker_DoWork);
+            this.brushLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundWorker_ProgressChanged);
+            this.brushLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
             // 
-            // brushLoadProgressBar
+            // bttnBrushSelector
             // 
-            resources.ApplyResources(this.brushLoadProgressBar, "brushLoadProgressBar");
-            this.brushLoadProgressBar.Name = "brushLoadProgressBar";
+            this.bttnBrushSelector.LargeImageList = this.dummyImageList;
+            resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
+            this.bttnBrushSelector.MultiSelect = false;
+            this.bttnBrushSelector.Name = "bttnBrushSelector";
+            this.bttnBrushSelector.OwnerDraw = true;
+            this.bttnBrushSelector.ShowItemToolTips = true;
+            this.bttnBrushSelector.UseCompatibleStateImageBehavior = false;
+            this.bttnBrushSelector.VirtualMode = true;
+            this.bttnBrushSelector.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.BttnBrushSelector_CacheVirtualItems);
+            this.bttnBrushSelector.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.BttnBrushSelector_DrawColumnHeader);
+            this.bttnBrushSelector.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.BttnBrushSelector_DrawItem);
+            this.bttnBrushSelector.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.BttnBrushSelector_DrawSubItem);
+            this.bttnBrushSelector.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.BttnBrushSelector_RetrieveVirtualItem);
+            this.bttnBrushSelector.SelectedIndexChanged += new System.EventHandler(this.BttnBrushSelector_SelectedIndexChanged);
+            this.bttnBrushSelector.MouseEnter += new System.EventHandler(this.BttnBrushSelector_MouseEnter);
             // 
             // WinBrushFactory
             // 
@@ -2944,14 +2672,14 @@ namespace BrushFactory
                             loadedBrushPaths.Add(file);
                         }
                     }
-                    catch (ArgumentException)
+                    catch (Exception ex)
                     {
-                    }
-                    catch (DirectoryNotFoundException)
-                    {
-                    }
-                    catch (FileNotFoundException)
-                    {
+                        if (!(ex is ArgumentException ||
+                            ex is DirectoryNotFoundException ||
+                            ex is FileNotFoundException))
+                        {
+                            throw;
+                        }
                     }
                 }
 
@@ -2977,11 +2705,11 @@ namespace BrushFactory
         {
             if (e.Cancelled)
             {
-                if (formClosePending)
+                if (isFormClosing)
                 {
                     Close();
                 }
-                else if (reinitializeBrushes)
+                else if (doReinitializeBrushes)
                 {
                     InitBrushes();
                 }
@@ -3308,22 +3036,22 @@ namespace BrushFactory
         private void BttnBrushSelector_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
         {
             // Check if the cache needs to be refreshed.
-            if (brushListViewCache != null && e.StartIndex >= cacheStartIndex && e.EndIndex <= cacheStartIndex + brushListViewCache.Length)
+            if (visibleBrushes != null && e.StartIndex >= visibleBrushesIndex && e.EndIndex <= visibleBrushesIndex + visibleBrushes.Length)
             {
                 // If the newly requested cache is a subset of the old cache,
                 // no need to rebuild everything, so do nothing.
                 return;
             }
 
-            cacheStartIndex = e.StartIndex;
+            visibleBrushesIndex = e.StartIndex;
             // The indexes are inclusive.
             int length = e.EndIndex - e.StartIndex + 1;
-            brushListViewCache = new ListViewItem[length];
+            visibleBrushes = new ListViewItem[length];
 
             // Fill the cache with the appropriate ListViewItems.
             for (int i = 0; i < length; i++)
             {
-                int itemIndex = cacheStartIndex + i;
+                int itemIndex = visibleBrushesIndex + i;
 
                 BrushSelectorItem brush = loadedBrushes[itemIndex];
                 string name = brush.Name;
@@ -3338,7 +3066,7 @@ namespace BrushFactory
                     tooltipText = name;
                 }
 
-                brushListViewCache[i] = new ListViewItem
+                visibleBrushes[i] = new ListViewItem
                 {
                     // When the text is an empty string it will not
                     // be included ListViewItem size calculation.
@@ -3427,9 +3155,9 @@ namespace BrushFactory
         /// </summary>
         private void BttnBrushSelector_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
-            if (brushListViewCache != null && e.ItemIndex >= cacheStartIndex && e.ItemIndex < cacheStartIndex + brushListViewCache.Length)
+            if (visibleBrushes != null && e.ItemIndex >= visibleBrushesIndex && e.ItemIndex < visibleBrushesIndex + visibleBrushes.Length)
             {
-                e.Item = brushListViewCache[e.ItemIndex - cacheStartIndex];
+                e.Item = visibleBrushes[e.ItemIndex - visibleBrushesIndex];
             }
             else
             {
@@ -4186,9 +3914,9 @@ namespace BrushFactory
         /// </summary>
         private void RepositionUpdate_Tick(object sender, EventArgs e)
         {
-            /*Converts the mouse coordinates on the screen relative to the
-             * background such that the top-left corner is (0, 0) up to its
-             * width and height.*/
+            // Converts the mouse coordinates on the screen relative to the
+            // background such that the top-left corner is (0, 0) up to its
+            // width and height.
             Point mouseLocOnBG = displayCanvasBG.PointToClient(MousePosition);
 
             //Exits if the user isn't drawing out of the canvas boundary.

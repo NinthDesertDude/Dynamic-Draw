@@ -177,6 +177,9 @@
   <data name="CancelTip" xml:space="preserve">
     <value>Quit without saving changes.</value>
   </data>
+  <data name="CannotLoadSettingsError" xml:space="preserve">
+    <value>Your custom brushes couldn't be loaded. You can try defining them again.</value>
+  </data>
   <data name="CanvasZoom" xml:space="preserve">
     <value>Canvas Zoom:</value>
   </data>
