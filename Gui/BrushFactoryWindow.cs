@@ -1897,6 +1897,7 @@ namespace BrushFactory
             // 
             // bttnAddBrushes
             // 
+            this.bttnAddBrushes.Image = global::BrushFactory.Properties.Resources.AddBrushIcon;
             resources.ApplyResources(this.bttnAddBrushes, "bttnAddBrushes");
             this.bttnAddBrushes.Name = "bttnAddBrushes";
             this.bttnAddBrushes.UseVisualStyleBackColor = true;

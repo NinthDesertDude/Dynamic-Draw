@@ -792,19 +792,6 @@
   <data name="&gt;&gt;sliderMinDrawDistance.ZOrder" xml:space="preserve">
     <value>11</value>
   </data>
-  <data name="bttnAddBrushes.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wwAADsMBx2+oZAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMS4zjST9ZwAAAZpJREFUOE+tkbtq
-        AlEQhu3SJqWEgG8QqzQptMkDpLOwiMZiK6s8QJpAqiS2XlBE8IaKioqKJoqJiMWKFsI2XkC8sLik2XYy
-        s0wiwUsU8lV7zsz5//lndf9OKBQyplIpAx8PBwXeEonEPR/3B13N9DAQCAwikcgrfR80CTrfkLvH41FI
-        hL4pDpd/oarq2Wg0EobDoZ6vVuyKoCjKcbFYfEwmk1CpVGCxWJi4tIImoTh8/CGbzZpxukE4HIZmswmT
-        yeSJS9sBgBNy9fl8L16vFwqFAnS7XZjP5w/cspler2eZTqcX+FDCfczi8TjUajXAewXHvuW2dfr9vqFc
-        Lov4F8DtdkMwGASXywWlUgkkSXqXZfmUW9fJ5/MWdFIwP2QyGSCRRqMBnU5HGx3HPufWdfDxnd1u11xj
-        sRik02mgTZPQeDwe4MKuuXUz7XZb73Q6ZZvNpglEo1FAUahWq0BTLZfL7e7ftFotoyAInw6HQ3PO5XIU
-        YYZbv+KWv6nX6yYUUK1WK/j9/g9RFI+5tD+Y/xIjPOPWj/hqBzrdFyN0E+dYfunYAAAAAElFTkSuQmCC
-</value>
-  </data>
   <data name="bttnAddBrushes.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
