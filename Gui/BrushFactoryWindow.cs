@@ -3919,6 +3919,11 @@ namespace BrushFactory
         /// </summary>
         private void RepositionUpdate_Tick(object sender, EventArgs e)
         {
+            if (displayCanvasBG.IsDisposed)
+            {
+                return;
+            }
+
             // Converts the mouse coordinates on the screen relative to the
             // background such that the top-left corner is (0, 0) up to its
             // width and height.
