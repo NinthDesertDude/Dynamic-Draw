@@ -315,11 +315,6 @@ namespace BrushFactory
             bttnSymmetry.DataSource = symmetryOptions;
             bttnSymmetry.DisplayMember = "Item1";
             bttnSymmetry.ValueMember = "Item2";
-
-            //Forces the window to cover the screen without being maximized.
-            Left = Top = 0;
-            Width = Screen.PrimaryScreen.WorkingArea.Width;
-            Height = Screen.PrimaryScreen.WorkingArea.Height;
         }
         #endregion
 
@@ -550,6 +545,14 @@ namespace BrushFactory
             chkbxOrientToMouse.Text = Localization.Strings.OrientToMouse;
 
             grpbxBrushOptions.Text = Localization.Strings.BrushOptions;
+
+            //Forces the window to cover the screen without being maximized.
+            Rectangle workingArea = Screen.FromControl(this).WorkingArea;
+
+            Left = workingArea.Left;
+            Top = workingArea.Top;
+            Width = workingArea.Width;
+            Height = workingArea.Height;
         }
 
         /// <summary>
