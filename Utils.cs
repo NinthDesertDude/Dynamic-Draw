@@ -260,6 +260,44 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Create a GDI+ bitmap from the specified Paint.NET surface.
+        /// </summary>
+        /// <param name="surface">The surface.</param>
+        /// <returns>The created bitmap.</returns>
+        public static unsafe Bitmap CreateBitmapFromSurface(Surface surface)
+        {
+            Bitmap image = new Bitmap(surface.Width, surface.Height, PixelFormat.Format32bppArgb);
+
+            BitmapData bitmapData = image.LockBits(
+                new Rectangle(0, 0, image.Width, image.Height),
+                ImageLockMode.WriteOnly,
+                image.PixelFormat);
+
+            byte* dstScan0 = (byte*)bitmapData.Scan0;
+            int dstStride = bitmapData.Stride;
+
+            for (int y = 0; y < surface.Height; y++)
+            {
+                ColorBgra* src = surface.GetRowAddressUnchecked(y);
+                // The ColorBgra structure matches the memory layout
+                // of the 32bppArgb and 32bppPArgb pixel formats.
+                ColorBgra* dst = (ColorBgra*)(dstScan0 + (y * dstStride));
+
+                for (int x = 0; x < surface.Width; x++)
+                {
+                    dst->Bgra = src->Bgra;
+
+                    src++;
+                    dst++;
+                }
+            }
+
+            image.UnlockBits(bitmapData);
+
+            return image;
+        }
+
+        /// <summary>
         /// Returns the original bitmap data in another format by drawing it.
         /// </summary>
         public static Bitmap FormatImage(Bitmap img, PixelFormat format)

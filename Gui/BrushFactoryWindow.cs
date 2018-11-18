@@ -448,8 +448,7 @@ namespace BrushFactory
 
             //Sets the sizes of the canvas and drawing region.
             displayCanvas.Size = EffectSourceSurface.Size;
-            bmpCurrentDrawing = new Bitmap(displayCanvas.Width, displayCanvas.Height);
-            Utils.CopyBitmapPure(EffectSourceSurface.CreateAliasedBitmap(), bmpCurrentDrawing);
+            bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EffectSourceSurface);
 
             //Sets the canvas dimensions.
             displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
