@@ -571,17 +571,10 @@ namespace BrushFactory
                 // to be used if an error occurs.
                 settings.LoadSavedSettings();
             }
-            catch (Exception ex)
+            catch
             {
-                if (ex is IOException || ex is UnauthorizedAccessException)
-                {
-                    MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
-                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    throw;
-                }
+                MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
+                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             InitBrushes();
