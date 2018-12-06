@@ -222,7 +222,7 @@ namespace BrushFactory
             //TODO: Find the underlying issue and stop using workarounds.
 
             //Formats and size must be the same.
-                if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb ||
+                if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
                 dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
                 srcImg.Width != dstImg.Width ||
                 srcImg.Height != dstImg.Height)
@@ -244,19 +244,29 @@ namespace BrushFactory
                 ImageLockMode.WriteOnly,
                 dstImg.PixelFormat);
 
+            bool premultiplySrc = srcImg.PixelFormat == PixelFormat.Format32bppArgb;
+
             //Copies each pixel.
             byte* srcRow = (byte*)srcData.Scan0;
             byte* dstRow = (byte*)destData.Scan0;
             for (int y = 0; y < srcImg.Height; y++)
             {
+                ColorBgra* src = (ColorBgra*)(srcRow + (y * srcData.Stride));
+                ColorBgra* dst = (ColorBgra*)(dstRow + (y * destData.Stride));
+
                 for (int x = 0; x < srcImg.Width; x++)
                 {
-                    int ptr = y * srcData.Stride + x * 4;
+                    if (premultiplySrc)
+                    {
+                        dst->Bgra = src->ConvertToPremultipliedAlpha().Bgra;
+                    }
+                    else
+                    {
+                        dst->Bgra = src->Bgra;
+                    }
 
-                    dstRow[ptr] = srcRow[ptr];
-                    dstRow[ptr + 1] = srcRow[ptr + 1];
-                    dstRow[ptr + 2] = srcRow[ptr + 2];
-                    dstRow[ptr + 3] = srcRow[ptr + 3];
+                    src++;
+                    dst++;
                 }
             }
 
