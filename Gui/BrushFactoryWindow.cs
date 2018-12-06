@@ -40,7 +40,7 @@ namespace BrushFactory
         /// <summary>
         /// Stores the current drawing in full.
         /// </summary>
-        private Bitmap bmpCurrentDrawing = new Bitmap(1, 1);
+        private Bitmap bmpCurrentDrawing = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
 
         /// <summary>
         /// Loads user's custom brushes asynchronously.
@@ -2460,7 +2460,7 @@ namespace BrushFactory
             if (bmpBrush != null)
             {
                 //Applies the color and alpha changes.
-                bmpBrushEffects = new Bitmap(bmpBrush);
+                bmpBrushEffects = Utils.FormatImage(bmpBrush, PixelFormat.Format32bppPArgb);
 
                 //Colorizes the image only if enabled.
                 if (chkbxColorizeBrush.Checked)
@@ -2563,7 +2563,7 @@ namespace BrushFactory
                                             scaledBrush = Utils.ScaleImage(item.Image, newImageSize);
                                         }
 
-                                        Bitmap brushImage = new Bitmap(size, size);
+                                        Bitmap brushImage = new Bitmap(size, size, PixelFormat.Format32bppPArgb);
 
                                         //Pads the image to be square if needed, makes fully
                                         //opaque images use intensity for alpha, and draws the
@@ -2629,7 +2629,7 @@ namespace BrushFactory
                                     scaledBrush = Utils.ScaleImage(bmp, newImageSize);
                                 }
 
-                                brushImage = new Bitmap(size, size);
+                                brushImage = new Bitmap(size, size, PixelFormat.Format32bppPArgb);
 
                                 //Pads the image to be square if needed, makes fully
                                 //opaque images use intensity for alpha, and draws the
@@ -3226,8 +3226,8 @@ namespace BrushFactory
 
                     bmpBrush?.Dispose();
                     bmpBrush = Utils.FormatImage(
-                        new Bitmap(currentItem.Brush),
-                        PixelFormat.Format32bppArgb);
+                        currentItem.Brush,
+                        PixelFormat.Format32bppPArgb);
 
                     UpdateBrush();
                 }
