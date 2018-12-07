@@ -18,7 +18,7 @@ namespace BrushFactory.Abr
         /// <param name="name">The name of the brush.</param>
         public AbrBrush(int width, int height, string name)
         {
-            image = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            image = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             Name = name;
         }
 

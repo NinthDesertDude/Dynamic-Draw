@@ -441,7 +441,7 @@ namespace BrushFactory.Abr
 			BitmapData bd = brush.Image.LockBits(
                 new Rectangle(0, 0, width, height),
                 ImageLockMode.WriteOnly,
-                PixelFormat.Format32bppArgb);
+                PixelFormat.Format32bppPArgb);
 
 			try
 			{

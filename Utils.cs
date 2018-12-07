@@ -71,12 +71,12 @@ namespace BrushFactory
                 for (int x = 0; x < img.Width; x++)
                 {
                     int ptr = y * bmpData.Stride + x * 4;
-                    Color pixel = Color.FromArgb(row[ptr + 3], row[ptr + 2], row[ptr + 1], row[ptr]);
+                    ColorBgra pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(row[ptr + 3] * alpha)).ConvertToPremultipliedAlpha();
 
-                    row[ptr + 3] = (byte)(pixel.A * alpha);
-                    row[ptr + 2] = color.R;
-                    row[ptr + 1] = color.G;
-                    row[ptr] = color.B;
+                    row[ptr + 3] = pixel.A;
+                    row[ptr + 2] = pixel.R;
+                    row[ptr + 1] = pixel.G;
+                    row[ptr] = pixel.B;
                 }
             }
             img.UnlockBits(bmpData);
@@ -104,9 +104,16 @@ namespace BrushFactory
                 for (int x = 0; x < img.Width; x++)
                 {
                     int ptr = y * bmpData.Stride + x * 4;
-                    Color pixel = Color.FromArgb(row[ptr + 3], row[ptr + 2], row[ptr + 1], row[ptr]);
+                    ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
 
-                    row[ptr + 3] = (byte)(pixel.A * alpha);
+                    unmultipliedPixel.A = (byte)(unmultipliedPixel.A * alpha);
+
+                    ColorBgra premultiplied = unmultipliedPixel.ConvertToPremultipliedAlpha();
+
+                    row[ptr + 3] = premultiplied.A;
+                    row[ptr + 2] = premultiplied.R;
+                    row[ptr + 1] = premultiplied.G;
+                    row[ptr] = premultiplied.B;
                 }
             }
             img.UnlockBits(bmpData);
@@ -147,7 +154,7 @@ namespace BrushFactory
 
         /// <summary>
         /// Overwrites alpha from one identically-sized bitmap on another.
-        /// Both images must have PixelFormat.Format32bppArgb.
+        /// Both images must have PixelFormat.Format32bppPArgb.
         /// Returns success.
         /// </summary>
         /// <param name="srcImg">
@@ -159,8 +166,8 @@ namespace BrushFactory
         public static unsafe bool CopyAlpha(Bitmap srcImg, Bitmap dstImg)
         {
             //Formats and size must be the same.
-            if (srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
-                dstImg.PixelFormat != PixelFormat.Format32bppArgb ||
+            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb ||
+                dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
                 srcImg.Width != dstImg.Width ||
                 srcImg.Height != dstImg.Height)
             {
@@ -215,8 +222,8 @@ namespace BrushFactory
             //TODO: Find the underlying issue and stop using workarounds.
 
             //Formats and size must be the same.
-                if (srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
-                dstImg.PixelFormat != PixelFormat.Format32bppArgb ||
+                if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
+                dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
                 srcImg.Width != dstImg.Width ||
                 srcImg.Height != dstImg.Height)
             {
@@ -237,19 +244,29 @@ namespace BrushFactory
                 ImageLockMode.WriteOnly,
                 dstImg.PixelFormat);
 
+            bool premultiplySrc = srcImg.PixelFormat == PixelFormat.Format32bppArgb;
+
             //Copies each pixel.
             byte* srcRow = (byte*)srcData.Scan0;
             byte* dstRow = (byte*)destData.Scan0;
             for (int y = 0; y < srcImg.Height; y++)
             {
+                ColorBgra* src = (ColorBgra*)(srcRow + (y * srcData.Stride));
+                ColorBgra* dst = (ColorBgra*)(dstRow + (y * destData.Stride));
+
                 for (int x = 0; x < srcImg.Width; x++)
                 {
-                    int ptr = y * srcData.Stride + x * 4;
+                    if (premultiplySrc)
+                    {
+                        dst->Bgra = src->ConvertToPremultipliedAlpha().Bgra;
+                    }
+                    else
+                    {
+                        dst->Bgra = src->Bgra;
+                    }
 
-                    dstRow[ptr] = srcRow[ptr];
-                    dstRow[ptr + 1] = srcRow[ptr + 1];
-                    dstRow[ptr + 2] = srcRow[ptr + 2];
-                    dstRow[ptr + 3] = srcRow[ptr + 3];
+                    src++;
+                    dst++;
                 }
             }
 
@@ -266,7 +283,7 @@ namespace BrushFactory
         /// <returns>The created bitmap.</returns>
         public static unsafe Bitmap CreateBitmapFromSurface(Surface surface)
         {
-            Bitmap image = new Bitmap(surface.Width, surface.Height, PixelFormat.Format32bppArgb);
+            Bitmap image = new Bitmap(surface.Width, surface.Height, PixelFormat.Format32bppPArgb);
 
             BitmapData bitmapData = image.LockBits(
                 new Rectangle(0, 0, image.Width, image.Height),
@@ -285,7 +302,7 @@ namespace BrushFactory
 
                 for (int x = 0; x < surface.Width; x++)
                 {
-                    dst->Bgra = src->Bgra;
+                    dst->Bgra = src->ConvertToPremultipliedAlpha().Bgra;
 
                     src++;
                     dst++;
@@ -367,7 +384,7 @@ namespace BrushFactory
         /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
         public static unsafe Bitmap MakeTransparent(Bitmap img)
         {
-            Bitmap image = FormatImage(img, PixelFormat.Format32bppArgb);
+            Bitmap image = FormatImage(img, PixelFormat.Format32bppPArgb);
 
             BitmapData bmpData = image.LockBits(
                 new Rectangle(0, 0,
@@ -427,7 +444,7 @@ namespace BrushFactory
 
             //Creates a new bitmap with the minimum square size.
             int size = Math.Max(img.Height, img.Width);
-            Bitmap newImg = new Bitmap(size, size);
+            Bitmap newImg = new Bitmap(size, size, PixelFormat.Format32bppPArgb);
 
             using (Graphics graphics = Graphics.FromImage(newImg))
             {
@@ -475,7 +492,7 @@ namespace BrushFactory
             int newHeight = (int)Math.Ceiling(origBmp.Width * sin + origBmp.Height * cos);
 
             //Creates the new image and a graphic canvas to draw the rotation.
-            Bitmap newBmp = new Bitmap(newWidth, newHeight);
+            Bitmap newBmp = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
                 //Uses matrices to centrally-rotate the original image.
@@ -526,7 +543,7 @@ namespace BrushFactory
         public static Bitmap ScaleImage(Bitmap origBmp, Size newSize)
         {
             //Creates the new image and a graphic canvas to draw the rotation.
-            Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height);
+            Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
