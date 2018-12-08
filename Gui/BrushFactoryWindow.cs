@@ -2770,40 +2770,43 @@ namespace BrushFactory
                 ShowBgContextMenu(displayCanvas, e.Location);
             }
 
-            //Enables and records image panning.
-            else if (e.Button == MouseButtons.Middle)
-            {
-                isUserPanning = true;
-                mouseLocPrev = e.Location;
-            }
-
-            //Enables and records brush drawing.
             else if (e.Button == MouseButtons.Left)
             {
-                isUserDrawing = true;
-                mouseLocPrev = e.Location;
-
-                //Repositions the canvas when the user draws out-of-bounds.
-                timerRepositionUpdate.Enabled = true;
-
-                //Adds to the list of undo operations.
-                string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
-
-                //Saves the drawing to the file and saves the file path.
-                bmpCurrentDrawing.Save(path);
-                undoHistory.Push(path);
-                if (!bttnUndo.Enabled)
+                //Pans the image.
+                if (IsKeyDown(Keys.ControlKey))
                 {
-                    bttnUndo.Enabled = true;
+                    isUserPanning = true;
+                    mouseLocPrev = e.Location;
                 }
 
-                //Removes all redo history.
-                redoHistory.Clear();
-
-                //Draws the brush on the first canvas click.
-                if (!chkbxOrientToMouse.Checked)
+                //Draws with the brush.
+                else
                 {
-                    DisplayCanvas_MouseMove(sender, e);
+                    isUserDrawing = true;
+                    mouseLocPrev = e.Location;
+
+                    //Repositions the canvas when the user draws out-of-bounds.
+                    timerRepositionUpdate.Enabled = true;
+
+                    //Adds to the list of undo operations.
+                    string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
+
+                    //Saves the drawing to the file and saves the file path.
+                    bmpCurrentDrawing.Save(path);
+                    undoHistory.Push(path);
+                    if (!bttnUndo.Enabled)
+                    {
+                        bttnUndo.Enabled = true;
+                    }
+
+                    //Removes all redo history.
+                    redoHistory.Clear();
+
+                    //Draws the brush on the first canvas click.
+                    if (!chkbxOrientToMouse.Checked)
+                    {
+                        DisplayCanvas_MouseMove(sender, e);
+                    }
                 }
             }
         }
