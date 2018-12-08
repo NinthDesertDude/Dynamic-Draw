@@ -56,7 +56,9 @@ namespace BrushFactory.Gui
         /// </summary>
         public void SaveSettings()
         {
-            string[] values = txtbxBrushLocations.Text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] values = txtbxBrushLocations.Text.Split(
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.RemoveEmptyEntries);
 
             settings.CustomBrushDirectories = new HashSet<string>(values, StringComparer.OrdinalIgnoreCase);
             settings.UseDefaultBrushes = chkbxLoadDefaultBrushes.Checked;

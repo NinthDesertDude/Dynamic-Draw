@@ -2700,7 +2700,7 @@ namespace BrushFactory
 
             int GetProgressPercentage(double done, double total)
             {
-                return (int)((done / total) * 100.0).Clamp(0.0, 100.0);
+                return (int)(done / total * 100.0).Clamp(0.0, 100.0);
             }
         }
 
@@ -2996,9 +2996,6 @@ namespace BrushFactory
             ImportBrushes(true);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnAddBrushes_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.AddBrushesTip;
@@ -3030,9 +3027,6 @@ namespace BrushFactory
             }
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnBrushColor_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushColorTip;
@@ -3150,9 +3144,6 @@ namespace BrushFactory
             e.DrawDefault = true;
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnBrushSelector_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushSelectorTip;
@@ -3234,9 +3225,6 @@ namespace BrushFactory
             }
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushSmoothingTip;
@@ -3253,9 +3241,6 @@ namespace BrushFactory
             this.Close();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnCancel_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.CancelTip;
@@ -3269,9 +3254,6 @@ namespace BrushFactory
             InitBrushes();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnClearBrushes_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.ClearBrushesTip;
@@ -3285,9 +3267,6 @@ namespace BrushFactory
             InitSettings();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnClearSettings_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.ClearSettingsTip;
@@ -3317,9 +3296,6 @@ namespace BrushFactory
             this.Close();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnOk_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.OkTip;
@@ -3333,9 +3309,6 @@ namespace BrushFactory
             new Gui.BrushFactoryPreferences(settings).ShowDialog();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnPreferences_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.CustomBrushLocationsTip;
@@ -3390,9 +3363,6 @@ namespace BrushFactory
             }
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnRedo_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RedoTip;
@@ -3447,17 +3417,11 @@ namespace BrushFactory
             }
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnUndo_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.UndoTip;
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.SymmetryTip;
@@ -3472,33 +3436,21 @@ namespace BrushFactory
             UpdateBrush();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.ColorizeBrushTip;
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.LockAlphaTip;
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.OrientToMouseTip;
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderBrushAlpha_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushAlphaTip;
@@ -3517,9 +3469,6 @@ namespace BrushFactory
             UpdateBrush();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushSizeTip;
@@ -3539,9 +3488,6 @@ namespace BrushFactory
             displayCanvas.Refresh();
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderBrushRotation_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushRotationTip;
@@ -3558,9 +3504,6 @@ namespace BrushFactory
                 sliderBrushRotation.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderCanvasZoom_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.CanvasZoomTip;
@@ -3574,9 +3517,6 @@ namespace BrushFactory
             Zoom(0, false);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.MinDrawDistanceTip;
@@ -3593,9 +3533,6 @@ namespace BrushFactory
                 sliderMinDrawDistance.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandHorzShift_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandHorzShiftTip;
@@ -3612,9 +3549,6 @@ namespace BrushFactory
                 sliderRandHorzShift.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMaxAlpha_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMaxAlphaTip;
@@ -3631,9 +3565,6 @@ namespace BrushFactory
                 sliderRandMaxAlpha.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMaxBlue_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMaxBlueTip;
@@ -3650,9 +3581,6 @@ namespace BrushFactory
                 sliderRandMaxBlue.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMaxGreen_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMaxGreenTip;
@@ -3669,9 +3597,6 @@ namespace BrushFactory
                 sliderRandMaxGreen.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMaxRed_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMaxRedTip;
@@ -3688,9 +3613,6 @@ namespace BrushFactory
                 sliderRandMaxRed.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMaxSizeTip;
@@ -3707,9 +3629,6 @@ namespace BrushFactory
                 sliderRandMaxSize.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMinAlpha_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMinAlphaTip;
@@ -3726,9 +3645,6 @@ namespace BrushFactory
                 sliderRandMinAlpha.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMinBlue_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMinBlueTip;
@@ -3745,9 +3661,6 @@ namespace BrushFactory
                 sliderRandMinBlue.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMinGreen_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMinGreenTip;
@@ -3764,9 +3677,6 @@ namespace BrushFactory
                 sliderRandMinGreen.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMinRed_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMinRedTip;
@@ -3783,9 +3693,6 @@ namespace BrushFactory
                 sliderRandMinRed.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandMinSize_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandMinSizeTip;
@@ -3802,9 +3709,6 @@ namespace BrushFactory
                 sliderRandMinSize.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandRotLeft_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandRotLeftTip;
@@ -3821,9 +3725,6 @@ namespace BrushFactory
                 sliderRandRotLeft.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandRotRight_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandRotRightTip;
@@ -3840,9 +3741,6 @@ namespace BrushFactory
                 sliderRandRotRight.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderRandVertShift_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.RandVertShiftTip;
@@ -3859,9 +3757,6 @@ namespace BrushFactory
                 sliderRandVertShift.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderShiftAlpha_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.ShiftAlphaTip;
@@ -3878,9 +3773,6 @@ namespace BrushFactory
                 sliderShiftAlpha.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.ShiftRotationTip;
@@ -3897,9 +3789,6 @@ namespace BrushFactory
                 sliderShiftRotation.Value);
         }
 
-        /// <summary>
-        /// Sets a tooltip.
-        /// </summary>
         private void SliderShiftSize_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.ShiftSizeTip;
@@ -4044,10 +3933,6 @@ namespace BrushFactory
             /// Gets the height of a single ListView item.
             /// </summary>
             public int ListViewItemHeight { get; }
-
-            /// <summary>
-            /// Gets the maximum size of a brush.
-            /// </summary>
             public int MaxBrushSize { get; }
 
             /// <summary>
