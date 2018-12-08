@@ -854,32 +854,32 @@ namespace BrushFactory
                 loadedBrushes.Clear();
             }
 
-            //Loads stored brushes.
-            loadedBrushes.Add(new BrushSelectorItem("Circle 1", Resources.BrCircle));
-
             if (settings.UseDefaultBrushes)
             {
-                loadedBrushes.Add(new BrushSelectorItem("Circle 2", Resources.BrCircleMedium));
-                loadedBrushes.Add(new BrushSelectorItem("Circle 3", Resources.BrCircleHard));
-                loadedBrushes.Add(new BrushSelectorItem("Rough", Resources.BrCircleRough));
-                loadedBrushes.Add(new BrushSelectorItem("Sketchy", Resources.BrCircleSketchy));
-                loadedBrushes.Add(new BrushSelectorItem("Segments", Resources.BrCircleSegmented));
-                loadedBrushes.Add(new BrushSelectorItem("Spiral", Resources.BrSpiral));
-                loadedBrushes.Add(new BrushSelectorItem("Cracks", Resources.BrCracks));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 1", Resources.BrDirt));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 2", Resources.BrDirt2));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 3", Resources.BrDirt3));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 4", Resources.BrFractalDirt));
-                loadedBrushes.Add(new BrushSelectorItem("Scales", Resources.BrScales));
-                loadedBrushes.Add(new BrushSelectorItem("Smoke", Resources.BrSmoke));
-                loadedBrushes.Add(new BrushSelectorItem("Grass", Resources.BrGrass));
-                loadedBrushes.Add(new BrushSelectorItem("Rain", Resources.BrRain));
-                loadedBrushes.Add(new BrushSelectorItem("Gravel", Resources.BrGravel));
-                loadedBrushes.Add(new BrushSelectorItem("Spark", Resources.BrSpark));
-                loadedBrushes.Add(new BrushSelectorItem("Big Dots", Resources.BrDotsBig));
-                loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
                 loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
+                loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
+                loadedBrushes.Add(new BrushSelectorItem("Big Dots", Resources.BrDotsBig));
+                loadedBrushes.Add(new BrushSelectorItem("Spark", Resources.BrSpark));
+                loadedBrushes.Add(new BrushSelectorItem("Gravel", Resources.BrGravel));
+                loadedBrushes.Add(new BrushSelectorItem("Rain", Resources.BrRain));
+                loadedBrushes.Add(new BrushSelectorItem("Grass", Resources.BrGrass));
+                loadedBrushes.Add(new BrushSelectorItem("Smoke", Resources.BrSmoke));
+                loadedBrushes.Add(new BrushSelectorItem("Scales", Resources.BrScales));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 4", Resources.BrFractalDirt));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 3", Resources.BrDirt3));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 2", Resources.BrDirt2));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 1", Resources.BrDirt));
+                loadedBrushes.Add(new BrushSelectorItem("Cracks", Resources.BrCracks));
+                loadedBrushes.Add(new BrushSelectorItem("Spiral", Resources.BrSpiral));
+                loadedBrushes.Add(new BrushSelectorItem("Segments", Resources.BrCircleSegmented));
+                loadedBrushes.Add(new BrushSelectorItem("Sketchy", Resources.BrCircleSketchy));
+                loadedBrushes.Add(new BrushSelectorItem("Rough", Resources.BrCircleRough));
+                loadedBrushes.Add(new BrushSelectorItem("Circle 3", Resources.BrCircleHard));
+                loadedBrushes.Add(new BrushSelectorItem("Circle 2", Resources.BrCircleMedium));
             }
+
+            //Loads stored brushes.
+            loadedBrushes.Add(new BrushSelectorItem("Circle 1", Resources.BrCircle));
             bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
 
             //Loads any custom brushes.
