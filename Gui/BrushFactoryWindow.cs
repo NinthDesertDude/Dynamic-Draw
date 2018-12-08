@@ -2378,6 +2378,36 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Renders the clipboard image with the checkerboard pattern under the transparent areas.
+        /// </summary>
+        /// <param name="stream">The stream containing the clipboard image.</param>
+        /// <exception cref="ArgumentException">The clipboard image is not a valid format.</exception>
+        /// <returns>The rendered image.</returns>
+        private static Bitmap RenderClipboardImageWithCheckerboard(Stream stream)
+        {
+            Bitmap background = null;
+
+            using (Image clipboardImage = Image.FromStream(stream))
+            {
+                background = new Bitmap(clipboardImage.Width, clipboardImage.Height, PixelFormat.Format32bppPArgb);
+
+                using (Graphics graphics = Graphics.FromImage(background))
+                {
+                    // Fill the entire image with the checkerboard background
+                    // to ensure that transparent areas are displayed correctly.
+                    using (TextureBrush backgroundBrush = new TextureBrush(Resources.CheckeredBg, WrapMode.Tile))
+                    {
+                        graphics.FillRectangle(backgroundBrush, 0, 0, background.Width, background.Height);
+                    }
+
+                    graphics.DrawImage(clipboardImage, 0, 0);
+                }
+            }
+
+            return background;
+        }
+
+        /// <summary>
         /// Displays a context menu for changing background color options.
         /// </summary>
         /// <param name="sender">
@@ -2410,22 +2440,32 @@ namespace BrushFactory
                     displayCanvas.BackColor = Color.Black;
                     displayCanvas.BackgroundImage = null;
                 })));
-            if (Clipboard.ContainsImage())
+            if (Clipboard.ContainsData("PNG"))
             {
                 contextMenu.MenuItems.Add(new MenuItem("Use clipboard as background",
                     new EventHandler((a, b) =>
                     {
-                        if (Clipboard.ContainsImage())
+                        if (Clipboard.ContainsData("PNG"))
                         {
+                            Stream stream = null;
                             try
                             {
-                                displayCanvas.BackgroundImage = Clipboard.GetImage();
-                                displayCanvas.BackgroundImageLayout = ImageLayout.Stretch;
-                                displayCanvas.BackColor = Color.Transparent;
+                                stream = Clipboard.GetData("PNG") as Stream;
+
+                                if (stream != null)
+                                {
+                                    displayCanvas.BackgroundImage = RenderClipboardImageWithCheckerboard(stream);
+                                    displayCanvas.BackgroundImageLayout = ImageLayout.Stretch;
+                                    displayCanvas.BackColor = Color.Transparent;
+                                }
                             }
                             catch
                             {
                                 MessageBox.Show("Could not use clipboard image.");
+                            }
+                            finally
+                            {
+                                stream?.Dispose();
                             }
                         }
                     })));
