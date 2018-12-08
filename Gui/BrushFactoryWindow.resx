@@ -223,7 +223,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderRandVertShift.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 343</value>
+    <value>11, 298</value>
   </data>
   <data name="sliderRandVertShift.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
@@ -247,7 +247,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtRandVertShift.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 323</value>
+    <value>11, 278</value>
   </data>
   <data name="txtRandVertShift.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
@@ -283,7 +283,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderRandHorzShift.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 298</value>
+    <value>11, 253</value>
   </data>
   <data name="sliderRandHorzShift.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
@@ -307,7 +307,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtRandHorzShift.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 278</value>
+    <value>11, 233</value>
   </data>
   <data name="txtRandHorzShift.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
@@ -332,69 +332,6 @@
   </data>
   <data name="&gt;&gt;txtRandHorzShift.ZOrder" xml:space="preserve">
     <value>3</value>
-  </data>
-  <data name="sliderRandMaxAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="sliderRandMaxAlpha.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="sliderRandMaxAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="sliderRandMaxAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 253</value>
-  </data>
-  <data name="sliderRandMaxAlpha.Size" type="System.Drawing.Size, System.Drawing">
-    <value>150, 25</value>
-  </data>
-  <data name="sliderRandMaxAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.Name" xml:space="preserve">
-    <value>sliderRandMaxAlpha</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;sliderRandMaxAlpha.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="txtRandMaxAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="txtRandMaxAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="txtRandMaxAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 233</value>
-  </data>
-  <data name="txtRandMaxAlpha.Size" type="System.Drawing.Size, System.Drawing">
-    <value>149, 17</value>
-  </data>
-  <data name="txtRandMaxAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
-  </data>
-  <data name="txtRandMaxAlpha.Text" xml:space="preserve">
-    <value>Random Max Alpha:</value>
-  </data>
-  <data name="txtRandMaxAlpha.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleCenter</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.Name" xml:space="preserve">
-    <value>txtRandMaxAlpha</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.Parent" xml:space="preserve">
-    <value>tabJitter</value>
-  </data>
-  <data name="&gt;&gt;txtRandMaxAlpha.ZOrder" xml:space="preserve">
-    <value>5</value>
   </data>
   <data name="sliderRandMinAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -424,7 +361,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;sliderRandMinAlpha.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>4</value>
   </data>
   <data name="txtRandMinAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -457,7 +394,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;txtRandMinAlpha.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>5</value>
   </data>
   <data name="sliderRandMaxSize.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -487,7 +424,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;sliderRandMaxSize.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>6</value>
   </data>
   <data name="txtRandMaxSize.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -517,7 +454,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;txtRandMaxSize.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>7</value>
   </data>
   <data name="sliderRandMinSize.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -547,7 +484,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;sliderRandMinSize.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>8</value>
   </data>
   <data name="txtRandMinSize.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -577,7 +514,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;txtRandMinSize.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>9</value>
   </data>
   <data name="sliderRandRotRight.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -607,7 +544,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;sliderRandRotRight.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>10</value>
   </data>
   <data name="txtRandRotRight.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -640,7 +577,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;txtRandRotRight.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>11</value>
   </data>
   <data name="sliderRandRotLeft.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -670,7 +607,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;sliderRandRotLeft.ZOrder" xml:space="preserve">
-    <value>14</value>
+    <value>12</value>
   </data>
   <data name="txtRandRotLeft.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -703,7 +640,7 @@
     <value>tabJitter</value>
   </data>
   <data name="&gt;&gt;txtRandRotLeft.ZOrder" xml:space="preserve">
-    <value>15</value>
+    <value>13</value>
   </data>
   <data name="tabJitter.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
@@ -841,7 +778,7 @@
     <value>bttnBrushSelector</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Type" xml:space="preserve">
-    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=1.7.0.43008, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=1.7.0.21997, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Parent" xml:space="preserve">
     <value>tabControls</value>
@@ -2256,9 +2193,6 @@
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
     <value>829, 541</value>
   </data>
-  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
   <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
@@ -2290,6 +2224,6 @@
     <value>WinBrushFactory</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>PaintDotNet.Effects.EffectConfigDialog, PaintDotNet.Effects, Version=4.104.6882.34660, Culture=neutral, PublicKeyToken=null</value>
+    <value>PaintDotNet.Effects.EffectConfigDialog, PaintDotNet.Effects, Version=4.105.6913.325, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

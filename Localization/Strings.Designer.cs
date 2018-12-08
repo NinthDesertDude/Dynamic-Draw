@@ -502,24 +502,6 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Max Alpha:.
-        /// </summary>
-        internal static string RandMaxAlpha {
-            get {
-                return ResourceManager.GetString("RandMaxAlpha", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more visible..
-        /// </summary>
-        internal static string RandMaxAlphaTip {
-            get {
-                return ResourceManager.GetString("RandMaxAlphaTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Random Max Blue:.
         /// </summary>
         internal static string RandMaxBlue {

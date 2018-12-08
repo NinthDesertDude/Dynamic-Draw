@@ -264,12 +264,6 @@
   <data name="RandHorzShiftTip" xml:space="preserve">
     <value>While drawing, the brush will randomly be moved left or right this much.</value>
   </data>
-  <data name="RandMaxAlpha" xml:space="preserve">
-    <value>Random Max Alpha:</value>
-  </data>
-  <data name="RandMaxAlphaTip" xml:space="preserve">
-    <value>While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more visible.</value>
-  </data>
   <data name="RandMaxBlue" xml:space="preserve">
     <value>Random Max Blue:</value>
   </data>

@@ -224,7 +224,6 @@ namespace BrushFactory
         private TrackBar sliderRandMinGreen;
         private TrackBar sliderRandMinRed;
         private TrackBar sliderRandHorzShift;
-        private TrackBar sliderRandMaxAlpha;
         private TrackBar sliderRandMaxSize;
         private TrackBar sliderRandMinAlpha;
         private TrackBar sliderRandMinSize;
@@ -260,7 +259,6 @@ namespace BrushFactory
         private Label txtRandHorzShift;
         private Label txtRandRotRight;
         private Label txtRandRotLeft;
-        private Label txtRandMaxAlpha;
         private Label txtRandMaxSize;
         private Label txtRandMinAlpha;
         private Label txtRandMinSize;
@@ -366,7 +364,6 @@ namespace BrushFactory
             sliderBrushRotation.Value = token.BrushRotation;
             sliderBrushAlpha.Value = token.BrushAlpha;
             sliderRandHorzShift.Value = token.RandHorzShift;
-            sliderRandMaxAlpha.Value = token.RandMaxAlpha;
             sliderRandMaxSize.Value = token.RandMaxSize;
             sliderRandMinAlpha.Value = token.RandMinAlpha;
             sliderRandMinSize.Value = token.RandMinSize;
@@ -416,7 +413,6 @@ namespace BrushFactory
             token.DoRotateWithMouse = chkbxOrientToMouse.Checked;
             token.MinDrawDistance = sliderMinDrawDistance.Value;
             token.RandHorzShift = sliderRandHorzShift.Value;
-            token.RandMaxAlpha = sliderRandMaxAlpha.Value;
             token.RandMaxB = sliderRandMaxBlue.Value;
             token.RandMaxG = sliderRandMaxGreen.Value;
             token.RandMaxR = sliderRandMaxRed.Value;
@@ -485,9 +481,6 @@ namespace BrushFactory
 
             txtRandRotRight.Text = string.Format("{0} {1}°",
                 Localization.Strings.RandRotRight, sliderRandRotRight.Value);
-
-            txtRandMaxAlpha.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMaxAlpha, sliderRandMaxAlpha.Value);
 
             txtRandMaxBlue.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMaxBlue, sliderRandMaxBlue.Value);
@@ -599,6 +592,12 @@ namespace BrushFactory
         {
             base.OnKeyDown(e);
 
+            //Display a hand icon while panning.
+            if (e.Control)
+            {
+                Cursor = Cursors.Hand;
+            }
+
             //Ctrl + Z: Undo.
             if (e.Control && e.KeyCode == Keys.Z)
             {
@@ -652,6 +651,17 @@ namespace BrushFactory
             if (e.Alt)
             {
                 e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Display an arrow icon while not panning.
+        /// </summary>
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (!e.Control)
+            {
+                Cursor = Cursors.Arrow;
             }
         }
 
@@ -1137,8 +1147,7 @@ namespace BrushFactory
                 g.InterpolationMode = (InterpolationMode)bttnBrushSmoothing.SelectedValue;
 
                 //Draws the brush normally if color/alpha aren't randomized.
-                if ((sliderRandMaxAlpha.Value == 0 &&
-                    sliderRandMinAlpha.Value == 0 &&
+                if ((sliderRandMinAlpha.Value == 0 &&
                     sliderRandMaxRed.Value == 0 &&
                     sliderRandMinRed.Value == 0 &&
                     sliderRandMaxGreen.Value == 0 &&
@@ -1237,8 +1246,7 @@ namespace BrushFactory
                 {
                     //Sets the color data and transparency randomly.
                     float newAlpha = Utils.ClampF((100
-                        - random.Next(sliderRandMinAlpha.Value)
-                        + random.Next(sliderRandMaxAlpha.Value)) / 100f, 0, 1);
+                        - random.Next(sliderRandMinAlpha.Value)) / 100f, 0, 1);
 
                     float newBlue = Utils.ClampF((bttnBrushColor.BackColor.B / 2.55f
                         - random.Next(sliderRandMinBlue.Value)
@@ -1586,8 +1594,6 @@ namespace BrushFactory
             this.txtRandVertShift = new System.Windows.Forms.Label();
             this.sliderRandHorzShift = new System.Windows.Forms.TrackBar();
             this.txtRandHorzShift = new System.Windows.Forms.Label();
-            this.sliderRandMaxAlpha = new System.Windows.Forms.TrackBar();
-            this.txtRandMaxAlpha = new System.Windows.Forms.Label();
             this.sliderRandMinAlpha = new System.Windows.Forms.TrackBar();
             this.txtRandMinAlpha = new System.Windows.Forms.Label();
             this.sliderRandMaxSize = new System.Windows.Forms.TrackBar();
@@ -1602,6 +1608,7 @@ namespace BrushFactory
             this.sliderMinDrawDistance = new System.Windows.Forms.TrackBar();
             this.tabControls = new System.Windows.Forms.TabPage();
             this.bttnAddBrushes = new System.Windows.Forms.Button();
+            this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
             this.dummyImageList = new System.Windows.Forms.ImageList(this.components);
             this.bttnRedo = new System.Windows.Forms.Button();
             this.chkbxColorizeBrush = new System.Windows.Forms.CheckBox();
@@ -1648,13 +1655,11 @@ namespace BrushFactory
             this.sliderShiftSize = new System.Windows.Forms.TrackBar();
             this.txtShiftSize = new System.Windows.Forms.Label();
             this.brushLoadingWorker = new System.ComponentModel.BackgroundWorker();
-            this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.tabJitter.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandVertShift)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandHorzShift)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxAlpha)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinAlpha)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinSize)).BeginInit();
@@ -1720,8 +1725,6 @@ namespace BrushFactory
             this.tabJitter.Controls.Add(this.txtRandVertShift);
             this.tabJitter.Controls.Add(this.sliderRandHorzShift);
             this.tabJitter.Controls.Add(this.txtRandHorzShift);
-            this.tabJitter.Controls.Add(this.sliderRandMaxAlpha);
-            this.tabJitter.Controls.Add(this.txtRandMaxAlpha);
             this.tabJitter.Controls.Add(this.sliderRandMinAlpha);
             this.tabJitter.Controls.Add(this.txtRandMinAlpha);
             this.tabJitter.Controls.Add(this.sliderRandMaxSize);
@@ -1767,22 +1770,6 @@ namespace BrushFactory
             resources.ApplyResources(this.txtRandHorzShift, "txtRandHorzShift");
             this.txtRandHorzShift.Name = "txtRandHorzShift";
             // 
-            // sliderRandMaxAlpha
-            // 
-            resources.ApplyResources(this.sliderRandMaxAlpha, "sliderRandMaxAlpha");
-            this.sliderRandMaxAlpha.LargeChange = 1;
-            this.sliderRandMaxAlpha.Maximum = 100;
-            this.sliderRandMaxAlpha.Name = "sliderRandMaxAlpha";
-            this.sliderRandMaxAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMaxAlpha.ValueChanged += new System.EventHandler(this.SliderRandMaxAlpha_ValueChanged);
-            this.sliderRandMaxAlpha.MouseEnter += new System.EventHandler(this.SliderRandMaxAlpha_MouseEnter);
-            // 
-            // txtRandMaxAlpha
-            // 
-            resources.ApplyResources(this.txtRandMaxAlpha, "txtRandMaxAlpha");
-            this.txtRandMaxAlpha.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMaxAlpha.Name = "txtRandMaxAlpha";
-            // 
             // sliderRandMinAlpha
             // 
             resources.ApplyResources(this.sliderRandMinAlpha, "sliderRandMinAlpha");
@@ -1803,7 +1790,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderRandMaxSize, "sliderRandMaxSize");
             this.sliderRandMaxSize.LargeChange = 1;
-            this.sliderRandMaxSize.Maximum = 500;
+            this.sliderRandMaxSize.Maximum = 1000;
             this.sliderRandMaxSize.Name = "sliderRandMaxSize";
             this.sliderRandMaxSize.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderRandMaxSize.ValueChanged += new System.EventHandler(this.SliderRandMaxSize_ValueChanged);
@@ -1819,7 +1806,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderRandMinSize, "sliderRandMinSize");
             this.sliderRandMinSize.LargeChange = 1;
-            this.sliderRandMinSize.Maximum = 500;
+            this.sliderRandMinSize.Maximum = 1000;
             this.sliderRandMinSize.Name = "sliderRandMinSize";
             this.sliderRandMinSize.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderRandMinSize.ValueChanged += new System.EventHandler(this.SliderRandMinSize_ValueChanged);
@@ -1911,6 +1898,24 @@ namespace BrushFactory
             this.bttnAddBrushes.Click += new System.EventHandler(this.BttnAddBrushes_Click);
             this.bttnAddBrushes.MouseEnter += new System.EventHandler(this.BttnAddBrushes_MouseEnter);
             // 
+            // bttnBrushSelector
+            // 
+            this.bttnBrushSelector.LargeImageList = this.dummyImageList;
+            resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
+            this.bttnBrushSelector.MultiSelect = false;
+            this.bttnBrushSelector.Name = "bttnBrushSelector";
+            this.bttnBrushSelector.OwnerDraw = true;
+            this.bttnBrushSelector.ShowItemToolTips = true;
+            this.bttnBrushSelector.UseCompatibleStateImageBehavior = false;
+            this.bttnBrushSelector.VirtualMode = true;
+            this.bttnBrushSelector.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.BttnBrushSelector_CacheVirtualItems);
+            this.bttnBrushSelector.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.BttnBrushSelector_DrawColumnHeader);
+            this.bttnBrushSelector.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.BttnBrushSelector_DrawItem);
+            this.bttnBrushSelector.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.BttnBrushSelector_DrawSubItem);
+            this.bttnBrushSelector.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.BttnBrushSelector_RetrieveVirtualItem);
+            this.bttnBrushSelector.SelectedIndexChanged += new System.EventHandler(this.BttnBrushSelector_SelectedIndexChanged);
+            this.bttnBrushSelector.MouseEnter += new System.EventHandler(this.BttnBrushSelector_MouseEnter);
+            // 
             // dummyImageList
             // 
             this.dummyImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
@@ -1961,7 +1966,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderBrushSize, "sliderBrushSize");
             this.sliderBrushSize.LargeChange = 1;
-            this.sliderBrushSize.Maximum = 500;
+            this.sliderBrushSize.Maximum = 1000;
             this.sliderBrushSize.Minimum = 2;
             this.sliderBrushSize.Name = "sliderBrushSize";
             this.sliderBrushSize.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -2295,8 +2300,8 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderShiftSize, "sliderShiftSize");
             this.sliderShiftSize.LargeChange = 1;
-            this.sliderShiftSize.Maximum = 500;
-            this.sliderShiftSize.Minimum = -500;
+            this.sliderShiftSize.Maximum = 1000;
+            this.sliderShiftSize.Minimum = -1000;
             this.sliderShiftSize.Name = "sliderShiftSize";
             this.sliderShiftSize.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderShiftSize.ValueChanged += new System.EventHandler(this.SliderShiftSize_ValueChanged);
@@ -2316,24 +2321,6 @@ namespace BrushFactory
             this.brushLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundWorker_ProgressChanged);
             this.brushLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
             // 
-            // bttnBrushSelector
-            // 
-            this.bttnBrushSelector.LargeImageList = this.dummyImageList;
-            resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
-            this.bttnBrushSelector.MultiSelect = false;
-            this.bttnBrushSelector.Name = "bttnBrushSelector";
-            this.bttnBrushSelector.OwnerDraw = true;
-            this.bttnBrushSelector.ShowItemToolTips = true;
-            this.bttnBrushSelector.UseCompatibleStateImageBehavior = false;
-            this.bttnBrushSelector.VirtualMode = true;
-            this.bttnBrushSelector.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.BttnBrushSelector_CacheVirtualItems);
-            this.bttnBrushSelector.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.BttnBrushSelector_DrawColumnHeader);
-            this.bttnBrushSelector.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.BttnBrushSelector_DrawItem);
-            this.bttnBrushSelector.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.BttnBrushSelector_DrawSubItem);
-            this.bttnBrushSelector.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.BttnBrushSelector_RetrieveVirtualItem);
-            this.bttnBrushSelector.SelectedIndexChanged += new System.EventHandler(this.BttnBrushSelector_SelectedIndexChanged);
-            this.bttnBrushSelector.MouseEnter += new System.EventHandler(this.BttnBrushSelector_MouseEnter);
-            // 
             // WinBrushFactory
             // 
             this.AcceptButton = this.bttnOk;
@@ -2352,7 +2339,6 @@ namespace BrushFactory
             this.tabJitter.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandVertShift)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandHorzShift)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxAlpha)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinAlpha)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinSize)).EndInit();
@@ -3550,22 +3536,6 @@ namespace BrushFactory
             txtRandHorzShift.Text = String.Format("{0} {1}%",
                 Localization.Strings.RandHorzShift,
                 sliderRandHorzShift.Value);
-        }
-
-        private void SliderRandMaxAlpha_MouseEnter(object sender, EventArgs e)
-        {
-            txtTooltip.Text = Localization.Strings.RandMaxAlphaTip;
-        }
-
-        /// <summary>
-        /// Adjusts the random max alpha text when it changes.
-        /// </summary>
-        private void SliderRandMaxAlpha_ValueChanged(object sender, EventArgs e)
-        {
-            //Uses localized text drawn from a resource file.
-            txtRandMaxAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxAlpha,
-                sliderRandMaxAlpha.Value);
         }
 
         private void SliderRandMaxBlue_MouseEnter(object sender, EventArgs e)
