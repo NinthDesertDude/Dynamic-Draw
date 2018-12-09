@@ -220,7 +220,7 @@
     <value>Define where to look for brushes when this plugin loads.</value>
   </data>
   <data name="GeneralTooltip" xml:space="preserve">
-    <value>Hold control and left click and drag to pan image. Right-click for options. Hover over items for details.</value>
+    <value>Hold middle mouse button or control and left mouse button to pan image. Right-click for options. Hover over controls to read about them here.</value>
   </data>
   <data name="LoadDefaultBrushes" xml:space="preserve">
     <value>Load Default Brushes?</value>

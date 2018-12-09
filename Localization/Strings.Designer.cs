@@ -367,7 +367,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hold control and left click and drag to pan image. Right-click for options. Hover over items for details..
+        ///   Looks up a localized string similar to Hold middle mouse button or control and left mouse button to pan image. Right-click for options. Hover over controls to read about them here..
         /// </summary>
         internal static string GeneralTooltip {
             get {
