@@ -160,6 +160,24 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Brush Stroke Density:.
+        /// </summary>
+        internal static string BrushDensity {
+            get {
+                return ResourceManager.GetString("BrushDensity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines..
+        /// </summary>
+        internal static string BrushDensityTip {
+            get {
+                return ResourceManager.GetString("BrushDensityTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Custom Brush Directories To Auto-Load.
         /// </summary>
         internal static string BrushLocations {
@@ -439,7 +457,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Each brush stroke must be at least this far apart to have an effect. Used, for example, to make lines..
+        ///   Looks up a localized string similar to Each brush stroke must be at least this far apart to have an effect. Used, for example, to make lines. Draws lines when set to high values when brush density is not zero..
         /// </summary>
         internal static string MinDrawDistanceTip {
             get {

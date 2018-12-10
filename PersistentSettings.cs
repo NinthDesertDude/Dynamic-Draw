@@ -38,6 +38,15 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// The closeness of applied brush images while drawing.
+        /// </summary>
+        public int BrushDensity
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// The active brush index, as chosen from built-in brushes.
         /// </summary>
         public string BrushName
@@ -285,6 +294,7 @@ namespace BrushFactory
             BrushRotation = 0;
             BrushAlpha = 0;
             BrushColor = UserSettings.userPrimaryColor;
+            BrushDensity = 10;
             RandMaxAlpha = 0;
             RandMinAlpha = 0;
             RandMaxSize = 0;
@@ -321,6 +331,7 @@ namespace BrushFactory
             BrushRotation = other.BrushRotation;
             BrushAlpha = other.BrushAlpha;
             BrushColor = other.BrushColor;
+            BrushDensity = other.BrushDensity;
             RandMaxAlpha = other.RandMaxAlpha;
             RandMinAlpha = other.RandMinAlpha;
             RandMaxSize = other.RandMaxSize;

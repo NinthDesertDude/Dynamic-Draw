@@ -206,6 +206,7 @@ namespace BrushFactory
         private Panel displayCanvasBG;
         private GroupBox grpbxBrushOptions;
         private TrackBar sliderBrushAlpha;
+        private TrackBar sliderBrushDensity;
         private TrackBar sliderBrushRotation;
         private TrackBar sliderBrushSize;
         private TrackBar sliderCanvasZoom;
@@ -216,8 +217,8 @@ namespace BrushFactory
 
         /// <summary>
         /// The mouse must be at least this far away from its last successful
-        /// brush stroke position to create another brush stroke. Used for
-        /// spacing between strokes.
+        /// brush image application to create another brush image. Used for
+        /// spacing between brush images during a stroke.
         /// </summary>
         private TrackBar sliderMinDrawDistance;
 
@@ -246,6 +247,7 @@ namespace BrushFactory
         private Timer timerRepositionUpdate;
 
         private Label txtBrushAlpha;
+        private Label txtBrushDensity;
         private Label txtBrushRotation;
         private Label txtBrushSize;
         private Label txtCanvasZoom;
@@ -342,7 +344,6 @@ namespace BrushFactory
             if (token.CustomBrushLocations.Count > 0 && !token.CustomBrushLocations.SetEquals(loadedBrushPaths))
             {
                 loadedBrushPaths.UnionWith(token.CustomBrushLocations);
-
                 importBrushesFromToken = true;
             }
 
@@ -361,8 +362,9 @@ namespace BrushFactory
             bttnBrushColor.ForeColor = oppositeColor;
 
             //Sets all other fields.
-            sliderBrushRotation.Value = token.BrushRotation;
             sliderBrushAlpha.Value = token.BrushAlpha;
+            sliderBrushDensity.Value = token.BrushDensity;
+            sliderBrushRotation.Value = token.BrushRotation;
             sliderRandHorzShift.Value = token.RandHorzShift;
             sliderRandMaxSize.Value = token.RandMaxSize;
             sliderRandMinAlpha.Value = token.RandMinAlpha;
@@ -404,6 +406,7 @@ namespace BrushFactory
             token.AlphaChange = sliderShiftAlpha.Value;
             token.BrushAlpha = sliderBrushAlpha.Value;
             token.BrushColor = bttnBrushColor.BackColor;
+            token.BrushDensity = sliderBrushDensity.Value;
             token.BrushName = index >= 0 ? loadedBrushes[index].Name : string.Empty;
             token.BrushRotation = sliderBrushRotation.Value;
             token.BrushSize = sliderBrushSize.Value;
@@ -454,6 +457,9 @@ namespace BrushFactory
             //Loads globalization texts for regional support.
             txtBrushAlpha.Text = string.Format("{0} {1}",
                 Localization.Strings.Alpha, sliderBrushAlpha.Value);
+
+            txtBrushDensity.Text = string.Format("{0} {1}",
+                Localization.Strings.BrushDensity, sliderBrushDensity.Value);
 
             txtBrushRotation.Text = string.Format("{0} {1}°",
                 Localization.Strings.Rotation, sliderBrushRotation.Value);
@@ -1005,28 +1011,13 @@ namespace BrushFactory
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(Point loc, int radius)
         {
+            int newRadius = Utils.Clamp(radius
+                - random.Next(sliderRandMinSize.Value)
+                + random.Next(sliderRandMaxSize.Value), 0, int.MaxValue);
+
             if (bmpBrushEffects == null)
             {
                 return;
-            }
-
-            //Stores the differences in mouse coordinates for some settings.
-            int deltaX;
-            int deltaY;
-
-            //Ensures the mouse is far enough away if min drawing dist != 0.
-            if (sliderMinDrawDistance.Value != 0 &&
-                mouseLocBrush.HasValue)
-            {
-                deltaX = mouseLocBrush.Value.X - mouseLoc.X;
-                deltaY = mouseLocBrush.Value.Y - mouseLoc.Y;
-
-                //Aborts if the minimum drawing distance isn't met.
-                if (Math.Sqrt(deltaX * deltaX + deltaY * deltaY) <
-                    sliderMinDrawDistance.Value * displayCanvasZoom)
-                {
-                    return;
-                }
             }
 
             //Sets the new brush location because the brush stroke succeeded.
@@ -1126,8 +1117,8 @@ namespace BrushFactory
             {
                 //Adds to the rotation according to mouse direction. Uses the
                 //original rotation as an offset.
-                deltaX = mouseLoc.X - mouseLocPrev.X;
-                deltaY = mouseLoc.Y - mouseLocPrev.Y;
+                int deltaX = mouseLoc.X - mouseLocPrev.X;
+                int deltaY = mouseLoc.Y - mouseLocPrev.Y;
                 rotation += (int)(Math.Atan2(deltaY, deltaX) * 180 / Math.PI);
             }
 
@@ -1141,7 +1132,7 @@ namespace BrushFactory
                 //must increase to avoid making it visually shrink.
                 double radAngle = (Math.Abs(rotation) % 90) * Math.PI / 180;
                 float rotScaleFactor = (float)(Math.Cos(radAngle) + Math.Sin(radAngle));
-                int scaleFactor = (int)(radius * rotScaleFactor);
+                int scaleFactor = (int)(newRadius * rotScaleFactor);
 
                 //Sets the interpolation mode based on preferences.
                 g.InterpolationMode = (InterpolationMode)bttnBrushSmoothing.SelectedValue;
@@ -1208,8 +1199,8 @@ namespace BrushFactory
                     {
                         //Gets the center of the image.
                         Point center = new Point(
-                            (bmpCurrentDrawing.Width / 2) - (radius / 2),
-                            (bmpCurrentDrawing.Height / 2) - (radius / 2));
+                            (bmpCurrentDrawing.Width / 2) - (newRadius / 2),
+                            (bmpCurrentDrawing.Height / 2) - (newRadius / 2));
 
                         //Gets the drawn location relative to center.
                         Point locRelativeToCenter = new Point(
@@ -1336,8 +1327,8 @@ namespace BrushFactory
                         {
                             //Gets the center of the image.
                             Point center = new Point(
-                                (bmpCurrentDrawing.Width / 2) - (radius / 2),
-                                (bmpCurrentDrawing.Height / 2) - (radius / 2));
+                                (bmpCurrentDrawing.Width / 2) - (newRadius / 2),
+                                (bmpCurrentDrawing.Height / 2) - (newRadius / 2));
 
                             //Gets the drawn location relative to center.
                             Point locRelativeToCenter = new Point(
@@ -1655,6 +1646,8 @@ namespace BrushFactory
             this.sliderShiftSize = new System.Windows.Forms.TrackBar();
             this.txtShiftSize = new System.Windows.Forms.Label();
             this.brushLoadingWorker = new System.ComponentModel.BackgroundWorker();
+            this.txtBrushDensity = new System.Windows.Forms.Label();
+            this.sliderBrushDensity = new System.Windows.Forms.TrackBar();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.tabJitter.SuspendLayout();
@@ -1684,6 +1677,7 @@ namespace BrushFactory
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftRotation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
             this.SuspendLayout();
             // 
             // timerRepositionUpdate
@@ -1944,7 +1938,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderBrushAlpha, "sliderBrushAlpha");
             this.sliderBrushAlpha.LargeChange = 1;
-            this.sliderBrushAlpha.Maximum = 100;
+            this.sliderBrushAlpha.Maximum = 99;
             this.sliderBrushAlpha.Name = "sliderBrushAlpha";
             this.sliderBrushAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderBrushAlpha.ValueChanged += new System.EventHandler(this.SliderBrushAlpha_ValueChanged);
@@ -2211,6 +2205,8 @@ namespace BrushFactory
             // tabOther
             // 
             this.tabOther.BackColor = System.Drawing.Color.Transparent;
+            this.tabOther.Controls.Add(this.txtBrushDensity);
+            this.tabOther.Controls.Add(this.sliderBrushDensity);
             this.tabOther.Controls.Add(this.bttnCustomBrushLocations);
             this.tabOther.Controls.Add(this.bttnBrushSmoothing);
             this.tabOther.Controls.Add(this.bttnClearSettings);
@@ -2321,6 +2317,24 @@ namespace BrushFactory
             this.brushLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundWorker_ProgressChanged);
             this.brushLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
             // 
+            // txtBrushDensity
+            // 
+            resources.ApplyResources(this.txtBrushDensity, "txtBrushDensity");
+            this.txtBrushDensity.BackColor = System.Drawing.Color.Transparent;
+            this.txtBrushDensity.Name = "txtBrushDensity";
+            // 
+            // sliderBrushDensity
+            // 
+            resources.ApplyResources(this.sliderBrushDensity, "sliderBrushDensity");
+            this.sliderBrushDensity.LargeChange = 1;
+            this.sliderBrushDensity.Maximum = 50;
+            this.sliderBrushDensity.Minimum = 0;
+            this.sliderBrushDensity.Name = "sliderBrushDensity";
+            this.sliderBrushDensity.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderBrushDensity.Value = 10;
+            this.sliderBrushDensity.ValueChanged += new System.EventHandler(this.sliderBrushDensity_ValueChanged);
+            this.sliderBrushDensity.MouseEnter += new System.EventHandler(this.sliderBrushDensity_MouseEnter);
+            // 
             // WinBrushFactory
             // 
             this.AcceptButton = this.bttnOk;
@@ -2365,6 +2379,7 @@ namespace BrushFactory
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftRotation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -2833,7 +2848,10 @@ namespace BrushFactory
                 //Draws the brush on the first canvas click.
                 if (!chkbxOrientToMouse.Checked)
                 {
-                    DisplayCanvas_MouseMove(sender, e);
+                    DrawBrush(new Point(
+                        (int)(mouseLocPrev.X / displayCanvasZoom),
+                        (int)(mouseLocPrev.Y / displayCanvasZoom)),
+                        sliderBrushSize.Value);
                 }
             }
         }
@@ -2875,31 +2893,72 @@ namespace BrushFactory
                 //Updates the position of the canvas.
                 Point loc = new Point(locx, locy);
                 displayCanvas.Location = loc;
-                displayCanvas.Refresh();
             }
+
             else if (isUserDrawing)
             {
-                //Gets the brush's location without respect to canvas zooming.
-                Point brushPoint = new Point(
-                    (int)(mouseLoc.X / displayCanvasZoom),
-                    (int)(mouseLoc.Y / displayCanvasZoom));
+                // Doesn't draw unless the minimum drawing distance is met.
+                if (sliderMinDrawDistance.Value != 0)
+                {
+                    if (mouseLocBrush.HasValue)
+                    {
+                        int deltaX = mouseLocBrush.Value.X - mouseLoc.X;
+                        int deltaY = mouseLocBrush.Value.Y - mouseLoc.Y;
 
-                //Randomly alters the radius according to random ranges.
-                int newRadius = Utils.Clamp(sliderBrushSize.Value
-                    - random.Next(sliderRandMinSize.Value)
-                    + random.Next(sliderRandMaxSize.Value), 0, int.MaxValue);
+                        if (Math.Sqrt(deltaX * deltaX + deltaY * deltaY) <
+                            sliderMinDrawDistance.Value * displayCanvasZoom)
+                        {
+                            displayCanvas.Refresh();
+                            return;
+                        }
+                    }
 
-                //Applies the brush drawing.
-                DrawBrush(brushPoint, newRadius);
+                    mouseLocBrush = mouseLoc;
+                }
 
-                mouseLocPrev = e.Location;
-                displayCanvas.Refresh();
+                // Draws without speed control. Messier, but faster.
+                if (sliderBrushDensity.Value == 0)
+                {
+                    DrawBrush(new Point(
+                        (int)(mouseLoc.X / displayCanvasZoom),
+                        (int)(mouseLoc.Y / displayCanvasZoom)),
+                        sliderBrushSize.Value);
+
+                    mouseLocPrev = e.Location;
+                }
+
+                // Draws at intervals of brush width between last and current mouse position,
+                // tracking remainder by changing final mouse position.
+                else
+                {
+                    double deltaX = (mouseLoc.X - mouseLocPrev.X) / displayCanvasZoom;
+                    double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / displayCanvasZoom;
+                    double brushWidthFrac = sliderBrushSize.Value / (double)sliderBrushDensity.Value;
+                    double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                    double angle = Math.Atan2(deltaY, deltaX);
+                    double xDist = Math.Cos(angle);
+                    double yDist = Math.Sin(angle);
+                    double numIntervals = distance / brushWidthFrac;
+
+                    for (int i = 1; i <= (int)numIntervals; i++)
+                    {
+                        DrawBrush(new Point(
+                            (int)(mouseLocPrev.X / displayCanvasZoom + xDist * brushWidthFrac * i),
+                            (int)(mouseLocPrev.Y / displayCanvasZoom + yDist * brushWidthFrac * i)),
+                            sliderBrushSize.Value);
+                    }
+
+                    double extraDist = brushWidthFrac * (numIntervals - (int)numIntervals);
+
+                    // Same as mouse position except for remainder.
+                    mouseLoc = new Point(
+                        (int)(e.Location.X - xDist * extraDist * displayCanvasZoom),
+                        (int)(e.Location.Y - yDist * extraDist * displayCanvasZoom));
+                    mouseLocPrev = mouseLoc;
+                }
             }
-            else
-            {
-                //Redraws to update the brush indicator (ellipse).
-                displayCanvas.Refresh();
-            }
+
+            displayCanvas.Refresh();
         }
 
         /// <summary>
@@ -3486,12 +3545,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.BrushAlphaTip;
         }
 
-        /// <summary>
-        /// Adjusts the brush alpha text when it changes.
-        /// </summary>
         private void SliderBrushAlpha_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtBrushAlpha.Text = String.Format("{0} {1}",
                 Localization.Strings.Alpha,
                 sliderBrushAlpha.Value);
@@ -3499,17 +3554,25 @@ namespace BrushFactory
             UpdateBrush();
         }
 
+        private void sliderBrushDensity_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.BrushDensityTip;
+        }
+
+        private void sliderBrushDensity_ValueChanged(object sender, EventArgs e)
+        {
+            txtBrushDensity.Text = String.Format("{0} {1}",
+                Localization.Strings.BrushDensity,
+                sliderBrushDensity.Value);
+        }
+
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushSizeTip;
         }
 
-        /// <summary>
-        /// Adjusts the brush size text when it changes.
-        /// </summary>
         private void SliderBrushSize_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtBrushSize.Text = String.Format("{0} {1}",
                 Localization.Strings.Size,
                 sliderBrushSize.Value);
@@ -3523,12 +3586,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.BrushRotationTip;
         }
 
-        /// <summary>
-        /// Adjusts the brush rotation text when it changes.
-        /// </summary>
         private void SliderBrushRotation_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtBrushRotation.Text = String.Format("{0} {1}°",
                 Localization.Strings.Rotation,
                 sliderBrushRotation.Value);
@@ -3539,9 +3598,6 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.CanvasZoomTip;
         }
 
-        /// <summary>
-        /// Zooms in and out of the drawing region.
-        /// </summary>
         private void SliderCanvasZoom_ValueChanged(object sender, EventArgs e)
         {
             Zoom(0, false);
@@ -3552,12 +3608,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.MinDrawDistanceTip;
         }
 
-        /// <summary>
-        /// Adjusts the brush minimum drawing distance text when it changes.
-        /// </summary>
         private void SliderMinDrawDistance_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtMinDrawDistance.Text = String.Format("{0} {1}",
                 Localization.Strings.MinDrawDistance,
                 sliderMinDrawDistance.Value);
@@ -3568,12 +3620,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandHorzShiftTip;
         }
 
-        /// <summary>
-        /// Adjusts the random horizontal shift text when it changes.
-        /// </summary>
         private void SliderRandHorzShift_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandHorzShift.Text = String.Format("{0} {1}%",
                 Localization.Strings.RandHorzShift,
                 sliderRandHorzShift.Value);
@@ -3584,12 +3632,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMaxBlueTip;
         }
 
-        /// <summary>
-        /// Adjusts the random max blueness text when it changes.
-        /// </summary>
         private void SliderRandMaxBlue_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMaxBlue.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMaxBlue,
                 sliderRandMaxBlue.Value);
@@ -3600,12 +3644,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMaxGreenTip;
         }
 
-        /// <summary>
-        /// Adjusts the random max greenness text when it changes.
-        /// </summary>
         private void SliderRandMaxGreen_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMaxGreen.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMaxGreen,
                 sliderRandMaxGreen.Value);
@@ -3616,12 +3656,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMaxRedTip;
         }
 
-        /// <summary>
-        /// Adjusts the random max redness text when it changes.
-        /// </summary>
         private void SliderRandMaxRed_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMaxRed.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMaxRed,
                 sliderRandMaxRed.Value);
@@ -3632,12 +3668,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMaxSizeTip;
         }
 
-        /// <summary>
-        /// Adjusts the random max size text when it changes.
-        /// </summary>
         private void SliderRandMaxSize_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMaxSize.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMaxSize,
                 sliderRandMaxSize.Value);
@@ -3648,12 +3680,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMinAlphaTip;
         }
 
-        /// <summary>
-        /// Adjusts the random min alpha text when it changes.
-        /// </summary>
         private void SliderRandMinAlpha_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMinAlpha.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMinAlpha,
                 sliderRandMinAlpha.Value);
@@ -3664,12 +3692,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMinBlueTip;
         }
 
-        /// <summary>
-        /// Adjusts the random min blueness text when it changes.
-        /// </summary>
         private void SliderRandMinBlue_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMinBlue.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMinBlue,
                 sliderRandMinBlue.Value);
@@ -3680,12 +3704,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMinGreenTip;
         }
 
-        /// <summary>
-        /// Adjusts the random min greenness text when it changes.
-        /// </summary>
         private void SliderRandMinGreen_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMinGreen.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMinGreen,
                 sliderRandMinGreen.Value);
@@ -3696,12 +3716,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMinRedTip;
         }
 
-        /// <summary>
-        /// Adjusts the random min redness text when it changes.
-        /// </summary>
         private void SliderRandMinRed_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMinRed.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMinRed,
                 sliderRandMinRed.Value);
@@ -3712,12 +3728,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandMinSizeTip;
         }
 
-        /// <summary>
-        /// Adjusts the random min size text when it changes.
-        /// </summary>
         private void SliderRandMinSize_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandMinSize.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMinSize,
                 sliderRandMinSize.Value);
@@ -3728,12 +3740,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandRotLeftTip;
         }
 
-        /// <summary>
-        /// Adjusts the random rotation to the left text when it changes.
-        /// </summary>
         private void SliderRandRotLeft_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandRotLeft.Text = String.Format("{0} {1}°",
                 Localization.Strings.RandRotLeft,
                 sliderRandRotLeft.Value);
@@ -3744,12 +3752,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandRotRightTip;
         }
 
-        /// <summary>
-        /// Adjusts the random rotation to the right text when it changes.
-        /// </summary>
         private void SliderRandRotRight_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandRotRight.Text = String.Format("{0} {1}°",
                 Localization.Strings.RandRotRight,
                 sliderRandRotRight.Value);
@@ -3760,12 +3764,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.RandVertShiftTip;
         }
 
-        /// <summary>
-        /// Adjusts the random vertical shift text when it changes.
-        /// </summary>
         private void SliderRandVertShift_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtRandVertShift.Text = String.Format("{0} {1}%",
                 Localization.Strings.RandVertShift,
                 sliderRandVertShift.Value);
@@ -3776,12 +3776,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.ShiftAlphaTip;
         }
 
-        /// <summary>
-        /// Adjusts the slider shift alpha text when it changes.
-        /// </summary>
         private void SliderShiftAlpha_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtShiftAlpha.Text = String.Format("{0} {1}",
                 Localization.Strings.ShiftAlpha,
                 sliderShiftAlpha.Value);
@@ -3792,12 +3788,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.ShiftRotationTip;
         }
 
-        /// <summary>
-        /// Adjusts the slider shift rotation text when it changes.
-        /// </summary>
         private void SliderShiftRotation_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtShiftRotation.Text = String.Format("{0} {1}°",
                 Localization.Strings.ShiftRotation,
                 sliderShiftRotation.Value);
@@ -3808,12 +3800,8 @@ namespace BrushFactory
             txtTooltip.Text = Localization.Strings.ShiftSizeTip;
         }
 
-        /// <summary>
-        /// Adjusts the slider shift size text when it changes.
-        /// </summary>
         private void SliderShiftSize_ValueChanged(object sender, EventArgs e)
         {
-            //Uses localized text drawn from a resource file.
             txtShiftSize.Text = String.Format("{0} {1}",
                 Localization.Strings.ShiftSize,
                 sliderShiftSize.Value);
@@ -3983,7 +3971,7 @@ namespace BrushFactory
                 ListViewItemHeight = listViewItemHeight;
                 MaxBrushSize = maxBrushSize;
             }
-        } 
+        }
         #endregion
     }
 }

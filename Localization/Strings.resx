@@ -150,6 +150,12 @@
   <data name="BrushColorTip" xml:space="preserve">
     <value>Lets you set the color of the brush.</value>
   </data>
+    <data name="BrushDensity" xml:space="preserve">
+    <value>Brush Stroke Density:</value>
+  </data>
+  <data name="BrushDensityTip" xml:space="preserve">
+    <value>Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines.</value>
+  </data>
   <data name="BrushLocations" xml:space="preserve">
     <value>Custom Brush Directories To Auto-Load</value>
   </data>
@@ -244,7 +250,7 @@
     <value>Minimum Draw Distance:</value>
   </data>
   <data name="MinDrawDistanceTip" xml:space="preserve">
-    <value>Each brush stroke must be at least this far apart to have an effect. Used, for example, to make lines.</value>
+    <value>Each brush stroke must be at least this far apart to have an effect. Used, for example, to make lines. Draws lines when set to high values when brush density is not zero.</value>
   </data>
   <data name="Ok" xml:space="preserve">
     <value>Ok</value>
