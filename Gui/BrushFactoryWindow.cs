@@ -80,6 +80,8 @@ namespace BrushFactory
         private bool isUserDrawing = false;
         private bool isUserPanning = false;
 
+        private bool isWheelZooming = false;
+
         /// <summary>
         /// Creates the list of brushes used by the brush selector.
         /// </summary>
@@ -728,6 +730,7 @@ namespace BrushFactory
                 //Ctrl + Wheel: Zooms the canvas in/out.
                 else
                 {
+                    isWheelZooming = true;
                     Zoom(e.Delta, true);
                 }
             }
@@ -990,10 +993,22 @@ namespace BrushFactory
             int zoomWidth = (int)(bmpCurrentDrawing.Width * newZoomFactor);
             int zoomHeight = (int)(bmpCurrentDrawing.Height * newZoomFactor);
 
+            Point zoomingPoint = isWheelZooming
+                ? mouseLoc
+                : new Point(
+                    displayCanvasBG.ClientSize.Width / 2 - displayCanvas.Location.X,
+                    displayCanvasBG.ClientSize.Height / 2 - displayCanvas.Location.Y);
+
+            int zoomX = displayCanvas.Location.X + zoomingPoint.X -
+                zoomingPoint.X * zoomWidth / displayCanvas.Width;
+            int zoomY = displayCanvas.Location.Y + zoomingPoint.Y -
+                zoomingPoint.Y * zoomHeight / displayCanvas.Height;
+
+            isWheelZooming = false;
+
             //Sets the new canvas position (center) and size using zoom.
             displayCanvas.Bounds = new Rectangle(
-                (displayCanvasBG.Width - zoomWidth) / 2,
-                (displayCanvasBG.Height - zoomHeight) / 2,
+                zoomX, zoomY,
                 zoomWidth, zoomHeight);
         }
 
