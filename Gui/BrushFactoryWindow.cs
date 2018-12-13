@@ -2830,11 +2830,8 @@ namespace BrushFactory
             else if (e.Button == MouseButtons.Middle ||
                 (e.Button == MouseButtons.Left && IsKeyDown(Keys.ControlKey)))
             {
-                if (IsKeyDown(Keys.ControlKey))
-                {
-                    isUserPanning = true;
-                    mouseLocPrev = e.Location;
-                }
+                isUserPanning = true;
+                mouseLocPrev = e.Location;
             }
 
             //Draws with the brush.
