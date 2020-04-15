@@ -229,8 +229,8 @@
     <Content Include="Resources\icon.png" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>cd $(OutDir)..
+PaintDotNet.exe</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

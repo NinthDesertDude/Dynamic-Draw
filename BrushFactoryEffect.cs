@@ -128,7 +128,7 @@ namespace BrushFactory
             StaticName,
             StaticImage,
             StaticSubMenuName,
-            EffectFlags.Configurable)
+            new EffectOptions() { Flags = EffectFlags.Configurable })
         {
         }
         #endregion
@@ -208,7 +208,7 @@ namespace BrushFactory
 
                 dstArgs.Surface.CopySurface(
                     RenderSettings.SurfaceToRender,
-                    EnvironmentParameters.GetSelection(srcArgs.Bounds));
+                    EnvironmentParameters.GetSelectionAsPdnRegion());
             }
         }
         #endregion

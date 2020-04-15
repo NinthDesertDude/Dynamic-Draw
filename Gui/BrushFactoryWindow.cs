@@ -443,8 +443,8 @@ namespace BrushFactory
             base.OnLoad(e);
 
             //Sets the sizes of the canvas and drawing region.
-            displayCanvas.Size = EffectSourceSurface.Size;
-            bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EffectSourceSurface);
+            displayCanvas.Size = EnvironmentParameters.SourceSurface.Size;
+            bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
 
             //Sets the canvas dimensions.
             displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
@@ -3018,12 +3018,14 @@ namespace BrushFactory
                 displayCanvas.ClientRectangle.Height + (sliderCanvasZoom.Value / 100));
 
             //Draws the selection.
-            if (Selection != null && Selection.GetRegionReadOnly() != null)
+            var selection = EnvironmentParameters.GetSelectionAsPdnRegion();
+
+            if (selection != null && selection.GetRegionReadOnly() != null)
             {
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
                 {
-                    selectionOutline = Selection.ConstructOutline(
+                    selectionOutline = selection.ConstructOutline(
                         new RectangleF(0, 0,
                         bmpCurrentDrawing.Width,
                         bmpCurrentDrawing.Height),
@@ -3036,7 +3038,7 @@ namespace BrushFactory
                 //Creates the inverted region of the selection.
                 var drawingArea = new Region(new Rectangle
                     (0, 0, bmpCurrentDrawing.Width, bmpCurrentDrawing.Height));
-                drawingArea.Exclude(Selection.GetRegionReadOnly());
+                drawingArea.Exclude(selection.GetRegionReadOnly());
 
                 //Draws the region as a darkening over unselected pixels.
                 e.Graphics.FillRegion(
