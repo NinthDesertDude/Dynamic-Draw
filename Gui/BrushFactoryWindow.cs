@@ -1,4 +1,5 @@
 ﻿using BrushFactory.Abr;
+using BrushFactory.Logic;
 using BrushFactory.Properties;
 using PaintDotNet;
 using PaintDotNet.AppModel;
@@ -24,6 +25,8 @@ namespace BrushFactory
     public class WinBrushFactory : EffectConfigDialog
     {
         #region Fields (Non Gui)
+        private Tool activeTool = Tool.Brush;
+
         /// <summary>
         /// Contains the current brush (without modifications like alpha).
         /// </summary>
@@ -46,6 +49,11 @@ namespace BrushFactory
         /// Loads user's custom brushes asynchronously.
         /// </summary>
         private BackgroundWorker brushLoadingWorker;
+
+        /// <summary>
+        /// Stores the disposable data for the color picker cursor.
+        /// </summary>
+        private Cursor cursorColorPicker;
 
         /// <summary>
         /// Stores the zoom percentage for the drawing region.
@@ -271,6 +279,7 @@ namespace BrushFactory
         private Label txtShiftRotation;
         private Label txtShiftSize;
         private ComboBox bttnSymmetry;
+        private Button bttnColorPicker;
         private Label txtTooltip;
         #endregion
 
@@ -600,6 +609,18 @@ namespace BrushFactory
         {
             base.OnKeyDown(e);
 
+            //B: Switches to the brush tool.
+            if (e.KeyCode == Keys.B)
+            {
+                SwitchTool(Tool.Brush);
+            }
+
+            //K: Switches to the color picker tool.
+            if (e.KeyCode == Keys.K)
+            {
+                SwitchTool(Tool.ColorPicker);
+            }
+
             //Display a hand icon while panning.
             if (e.Control)
             {
@@ -669,7 +690,7 @@ namespace BrushFactory
         {
             if (!e.Control)
             {
-                Cursor = Cursors.Arrow;
+                Cursor = Cursors.Default;
             }
         }
 
@@ -819,8 +840,8 @@ namespace BrushFactory
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing">
-        ///     <c>true</c> to release both managed and unmanaged resources;
-        ///     <c>false</c> to release only unmanaged resources.
+        /// <c>true</c> to release both managed and unmanaged resources;
+        /// <c>false</c> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
@@ -841,6 +862,10 @@ namespace BrushFactory
                 bmpBrush?.Dispose();
                 bmpBrushEffects?.Dispose();
                 bmpCurrentDrawing?.Dispose();
+
+                //Disposes all cursors.
+                displayCanvas.Cursor = Cursors.Default;
+                cursorColorPicker?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -848,176 +873,6 @@ namespace BrushFactory
         #endregion
 
         #region Methods (not event handlers)
-        /// <summary>
-        /// Sets the brushes to be used, clearing any that already exist and
-        /// removing all custom brushes as a result.
-        /// </summary>
-        private void InitBrushes()
-        {
-            if (brushLoadingWorker.IsBusy)
-            {
-                // Signal the background worker to abort and call this method when it completes.
-                // This prevents a few crashes caused by race conditions when modifying the brush
-                // collection from multiple threads.
-                doReinitializeBrushes = true;
-                brushLoadingWorker.CancelAsync();
-                return;
-            }
-
-            bmpBrush = new Bitmap(Resources.BrCircle);
-
-            if (loadedBrushes.Count > 0)
-            {
-                // Disposes and removes all of the existing items in the collection.
-                bttnBrushSelector.VirtualListSize = 0;
-                loadedBrushes.Clear();
-            }
-
-            if (settings.UseDefaultBrushes)
-            {
-                loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
-                loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
-                loadedBrushes.Add(new BrushSelectorItem("Big Dots", Resources.BrDotsBig));
-                loadedBrushes.Add(new BrushSelectorItem("Spark", Resources.BrSpark));
-                loadedBrushes.Add(new BrushSelectorItem("Gravel", Resources.BrGravel));
-                loadedBrushes.Add(new BrushSelectorItem("Rain", Resources.BrRain));
-                loadedBrushes.Add(new BrushSelectorItem("Grass", Resources.BrGrass));
-                loadedBrushes.Add(new BrushSelectorItem("Smoke", Resources.BrSmoke));
-                loadedBrushes.Add(new BrushSelectorItem("Scales", Resources.BrScales));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 4", Resources.BrFractalDirt));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 3", Resources.BrDirt3));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 2", Resources.BrDirt2));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 1", Resources.BrDirt));
-                loadedBrushes.Add(new BrushSelectorItem("Cracks", Resources.BrCracks));
-                loadedBrushes.Add(new BrushSelectorItem("Spiral", Resources.BrSpiral));
-                loadedBrushes.Add(new BrushSelectorItem("Segments", Resources.BrCircleSegmented));
-                loadedBrushes.Add(new BrushSelectorItem("Sketchy", Resources.BrCircleSketchy));
-                loadedBrushes.Add(new BrushSelectorItem("Rough", Resources.BrCircleRough));
-                loadedBrushes.Add(new BrushSelectorItem("Circle 3", Resources.BrCircleHard));
-                loadedBrushes.Add(new BrushSelectorItem("Circle 2", Resources.BrCircleMedium));
-            }
-
-            //Loads stored brushes.
-            loadedBrushes.Add(new BrushSelectorItem("Circle 1", Resources.BrCircle));
-            bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
-
-            //Loads any custom brushes.
-            if (importBrushesFromToken)
-            {
-                importBrushesFromToken = false;
-
-                ImportBrushesFromFiles(loadedBrushPaths, false, false);
-            }
-            else
-            {
-                ImportBrushesFromDirectories(settings.CustomBrushDirectories);
-            }
-        }
-
-        /// <summary>
-        /// Sets/resets all persistent settings in the dialog to their default
-        /// values.
-        /// </summary>
-        private void InitSettings()
-        {
-            InitialInitToken();
-            InitDialogFromToken();
-        }
-
-        /// <summary>
-        /// Allows the canvas to zoom in and out dependent on the mouse wheel.
-        /// </summary>
-        private void Zoom(int mouseWheelDetents, bool updateSlider)
-        {
-            //Causes the slider's update method to trigger, which calls this
-            //and doesn't repeat anything since updateSlider is then false.
-            if (updateSlider)
-            {
-                //Zooms in/out some amount for each mouse wheel movement.
-                int zoom;
-                if (sliderCanvasZoom.Value < 5)
-                {
-                    zoom = 1;
-                }
-                else if (sliderCanvasZoom.Value < 10)
-                {
-                    zoom = 3;
-                }
-                else if (sliderCanvasZoom.Value < 20)
-                {
-                    zoom = 5;
-                }
-                else if (sliderCanvasZoom.Value < 50)
-                {
-                    zoom = 10;
-                }
-                else if (sliderCanvasZoom.Value < 100)
-                {
-                    zoom = 15;
-                }
-                else if (sliderCanvasZoom.Value < 200)
-                {
-                    zoom = 30;
-                }
-                else if (sliderCanvasZoom.Value < 500)
-                {
-                    zoom = 50;
-                }
-                else if (sliderCanvasZoom.Value < 1000)
-                {
-                    zoom = 100;
-                }
-                else if (sliderCanvasZoom.Value < 2000)
-                {
-                    zoom = 200;
-                }
-                else
-                {
-                    zoom = 300;
-                }
-
-                zoom *= Math.Sign(mouseWheelDetents);
-
-                //Updates the corresponding slider as well (within its range).
-                sliderCanvasZoom.Value = Utils.Clamp(
-                sliderCanvasZoom.Value + zoom,
-                sliderCanvasZoom.Minimum,
-                sliderCanvasZoom.Maximum);
-
-                return;
-            }
-
-            //Calculates the zooming percent.
-            float newZoomFactor = sliderCanvasZoom.Value / 100f;
-
-            //Updates the canvas zoom factor.
-            displayCanvasZoom = newZoomFactor;
-            txtCanvasZoom.Text = string.Format(
-                "{0} {1:p0}", Localization.Strings.CanvasZoom, newZoomFactor);
-
-            //Gets the new width and height, adjusted for zooming.
-            int zoomWidth = (int)(bmpCurrentDrawing.Width * newZoomFactor);
-            int zoomHeight = (int)(bmpCurrentDrawing.Height * newZoomFactor);
-
-            Point zoomingPoint = isWheelZooming
-                ? mouseLoc
-                : new Point(
-                    displayCanvasBG.ClientSize.Width / 2 - displayCanvas.Location.X,
-                    displayCanvasBG.ClientSize.Height / 2 - displayCanvas.Location.Y);
-
-            int zoomX = displayCanvas.Location.X + zoomingPoint.X -
-                zoomingPoint.X * zoomWidth / displayCanvas.Width;
-            int zoomY = displayCanvas.Location.Y + zoomingPoint.Y -
-                zoomingPoint.Y * zoomHeight / displayCanvas.Height;
-
-            isWheelZooming = false;
-
-            //Sets the new canvas position (center) and size using zoom.
-            displayCanvas.Bounds = new Rectangle(
-                zoomX, zoomY,
-                zoomWidth, zoomHeight);
-        }
-
         /// <summary>
         /// Applies the brush to the drawing region at the given location
         /// with the given radius. The brush is assumed square.
@@ -1284,9 +1139,7 @@ namespace BrushFactory
                             destination,
                             new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
                             GraphicsUnit.Pixel,
-                            Utils.ColorImageAttr(
-                                bmpBrushRot,
-                                newRed, newGreen, newBlue, newAlpha));
+                            Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
                     }
 
                     //Handles drawing reflections.
@@ -1332,9 +1185,7 @@ namespace BrushFactory
                                 destination,
                                 new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
                                 GraphicsUnit.Pixel,
-                                Utils.ColorImageAttr(
-                                    bmpBrushRot,
-                                    newRed, newGreen, newBlue, newAlpha));
+                                Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
                         }
 
                         //Draws the brush with radial reflections.
@@ -1379,9 +1230,7 @@ namespace BrushFactory
                                         bmpBrushRot.Width,
                                         bmpBrushRot.Height),
                                     GraphicsUnit.Pixel,
-                                    Utils.ColorImageAttr(
-                                        bmpBrushRot,
-                                        newRed, newGreen, newBlue, newAlpha));
+                                    Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
 
                                 angle += angleIncrease;
                             }
@@ -1389,6 +1238,15 @@ namespace BrushFactory
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets the active color based on the color from the canvas at the given point.
+        /// </summary>
+        /// <param name="loc">The point to get the color from.</param>
+        private void GetColorFromCanvas(Point loc)
+        {
+            UpdateBrushColor(bmpCurrentDrawing.GetPixel(loc.X, loc.Y));
         }
 
         /// <summary>
@@ -1442,7 +1300,7 @@ namespace BrushFactory
                 int listViewItemHeight = GetListViewItemHeight();
                 int maxBrushSize = sliderBrushSize.Maximum;
 
-                WorkerArgs workerArgs = new WorkerArgs(filePaths, doAddToSettings, doDisplayErrors, listViewItemHeight, maxBrushSize);
+                BrushLoadingSettings workerArgs = new BrushLoadingSettings(filePaths, doAddToSettings, doDisplayErrors, listViewItemHeight, maxBrushSize);
                 bttnAddBrushes.Visible = false;
                 brushLoadProgressBar.Visible = true;
 
@@ -1464,12 +1322,88 @@ namespace BrushFactory
                 int listViewItemHeight = GetListViewItemHeight();
                 int maxBrushSize = sliderBrushSize.Maximum;
 
-                WorkerArgs workerArgs = new WorkerArgs(directories, listViewItemHeight, maxBrushSize);
+                BrushLoadingSettings workerArgs = new BrushLoadingSettings(directories, listViewItemHeight, maxBrushSize);
                 bttnAddBrushes.Visible = false;
                 brushLoadProgressBar.Visible = true;
 
                 brushLoadingWorker.RunWorkerAsync(workerArgs);
             }
+        }
+
+        /// <summary>
+        /// Sets the brushes to be used, clearing any that already exist and
+        /// removing all custom brushes as a result.
+        /// </summary>
+        private void InitBrushes()
+        {
+            if (brushLoadingWorker.IsBusy)
+            {
+                // Signal the background worker to abort and call this method when it completes.
+                // This prevents a few crashes caused by race conditions when modifying the brush
+                // collection from multiple threads.
+                doReinitializeBrushes = true;
+                brushLoadingWorker.CancelAsync();
+                return;
+            }
+
+            bmpBrush = new Bitmap(Resources.BrCircle);
+
+            if (loadedBrushes.Count > 0)
+            {
+                // Disposes and removes all of the existing items in the collection.
+                bttnBrushSelector.VirtualListSize = 0;
+                loadedBrushes.Clear();
+            }
+
+            if (settings.UseDefaultBrushes)
+            {
+                loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
+                loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
+                loadedBrushes.Add(new BrushSelectorItem("Big Dots", Resources.BrDotsBig));
+                loadedBrushes.Add(new BrushSelectorItem("Spark", Resources.BrSpark));
+                loadedBrushes.Add(new BrushSelectorItem("Gravel", Resources.BrGravel));
+                loadedBrushes.Add(new BrushSelectorItem("Rain", Resources.BrRain));
+                loadedBrushes.Add(new BrushSelectorItem("Grass", Resources.BrGrass));
+                loadedBrushes.Add(new BrushSelectorItem("Smoke", Resources.BrSmoke));
+                loadedBrushes.Add(new BrushSelectorItem("Scales", Resources.BrScales));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 4", Resources.BrFractalDirt));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 3", Resources.BrDirt3));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 2", Resources.BrDirt2));
+                loadedBrushes.Add(new BrushSelectorItem("Dirt 1", Resources.BrDirt));
+                loadedBrushes.Add(new BrushSelectorItem("Cracks", Resources.BrCracks));
+                loadedBrushes.Add(new BrushSelectorItem("Spiral", Resources.BrSpiral));
+                loadedBrushes.Add(new BrushSelectorItem("Segments", Resources.BrCircleSegmented));
+                loadedBrushes.Add(new BrushSelectorItem("Sketchy", Resources.BrCircleSketchy));
+                loadedBrushes.Add(new BrushSelectorItem("Rough", Resources.BrCircleRough));
+                loadedBrushes.Add(new BrushSelectorItem("Circle 3", Resources.BrCircleHard));
+                loadedBrushes.Add(new BrushSelectorItem("Circle 2", Resources.BrCircleMedium));
+            }
+
+            //Loads stored brushes.
+            loadedBrushes.Add(new BrushSelectorItem("Circle 1", Resources.BrCircle));
+            bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
+
+            //Loads any custom brushes.
+            if (importBrushesFromToken)
+            {
+                importBrushesFromToken = false;
+
+                ImportBrushesFromFiles(loadedBrushPaths, false, false);
+            }
+            else
+            {
+                ImportBrushesFromDirectories(settings.CustomBrushDirectories);
+            }
+        }
+
+        /// <summary>
+        /// Sets/resets all persistent settings in the dialog to their default
+        /// values.
+        /// </summary>
+        private void InitSettings()
+        {
+            InitialInitToken();
+            InitDialogFromToken();
         }
 
         /// <summary>
@@ -1613,6 +1547,7 @@ namespace BrushFactory
             this.txtMinDrawDistance = new System.Windows.Forms.Label();
             this.sliderMinDrawDistance = new System.Windows.Forms.TrackBar();
             this.tabControls = new System.Windows.Forms.TabPage();
+            this.bttnColorPicker = new System.Windows.Forms.Button();
             this.bttnAddBrushes = new System.Windows.Forms.Button();
             this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
             this.dummyImageList = new System.Windows.Forms.ImageList(this.components);
@@ -1650,6 +1585,8 @@ namespace BrushFactory
             this.txtRandMinRed = new System.Windows.Forms.Label();
             this.sliderRandMinRed = new System.Windows.Forms.TrackBar();
             this.tabOther = new System.Windows.Forms.TabPage();
+            this.txtBrushDensity = new System.Windows.Forms.Label();
+            this.sliderBrushDensity = new System.Windows.Forms.TrackBar();
             this.bttnCustomBrushLocations = new System.Windows.Forms.Button();
             this.bttnBrushSmoothing = new System.Windows.Forms.ComboBox();
             this.bttnClearSettings = new System.Windows.Forms.Button();
@@ -1661,8 +1598,6 @@ namespace BrushFactory
             this.sliderShiftSize = new System.Windows.Forms.TrackBar();
             this.txtShiftSize = new System.Windows.Forms.Label();
             this.brushLoadingWorker = new System.ComponentModel.BackgroundWorker();
-            this.txtBrushDensity = new System.Windows.Forms.Label();
-            this.sliderBrushDensity = new System.Windows.Forms.TrackBar();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.tabJitter.SuspendLayout();
@@ -1689,10 +1624,10 @@ namespace BrushFactory
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinGreen)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinRed)).BeginInit();
             this.tabOther.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftRotation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftSize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
             this.SuspendLayout();
             // 
             // timerRepositionUpdate
@@ -1878,6 +1813,7 @@ namespace BrushFactory
             // tabControls
             // 
             this.tabControls.BackColor = System.Drawing.Color.Transparent;
+            this.tabControls.Controls.Add(this.bttnColorPicker);
             this.tabControls.Controls.Add(this.bttnAddBrushes);
             this.tabControls.Controls.Add(this.bttnBrushSelector);
             this.tabControls.Controls.Add(this.bttnRedo);
@@ -1898,6 +1834,14 @@ namespace BrushFactory
             resources.ApplyResources(this.tabControls, "tabControls");
             this.tabControls.Name = "tabControls";
             // 
+            // bttnColorPicker
+            // 
+            this.bttnColorPicker.Image = global::BrushFactory.Properties.Resources.ColorPickerIcon;
+            resources.ApplyResources(this.bttnColorPicker, "bttnColorPicker");
+            this.bttnColorPicker.Name = "bttnColorPicker";
+            this.bttnColorPicker.UseVisualStyleBackColor = true;
+            this.bttnColorPicker.Click += new System.EventHandler(this.BttnColorPicker_Click);
+            // 
             // bttnAddBrushes
             // 
             this.bttnAddBrushes.Image = global::BrushFactory.Properties.Resources.AddBrushIcon;
@@ -1909,6 +1853,7 @@ namespace BrushFactory
             // 
             // bttnBrushSelector
             // 
+            this.bttnBrushSelector.HideSelection = false;
             this.bttnBrushSelector.LargeImageList = this.dummyImageList;
             resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
             this.bttnBrushSelector.MultiSelect = false;
@@ -2238,6 +2183,23 @@ namespace BrushFactory
             resources.ApplyResources(this.tabOther, "tabOther");
             this.tabOther.Name = "tabOther";
             // 
+            // txtBrushDensity
+            // 
+            resources.ApplyResources(this.txtBrushDensity, "txtBrushDensity");
+            this.txtBrushDensity.BackColor = System.Drawing.Color.Transparent;
+            this.txtBrushDensity.Name = "txtBrushDensity";
+            // 
+            // sliderBrushDensity
+            // 
+            resources.ApplyResources(this.sliderBrushDensity, "sliderBrushDensity");
+            this.sliderBrushDensity.LargeChange = 1;
+            this.sliderBrushDensity.Maximum = 50;
+            this.sliderBrushDensity.Name = "sliderBrushDensity";
+            this.sliderBrushDensity.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderBrushDensity.Value = 10;
+            this.sliderBrushDensity.ValueChanged += new System.EventHandler(this.SliderBrushDensity_ValueChanged);
+            this.sliderBrushDensity.MouseEnter += new System.EventHandler(this.SliderBrushDensity_MouseEnter);
+            // 
             // bttnCustomBrushLocations
             // 
             resources.ApplyResources(this.bttnCustomBrushLocations, "bttnCustomBrushLocations");
@@ -2328,27 +2290,9 @@ namespace BrushFactory
             // 
             this.brushLoadingWorker.WorkerReportsProgress = true;
             this.brushLoadingWorker.WorkerSupportsCancellation = true;
-            this.brushLoadingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker_DoWork);
-            this.brushLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundWorker_ProgressChanged);
-            this.brushLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
-            // 
-            // txtBrushDensity
-            // 
-            resources.ApplyResources(this.txtBrushDensity, "txtBrushDensity");
-            this.txtBrushDensity.BackColor = System.Drawing.Color.Transparent;
-            this.txtBrushDensity.Name = "txtBrushDensity";
-            // 
-            // sliderBrushDensity
-            // 
-            resources.ApplyResources(this.sliderBrushDensity, "sliderBrushDensity");
-            this.sliderBrushDensity.LargeChange = 1;
-            this.sliderBrushDensity.Maximum = 50;
-            this.sliderBrushDensity.Minimum = 0;
-            this.sliderBrushDensity.Name = "sliderBrushDensity";
-            this.sliderBrushDensity.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushDensity.Value = 10;
-            this.sliderBrushDensity.ValueChanged += new System.EventHandler(this.sliderBrushDensity_ValueChanged);
-            this.sliderBrushDensity.MouseEnter += new System.EventHandler(this.sliderBrushDensity_MouseEnter);
+            this.brushLoadingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BrushLoadingWorker_DoWork);
+            this.brushLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BrushLoadingWorker_ProgressChanged);
+            this.brushLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BrushLoadingWorker_RunWorkerCompleted);
             // 
             // WinBrushFactory
             // 
@@ -2391,10 +2335,10 @@ namespace BrushFactory
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinGreen)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinRed)).EndInit();
             this.tabOther.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftRotation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftSize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -2505,6 +2449,31 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Switches to the provided tool.
+        /// </summary>
+        /// <param name="toolToSwitchTo">The tool to switch to.</param>
+        private void SwitchTool(Tool toolToSwitchTo)
+        {
+            switch (toolToSwitchTo)
+            {
+                case (Tool.Brush):
+                    displayCanvas.Cursor = Cursors.Default;
+                    break;
+                case (Tool.ColorPicker):
+                    // Lazy-loads the color picker cursor.
+                    if (cursorColorPicker == null)
+                    {
+                        cursorColorPicker = new Cursor(new MemoryStream(Resources.ColorPickerCursor));
+                    }
+
+                    displayCanvas.Cursor = cursorColorPicker;
+                    break;
+            }
+
+            activeTool = toolToSwitchTo;
+        }
+
+        /// <summary>
         /// Recreates the brush with color and alpha effects applied.
         /// </summary>
         private void UpdateBrush()
@@ -2531,6 +2500,24 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Updates the current brush color to the desired color.
+        /// </summary>
+        /// <param name="newColor">The new color to set the brush to.</param>
+        private void UpdateBrushColor(Color newColor)
+        {
+            //Makes the text that says 'colors' almost always legible.
+            Color oppositeColor = Color.FromArgb(
+            (byte)(255 - newColor.R),
+            (byte)(255 - newColor.G),
+            (byte)(255 - newColor.B));
+            bttnBrushColor.ForeColor = oppositeColor;
+
+            //Sets the back color and updates the brushes.
+            bttnBrushColor.BackColor = newColor;
+            UpdateBrush();
+        }
+
+        /// <summary>
         /// Updates the brush ListView item count.
         /// </summary>
         private void UpdateListViewVirtualItemCount(int count)
@@ -2544,17 +2531,112 @@ namespace BrushFactory
                 bttnBrushSelector.VirtualListSize = count;
             }
         }
+
+        /// <summary>
+        /// Allows the canvas to zoom in and out dependent on the mouse wheel.
+        /// </summary>
+        private void Zoom(int mouseWheelDetents, bool updateSlider)
+        {
+            //Causes the slider's update method to trigger, which calls this
+            //and doesn't repeat anything since updateSlider is then false.
+            if (updateSlider)
+            {
+                //Zooms in/out some amount for each mouse wheel movement.
+                int zoom;
+                if (sliderCanvasZoom.Value < 5)
+                {
+                    zoom = 1;
+                }
+                else if (sliderCanvasZoom.Value < 10)
+                {
+                    zoom = 3;
+                }
+                else if (sliderCanvasZoom.Value < 20)
+                {
+                    zoom = 5;
+                }
+                else if (sliderCanvasZoom.Value < 50)
+                {
+                    zoom = 10;
+                }
+                else if (sliderCanvasZoom.Value < 100)
+                {
+                    zoom = 15;
+                }
+                else if (sliderCanvasZoom.Value < 200)
+                {
+                    zoom = 30;
+                }
+                else if (sliderCanvasZoom.Value < 500)
+                {
+                    zoom = 50;
+                }
+                else if (sliderCanvasZoom.Value < 1000)
+                {
+                    zoom = 100;
+                }
+                else if (sliderCanvasZoom.Value < 2000)
+                {
+                    zoom = 200;
+                }
+                else
+                {
+                    zoom = 300;
+                }
+
+                zoom *= Math.Sign(mouseWheelDetents);
+
+                //Updates the corresponding slider as well (within its range).
+                sliderCanvasZoom.Value = Utils.Clamp(
+                sliderCanvasZoom.Value + zoom,
+                sliderCanvasZoom.Minimum,
+                sliderCanvasZoom.Maximum);
+
+                return;
+            }
+
+            //Calculates the zooming percent.
+            float newZoomFactor = sliderCanvasZoom.Value / 100f;
+
+            //Updates the canvas zoom factor.
+            displayCanvasZoom = newZoomFactor;
+            txtCanvasZoom.Text = string.Format(
+                "{0} {1:p0}", Localization.Strings.CanvasZoom, newZoomFactor);
+
+            //Gets the new width and height, adjusted for zooming.
+            int zoomWidth = (int)(bmpCurrentDrawing.Width * newZoomFactor);
+            int zoomHeight = (int)(bmpCurrentDrawing.Height * newZoomFactor);
+
+            Point zoomingPoint = isWheelZooming
+                ? mouseLoc
+                : new Point(
+                    displayCanvasBG.ClientSize.Width / 2 - displayCanvas.Location.X,
+                    displayCanvasBG.ClientSize.Height / 2 - displayCanvas.Location.Y);
+
+            int zoomX = displayCanvas.Location.X + zoomingPoint.X -
+                zoomingPoint.X * zoomWidth / displayCanvas.Width;
+            int zoomY = displayCanvas.Location.Y + zoomingPoint.Y -
+                zoomingPoint.Y * zoomHeight / displayCanvas.Height;
+
+            isWheelZooming = false;
+
+            //Sets the new canvas position (center) and size using zoom.
+            displayCanvas.Bounds = new Rectangle(
+                zoomX, zoomY,
+                zoomWidth, zoomHeight);
+        }
         #endregion
 
         #region Methods (event handlers)
-        private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void BrushLoadingWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
-            WorkerArgs args = (WorkerArgs)e.Argument;
+            BrushLoadingSettings args = (BrushLoadingSettings)e.Argument;
 
             try
             {
                 IReadOnlyCollection<string> filePaths;
+
                 if (args.SearchDirectories != null)
                 {
                     filePaths = FilesInDirectory(args.SearchDirectories, backgroundWorker);
@@ -2564,8 +2646,8 @@ namespace BrushFactory
                     filePaths = args.FilePaths;
                 }
 
-                int done = 0;
-                int total = filePaths.Count;
+                int brushesLoadedCount = 0;
+                int brushesDetectedCount = filePaths.Count;
 
                 int maxThumbnailHeight = args.ListViewItemHeight;
                 int maxBrushSize = args.MaxBrushSize;
@@ -2578,8 +2660,9 @@ namespace BrushFactory
                         e.Cancel = true;
                         return;
                     }
-                    backgroundWorker.ReportProgress(GetProgressPercentage(done, total));
-                    done++;
+
+                    backgroundWorker.ReportProgress(GetProgressPercentage(brushesLoadedCount, brushesDetectedCount));
+                    brushesLoadedCount++;
 
                     try
                     {
@@ -2591,7 +2674,7 @@ namespace BrushFactory
                                 {
                                     string location = Path.GetFileName(file);
 
-                                    total += brushes.Count;
+                                    brushesDetectedCount += brushes.Count;
 
                                     for (int i = 0; i < brushes.Count; i++)
                                     {
@@ -2601,8 +2684,8 @@ namespace BrushFactory
                                             return;
                                         }
 
-                                        backgroundWorker.ReportProgress(GetProgressPercentage(done, total));
-                                        done++;
+                                        backgroundWorker.ReportProgress(GetProgressPercentage(brushesLoadedCount, brushesDetectedCount));
+                                        brushesLoadedCount++;
 
                                         AbrBrush item = brushes[i];
 
@@ -2610,12 +2693,11 @@ namespace BrushFactory
                                         int size = Math.Max(item.Image.Width, item.Image.Height);
 
                                         Bitmap scaledBrush = null;
+
                                         if (size > maxBrushSize)
                                         {
                                             size = maxBrushSize;
-
                                             Size newImageSize = Utils.ComputeBrushSize(item.Image.Width, item.Image.Height, maxBrushSize);
-
                                             scaledBrush = Utils.ScaleImage(item.Image, newImageSize);
                                         }
 
@@ -2634,16 +2716,18 @@ namespace BrushFactory
                                         }
 
                                         string filename = item.Name;
+
                                         if (string.IsNullOrEmpty(filename))
                                         {
-                                            filename = string.Format(System.Globalization.CultureInfo.CurrentCulture,
-                                                                     Localization.Strings.AbrBrushNameFallbackFormat,
-                                                                     i);
+                                            filename = string.Format(
+                                                System.Globalization.CultureInfo.CurrentCulture,
+                                                Localization.Strings.AbrBrushNameFallbackFormat,
+                                                i);
                                         }
 
                                         //Appends invisible spaces to files with the same name
                                         //until they're unique.
-                                        while (loadedBrushes.Any(a => a.Name.Equals(filename, StringComparison.Ordinal)))
+                                        while (loadedBrushes.Any(brush => brush.Name.Equals(filename, StringComparison.Ordinal)))
                                         {
                                             filename += " ";
                                         }
@@ -2724,7 +2808,7 @@ namespace BrushFactory
                             loadedBrushes.Add(
                                 new BrushSelectorItem(filename, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
 
-                            if ((done % 2) == 0)
+                            if ((brushesLoadedCount % 2) == 0)
                             {
                                 UpdateListViewVirtualItemCount(loadedBrushes.Count);
                             }
@@ -2760,12 +2844,12 @@ namespace BrushFactory
             }
         }
 
-        private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void BrushLoadingWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             brushLoadProgressBar.Value = e.ProgressPercentage;
         }
 
-        private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void BrushLoadingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled)
             {
@@ -2780,7 +2864,7 @@ namespace BrushFactory
             }
             else
             {
-                WorkerArgs workerArgs = (WorkerArgs)e.Result;
+                BrushLoadingSettings workerArgs = (BrushLoadingSettings)e.Result;
 
                 if (e.Error != null && workerArgs.DisplayErrors)
                 {
@@ -2797,7 +2881,8 @@ namespace BrushFactory
 
                         if (!string.IsNullOrEmpty(tokenSelectedBrushName))
                         {
-                            int index = loadedBrushes.FindIndex(b => b.Name.Equals(tokenSelectedBrushName));
+                            int index = loadedBrushes.FindIndex(brush => brush.Name.Equals(tokenSelectedBrushName));
+
                             if (index >= 0)
                             {
                                 selectedItemIndex = index;
@@ -2809,6 +2894,7 @@ namespace BrushFactory
                         bttnBrushSelector.EnsureVisible(selectedItemIndex);
                     }
                 }
+
                 brushLoadProgressBar.Value = 0;
                 brushLoadProgressBar.Visible = false;
                 bttnAddBrushes.Visible = true;
@@ -2858,12 +2944,20 @@ namespace BrushFactory
                 redoHistory.Clear();
 
                 //Draws the brush on the first canvas click.
-                if (!chkbxOrientToMouse.Checked)
+                if (activeTool == Tool.Brush && !chkbxOrientToMouse.Checked)
                 {
                     DrawBrush(new Point(
                         (int)(mouseLocPrev.X / displayCanvasZoom),
                         (int)(mouseLocPrev.Y / displayCanvasZoom)),
                         sliderBrushSize.Value);
+                }
+                else if (activeTool == Tool.ColorPicker)
+                {
+                    GetColorFromCanvas(new Point(
+                        (int)(mouseLocPrev.X / displayCanvasZoom),
+                        (int)(mouseLocPrev.Y / displayCanvasZoom)));
+
+                    SwitchTool(Tool.Brush);
                 }
             }
         }
@@ -2928,45 +3022,48 @@ namespace BrushFactory
                     mouseLocBrush = mouseLoc;
                 }
 
-                // Draws without speed control. Messier, but faster.
-                if (sliderBrushDensity.Value == 0)
+                if (activeTool == Tool.Brush)
                 {
-                    DrawBrush(new Point(
-                        (int)(mouseLoc.X / displayCanvasZoom),
-                        (int)(mouseLoc.Y / displayCanvasZoom)),
-                        sliderBrushSize.Value);
-
-                    mouseLocPrev = e.Location;
-                }
-
-                // Draws at intervals of brush width between last and current mouse position,
-                // tracking remainder by changing final mouse position.
-                else
-                {
-                    double deltaX = (mouseLoc.X - mouseLocPrev.X) / displayCanvasZoom;
-                    double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / displayCanvasZoom;
-                    double brushWidthFrac = sliderBrushSize.Value / (double)sliderBrushDensity.Value;
-                    double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-                    double angle = Math.Atan2(deltaY, deltaX);
-                    double xDist = Math.Cos(angle);
-                    double yDist = Math.Sin(angle);
-                    double numIntervals = distance / brushWidthFrac;
-
-                    for (int i = 1; i <= (int)numIntervals; i++)
+                    // Draws without speed control. Messier, but faster.
+                    if (sliderBrushDensity.Value == 0)
                     {
                         DrawBrush(new Point(
-                            (int)(mouseLocPrev.X / displayCanvasZoom + xDist * brushWidthFrac * i),
-                            (int)(mouseLocPrev.Y / displayCanvasZoom + yDist * brushWidthFrac * i)),
+                            (int)(mouseLoc.X / displayCanvasZoom),
+                            (int)(mouseLoc.Y / displayCanvasZoom)),
                             sliderBrushSize.Value);
+
+                        mouseLocPrev = e.Location;
                     }
 
-                    double extraDist = brushWidthFrac * (numIntervals - (int)numIntervals);
+                    // Draws at intervals of brush width between last and current mouse position,
+                    // tracking remainder by changing final mouse position.
+                    else
+                    {
+                        double deltaX = (mouseLoc.X - mouseLocPrev.X) / displayCanvasZoom;
+                        double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / displayCanvasZoom;
+                        double brushWidthFrac = sliderBrushSize.Value / (double)sliderBrushDensity.Value;
+                        double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                        double angle = Math.Atan2(deltaY, deltaX);
+                        double xDist = Math.Cos(angle);
+                        double yDist = Math.Sin(angle);
+                        double numIntervals = distance / brushWidthFrac;
 
-                    // Same as mouse position except for remainder.
-                    mouseLoc = new Point(
-                        (int)(e.Location.X - xDist * extraDist * displayCanvasZoom),
-                        (int)(e.Location.Y - yDist * extraDist * displayCanvasZoom));
-                    mouseLocPrev = mouseLoc;
+                        for (int i = 1; i <= (int)numIntervals; i++)
+                        {
+                            DrawBrush(new Point(
+                                (int)(mouseLocPrev.X / displayCanvasZoom + xDist * brushWidthFrac * i),
+                                (int)(mouseLocPrev.Y / displayCanvasZoom + yDist * brushWidthFrac * i)),
+                                sliderBrushSize.Value);
+                        }
+
+                        double extraDist = brushWidthFrac * (numIntervals - (int)numIntervals);
+
+                        // Same as mouse position except for remainder.
+                        mouseLoc = new Point(
+                            (int)(e.Location.X - xDist * extraDist * displayCanvasZoom),
+                            (int)(e.Location.Y - yDist * extraDist * displayCanvasZoom));
+                        mouseLocPrev = mouseLoc;
+                    }
                 }
             }
 
@@ -3059,7 +3156,7 @@ namespace BrushFactory
             }
 
             //Draws the brush as a rectangle when not drawing by mouse.
-            if (!isUserDrawing)
+            if (activeTool == Tool.Brush && !isUserDrawing)
             {
                 int radius = (int)(sliderBrushSize.Value * displayCanvasZoom);
 
@@ -3117,16 +3214,7 @@ namespace BrushFactory
             //If the user successfully chooses a color.
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                //Makes the text that says 'colors' almost always legible.
-                Color oppositeColor = Color.FromArgb(
-                (byte)(255 - dialog.Color.R),
-                (byte)(255 - dialog.Color.G),
-                (byte)(255 - dialog.Color.B));
-                bttnBrushColor.ForeColor = oppositeColor;
-
-                //Sets the back color and updates the brushes.
-                bttnBrushColor.BackColor = dialog.Color;
-                UpdateBrush();
+                UpdateBrushColor(dialog.Color);
             }
         }
 
@@ -3376,6 +3464,14 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Switches to the color picker tool.
+        /// </summary>
+        private void BttnColorPicker_Click(object sender, EventArgs e)
+        {
+            SwitchTool(Tool.ColorPicker);
+        }
+
+        /// <summary>
         /// Accepts and applies the effect.
         /// </summary>
         private void BttnOk_Click(object sender, EventArgs e)
@@ -3568,12 +3664,12 @@ namespace BrushFactory
             UpdateBrush();
         }
 
-        private void sliderBrushDensity_MouseEnter(object sender, EventArgs e)
+        private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)
         {
             txtTooltip.Text = Localization.Strings.BrushDensityTip;
         }
 
-        private void sliderBrushDensity_ValueChanged(object sender, EventArgs e)
+        private void SliderBrushDensity_ValueChanged(object sender, EventArgs e)
         {
             txtBrushDensity.Text = String.Format("{0} {1}",
                 Localization.Strings.BrushDensity,
@@ -3919,72 +4015,6 @@ namespace BrushFactory
             //Updates with the new location and redraws the screen.
             displayCanvas.Location = new Point(canvasNewPosX, canvasNewPosY);
             displayCanvas.Refresh();
-        }
-        #endregion
-
-        #region Nested classes
-        private sealed class WorkerArgs
-        {
-            /// <summary>
-            /// Gets the file paths used when adding image files.
-            /// </summary>
-            public IReadOnlyCollection<string> FilePaths { get; }
-
-            /// <summary>
-            /// Gets the directories that are searched for image files.
-            /// </summary>
-            public IEnumerable<string> SearchDirectories { get; }
-
-            /// <summary>
-            /// Gets a value indicating whether the files will be added to the settings.
-            /// </summary>
-            public bool AddtoSettings { get; }
-
-            /// <summary>
-            /// Gets a value indicating whether error messages should be displayed.
-            /// </summary>
-            public bool DisplayErrors { get; }
-
-            /// <summary>
-            /// Gets the height of a single ListView item.
-            /// </summary>
-            public int ListViewItemHeight { get; }
-            public int MaxBrushSize { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="WorkerArgs"/> class.
-            /// </summary>
-            /// <param name="filePaths">The file paths used when adding image files.</param>
-            /// <param name="addtoSettings"><c>true</c> if the files will be added to the settings; otherwise, <c>false</c>.</param>
-            /// <param name="displayErrors"><c>true</c> error messages should be displayed; otherwise, <c>false</c>.</param>
-            /// <param name="listViewItemHeight">The height of a single ListView item.</param>
-            /// <param name="maxBrushSize">The maximum size of a brush.</param>
-            public WorkerArgs(IReadOnlyCollection<string> filePaths, bool addtoSettings, bool displayErrors,
-                int listViewItemHeight, int maxBrushSize)
-            {
-                FilePaths = filePaths;
-                SearchDirectories = null;
-                AddtoSettings = addtoSettings;
-                DisplayErrors = displayErrors;
-                ListViewItemHeight = listViewItemHeight;
-                MaxBrushSize = maxBrushSize;
-            }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="WorkerArgs"/> class.
-            /// </summary>
-            /// <param name="directories">The directories that are searched for image files.</param>
-            /// <param name="listViewItemHeight">The height of a single ListView item.</param>
-            /// <param name="maxBrushSize">The maximum size of a brush.</param>
-            public WorkerArgs(IEnumerable<string> directories, int listViewItemHeight, int maxBrushSize)
-            {
-                FilePaths = null;
-                SearchDirectories = directories;
-                AddtoSettings = true;
-                DisplayErrors = false;
-                ListViewItemHeight = listViewItemHeight;
-                MaxBrushSize = maxBrushSize;
-            }
         }
         #endregion
     }

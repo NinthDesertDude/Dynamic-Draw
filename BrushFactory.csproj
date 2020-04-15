@@ -124,6 +124,8 @@
     <Compile Include="Gui\IBrushFactorySettings.cs" />
     <Compile Include="Interop\SafeNativeMethods.cs" />
     <Compile Include="InterpolationItem.cs" />
+    <Compile Include="Logic\BrushLoadingSettings.cs" />
+    <Compile Include="Logic\Tool.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -226,6 +228,8 @@
     <None Include="Resources\BrSpark.png" />
     <None Include="Resources\icon.ico" />
     <None Include="Resources\AddBrushIcon.png" />
+    <None Include="Resources\ColorPickerIcon.png" />
+    <None Include="Resources\ColorPickerCursor.cur" />
     <Content Include="Resources\icon.png" />
   </ItemGroup>
   <PropertyGroup>

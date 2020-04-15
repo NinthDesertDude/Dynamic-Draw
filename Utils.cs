@@ -66,6 +66,7 @@ namespace BrushFactory
                 img.PixelFormat);
 
             byte* row = (byte*)bmpData.Scan0;
+
             for (int y = 0; y < img.Height; y++)
             {
                 for (int x = 0; x < img.Width; x++)
@@ -79,6 +80,7 @@ namespace BrushFactory
                     row[ptr] = pixel.B;
                 }
             }
+
             img.UnlockBits(bmpData);
         }
 
@@ -99,6 +101,7 @@ namespace BrushFactory
                 img.PixelFormat);
 
             byte* row = (byte*)bmpData.Scan0;
+
             for (int y = 0; y < img.Height; y++)
             {
                 for (int x = 0; x < img.Width; x++)
@@ -116,6 +119,7 @@ namespace BrushFactory
                     row[ptr] = premultiplied.B;
                 }
             }
+
             img.UnlockBits(bmpData);
         }
 
@@ -125,7 +129,6 @@ namespace BrushFactory
         /// between 0 and 1, inclusive.
         /// </summary>
         public static ImageAttributes ColorImageAttr(
-            Bitmap img,
             float r,
             float g,
             float b,
