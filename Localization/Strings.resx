@@ -150,7 +150,7 @@
   <data name="BrushColorTip" xml:space="preserve">
     <value>Lets you set the color of the brush.</value>
   </data>
-    <data name="BrushDensity" xml:space="preserve">
+  <data name="BrushDensity" xml:space="preserve">
     <value>Brush Stroke Density:</value>
   </data>
   <data name="BrushDensityTip" xml:space="preserve">
@@ -218,6 +218,9 @@
   </data>
   <data name="ColorizeBrushTip" xml:space="preserve">
     <value>When activated, the color of the brush is replaced by a solid color. Otherwise, the brush maintains its original colors and cannot use color shifting.</value>
+  </data>
+  <data name="ColorPickerTip" xml:space="preserve">
+    <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the brush afterwards.</value>
   </data>
   <data name="CustomBrushLocations" xml:space="preserve">
     <value>Custom Brush Locations</value>

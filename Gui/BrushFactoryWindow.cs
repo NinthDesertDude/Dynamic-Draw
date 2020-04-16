@@ -1841,6 +1841,7 @@ namespace BrushFactory
             this.bttnColorPicker.Name = "bttnColorPicker";
             this.bttnColorPicker.UseVisualStyleBackColor = true;
             this.bttnColorPicker.Click += new System.EventHandler(this.BttnColorPicker_Click);
+            this.bttnColorPicker.MouseEnter += new System.EventHandler(this.BttnColorPicker_MouseEnter);
             // 
             // bttnAddBrushes
             // 
@@ -2463,10 +2464,14 @@ namespace BrushFactory
                     // Lazy-loads the color picker cursor.
                     if (cursorColorPicker == null)
                     {
-                        cursorColorPicker = new Cursor(new MemoryStream(Resources.ColorPickerCursor));
+                        using (MemoryStream ms = new MemoryStream(Resources.ColorPickerCursor))
+                        {
+                            cursorColorPicker = new Cursor(ms);
+                        }
                     }
 
                     displayCanvas.Cursor = cursorColorPicker;
+                    Cursor.Current = cursorColorPicker;
                     break;
             }
 
@@ -3469,6 +3474,11 @@ namespace BrushFactory
         private void BttnColorPicker_Click(object sender, EventArgs e)
         {
             SwitchTool(Tool.ColorPicker);
+        }
+
+        private void BttnColorPicker_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.ColorPickerTip;
         }
 
         /// <summary>
