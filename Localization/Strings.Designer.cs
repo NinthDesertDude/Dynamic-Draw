@@ -322,33 +322,6 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Blueness:.
-        /// </summary>
-        internal static string ColoringBlue {
-            get {
-                return ResourceManager.GetString("ColoringBlue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Greenness:.
-        /// </summary>
-        internal static string ColoringGreen {
-            get {
-                return ResourceManager.GetString("ColoringGreen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Redness:.
-        /// </summary>
-        internal static string ColoringRed {
-            get {
-                return ResourceManager.GetString("ColoringRed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Colorize Brush.
         /// </summary>
         internal static string ColorizeBrush {
@@ -399,6 +372,114 @@ namespace BrushFactory.Localization {
         internal static string GeneralTooltip {
             get {
                 return ResourceManager.GetString("GeneralTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blue Jitter:.
+        /// </summary>
+        internal static string JitterBlue {
+            get {
+                return ResourceManager.GetString("JitterBlue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue..
+        /// </summary>
+        internal static string JitterBlueTip {
+            get {
+                return ResourceManager.GetString("JitterBlueTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Green Jitter:.
+        /// </summary>
+        internal static string JitterGreen {
+            get {
+                return ResourceManager.GetString("JitterGreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green..
+        /// </summary>
+        internal static string JitterGreenTip {
+            get {
+                return ResourceManager.GetString("JitterGreenTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hue Jitter:.
+        /// </summary>
+        internal static string JitterHue {
+            get {
+                return ResourceManager.GetString("JitterHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While drawing, the brush&apos;s hue will randomly shift based on the provided amounts..
+        /// </summary>
+        internal static string JitterHueTip {
+            get {
+                return ResourceManager.GetString("JitterHueTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Red Jitter:.
+        /// </summary>
+        internal static string JitterRed {
+            get {
+                return ResourceManager.GetString("JitterRed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red..
+        /// </summary>
+        internal static string JitterRedTip {
+            get {
+                return ResourceManager.GetString("JitterRedTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sat. Jitter:.
+        /// </summary>
+        internal static string JitterSaturation {
+            get {
+                return ResourceManager.GetString("JitterSaturation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While drawing, the brush&apos;s grayness will randomly shift based on the provided amounts..
+        /// </summary>
+        internal static string JitterSaturationTip {
+            get {
+                return ResourceManager.GetString("JitterSaturationTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value Jitter:.
+        /// </summary>
+        internal static string JitterValue {
+            get {
+                return ResourceManager.GetString("JitterValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift based on the provided amounts..
+        /// </summary>
+        internal static string JitterValueTip {
+            get {
+                return ResourceManager.GetString("JitterValueTip", resourceCulture);
             }
         }
         
@@ -529,60 +610,6 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Max Blue:.
-        /// </summary>
-        internal static string RandMaxBlue {
-            get {
-                return ResourceManager.GetString("RandMaxBlue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more blue..
-        /// </summary>
-        internal static string RandMaxBlueTip {
-            get {
-                return ResourceManager.GetString("RandMaxBlueTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Max Green:.
-        /// </summary>
-        internal static string RandMaxGreen {
-            get {
-                return ResourceManager.GetString("RandMaxGreen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more green..
-        /// </summary>
-        internal static string RandMaxGreenTip {
-            get {
-                return ResourceManager.GetString("RandMaxGreenTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Max Red:.
-        /// </summary>
-        internal static string RandMaxRed {
-            get {
-                return ResourceManager.GetString("RandMaxRed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more red..
-        /// </summary>
-        internal static string RandMaxRedTip {
-            get {
-                return ResourceManager.GetString("RandMaxRedTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Random Max Size:.
         /// </summary>
         internal static string RandMaxSize {
@@ -615,60 +642,6 @@ namespace BrushFactory.Localization {
         internal static string RandMinAlphaTip {
             get {
                 return ResourceManager.GetString("RandMinAlphaTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Min Blue:.
-        /// </summary>
-        internal static string RandMinBlue {
-            get {
-                return ResourceManager.GetString("RandMinBlue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less blue..
-        /// </summary>
-        internal static string RandMinBlueTip {
-            get {
-                return ResourceManager.GetString("RandMinBlueTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Min Green:.
-        /// </summary>
-        internal static string RandMinGreen {
-            get {
-                return ResourceManager.GetString("RandMinGreen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less green..
-        /// </summary>
-        internal static string RandMinGreenTip {
-            get {
-                return ResourceManager.GetString("RandMinGreenTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Min Red:.
-        /// </summary>
-        internal static string RandMinRed {
-            get {
-                return ResourceManager.GetString("RandMinRed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less red..
-        /// </summary>
-        internal static string RandMinRedTip {
-            get {
-                return ResourceManager.GetString("RandMinRedTip", resourceCulture);
             }
         }
         

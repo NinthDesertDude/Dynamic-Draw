@@ -21,7 +21,7 @@ namespace BrushFactory
         /// Gets or sets a value indicating whether to use the default brushes.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if the default brushes should be used; otherwise, <c>false</c>.
+        /// <c>true</c> if the default brushes should be used, <c>false</c> otherwise.
         /// </value>
         bool UseDefaultBrushes { get; set; }
     }

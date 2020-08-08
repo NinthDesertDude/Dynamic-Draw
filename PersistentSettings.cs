@@ -256,6 +256,60 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Adds a random amount of hue to each stroke.
+        /// </summary>
+        public int RandMaxH
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Adds a random amount of saturation to each stroke.
+        /// </summary>
+        public int RandMaxS
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Adds a random amount of value to each stroke.
+        /// </summary>
+        public int RandMaxV
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Subtracts a random amount of hue from each stroke.
+        /// </summary>
+        public int RandMinH
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Subtracts a random amount of saturation from each stroke.
+        /// </summary>
+        public int RandMinS
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Subtracts a random amount of value from each stroke.
+        /// </summary>
+        public int RandMinV
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Increments/decrements the size by an amount after each stroke.
         /// </summary>
         public int SizeChange
@@ -313,6 +367,12 @@ namespace BrushFactory
             RandMinR = 0;
             RandMinG = 0;
             RandMinB = 0;
+            RandMaxH = 0;
+            RandMaxS = 0;
+            RandMaxV = 0;
+            RandMinH = 0;
+            RandMinS = 0;
+            RandMinV = 0;
             SizeChange = 0;
             RotChange = 0;
             AlphaChange = 0;
@@ -350,6 +410,12 @@ namespace BrushFactory
             RandMinR = other.RandMinR;
             RandMinG = other.RandMinG;
             RandMinB = other.RandMinB;
+            RandMaxH = other.RandMaxH;
+            RandMaxS = other.RandMaxS;
+            RandMaxV = other.RandMaxV;
+            RandMinH = other.RandMinH;
+            RandMinS = other.RandMinS;
+            RandMinV = other.RandMinV;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;

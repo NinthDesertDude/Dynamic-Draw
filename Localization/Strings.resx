@@ -204,15 +204,6 @@
   <data name="ClearSettingsTip" xml:space="preserve">
     <value>Resets all settings to the default values they had when the plugin first loaded.</value>
   </data>
-  <data name="ColoringBlue" xml:space="preserve">
-    <value>Random Blueness:</value>
-  </data>
-  <data name="ColoringGreen" xml:space="preserve">
-    <value>Random Greenness:</value>
-  </data>
-  <data name="ColoringRed" xml:space="preserve">
-    <value>Random Redness:</value>
-  </data>
   <data name="ColorizeBrush" xml:space="preserve">
     <value>Colorize Brush</value>
   </data>
@@ -230,6 +221,42 @@
   </data>
   <data name="GeneralTooltip" xml:space="preserve">
     <value>Hold middle mouse button or control and left mouse button to pan image. Right-click for options. Hover over controls to read about them here.</value>
+  </data>
+  <data name="JitterBlue" xml:space="preserve">
+    <value>Blue Jitter:</value>
+  </data>
+  <data name="JitterBlueTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue.</value>
+  </data>
+  <data name="JitterGreen" xml:space="preserve">
+    <value>Green Jitter:</value>
+  </data>
+  <data name="JitterGreenTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green.</value>
+  </data>
+  <data name="JitterHue" xml:space="preserve">
+    <value>Hue Jitter:</value>
+  </data>
+  <data name="JitterHueTip" xml:space="preserve">
+    <value>While drawing, the brush's hue will randomly shift based on the provided amounts.</value>
+  </data>
+  <data name="JitterRed" xml:space="preserve">
+    <value>Red Jitter:</value>
+  </data>
+  <data name="JitterRedTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red.</value>
+  </data>
+  <data name="JitterSaturation" xml:space="preserve">
+    <value>Sat. Jitter:</value>
+  </data>
+  <data name="JitterSaturationTip" xml:space="preserve">
+    <value>While drawing, the brush's grayness will randomly shift based on the provided amounts.</value>
+  </data>
+  <data name="JitterValue" xml:space="preserve">
+    <value>Value Jitter:</value>
+  </data>
+  <data name="JitterValueTip" xml:space="preserve">
+    <value>While drawing, the brush color will randomly shift based on the provided amounts.</value>
   </data>
   <data name="LoadDefaultBrushes" xml:space="preserve">
     <value>Load Default Brushes?</value>
@@ -273,24 +300,6 @@
   <data name="RandHorzShiftTip" xml:space="preserve">
     <value>While drawing, the brush will randomly be moved left or right this much.</value>
   </data>
-  <data name="RandMaxBlue" xml:space="preserve">
-    <value>Random Max Blue:</value>
-  </data>
-  <data name="RandMaxBlueTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more blue.</value>
-  </data>
-  <data name="RandMaxGreen" xml:space="preserve">
-    <value>Random Max Green:</value>
-  </data>
-  <data name="RandMaxGreenTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more green.</value>
-  </data>
-  <data name="RandMaxRed" xml:space="preserve">
-    <value>Random Max Red:</value>
-  </data>
-  <data name="RandMaxRedTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much more red.</value>
-  </data>
   <data name="RandMaxSize" xml:space="preserve">
     <value>Random Max Size:</value>
   </data>
@@ -302,24 +311,6 @@
   </data>
   <data name="RandMinAlphaTip" xml:space="preserve">
     <value>While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more transparent.</value>
-  </data>
-  <data name="RandMinBlue" xml:space="preserve">
-    <value>Random Min Blue:</value>
-  </data>
-  <data name="RandMinBlueTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less blue.</value>
-  </data>
-  <data name="RandMinGreen" xml:space="preserve">
-    <value>Random Min Green:</value>
-  </data>
-  <data name="RandMinGreenTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less green.</value>
-  </data>
-  <data name="RandMinRed" xml:space="preserve">
-    <value>Random Min Red:</value>
-  </data>
-  <data name="RandMinRedTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less red.</value>
   </data>
   <data name="RandMinSize" xml:space="preserve">
     <value>Random Min Size:</value>

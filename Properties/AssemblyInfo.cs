@@ -13,8 +13,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("1.9.0.*")]
-[assembly: AssemblyFileVersion("1.9.0")]
+[assembly: AssemblyVersion("2.0.0.*")]
+[assembly: AssemblyFileVersion("2.0.0")]
 
 [assembly: Guid("22f1fdbd-cc99-41af-8d32-95e83c4807a0")]
 
