@@ -183,9 +183,11 @@ namespace BrushFactory
         private Button bttnCancel;
         private Button bttnClearBrushes;
         private Button bttnClearSettings;
+        private Button bttnColorPicker;
         private Button bttnCustomBrushLocations;
         private Button bttnOk;
         private Button bttnRedo;
+        private ComboBox bttnSymmetry;
         private Button bttnUndo;
         private ProgressBar brushLoadProgressBar;
 
@@ -220,10 +222,18 @@ namespace BrushFactory
         private TrackBar sliderBrushRotation;
         private TrackBar sliderBrushSize;
         private TrackBar sliderCanvasZoom;
-        private TrackBar sliderRandMaxBlue;
-        private TrackBar sliderRandMaxGreen;
-        private TrackBar sliderRandMaxRed;
-        private TrackBar sliderRandMinBlue;
+        private TrackBar sliderJitterMaxBlue;
+        private TrackBar sliderJitterMaxGreen;
+        private TrackBar sliderJitterMaxHue;
+        private TrackBar sliderJitterMaxRed;
+        private TrackBar sliderJitterMaxSat;
+        private TrackBar sliderJitterMaxVal;
+        private TrackBar sliderJitterMinBlue;
+        private TrackBar sliderJitterMinGreen;
+        private TrackBar sliderJitterMinHue;
+        private TrackBar sliderJitterMinRed;
+        private TrackBar sliderJitterMinSat;
+        private TrackBar sliderJitterMinVal;
 
         /// <summary>
         /// The mouse must be at least this far away from its last successful
@@ -232,8 +242,6 @@ namespace BrushFactory
         /// </summary>
         private TrackBar sliderMinDrawDistance;
 
-        private TrackBar sliderRandMinGreen;
-        private TrackBar sliderRandMinRed;
         private TrackBar sliderRandHorzShift;
         private TrackBar sliderRandMaxSize;
         private TrackBar sliderRandMinAlpha;
@@ -261,13 +269,13 @@ namespace BrushFactory
         private Label txtBrushRotation;
         private Label txtBrushSize;
         private Label txtCanvasZoom;
-        private Label txtRandMaxBlue;
-        private Label txtRandMaxGreen;
-        private Label txtRandMaxRed;
-        private Label txtRandMinBlue;
+        private Label txtJitterBlue;
+        private Label txtJitterGreen;
+        private Label txtJitterHue;
+        private Label txtJitterRed;
+        private Label txtJitterSaturation;
+        private Label txtJitterValue;
         private Label txtMinDrawDistance;
-        private Label txtRandMinGreen;
-        private Label txtRandMinRed;
         private Label txtRandHorzShift;
         private Label txtRandRotRight;
         private Label txtRandRotLeft;
@@ -278,8 +286,6 @@ namespace BrushFactory
         private Label txtShiftAlpha;
         private Label txtShiftRotation;
         private Label txtShiftSize;
-        private ComboBox bttnSymmetry;
-        private Button bttnColorPicker;
         private Label txtTooltip;
         #endregion
 
@@ -387,12 +393,18 @@ namespace BrushFactory
             chkbxColorizeBrush.Checked = token.DoColorizeBrush;
             chkbxLockAlpha.Checked = token.DoLockAlpha;
             sliderMinDrawDistance.Value = token.MinDrawDistance;
-            sliderRandMaxRed.Value = token.RandMaxR;
-            sliderRandMaxGreen.Value = token.RandMaxG;
-            sliderRandMaxBlue.Value = token.RandMaxB;
-            sliderRandMinRed.Value = token.RandMinR;
-            sliderRandMinGreen.Value = token.RandMinG;
-            sliderRandMinBlue.Value = token.RandMinB;
+            sliderJitterMaxRed.Value = token.RandMaxR;
+            sliderJitterMaxGreen.Value = token.RandMaxG;
+            sliderJitterMaxBlue.Value = token.RandMaxB;
+            sliderJitterMinRed.Value = token.RandMinR;
+            sliderJitterMinGreen.Value = token.RandMinG;
+            sliderJitterMinBlue.Value = token.RandMinB;
+            sliderJitterMaxHue.Value = token.RandMaxH;
+            sliderJitterMaxSat.Value = token.RandMaxS;
+            sliderJitterMaxVal.Value = token.RandMaxV;
+            sliderJitterMinHue.Value = token.RandMinH;
+            sliderJitterMinSat.Value = token.RandMinS;
+            sliderJitterMinVal.Value = token.RandMinV;
             sliderShiftSize.Value = token.SizeChange;
             sliderShiftRotation.Value = token.RotChange;
             sliderShiftAlpha.Value  = token.AlphaChange;
@@ -427,14 +439,20 @@ namespace BrushFactory
             token.DoRotateWithMouse = chkbxOrientToMouse.Checked;
             token.MinDrawDistance = sliderMinDrawDistance.Value;
             token.RandHorzShift = sliderRandHorzShift.Value;
-            token.RandMaxB = sliderRandMaxBlue.Value;
-            token.RandMaxG = sliderRandMaxGreen.Value;
-            token.RandMaxR = sliderRandMaxRed.Value;
+            token.RandMaxB = sliderJitterMaxBlue.Value;
+            token.RandMaxG = sliderJitterMaxGreen.Value;
+            token.RandMaxR = sliderJitterMaxRed.Value;
+            token.RandMaxH = sliderJitterMaxHue.Value;
+            token.RandMaxS = sliderJitterMaxSat.Value;
+            token.RandMaxV = sliderJitterMaxVal.Value;
             token.RandMaxSize = sliderRandMaxSize.Value;
             token.RandMinAlpha = sliderRandMinAlpha.Value;
-            token.RandMinB = sliderRandMinBlue.Value;
-            token.RandMinG = sliderRandMinGreen.Value;
-            token.RandMinR = sliderRandMinRed.Value;
+            token.RandMinB = sliderJitterMinBlue.Value;
+            token.RandMinG = sliderJitterMinGreen.Value;
+            token.RandMinR = sliderJitterMinRed.Value;
+            token.RandMinH = sliderJitterMinHue.Value;
+            token.RandMinS = sliderJitterMinSat.Value;
+            token.RandMinV = sliderJitterMinVal.Value;
             token.RandMinSize = sliderRandMinSize.Value;
             token.RandRotLeft = sliderRandRotLeft.Value;
             token.RandRotRight = sliderRandRotRight.Value;
@@ -499,26 +517,26 @@ namespace BrushFactory
             txtRandRotRight.Text = string.Format("{0} {1}°",
                 Localization.Strings.RandRotRight, sliderRandRotRight.Value);
 
-            txtRandMaxBlue.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMaxBlue, sliderRandMaxBlue.Value);
-
-            txtRandMaxGreen.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMaxGreen, sliderRandMaxGreen.Value);
-
-            txtRandMaxRed.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMaxRed, sliderRandMaxRed.Value);
-
             txtRandMinAlpha.Text = string.Format("{0} {1}",
                 Localization.Strings.RandMinAlpha, sliderRandMinAlpha.Value);
 
-            txtRandMinBlue.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMinBlue, sliderRandMinBlue.Value);
+            txtJitterBlue.Text = string.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterBlue, sliderJitterMinBlue.Value, sliderJitterMaxBlue.Value);
 
-            txtRandMinGreen.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMinGreen, sliderRandMinGreen.Value);
+            txtJitterGreen.Text = string.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterGreen, sliderJitterMinGreen.Value, sliderJitterMaxGreen.Value);
 
-            txtRandMinRed.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMinRed, sliderRandMinRed.Value);
+            txtJitterRed.Text = string.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterRed, sliderJitterMinRed.Value, sliderJitterMaxRed.Value);
+
+            txtJitterHue.Text = string.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterHue, sliderJitterMinHue.Value, sliderJitterMaxHue.Value);
+
+            txtJitterSaturation.Text = string.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterSaturation, sliderJitterMinSat.Value, sliderJitterMaxSat.Value);
+
+            txtJitterValue.Text = string.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterValue, sliderJitterMinVal.Value, sliderJitterMaxVal.Value);
 
             txtRandVertShift.Text = string.Format("{0} {1}%",
                 Localization.Strings.RandVertShift, sliderRandVertShift.Value);
@@ -1008,13 +1026,23 @@ namespace BrushFactory
                 g.InterpolationMode = (InterpolationMode)bttnBrushSmoothing.SelectedValue;
 
                 //Draws the brush normally if color/alpha aren't randomized.
-                if ((sliderRandMinAlpha.Value == 0 &&
-                    sliderRandMaxRed.Value == 0 &&
-                    sliderRandMinRed.Value == 0 &&
-                    sliderRandMaxGreen.Value == 0 &&
-                    sliderRandMinGreen.Value == 0 &&
-                    sliderRandMaxBlue.Value == 0 &&
-                    sliderRandMinBlue.Value == 0) ||
+                bool jitterRgb =
+                    sliderJitterMaxRed.Value != 0 ||
+                    sliderJitterMinRed.Value != 0 ||
+                    sliderJitterMaxGreen.Value != 0 ||
+                    sliderJitterMinGreen.Value != 0 ||
+                    sliderJitterMaxBlue.Value != 0 ||
+                    sliderJitterMinBlue.Value != 0;
+
+                bool jitterHsv =
+                    sliderJitterMaxHue.Value != 0 ||
+                    sliderJitterMinHue.Value != 0 ||
+                    sliderJitterMaxSat.Value != 0 ||
+                    sliderJitterMinSat.Value != 0 ||
+                    sliderJitterMaxVal.Value != 0 ||
+                    sliderJitterMinVal.Value != 0;
+
+                if ((sliderRandMinAlpha.Value == 0 && !jitterRgb && !jitterHsv) ||
                     !chkbxColorizeBrush.Checked)
                 {
                     //Draws the brush for normal and non-radial symmetry.
@@ -1105,21 +1133,58 @@ namespace BrushFactory
                 }
                 else
                 {
-                    //Sets the color data and transparency randomly.
-                    float newAlpha = Utils.ClampF((100
-                        - random.Next(sliderRandMinAlpha.Value)) / 100f, 0, 1);
+                    // Sets random transparency jitter.
+                    float newAlpha = Utils.ClampF((100 - random.Next(sliderRandMinAlpha.Value)) / 100f, 0, 1);
+                    float newRed = 0f;
+                    float newGreen = 0f;
+                    float newBlue = 0f;
 
-                    float newBlue = Utils.ClampF((bttnBrushColor.BackColor.B / 2.55f
-                        - random.Next(sliderRandMinBlue.Value)
-                        + random.Next(sliderRandMaxBlue.Value)) / 100f, 0, 1);
+                    RgbColor colorRgb = new RgbColor(bttnBrushColor.BackColor.R, bttnBrushColor.BackColor.G, bttnBrushColor.BackColor.B);
 
-                    float newGreen = Utils.ClampF((bttnBrushColor.BackColor.G / 2.55f
-                        - random.Next(sliderRandMinGreen.Value)
-                        + random.Next(sliderRandMaxGreen.Value)) / 100f, 0, 1);
+                    //Sets RGB color jitter.
+                    if (jitterRgb)
+                    {
+                        newBlue = Utils.ClampF((bttnBrushColor.BackColor.B / 2.55f
+                            - random.Next(sliderJitterMinBlue.Value)
+                            + random.Next(sliderJitterMaxBlue.Value)) / 100f, 0, 1);
 
-                    float newRed = Utils.ClampF((bttnBrushColor.BackColor.R / 2.55f
-                        - random.Next(sliderRandMinRed.Value)
-                        + random.Next(sliderRandMaxRed.Value)) / 100f, 0, 1);
+                        newGreen = Utils.ClampF((bttnBrushColor.BackColor.G / 2.55f
+                            - random.Next(sliderJitterMinGreen.Value)
+                            + random.Next(sliderJitterMaxGreen.Value)) / 100f, 0, 1);
+
+                        newRed = Utils.ClampF((bttnBrushColor.BackColor.R / 2.55f
+                            - random.Next(sliderJitterMinRed.Value)
+                            + random.Next(sliderJitterMaxRed.Value)) / 100f, 0, 1);
+
+                        if (jitterHsv)
+                        {
+                            colorRgb = new RgbColor((int)(newRed * 255), (int)(newGreen * 255), (int)(newBlue * 255));
+                        }
+                    }
+
+                    // Sets HSV color jitter.
+                    if (jitterHsv)
+                    {
+                        HsvColor colorHsv = colorRgb.ToHsv();
+
+                        int newHue = (int)Utils.ClampF(colorHsv.Hue
+                            - random.Next((int)(sliderJitterMinHue.Value * 3.6f))
+                            + random.Next((int)(sliderJitterMaxHue.Value * 3.6f)), 0, 360);
+
+                        int newSat = (int)Utils.ClampF(colorHsv.Saturation
+                            - random.Next(sliderJitterMinSat.Value)
+                            + random.Next(sliderJitterMaxSat.Value), 0, 100);
+
+                        int newVal = (int)Utils.ClampF(colorHsv.Value
+                            - random.Next(sliderJitterMinVal.Value)
+                            + random.Next(sliderJitterMaxVal.Value), 0, 100);
+                        
+                        Color finalColor = new HsvColor(newHue, newSat, newVal).ToColor();
+
+                        newRed = finalColor.R / 255f;
+                        newGreen = finalColor.G / 255f;
+                        newBlue = finalColor.B / 255f;
+                    }
 
                     //Determines the positions to draw the brush at.
                     Point[] destination = new Point[3];
@@ -1572,18 +1637,24 @@ namespace BrushFactory
             this.chkbxOrientToMouse = new System.Windows.Forms.CheckBox();
             this.tabBar = new System.Windows.Forms.TabControl();
             this.tabColor = new System.Windows.Forms.TabPage();
-            this.txtRandMaxBlue = new System.Windows.Forms.Label();
-            this.sliderRandMaxBlue = new System.Windows.Forms.TrackBar();
-            this.txtRandMaxGreen = new System.Windows.Forms.Label();
-            this.sliderRandMaxGreen = new System.Windows.Forms.TrackBar();
-            this.txtRandMaxRed = new System.Windows.Forms.Label();
-            this.sliderRandMaxRed = new System.Windows.Forms.TrackBar();
-            this.txtRandMinBlue = new System.Windows.Forms.Label();
-            this.sliderRandMinBlue = new System.Windows.Forms.TrackBar();
-            this.txtRandMinGreen = new System.Windows.Forms.Label();
-            this.sliderRandMinGreen = new System.Windows.Forms.TrackBar();
-            this.txtRandMinRed = new System.Windows.Forms.Label();
-            this.sliderRandMinRed = new System.Windows.Forms.TrackBar();
+            this.sliderJitterMaxVal = new System.Windows.Forms.TrackBar();
+            this.sliderJitterMaxSat = new System.Windows.Forms.TrackBar();
+            this.sliderJitterMaxHue = new System.Windows.Forms.TrackBar();
+            this.txtJitterValue = new System.Windows.Forms.Label();
+            this.sliderJitterMinVal = new System.Windows.Forms.TrackBar();
+            this.txtJitterSaturation = new System.Windows.Forms.Label();
+            this.sliderJitterMinSat = new System.Windows.Forms.TrackBar();
+            this.txtJitterHue = new System.Windows.Forms.Label();
+            this.sliderJitterMinHue = new System.Windows.Forms.TrackBar();
+            this.sliderJitterMaxBlue = new System.Windows.Forms.TrackBar();
+            this.sliderJitterMaxGreen = new System.Windows.Forms.TrackBar();
+            this.sliderJitterMaxRed = new System.Windows.Forms.TrackBar();
+            this.txtJitterBlue = new System.Windows.Forms.Label();
+            this.sliderJitterMinBlue = new System.Windows.Forms.TrackBar();
+            this.txtJitterGreen = new System.Windows.Forms.Label();
+            this.sliderJitterMinGreen = new System.Windows.Forms.TrackBar();
+            this.txtJitterRed = new System.Windows.Forms.Label();
+            this.sliderJitterMinRed = new System.Windows.Forms.TrackBar();
             this.tabOther = new System.Windows.Forms.TabPage();
             this.txtBrushDensity = new System.Windows.Forms.Label();
             this.sliderBrushDensity = new System.Windows.Forms.TrackBar();
@@ -1617,12 +1688,18 @@ namespace BrushFactory
             this.grpbxBrushOptions.SuspendLayout();
             this.tabBar.SuspendLayout();
             this.tabColor.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxBlue)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxGreen)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxRed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinBlue)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinGreen)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinRed)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxVal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxSat)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxHue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinVal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinSat)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinHue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxBlue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxGreen)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxRed)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinBlue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinGreen)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinRed)).BeginInit();
             this.tabOther.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).BeginInit();
@@ -2053,115 +2130,181 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.tabColor, "tabColor");
             this.tabColor.BackColor = System.Drawing.Color.Transparent;
-            this.tabColor.Controls.Add(this.txtRandMaxBlue);
-            this.tabColor.Controls.Add(this.sliderRandMaxBlue);
-            this.tabColor.Controls.Add(this.txtRandMaxGreen);
-            this.tabColor.Controls.Add(this.sliderRandMaxGreen);
-            this.tabColor.Controls.Add(this.txtRandMaxRed);
-            this.tabColor.Controls.Add(this.sliderRandMaxRed);
-            this.tabColor.Controls.Add(this.txtRandMinBlue);
-            this.tabColor.Controls.Add(this.sliderRandMinBlue);
-            this.tabColor.Controls.Add(this.txtRandMinGreen);
-            this.tabColor.Controls.Add(this.sliderRandMinGreen);
-            this.tabColor.Controls.Add(this.txtRandMinRed);
-            this.tabColor.Controls.Add(this.sliderRandMinRed);
+            this.tabColor.Controls.Add(this.sliderJitterMaxVal);
+            this.tabColor.Controls.Add(this.sliderJitterMaxSat);
+            this.tabColor.Controls.Add(this.sliderJitterMaxHue);
+            this.tabColor.Controls.Add(this.txtJitterValue);
+            this.tabColor.Controls.Add(this.sliderJitterMinVal);
+            this.tabColor.Controls.Add(this.txtJitterSaturation);
+            this.tabColor.Controls.Add(this.sliderJitterMinSat);
+            this.tabColor.Controls.Add(this.txtJitterHue);
+            this.tabColor.Controls.Add(this.sliderJitterMinHue);
+            this.tabColor.Controls.Add(this.sliderJitterMaxBlue);
+            this.tabColor.Controls.Add(this.sliderJitterMaxGreen);
+            this.tabColor.Controls.Add(this.sliderJitterMaxRed);
+            this.tabColor.Controls.Add(this.txtJitterBlue);
+            this.tabColor.Controls.Add(this.sliderJitterMinBlue);
+            this.tabColor.Controls.Add(this.txtJitterGreen);
+            this.tabColor.Controls.Add(this.sliderJitterMinGreen);
+            this.tabColor.Controls.Add(this.txtJitterRed);
+            this.tabColor.Controls.Add(this.sliderJitterMinRed);
             this.tabColor.Name = "tabColor";
             // 
-            // txtRandMaxBlue
+            // sliderJitterMaxVal
             // 
-            resources.ApplyResources(this.txtRandMaxBlue, "txtRandMaxBlue");
-            this.txtRandMaxBlue.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMaxBlue.Name = "txtRandMaxBlue";
+            resources.ApplyResources(this.sliderJitterMaxVal, "sliderJitterMaxVal");
+            this.sliderJitterMaxVal.LargeChange = 1;
+            this.sliderJitterMaxVal.Maximum = 100;
+            this.sliderJitterMaxVal.Name = "sliderJitterMaxVal";
+            this.sliderJitterMaxVal.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMaxVal.ValueChanged += new System.EventHandler(this.sliderJitterMaxVal_ValueChanged);
+            this.sliderJitterMaxVal.MouseEnter += new System.EventHandler(this.sliderJitterMaxVal_MouseEnter);
             // 
-            // sliderRandMaxBlue
+            // sliderJitterMaxSat
             // 
-            resources.ApplyResources(this.sliderRandMaxBlue, "sliderRandMaxBlue");
-            this.sliderRandMaxBlue.LargeChange = 1;
-            this.sliderRandMaxBlue.Maximum = 100;
-            this.sliderRandMaxBlue.Name = "sliderRandMaxBlue";
-            this.sliderRandMaxBlue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMaxBlue.ValueChanged += new System.EventHandler(this.SliderRandMaxBlue_ValueChanged);
-            this.sliderRandMaxBlue.MouseEnter += new System.EventHandler(this.SliderRandMaxBlue_MouseEnter);
+            resources.ApplyResources(this.sliderJitterMaxSat, "sliderJitterMaxSat");
+            this.sliderJitterMaxSat.LargeChange = 1;
+            this.sliderJitterMaxSat.Maximum = 100;
+            this.sliderJitterMaxSat.Name = "sliderJitterMaxSat";
+            this.sliderJitterMaxSat.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMaxSat.ValueChanged += new System.EventHandler(this.sliderJitterMaxSat_ValueChanged);
+            this.sliderJitterMaxSat.MouseEnter += new System.EventHandler(this.sliderJitterMaxSat_MouseEnter);
             // 
-            // txtRandMaxGreen
+            // sliderJitterMaxHue
             // 
-            resources.ApplyResources(this.txtRandMaxGreen, "txtRandMaxGreen");
-            this.txtRandMaxGreen.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMaxGreen.Name = "txtRandMaxGreen";
+            resources.ApplyResources(this.sliderJitterMaxHue, "sliderJitterMaxHue");
+            this.sliderJitterMaxHue.LargeChange = 1;
+            this.sliderJitterMaxHue.Maximum = 100;
+            this.sliderJitterMaxHue.Name = "sliderJitterMaxHue";
+            this.sliderJitterMaxHue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMaxHue.ValueChanged += new System.EventHandler(this.sliderJitterMaxHue_ValueChanged);
+            this.sliderJitterMaxHue.MouseEnter += new System.EventHandler(this.sliderJitterMaxHue_MouseEnter);
             // 
-            // sliderRandMaxGreen
+            // txtJitterValue
             // 
-            resources.ApplyResources(this.sliderRandMaxGreen, "sliderRandMaxGreen");
-            this.sliderRandMaxGreen.LargeChange = 1;
-            this.sliderRandMaxGreen.Maximum = 100;
-            this.sliderRandMaxGreen.Name = "sliderRandMaxGreen";
-            this.sliderRandMaxGreen.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMaxGreen.ValueChanged += new System.EventHandler(this.SliderRandMaxGreen_ValueChanged);
-            this.sliderRandMaxGreen.MouseEnter += new System.EventHandler(this.SliderRandMaxGreen_MouseEnter);
+            resources.ApplyResources(this.txtJitterValue, "txtJitterValue");
+            this.txtJitterValue.BackColor = System.Drawing.Color.Transparent;
+            this.txtJitterValue.Name = "txtJitterValue";
             // 
-            // txtRandMaxRed
+            // sliderJitterMinVal
             // 
-            resources.ApplyResources(this.txtRandMaxRed, "txtRandMaxRed");
-            this.txtRandMaxRed.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMaxRed.Name = "txtRandMaxRed";
+            resources.ApplyResources(this.sliderJitterMinVal, "sliderJitterMinVal");
+            this.sliderJitterMinVal.LargeChange = 1;
+            this.sliderJitterMinVal.Maximum = 100;
+            this.sliderJitterMinVal.Name = "sliderJitterMinVal";
+            this.sliderJitterMinVal.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMinVal.ValueChanged += new System.EventHandler(this.sliderJitterMinVal_ValueChanged);
+            this.sliderJitterMinVal.MouseEnter += new System.EventHandler(this.sliderJitterMinVal_MouseEnter);
             // 
-            // sliderRandMaxRed
+            // txtJitterSaturation
             // 
-            resources.ApplyResources(this.sliderRandMaxRed, "sliderRandMaxRed");
-            this.sliderRandMaxRed.LargeChange = 1;
-            this.sliderRandMaxRed.Maximum = 100;
-            this.sliderRandMaxRed.Name = "sliderRandMaxRed";
-            this.sliderRandMaxRed.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMaxRed.ValueChanged += new System.EventHandler(this.SliderRandMaxRed_ValueChanged);
-            this.sliderRandMaxRed.MouseEnter += new System.EventHandler(this.SliderRandMaxRed_MouseEnter);
+            resources.ApplyResources(this.txtJitterSaturation, "txtJitterSaturation");
+            this.txtJitterSaturation.BackColor = System.Drawing.Color.Transparent;
+            this.txtJitterSaturation.Name = "txtJitterSaturation";
             // 
-            // txtRandMinBlue
+            // sliderJitterMinSat
             // 
-            resources.ApplyResources(this.txtRandMinBlue, "txtRandMinBlue");
-            this.txtRandMinBlue.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMinBlue.Name = "txtRandMinBlue";
+            resources.ApplyResources(this.sliderJitterMinSat, "sliderJitterMinSat");
+            this.sliderJitterMinSat.LargeChange = 1;
+            this.sliderJitterMinSat.Maximum = 100;
+            this.sliderJitterMinSat.Name = "sliderJitterMinSat";
+            this.sliderJitterMinSat.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMinSat.ValueChanged += new System.EventHandler(this.sliderJitterMinSat_ValueChanged);
+            this.sliderJitterMinSat.MouseEnter += new System.EventHandler(this.sliderJitterMinSat_MouseEnter);
             // 
-            // sliderRandMinBlue
+            // txtJitterHue
             // 
-            resources.ApplyResources(this.sliderRandMinBlue, "sliderRandMinBlue");
-            this.sliderRandMinBlue.LargeChange = 1;
-            this.sliderRandMinBlue.Maximum = 100;
-            this.sliderRandMinBlue.Name = "sliderRandMinBlue";
-            this.sliderRandMinBlue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMinBlue.ValueChanged += new System.EventHandler(this.SliderRandMinBlue_ValueChanged);
-            this.sliderRandMinBlue.MouseEnter += new System.EventHandler(this.SliderRandMinBlue_MouseEnter);
+            resources.ApplyResources(this.txtJitterHue, "txtJitterHue");
+            this.txtJitterHue.BackColor = System.Drawing.Color.Transparent;
+            this.txtJitterHue.Name = "txtJitterHue";
             // 
-            // txtRandMinGreen
+            // sliderJitterMinHue
             // 
-            resources.ApplyResources(this.txtRandMinGreen, "txtRandMinGreen");
-            this.txtRandMinGreen.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMinGreen.Name = "txtRandMinGreen";
+            resources.ApplyResources(this.sliderJitterMinHue, "sliderJitterMinHue");
+            this.sliderJitterMinHue.LargeChange = 1;
+            this.sliderJitterMinHue.Maximum = 100;
+            this.sliderJitterMinHue.Name = "sliderJitterMinHue";
+            this.sliderJitterMinHue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMinHue.ValueChanged += new System.EventHandler(this.sliderJitterMinHue_ValueChanged);
+            this.sliderJitterMinHue.MouseEnter += new System.EventHandler(this.sliderJitterMinHue_MouseEnter);
             // 
-            // sliderRandMinGreen
+            // sliderJitterMaxBlue
             // 
-            resources.ApplyResources(this.sliderRandMinGreen, "sliderRandMinGreen");
-            this.sliderRandMinGreen.LargeChange = 1;
-            this.sliderRandMinGreen.Maximum = 100;
-            this.sliderRandMinGreen.Name = "sliderRandMinGreen";
-            this.sliderRandMinGreen.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMinGreen.ValueChanged += new System.EventHandler(this.SliderRandMinGreen_ValueChanged);
-            this.sliderRandMinGreen.MouseEnter += new System.EventHandler(this.SliderRandMinGreen_MouseEnter);
+            resources.ApplyResources(this.sliderJitterMaxBlue, "sliderJitterMaxBlue");
+            this.sliderJitterMaxBlue.LargeChange = 1;
+            this.sliderJitterMaxBlue.Maximum = 100;
+            this.sliderJitterMaxBlue.Name = "sliderJitterMaxBlue";
+            this.sliderJitterMaxBlue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMaxBlue.ValueChanged += new System.EventHandler(this.SliderJitterMaxBlue_ValueChanged);
+            this.sliderJitterMaxBlue.MouseEnter += new System.EventHandler(this.SliderJitterMaxBlue_MouseEnter);
             // 
-            // txtRandMinRed
+            // sliderJitterMaxGreen
             // 
-            resources.ApplyResources(this.txtRandMinRed, "txtRandMinRed");
-            this.txtRandMinRed.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMinRed.Name = "txtRandMinRed";
+            resources.ApplyResources(this.sliderJitterMaxGreen, "sliderJitterMaxGreen");
+            this.sliderJitterMaxGreen.LargeChange = 1;
+            this.sliderJitterMaxGreen.Maximum = 100;
+            this.sliderJitterMaxGreen.Name = "sliderJitterMaxGreen";
+            this.sliderJitterMaxGreen.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMaxGreen.ValueChanged += new System.EventHandler(this.SliderJitterMaxGreen_ValueChanged);
+            this.sliderJitterMaxGreen.MouseEnter += new System.EventHandler(this.SliderJitterMaxGreen_MouseEnter);
             // 
-            // sliderRandMinRed
+            // sliderJitterMaxRed
             // 
-            resources.ApplyResources(this.sliderRandMinRed, "sliderRandMinRed");
-            this.sliderRandMinRed.LargeChange = 1;
-            this.sliderRandMinRed.Maximum = 100;
-            this.sliderRandMinRed.Name = "sliderRandMinRed";
-            this.sliderRandMinRed.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMinRed.ValueChanged += new System.EventHandler(this.SliderRandMinRed_ValueChanged);
-            this.sliderRandMinRed.MouseEnter += new System.EventHandler(this.SliderRandMinRed_MouseEnter);
+            resources.ApplyResources(this.sliderJitterMaxRed, "sliderJitterMaxRed");
+            this.sliderJitterMaxRed.LargeChange = 1;
+            this.sliderJitterMaxRed.Maximum = 100;
+            this.sliderJitterMaxRed.Name = "sliderJitterMaxRed";
+            this.sliderJitterMaxRed.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMaxRed.ValueChanged += new System.EventHandler(this.SliderJitterMaxRed_ValueChanged);
+            this.sliderJitterMaxRed.MouseEnter += new System.EventHandler(this.SliderJitterMaxRed_MouseEnter);
+            // 
+            // txtJitterBlue
+            // 
+            resources.ApplyResources(this.txtJitterBlue, "txtJitterBlue");
+            this.txtJitterBlue.BackColor = System.Drawing.Color.Transparent;
+            this.txtJitterBlue.Name = "txtJitterBlue";
+            // 
+            // sliderJitterMinBlue
+            // 
+            resources.ApplyResources(this.sliderJitterMinBlue, "sliderJitterMinBlue");
+            this.sliderJitterMinBlue.LargeChange = 1;
+            this.sliderJitterMinBlue.Maximum = 100;
+            this.sliderJitterMinBlue.Name = "sliderJitterMinBlue";
+            this.sliderJitterMinBlue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMinBlue.ValueChanged += new System.EventHandler(this.SliderJitterMinBlue_ValueChanged);
+            this.sliderJitterMinBlue.MouseEnter += new System.EventHandler(this.SliderJitterMinBlue_MouseEnter);
+            // 
+            // txtJitterGreen
+            // 
+            resources.ApplyResources(this.txtJitterGreen, "txtJitterGreen");
+            this.txtJitterGreen.BackColor = System.Drawing.Color.Transparent;
+            this.txtJitterGreen.Name = "txtJitterGreen";
+            // 
+            // sliderJitterMinGreen
+            // 
+            resources.ApplyResources(this.sliderJitterMinGreen, "sliderJitterMinGreen");
+            this.sliderJitterMinGreen.LargeChange = 1;
+            this.sliderJitterMinGreen.Maximum = 100;
+            this.sliderJitterMinGreen.Name = "sliderJitterMinGreen";
+            this.sliderJitterMinGreen.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMinGreen.ValueChanged += new System.EventHandler(this.SliderJitterMinGreen_ValueChanged);
+            this.sliderJitterMinGreen.MouseEnter += new System.EventHandler(this.SliderJitterMinGreen_MouseEnter);
+            // 
+            // txtJitterRed
+            // 
+            resources.ApplyResources(this.txtJitterRed, "txtJitterRed");
+            this.txtJitterRed.BackColor = System.Drawing.Color.Transparent;
+            this.txtJitterRed.Name = "txtJitterRed";
+            // 
+            // sliderJitterMinRed
+            // 
+            resources.ApplyResources(this.sliderJitterMinRed, "sliderJitterMinRed");
+            this.sliderJitterMinRed.LargeChange = 1;
+            this.sliderJitterMinRed.Maximum = 100;
+            this.sliderJitterMinRed.Name = "sliderJitterMinRed";
+            this.sliderJitterMinRed.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderJitterMinRed.ValueChanged += new System.EventHandler(this.SliderJitterMinRed_ValueChanged);
+            this.sliderJitterMinRed.MouseEnter += new System.EventHandler(this.SliderJitterMinRed_MouseEnter);
             // 
             // tabOther
             // 
@@ -2329,12 +2472,18 @@ namespace BrushFactory
             this.grpbxBrushOptions.PerformLayout();
             this.tabBar.ResumeLayout(false);
             this.tabColor.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxBlue)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxGreen)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxRed)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinBlue)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinGreen)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinRed)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxVal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxSat)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxHue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinVal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinSat)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinHue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxBlue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxGreen)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxRed)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinBlue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinGreen)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinRed)).EndInit();
             this.tabOther.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).EndInit();
@@ -3747,40 +3896,43 @@ namespace BrushFactory
                 sliderRandHorzShift.Value);
         }
 
-        private void SliderRandMaxBlue_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMaxBlue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMaxBlueTip;
+            txtTooltip.Text = Localization.Strings.JitterBlueTip;
         }
 
-        private void SliderRandMaxBlue_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMaxBlue_ValueChanged(object sender, EventArgs e)
         {
-            txtRandMaxBlue.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxBlue,
-                sliderRandMaxBlue.Value);
+            txtJitterBlue.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterBlue,
+                sliderJitterMinBlue.Value,
+                sliderJitterMaxBlue.Value);
         }
 
-        private void SliderRandMaxGreen_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMaxGreen_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMaxGreenTip;
+            txtTooltip.Text = Localization.Strings.JitterGreenTip;
         }
 
-        private void SliderRandMaxGreen_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMaxGreen_ValueChanged(object sender, EventArgs e)
         {
-            txtRandMaxGreen.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxGreen,
-                sliderRandMaxGreen.Value);
+            txtJitterGreen.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterGreen,
+                sliderJitterMinGreen.Value,
+                sliderJitterMaxGreen.Value);
         }
 
-        private void SliderRandMaxRed_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMaxRed_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMaxRedTip;
+            txtTooltip.Text = Localization.Strings.JitterRedTip;
         }
 
-        private void SliderRandMaxRed_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMaxRed_ValueChanged(object sender, EventArgs e)
         {
-            txtRandMaxRed.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxRed,
-                sliderRandMaxRed.Value);
+            txtJitterRed.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterRed,
+                sliderJitterMinRed.Value,
+                sliderJitterMaxRed.Value);
         }
 
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
@@ -3790,7 +3942,7 @@ namespace BrushFactory
 
         private void SliderRandMaxSize_ValueChanged(object sender, EventArgs e)
         {
-            txtRandMaxSize.Text = String.Format("{0} {1}",
+            txtRandMaxSize.Text = String.Format("-{0}%, +{1}%",
                 Localization.Strings.RandMaxSize,
                 sliderRandMaxSize.Value);
         }
@@ -3807,40 +3959,121 @@ namespace BrushFactory
                 sliderRandMinAlpha.Value);
         }
 
-        private void SliderRandMinBlue_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMinBlue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMinBlueTip;
+            txtTooltip.Text = Localization.Strings.JitterBlueTip;
         }
 
-        private void SliderRandMinBlue_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMinBlue_ValueChanged(object sender, EventArgs e)
         {
-            txtRandMinBlue.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinBlue,
-                sliderRandMinBlue.Value);
+            txtJitterBlue.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterBlue,
+                sliderJitterMinBlue.Value,
+                sliderJitterMaxBlue.Value);
         }
 
-        private void SliderRandMinGreen_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMinGreen_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMinGreenTip;
+            txtTooltip.Text = Localization.Strings.JitterGreenTip;
         }
 
-        private void SliderRandMinGreen_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMinGreen_ValueChanged(object sender, EventArgs e)
         {
-            txtRandMinGreen.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinGreen,
-                sliderRandMinGreen.Value);
+            txtJitterGreen.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterGreen,
+                sliderJitterMinGreen.Value,
+                sliderJitterMaxGreen.Value);
         }
 
-        private void SliderRandMinRed_MouseEnter(object sender, EventArgs e)
+        private void sliderJitterMaxHue_ValueChanged(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMinRedTip;
+            txtJitterHue.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterHue,
+                sliderJitterMinHue.Value,
+                sliderJitterMaxHue.Value);
         }
 
-        private void SliderRandMinRed_ValueChanged(object sender, EventArgs e)
+        private void sliderJitterMaxHue_MouseEnter(object sender, EventArgs e)
         {
-            txtRandMinRed.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinRed,
-                sliderRandMinRed.Value);
+            txtTooltip.Text = Localization.Strings.JitterHueTip;
+        }
+
+        private void sliderJitterMinHue_ValueChanged(object sender, EventArgs e)
+        {
+            txtJitterHue.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterHue,
+                sliderJitterMinHue.Value,
+                sliderJitterMaxHue.Value);
+        }
+
+        private void sliderJitterMinHue_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.JitterHueTip;
+        }
+
+        private void SliderJitterMinRed_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.JitterRedTip;
+        }
+
+        private void SliderJitterMinRed_ValueChanged(object sender, EventArgs e)
+        {
+            txtJitterRed.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterRed,
+                sliderJitterMinRed.Value,
+                sliderJitterMaxRed.Value);
+        }
+
+        private void sliderJitterMaxSat_ValueChanged(object sender, EventArgs e)
+        {
+            txtJitterSaturation.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterSaturation,
+                sliderJitterMinSat.Value,
+                sliderJitterMaxSat.Value);
+        }
+
+        private void sliderJitterMaxSat_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.JitterSaturationTip;
+        }
+
+        private void sliderJitterMinSat_ValueChanged(object sender, EventArgs e)
+        {
+            txtJitterSaturation.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterSaturation,
+                sliderJitterMinSat.Value,
+                sliderJitterMaxSat.Value);
+        }
+
+        private void sliderJitterMinSat_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.JitterSaturationTip;
+        }
+
+        private void sliderJitterMaxVal_ValueChanged(object sender, EventArgs e)
+        {
+            txtJitterValue.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterValue,
+                sliderJitterMinVal.Value,
+                sliderJitterMaxVal.Value);
+        }
+
+        private void sliderJitterMaxVal_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.JitterValueTip;
+        }
+
+        private void sliderJitterMinVal_ValueChanged(object sender, EventArgs e)
+        {
+            txtJitterValue.Text = String.Format("{0} -{1}%, +{2}%",
+                Localization.Strings.JitterValue,
+                sliderJitterMinVal.Value,
+                sliderJitterMaxVal.Value);
+        }
+
+        private void sliderJitterMinVal_MouseEnter(object sender, EventArgs e)
+        {
+            txtTooltip.Text = Localization.Strings.JitterValueTip;
         }
 
         private void SliderRandMinSize_MouseEnter(object sender, EventArgs e)

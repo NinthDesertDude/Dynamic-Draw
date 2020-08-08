@@ -38,7 +38,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\..\..\..\Program Files\paint.net\Effects\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\..\..\Program Files\paint.net\Effects\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -48,7 +48,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\..\..\..\Program Files\paint.net\Effects\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\..\..\Program Files\paint.net\Effects\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -65,31 +65,31 @@
   -->
   <ItemGroup>
     <Reference Include="PaintDotNet.Base">
-      <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PaintDotNet.Core">
-      <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Core.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PaintDotNet.Data">
-      <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Data.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Data.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PaintDotNet.Effects">
-      <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Effects.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Effects.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PaintDotNet.Framework">
-      <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Framework.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PaintDotNet.Resources">
-      <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Resources.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Resources.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PaintDotNet.SystemLayer">
-      <HintPath>..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.SystemLayer.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.SystemLayer.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
