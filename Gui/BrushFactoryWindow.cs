@@ -589,14 +589,24 @@ namespace BrushFactory
         {
             base.OnShown(e);
 
-            IUserFilesService userFilesService =
-                (IUserFilesService)Services.GetService(typeof(IUserFilesService));
-
-            string path = Path.Combine(userFilesService.UserFilesPath, "BrushFactorySettings.xml");
-            settings = new BrushFactorySettings(path);
-
             try
             {
+                IUserFilesService userFilesService =
+                (IUserFilesService)Services.GetService(typeof(IUserFilesService));
+
+                // userFilesService.UserFilesPath has been reported null before, so if it is, try to guess at the path.
+                string basePath = userFilesService.UserFilesPath ??
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files");
+
+                string path = Path.Combine(basePath, "BrushFactorySettings.xml");
+
+                if (!Directory.Exists(path))
+                {
+                    throw new IOException();
+                }
+
+                settings = new BrushFactorySettings(path);
+
                 // Loading the settings is split into a separate method to allow the defaults
                 // to be used if an error occurs.
                 settings.LoadSavedSettings();
