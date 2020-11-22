@@ -396,4 +396,7 @@
   <data name="UndoTip" xml:space="preserve">
     <value>Undo Shortcut: Ctrl + Z. Undo the last drawing, if possible.</value>
   </data>
+  <data name="SettingsUnavailableError" xml:space="preserve">
+    <value>The settings folder could not be located. Your settings may not be loaded or saved.</value>
+  </data>
 </root>
