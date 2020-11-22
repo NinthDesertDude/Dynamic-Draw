@@ -763,6 +763,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The settings folder could not be located. Your settings may not be loaded or saved..
+        /// </summary>
+        internal static string SettingsUnavailableError {
+            get {
+                return ResourceManager.GetString("SettingsUnavailableError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Alpha Shift:.
         /// </summary>
         internal static string ShiftAlpha {

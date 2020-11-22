@@ -600,7 +600,7 @@ namespace BrushFactory
 
                 string path = Path.Combine(basePath, "BrushFactorySettings.xml");
 
-                if (!Directory.Exists(path))
+                if (!File.Exists(path))
                 {
                     throw new IOException();
                 }
@@ -613,7 +613,12 @@ namespace BrushFactory
             }
             catch (Exception ex)
             {
-                if (ex is IOException || ex is UnauthorizedAccessException)
+                if (ex is NullReferenceException)
+                {
+                    MessageBox.Show(Localization.Strings.SettingsUnavailableError,
+                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else if (ex is IOException || ex is UnauthorizedAccessException)
                 {
                     MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
                         Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -847,11 +852,15 @@ namespace BrushFactory
             {
                 try
                 {
-                    settings?.SaveChangedSettings();
+                    settings.SaveChangedSettings();
                 }
                 catch (Exception ex)
                 {
-                    if (ex is IOException || ex is UnauthorizedAccessException)
+                    if (ex is NullReferenceException)
+                    {
+                        // settings can't be saved. Hide the error since the user already saw it.
+                    }
+                    else if (ex is IOException || ex is UnauthorizedAccessException)
                     {
                         MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
                             Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1430,7 +1439,7 @@ namespace BrushFactory
                 loadedBrushes.Clear();
             }
 
-            if (settings.UseDefaultBrushes)
+            if (settings?.UseDefaultBrushes ?? true)
             {
                 loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
                 loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
@@ -1467,7 +1476,7 @@ namespace BrushFactory
             }
             else
             {
-                ImportBrushesFromDirectories(settings.CustomBrushDirectories);
+                ImportBrushesFromDirectories(settings?.CustomBrushDirectories ?? new HashSet<string>());
             }
         }
 
@@ -3674,7 +3683,15 @@ namespace BrushFactory
         /// </summary>
         private void BttnPreferences_Click(object sender, EventArgs e)
         {
-            new Gui.BrushFactoryPreferences(settings).ShowDialog();
+            if (settings != null)
+            {
+                new Gui.BrushFactoryPreferences(settings).ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show(Localization.Strings.SettingsUnavailableError,
+                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void BttnPreferences_MouseEnter(object sender, EventArgs e)

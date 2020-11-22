@@ -28,7 +28,7 @@ namespace BrushFactory
         /// <param name="path">The setting file path.</param>
         public BrushFactorySettings(string path)
         {
-            settingsPath = path ?? throw new ArgumentNullException(nameof(path));
+            settingsPath = path;
             changed = false;
             createUserFilesDir = false;
             deleteMigratedRegistrySettings = false;
@@ -95,6 +95,11 @@ namespace BrushFactory
             if (!loadedSettings)
             {
                 loadedSettings = true;
+
+                if (settingsPath == null)
+                {
+                    return;
+                }
 
                 try
                 {
@@ -200,6 +205,11 @@ namespace BrushFactory
         /// </summary>
         private void Save()
         {
+            if (settingsPath == null)
+            {
+                return;
+            }
+
             if (createUserFilesDir)
             {
                 DirectoryInfo info = new DirectoryInfo(Path.GetDirectoryName(settingsPath));
