@@ -203,14 +203,15 @@ namespace BrushFactory
         /// <summary>
         /// Saves the settings for this instance.
         /// </summary>
-        private void Save()
+        /// <param name="forceCreateUserFilesDir">Used to save settings for the first time when necessary.</param>
+        public void Save(bool forceCreateUserFilesDir = false)
         {
             if (settingsPath == null)
             {
                 return;
             }
 
-            if (createUserFilesDir)
+            if (createUserFilesDir || forceCreateUserFilesDir)
             {
                 DirectoryInfo info = new DirectoryInfo(Path.GetDirectoryName(settingsPath));
 

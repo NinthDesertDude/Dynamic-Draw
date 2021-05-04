@@ -600,12 +600,12 @@ namespace BrushFactory
 
                 string path = Path.Combine(basePath, "BrushFactorySettings.xml");
 
+                settings = new BrushFactorySettings(path);
+
                 if (!File.Exists(path))
                 {
-                    throw new IOException();
+                    settings.Save(true);
                 }
-
-                settings = new BrushFactorySettings(path);
 
                 // Loading the settings is split into a separate method to allow the defaults
                 // to be used if an error occurs.
