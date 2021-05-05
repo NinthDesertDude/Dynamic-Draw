@@ -2543,7 +2543,7 @@ namespace BrushFactory
                         graphics.FillRectangle(backgroundBrush, 0, 0, background.Width, background.Height);
                     }
 
-                    graphics.DrawImage(clipboardImage, 0, 0);
+                    graphics.DrawImage(clipboardImage, 0, 0, background.Width, background.Height);
                 }
             }
 
