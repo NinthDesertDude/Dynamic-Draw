@@ -2561,23 +2561,26 @@ namespace BrushFactory
         /// </param>
         private void ShowBgContextMenu(Control sender, Point location)
         {
-            ContextMenu contextMenu = new ContextMenu();
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
 
             //Options to set the background colors / image.
-            contextMenu.MenuItems.Add(new MenuItem("Use transparent background",
+            contextMenu.Items.Add(new ToolStripMenuItem("Use transparent background",
+                null,
                 new EventHandler((a, b) =>
                 {
                     displayCanvas.BackColor = Color.Transparent;
                     displayCanvas.BackgroundImageLayout = ImageLayout.Tile;
                     displayCanvas.BackgroundImage = Resources.CheckeredBg;
                 })));
-            contextMenu.MenuItems.Add(new MenuItem("Use white background",
+            contextMenu.Items.Add(new ToolStripMenuItem("Use white background",
+                null,
                 new EventHandler((a, b) =>
                 {
                     displayCanvas.BackColor = Color.White;
                     displayCanvas.BackgroundImage = null;
                 })));
-            contextMenu.MenuItems.Add(new MenuItem("Use black background",
+            contextMenu.Items.Add(new ToolStripMenuItem("Use black background",
+                null,
                 new EventHandler((a, b) =>
                 {
                     displayCanvas.BackColor = Color.Black;
@@ -2585,7 +2588,8 @@ namespace BrushFactory
                 })));
             if (Clipboard.ContainsData("PNG"))
             {
-                contextMenu.MenuItems.Add(new MenuItem("Use clipboard as background",
+                contextMenu.Items.Add(new ToolStripMenuItem("Use clipboard as background",
+                    null,
                     new EventHandler((a, b) =>
                     {
                         if (Clipboard.ContainsData("PNG"))
