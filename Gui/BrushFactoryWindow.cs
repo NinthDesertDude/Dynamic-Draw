@@ -1,6 +1,7 @@
 ﻿using BrushFactory.Abr;
 using BrushFactory.Logic;
 using BrushFactory.Properties;
+using BrushFactory.TabletSupport;
 using PaintDotNet;
 using PaintDotNet.AppModel;
 using PaintDotNet.Effects;
@@ -135,6 +136,16 @@ namespace BrushFactory
         /// Contains the list of all symmetry options for using brush strokes.
         /// </summary>
         BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
+
+        /// <summary>
+        /// The tablet service instance used to detect and work with tablets.
+        /// </summary>
+        private TabletService tabletService;
+
+        /// <summary>
+        /// The pressure ratio as a value from 0 to 1, where 0 is no pressure at all and 1 is max measurable.
+        /// </summary>
+        private float tabletPressureRatio;
 
         /// <summary>
         /// The folder used to store undo/redo images, and deleted on exit.
@@ -332,6 +343,11 @@ namespace BrushFactory
             bttnSymmetry.DataSource = symmetryOptions;
             bttnSymmetry.DisplayMember = "Item1";
             bttnSymmetry.ValueMember = "Item2";
+
+            //Instantiate and run the tablet service.
+            tabletService = TabletService.GetTabletService();
+            tabletService.TabletDataReceived += TabletUpdated;
+            tabletService.Start();
         }
         #endregion
 
@@ -4189,6 +4205,31 @@ namespace BrushFactory
             txtShiftSize.Text = String.Format("{0} {1}",
                 Localization.Strings.ShiftSize,
                 sliderShiftSize.Value);
+        }
+
+        private void TabletUpdated(WintabDN.WintabPacket packet)
+        {
+            // Move cursor to stylus. This works since packets are only sent for touch or hover events.
+            Cursor.Position = new Point(packet.pkX, packet.pkY);
+
+            // Gets the current pressure.
+            int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
+            float newPressureRatio = (packet.pkNormalPressure == 0) ? 0 : (float)packet.pkNormalPressure / maxPressure;
+            float deadzone = 0.01f; // Represents the 0 to 1% range of pressure.
+
+            // Simulates the left mouse based on pressure. It must be simulated to avoid special handling for each
+            // button since winforms doesn't support touch events.
+            if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
+            {
+                Utils.SimulateClick(Utils.MouseEvents.LeftDown);
+            }
+            else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
+            {
+                Utils.SimulateClick(Utils.MouseEvents.LeftUp);
+            }
+
+            // Updates the pressure.
+            tabletPressureRatio = newPressureRatio;
         }
 
         /// <summary>

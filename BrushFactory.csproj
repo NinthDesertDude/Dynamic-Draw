@@ -99,6 +99,9 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="WintabDN">
+      <HintPath>TabletSupport\WintabDN.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abr\AbrBrush.cs" />
@@ -132,6 +135,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SymmetryMode.cs" />
+    <Compile Include="TabletSupport\TabletService.cs" />
     <Compile Include="TempDirectory.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utils.cs" />
@@ -210,6 +214,7 @@
     <None Include="Resources\BrRain.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TabletSupport\WintabDN.dll" />
     <None Include="Resources\BrLine.png" />
     <None Include="Resources\BrCircleHard.png" />
     <None Include="Resources\BrCircleMedium.png" />
