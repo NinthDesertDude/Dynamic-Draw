@@ -3973,7 +3973,7 @@ namespace BrushFactory
 
         private void SliderRandMaxSize_ValueChanged(object sender, EventArgs e)
         {
-            txtRandMaxSize.Text = String.Format("-{0}%, +{1}%",
+            txtRandMaxSize.Text = String.Format("{0} {1}",
                 Localization.Strings.RandMaxSize,
                 sliderRandMaxSize.Value);
         }
