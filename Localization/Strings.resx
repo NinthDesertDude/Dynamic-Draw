@@ -162,9 +162,6 @@
   <data name="BrushLocationsTextboxTip" xml:space="preserve">
     <value>Places to look for brushes appear here. Type a new address or use 'add folder' to add your own.</value>
   </data>
-  <data name="BrushOptions" xml:space="preserve">
-    <value>Misc. brush options</value>
-  </data>
   <data name="BrushRotationTip" xml:space="preserve">
     <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
   </data>
@@ -375,18 +372,6 @@
   <data name="SymmetryTip" xml:space="preserve">
     <value>While drawing, the brush can be mirrored horizontally and/or vertically.</value>
   </data>
-  <data name="TabColor" xml:space="preserve">
-    <value>Color</value>
-  </data>
-  <data name="TabControls" xml:space="preserve">
-    <value>Controls</value>
-  </data>
-  <data name="TabJitter" xml:space="preserve">
-    <value>Jitter</value>
-  </data>
-  <data name="TabOther" xml:space="preserve">
-    <value>Other</value>
-  </data>
   <data name="Title" xml:space="preserve">
     <value>Brush Factory</value>
   </data>
@@ -400,12 +385,72 @@
     <value>The settings folder could not be located. Your settings may not be loaded or saved.</value>
   </data>
   <data name="AccordionBrush" xml:space="preserve">
-    <value>Brush</value>
+    <value>Basics</value>
   </data>
   <data name="AccordionJitterBasics" xml:space="preserve">
     <value>Jitter - Basics</value>
   </data>
   <data name="AccordionJitterColor" xml:space="preserve">
     <value>Jitter - Color</value>
+  </data>
+  <data name="AccordionShiftBasics" xml:space="preserve">
+    <value>Shift - Basics</value>
+  </data>
+  <data name="AccordionSpecialSettings" xml:space="preserve">
+    <value>Special Settings</value>
+  </data>
+  <data name="AccordionSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SmoothingHigh" xml:space="preserve">
+    <value>Smoothing: High</value>
+  </data>
+  <data name="SmoothingJagged" xml:space="preserve">
+    <value>Smoothing: Jagged</value>
+  </data>
+  <data name="SmoothingNormal" xml:space="preserve">
+    <value>Smoothing: Normal</value>
+  </data>
+  <data name="Symmetry10pt" xml:space="preserve">
+    <value>Symmetry: 10-point</value>
+  </data>
+  <data name="Symmetry11pt" xml:space="preserve">
+    <value>Symmetry: 11-point</value>
+  </data>
+  <data name="Symmetry12pt" xml:space="preserve">
+    <value>Symmetry: 12-point</value>
+  </data>
+  <data name="Symmetry3pt" xml:space="preserve">
+    <value>Symmetry: 3-point</value>
+  </data>
+  <data name="Symmetry4pt" xml:space="preserve">
+    <value>Symmetry: 4-point</value>
+  </data>
+  <data name="Symmetry5pt" xml:space="preserve">
+    <value>Symmetry: 5-point</value>
+  </data>
+  <data name="Symmetry6pt" xml:space="preserve">
+    <value>Symmetry: 6-point</value>
+  </data>
+  <data name="Symmetry7pt" xml:space="preserve">
+    <value>Symmetry: 7-point</value>
+  </data>
+  <data name="Symmetry8pt" xml:space="preserve">
+    <value>Symmetry: 8-point</value>
+  </data>
+  <data name="Symmetry9pt" xml:space="preserve">
+    <value>Symmetry: 9-point</value>
+  </data>
+  <data name="SymmetryBoth" xml:space="preserve">
+    <value>Symmetry: Both</value>
+  </data>
+  <data name="SymmetryHorizontal" xml:space="preserve">
+    <value>Symmetry: Horizontal</value>
+  </data>
+  <data name="SymmetryNone" xml:space="preserve">
+    <value>Symmetry: None</value>
+  </data>
+  <data name="SymmetryVertical" xml:space="preserve">
+    <value>Symmetry: Vertical</value>
   </data>
 </root>

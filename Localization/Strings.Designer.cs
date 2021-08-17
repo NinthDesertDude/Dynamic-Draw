@@ -88,7 +88,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush.
+        ///   Looks up a localized string similar to Basics.
         /// </summary>
         internal static string AccordionBrush {
             get {
@@ -111,6 +111,33 @@ namespace BrushFactory.Localization {
         internal static string AccordionJitterColor {
             get {
                 return ResourceManager.GetString("AccordionJitterColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string AccordionSettings {
+            get {
+                return ResourceManager.GetString("AccordionSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shift - Basics.
+        /// </summary>
+        internal static string AccordionShiftBasics {
+            get {
+                return ResourceManager.GetString("AccordionShiftBasics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Special Settings.
+        /// </summary>
+        internal static string AccordionSpecialSettings {
+            get {
+                return ResourceManager.GetString("AccordionSpecialSettings", resourceCulture);
             }
         }
         
@@ -219,15 +246,6 @@ namespace BrushFactory.Localization {
         internal static string BrushLocationsTextboxTip {
             get {
                 return ResourceManager.GetString("BrushLocationsTextboxTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Misc. brush options.
-        /// </summary>
-        internal static string BrushOptions {
-            get {
-                return ResourceManager.GetString("BrushOptions", resourceCulture);
             }
         }
         
@@ -862,6 +880,150 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Smoothing: High.
+        /// </summary>
+        internal static string SmoothingHigh {
+            get {
+                return ResourceManager.GetString("SmoothingHigh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smoothing: Jagged.
+        /// </summary>
+        internal static string SmoothingJagged {
+            get {
+                return ResourceManager.GetString("SmoothingJagged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smoothing: Normal.
+        /// </summary>
+        internal static string SmoothingNormal {
+            get {
+                return ResourceManager.GetString("SmoothingNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 10-point.
+        /// </summary>
+        internal static string Symmetry10pt {
+            get {
+                return ResourceManager.GetString("Symmetry10pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 11-point.
+        /// </summary>
+        internal static string Symmetry11pt {
+            get {
+                return ResourceManager.GetString("Symmetry11pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 12-point.
+        /// </summary>
+        internal static string Symmetry12pt {
+            get {
+                return ResourceManager.GetString("Symmetry12pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 3-point.
+        /// </summary>
+        internal static string Symmetry3pt {
+            get {
+                return ResourceManager.GetString("Symmetry3pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 4-point.
+        /// </summary>
+        internal static string Symmetry4pt {
+            get {
+                return ResourceManager.GetString("Symmetry4pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 5-point.
+        /// </summary>
+        internal static string Symmetry5pt {
+            get {
+                return ResourceManager.GetString("Symmetry5pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 6-point.
+        /// </summary>
+        internal static string Symmetry6pt {
+            get {
+                return ResourceManager.GetString("Symmetry6pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 7-point.
+        /// </summary>
+        internal static string Symmetry7pt {
+            get {
+                return ResourceManager.GetString("Symmetry7pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 8-point.
+        /// </summary>
+        internal static string Symmetry8pt {
+            get {
+                return ResourceManager.GetString("Symmetry8pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 9-point.
+        /// </summary>
+        internal static string Symmetry9pt {
+            get {
+                return ResourceManager.GetString("Symmetry9pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: Both.
+        /// </summary>
+        internal static string SymmetryBoth {
+            get {
+                return ResourceManager.GetString("SymmetryBoth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: Horizontal.
+        /// </summary>
+        internal static string SymmetryHorizontal {
+            get {
+                return ResourceManager.GetString("SymmetryHorizontal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: None.
+        /// </summary>
+        internal static string SymmetryNone {
+            get {
+                return ResourceManager.GetString("SymmetryNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to While drawing, the brush can be mirrored horizontally and/or vertically..
         /// </summary>
         internal static string SymmetryTip {
@@ -871,38 +1033,11 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color.
+        ///   Looks up a localized string similar to Symmetry: Vertical.
         /// </summary>
-        internal static string TabColor {
+        internal static string SymmetryVertical {
             get {
-                return ResourceManager.GetString("TabColor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Controls.
-        /// </summary>
-        internal static string TabControls {
-            get {
-                return ResourceManager.GetString("TabControls", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Jitter.
-        /// </summary>
-        internal static string TabJitter {
-            get {
-                return ResourceManager.GetString("TabJitter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Other.
-        /// </summary>
-        internal static string TabOther {
-            get {
-                return ResourceManager.GetString("TabOther", resourceCulture);
+                return ResourceManager.GetString("SymmetryVertical", resourceCulture);
             }
         }
         
