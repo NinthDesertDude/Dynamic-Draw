@@ -399,4 +399,13 @@
   <data name="SettingsUnavailableError" xml:space="preserve">
     <value>The settings folder could not be located. Your settings may not be loaded or saved.</value>
   </data>
+  <data name="AccordionBrush" xml:space="preserve">
+    <value>Brush</value>
+  </data>
+  <data name="AccordionJitterBasics" xml:space="preserve">
+    <value>Jitter - Basics</value>
+  </data>
+  <data name="AccordionJitterColor" xml:space="preserve">
+    <value>Jitter - Color</value>
+  </data>
 </root>

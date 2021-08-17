@@ -88,6 +88,33 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Brush.
+        /// </summary>
+        internal static string AccordionBrush {
+            get {
+                return ResourceManager.GetString("AccordionBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jitter - Basics.
+        /// </summary>
+        internal static string AccordionJitterBasics {
+            get {
+                return ResourceManager.GetString("AccordionJitterBasics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jitter - Color.
+        /// </summary>
+        internal static string AccordionJitterColor {
+            get {
+                return ResourceManager.GetString("AccordionJitterColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Brushes....
         /// </summary>
         internal static string AddBrushes {
