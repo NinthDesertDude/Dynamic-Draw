@@ -3396,12 +3396,12 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.spinTabPressureRandRotLeft, "spinTabPressureRandRotLeft");
             this.spinTabPressureRandRotLeft.Maximum = new decimal(new int[] {
-            1000,
+            360,
             0,
             0,
             0});
             this.spinTabPressureRandRotLeft.Minimum = new decimal(new int[] {
-            1000,
+            360,
             0,
             0,
             -2147483648});
@@ -3442,12 +3442,12 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.spinTabPressureRandRotRight, "spinTabPressureRandRotRight");
             this.spinTabPressureRandRotRight.Maximum = new decimal(new int[] {
-            1000,
+            360,
             0,
             0,
             0});
             this.spinTabPressureRandRotRight.Minimum = new decimal(new int[] {
-            1000,
+            360,
             0,
             0,
             -2147483648});
@@ -3612,11 +3612,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMinRedJitter.Name = "spinTabPressureMinRedJitter";
-            this.spinTabPressureMinRedJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // lblTabPressureRedJitter
             // 
@@ -3632,11 +3627,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMaxRedJitter.Name = "spinTabPressureMaxRedJitter";
-            this.spinTabPressureMaxRedJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // cmbxTabPressureRedJitter
             // 
@@ -3674,11 +3664,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMinGreenJitter.Name = "spinTabPressureMinGreenJitter";
-            this.spinTabPressureMinGreenJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // lblTabPressureGreenJitter
             // 
@@ -3694,11 +3679,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMaxGreenJitter.Name = "spinTabPressureMaxGreenJitter";
-            this.spinTabPressureMaxGreenJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // cmbxTabPressureGreenJitter
             // 
@@ -3736,11 +3716,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMinBlueJitter.Name = "spinTabPressureMinBlueJitter";
-            this.spinTabPressureMinBlueJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // lblTabPressureBlueJitter
             // 
@@ -3756,11 +3731,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMaxBlueJitter.Name = "spinTabPressureMaxBlueJitter";
-            this.spinTabPressureMaxBlueJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // cmbxTabPressureBlueJitter
             // 
@@ -3798,11 +3768,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMinHueJitter.Name = "spinTabPressureMinHueJitter";
-            this.spinTabPressureMinHueJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // lblTabPressureHueJitter
             // 
@@ -3818,11 +3783,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMaxHueJitter.Name = "spinTabPressureMaxHueJitter";
-            this.spinTabPressureMaxHueJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // cmbxTabPressureHueJitter
             // 
@@ -3860,11 +3820,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMinSatJitter.Name = "spinTabPressureMinSatJitter";
-            this.spinTabPressureMinSatJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // lblTabPressureSatJitter
             // 
@@ -3880,11 +3835,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMaxSatJitter.Name = "spinTabPressureMaxSatJitter";
-            this.spinTabPressureMaxSatJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // cmbxTabPressureSatJitter
             // 
@@ -3922,11 +3872,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMinValueJitter.Name = "spinTabPressureMinValueJitter";
-            this.spinTabPressureMinValueJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // lblTabPressureValueJitter
             // 
@@ -3942,11 +3887,6 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureMaxValueJitter.Name = "spinTabPressureMaxValueJitter";
-            this.spinTabPressureMaxValueJitter.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
             // 
             // cmbxTabPressureValueJitter
             // 

@@ -280,7 +280,7 @@
     <value>cmbxTabPressureBrushSize</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushSize.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushSize.Parent" xml:space="preserve">
     <value>panelTabPressureBrushSize</value>
@@ -640,7 +640,7 @@
     <value>bttnBrushControls</value>
   </data>
   <data name="&gt;&gt;bttnBrushControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnBrushControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -736,7 +736,7 @@
     <value>bttnBrushSelector</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Type" xml:space="preserve">
-    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Parent" xml:space="preserve">
     <value>panelBrush</value>
@@ -1180,7 +1180,7 @@
     <value>bttnSpecialSettings</value>
   </data>
   <data name="&gt;&gt;bttnSpecialSettings.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnSpecialSettings.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -1510,7 +1510,7 @@
     <value>bttnJitterBasicsControls</value>
   </data>
   <data name="&gt;&gt;bttnJitterBasicsControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnJitterBasicsControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2005,7 +2005,7 @@
     <value>bttnJitterColorControls</value>
   </data>
   <data name="&gt;&gt;bttnJitterColorControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnJitterColorControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2611,7 +2611,7 @@
     <value>bttnShiftBasicsControls</value>
   </data>
   <data name="&gt;&gt;bttnShiftBasicsControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnShiftBasicsControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2857,7 +2857,7 @@
     <value>bttnTabAssignPressureControls</value>
   </data>
   <data name="&gt;&gt;bttnTabAssignPressureControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnTabAssignPressureControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2995,7 +2995,7 @@
     <value>cmbxTabPressureBrushAlpha</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Parent" xml:space="preserve">
     <value>panelTabPressureBrushAlpha</value>
@@ -3238,7 +3238,7 @@
     <value>cmbxTabPressureBrushRotation</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushRotation.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushRotation.Parent" xml:space="preserve">
     <value>panelTabPressureBrushRotation</value>
@@ -3397,7 +3397,7 @@
     <value>cmbxTabPressureMinDrawDistance</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureMinDrawDistance.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureMinDrawDistance.Parent" xml:space="preserve">
     <value>panelTabPressureMinDrawDistance</value>
@@ -3556,7 +3556,7 @@
     <value>cmbxTabPressureBrushDensity</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushDensity.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushDensity.Parent" xml:space="preserve">
     <value>panelTabPressureBrushDensity</value>
@@ -3715,7 +3715,7 @@
     <value>cmbxTabPressureRandMinSize</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinSize.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinSize.Parent" xml:space="preserve">
     <value>panelTabPressureRandMinSize</value>
@@ -3874,7 +3874,7 @@
     <value>cmbxTabPressureRandMaxSize</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMaxSize.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMaxSize.Parent" xml:space="preserve">
     <value>panelTabPressureRandMaxSize</value>
@@ -4033,7 +4033,7 @@
     <value>cmbxTabPressureRandRotLeft</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotLeft.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotLeft.Parent" xml:space="preserve">
     <value>panelTabPressureRandRotLeft</value>
@@ -4192,7 +4192,7 @@
     <value>cmbxTabPressureRandRotRight</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotRight.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotRight.Parent" xml:space="preserve">
     <value>panelTabPressureRandRotRight</value>
@@ -4351,7 +4351,7 @@
     <value>cmbxTabPressureRandMinAlpha</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Parent" xml:space="preserve">
     <value>panelTabPressureRandMinAlpha</value>
@@ -4510,7 +4510,7 @@
     <value>cmbxTabPressureRandHorShift</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandHorShift.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandHorShift.Parent" xml:space="preserve">
     <value>panelTabPressureRandHorShift</value>
@@ -4669,7 +4669,7 @@
     <value>cmbxTabPressureRandVerShift</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandVerShift.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandVerShift.Parent" xml:space="preserve">
     <value>panelTabPressureRandVerShift</value>
@@ -4855,7 +4855,7 @@
     <value>cmbxTabPressureRedJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRedJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRedJitter.Parent" xml:space="preserve">
     <value>panelTabPressureRedJitter</value>
@@ -5041,7 +5041,7 @@
     <value>cmbxTabPressureGreenJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureGreenJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureGreenJitter.Parent" xml:space="preserve">
     <value>panelTabPressureGreenJitter</value>
@@ -5227,7 +5227,7 @@
     <value>cmbxTabPressureBlueJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBlueJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBlueJitter.Parent" xml:space="preserve">
     <value>panelTabPressureBlueJitter</value>
@@ -5413,7 +5413,7 @@
     <value>cmbxTabPressureHueJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureHueJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureHueJitter.Parent" xml:space="preserve">
     <value>panelTabPressureHueJitter</value>
@@ -5599,7 +5599,7 @@
     <value>cmbxTabPressureSatJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureSatJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureSatJitter.Parent" xml:space="preserve">
     <value>panelTabPressureSatJitter</value>
@@ -5785,7 +5785,7 @@
     <value>cmbxTabPressureValueJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureValueJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureValueJitter.Parent" xml:space="preserve">
     <value>panelTabPressureValueJitter</value>
@@ -5872,7 +5872,7 @@
     <value>bttnSettings</value>
   </data>
   <data name="&gt;&gt;bttnSettings.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.40854, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnSettings.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
