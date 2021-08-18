@@ -453,4 +453,25 @@
   <data name="SymmetryVertical" xml:space="preserve">
     <value>Symmetry: Vertical</value>
   </data>
+  <data name="AccordionTabPressureControls" xml:space="preserve">
+    <value>Tablet - Assign Pressure</value>
+  </data>
+  <data name="ValueTypeAdd" xml:space="preserve">
+    <value>Add as number</value>
+  </data>
+  <data name="ValueTypeAddPercent" xml:space="preserve">
+    <value>Add as percent of max</value>
+  </data>
+  <data name="ValueTypeMatchValue" xml:space="preserve">
+    <value>Match the number</value>
+  </data>
+  <data name="ValueTypeNothing" xml:space="preserve">
+    <value>Not in use</value>
+  </data>
+  <data name="ValueTypeAddPercentCurrent" xml:space="preserve">
+    <value>Add as percent of self</value>
+  </data>
+  <data name="ValueTypeMatchPercent" xml:space="preserve">
+    <value>Match the percent of max</value>
+  </data>
 </root>

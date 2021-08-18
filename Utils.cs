@@ -1,4 +1,5 @@
-﻿using PaintDotNet;
+﻿using BrushFactory.Gui;
+using PaintDotNet;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -556,6 +557,40 @@ namespace BrushFactory
                 g.DrawImage(origBmp, 0, 0, newSize.Width, newSize.Height);
                 return newBmp;
             }
+        }
+
+        /// <summary>
+        /// Takes a given setting value and adjusts it linearly via a target value using the given value-handling
+        /// method (which decides what the target value is). Returns the value unaffected if no mapping is set. This
+        /// doesn't clamp or prevent resulting invalid values.
+        /// </summary>
+        /// <param name="settingValue">The value of a setting, e.g. the brush transparency slider's value.</param>
+        /// <param name="targetValue">A number used to influence the setting value according to the handling.</param>
+        /// <param name="maxRange">The </param>
+        /// <param name="inputRatio"></param>
+        /// <param name="method"></param>
+        public static int GetStrengthMappedValue(
+            int settingValue,
+            int targetValue,
+            int maxRange,
+            float inputRatio,
+            CmbxTabletValueType.ValueHandlingMethod method)
+        {
+            switch (method)
+            {
+                case CmbxTabletValueType.ValueHandlingMethod.Add:
+                    return (int)(settingValue + inputRatio * targetValue);
+                case CmbxTabletValueType.ValueHandlingMethod.AddPercent:
+                    return (int)(settingValue + inputRatio * targetValue / 100 * maxRange);
+                case CmbxTabletValueType.ValueHandlingMethod.AddPercentCurrent:
+                    return (int)(settingValue + inputRatio * targetValue / 100 * settingValue);
+                case CmbxTabletValueType.ValueHandlingMethod.MatchValue:
+                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue);
+                case CmbxTabletValueType.ValueHandlingMethod.MatchPercent:
+                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue / 100 * maxRange);
+            }
+
+            return settingValue;
         }
 
         #region Simulate a mouse click

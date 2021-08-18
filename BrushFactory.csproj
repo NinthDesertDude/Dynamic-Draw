@@ -112,6 +112,9 @@
     <Compile Include="Abr\Internal\RLEHelper.cs" />
     <Compile Include="Abr\Internal\SampledBrush.cs" />
     <Compile Include="Abr\Internal\SampledBrushCollection.cs" />
+    <Compile Include="Gui\CmbxTabletValueType.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Gui\Accordion.cs">
       <SubType>Component</SubType>
     </Compile>

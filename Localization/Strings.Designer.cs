@@ -142,6 +142,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tablet - Assign Pressure.
+        /// </summary>
+        internal static string AccordionTabPressureControls {
+            get {
+                return ResourceManager.GetString("AccordionTabPressureControls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Brushes....
         /// </summary>
         internal static string AddBrushes {
@@ -1065,6 +1074,60 @@ namespace BrushFactory.Localization {
         internal static string UndoTip {
             get {
                 return ResourceManager.GetString("UndoTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as number.
+        /// </summary>
+        internal static string ValueTypeAdd {
+            get {
+                return ResourceManager.GetString("ValueTypeAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as percent of max.
+        /// </summary>
+        internal static string ValueTypeAddPercent {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as percent of self.
+        /// </summary>
+        internal static string ValueTypeAddPercentCurrent {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercentCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match the percent of max.
+        /// </summary>
+        internal static string ValueTypeMatchPercent {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchPercent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match the number.
+        /// </summary>
+        internal static string ValueTypeMatchValue {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not in use.
+        /// </summary>
+        internal static string ValueTypeNothing {
+            get {
+                return ResourceManager.GetString("ValueTypeNothing", resourceCulture);
             }
         }
     }
