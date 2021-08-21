@@ -474,4 +474,70 @@
   <data name="ValueTypeMatchPercent" xml:space="preserve">
     <value>Match the percent of max</value>
   </data>
+  <data name="SymmetrySetPoints" xml:space="preserve">
+    <value>Symmetry: At Points</value>
+  </data>
+  <data name="DefaultBrushBigDots" xml:space="preserve">
+    <value>Big Dots</value>
+  </data>
+  <data name="DefaultBrushCircle" xml:space="preserve">
+    <value>Circle Light 256px</value>
+  </data>
+  <data name="DefaultBrushCircleHard" xml:space="preserve">
+    <value>Circle Hard 256px</value>
+  </data>
+  <data name="DefaultBrushCircleMed" xml:space="preserve">
+    <value>Circle Med 256px</value>
+  </data>
+  <data name="DefaultBrushCircleRough" xml:space="preserve">
+    <value>Rough</value>
+  </data>
+  <data name="DefaultBrushCircleSegmented" xml:space="preserve">
+    <value>Segmented</value>
+  </data>
+  <data name="DefaultBrushCircleSketchy" xml:space="preserve">
+    <value>Sketchy</value>
+  </data>
+  <data name="DefaultBrushCracks" xml:space="preserve">
+    <value>Cracks</value>
+  </data>
+  <data name="DefaultBrushDirt" xml:space="preserve">
+    <value>Dirt</value>
+  </data>
+  <data name="DefaultBrushDirt2" xml:space="preserve">
+    <value>Dirt 2</value>
+  </data>
+  <data name="DefaultBrushDirt3" xml:space="preserve">
+    <value>Dirt 3</value>
+  </data>
+  <data name="DefaultBrushFractalDirt" xml:space="preserve">
+    <value>Fractal</value>
+  </data>
+  <data name="DefaultBrushGrass" xml:space="preserve">
+    <value>Grass</value>
+  </data>
+  <data name="DefaultBrushGravel" xml:space="preserve">
+    <value>Gravel</value>
+  </data>
+  <data name="DefaultBrushLine" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="DefaultBrushRain" xml:space="preserve">
+    <value>Rain</value>
+  </data>
+  <data name="DefaultBrushScales" xml:space="preserve">
+    <value>Scales</value>
+  </data>
+  <data name="DefaultBrushSmallDots" xml:space="preserve">
+    <value>Small Dots</value>
+  </data>
+  <data name="DefaultBrushSmoke" xml:space="preserve">
+    <value>Smoke</value>
+  </data>
+  <data name="DefaultBrushSpark" xml:space="preserve">
+    <value>Spark</value>
+  </data>
+  <data name="DefaultBrushSpiral" xml:space="preserve">
+    <value>Spiral</value>
+  </data>
 </root>

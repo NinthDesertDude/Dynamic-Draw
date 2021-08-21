@@ -138,6 +138,13 @@ namespace BrushFactory
         /// </summary>
         BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
 
+        List<Point> symmetryOrigins;
+
+        /// <summary>
+        /// Where to draw around for symmetry.
+        /// </summary>
+        Point symmetryOrigin = Point.Empty;
+
         /// <summary>
         /// The tablet service instance used to detect and work with tablets.
         /// </summary>
@@ -405,11 +412,13 @@ namespace BrushFactory
             cmbxBrushSmoothing.ValueMember = "Method";
 
             //Configures items for the symmetry options combobox.
+            symmetryOrigins = new List<Point>();
             symmetryOptions = new BindingList<Tuple<string, SymmetryMode>>();
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryNone, SymmetryMode.None));
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryHorizontal, SymmetryMode.Horizontal));
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryVertical, SymmetryMode.Vertical));
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryBoth, SymmetryMode.Star2));
+            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetrySetPoints, SymmetryMode.SetPoints));
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry3pt, SymmetryMode.Star3));
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry4pt, SymmetryMode.Star4));
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry5pt, SymmetryMode.Star5));
@@ -588,6 +597,48 @@ namespace BrushFactory
             sliderShiftSize.Value = token.SizeChange;
             sliderShiftRotation.Value = token.RotChange;
             sliderShiftAlpha.Value  = token.AlphaChange;
+            cmbxTabPressureBrushAlpha.SelectedIndex = token.CmbxTabPressureBrushAlpha;
+            cmbxTabPressureBrushDensity.SelectedIndex = token.CmbxTabPressureBrushDensity;
+            cmbxTabPressureBrushRotation.SelectedIndex = token.CmbxTabPressureBrushRotation;
+            cmbxTabPressureBrushSize.SelectedIndex = token.CmbxTabPressureBrushSize;
+            cmbxTabPressureBlueJitter.SelectedIndex = token.CmbxTabPressureBlueJitter;
+            cmbxTabPressureGreenJitter.SelectedIndex = token.CmbxTabPressureGreenJitter;
+            cmbxTabPressureHueJitter.SelectedIndex = token.CmbxTabPressureHueJitter;
+            cmbxTabPressureMinDrawDistance.SelectedIndex = token.CmbxTabPressureMinDrawDistance;
+            cmbxTabPressureRedJitter.SelectedIndex = token.CmbxTabPressureRedJitter;
+            cmbxTabPressureSatJitter.SelectedIndex = token.CmbxTabPressureSatJitter;
+            cmbxTabPressureValueJitter.SelectedIndex = token.CmbxTabPressureValueJitter;
+            cmbxTabPressureRandHorShift.SelectedIndex = token.CmbxTabPressureRandHorShift;
+            cmbxTabPressureRandMaxSize.SelectedIndex = token.CmbxTabPressureRandMaxSize;
+            cmbxTabPressureRandMinAlpha.SelectedIndex = token.CmbxTabPressureRandMinAlpha;
+            cmbxTabPressureRandMinSize.SelectedIndex = token.CmbxTabPressureRandMinSize;
+            cmbxTabPressureRandRotLeft.SelectedIndex = token.CmbxTabPressureRandRotLeft;
+            cmbxTabPressureRandRotRight.SelectedIndex = token.CmbxTabPressureRandRotRight;
+            cmbxTabPressureRandVerShift.SelectedIndex = token.CmbxTabPressureRandVerShift;
+            spinTabPressureBrushAlpha.Value = token.TabPressureBrushAlpha;
+            spinTabPressureBrushDensity.Value = token.TabPressureBrushDensity;
+            spinTabPressureBrushRotation.Value = token.TabPressureBrushRotation;
+            spinTabPressureBrushSize.Value = token.TabPressureBrushSize;
+            spinTabPressureMaxBlueJitter.Value = token.TabPressureMaxBlueJitter;
+            spinTabPressureMaxGreenJitter.Value = token.TabPressureMaxGreenJitter;
+            spinTabPressureMaxHueJitter.Value = token.TabPressureMaxHueJitter;
+            spinTabPressureMaxRedJitter.Value = token.TabPressureMaxRedJitter;
+            spinTabPressureMaxSatJitter.Value = token.TabPressureMaxSatJitter;
+            spinTabPressureMaxValueJitter.Value = token.TabPressureMaxValueJitter;
+            spinTabPressureMinBlueJitter.Value = token.TabPressureMinBlueJitter;
+            spinTabPressureMinDrawDistance.Value = token.TabPressureMinDrawDistance;
+            spinTabPressureMinGreenJitter.Value = token.TabPressureMinGreenJitter;
+            spinTabPressureMinHueJitter.Value = token.TabPressureMinHueJitter;
+            spinTabPressureMinRedJitter.Value = token.TabPressureMinRedJitter;
+            spinTabPressureMinSatJitter.Value = token.TabPressureMinSatJitter;
+            spinTabPressureMinValueJitter.Value = token.TabPressureMinValueJitter;
+            spinTabPressureRandHorShift.Value = token.TabPressureRandHorShift;
+            spinTabPressureRandMaxSize.Value = token.TabPressureRandMaxSize;
+            spinTabPressureRandMinAlpha.Value = token.TabPressureRandMinAlpha;
+            spinTabPressureRandMinSize.Value = token.TabPressureRandMinSize;
+            spinTabPressureRandRotLeft.Value = token.TabPressureRandRotLeft;
+            spinTabPressureRandRotRight.Value = token.TabPressureRandRotRight;
+            spinTabPressureRandVerShift.Value = token.TabPressureRandVerShift;
             cmbxSymmetry.SelectedIndex = (int)token.Symmetry;
 
             //Re-applies color and alpha information.
@@ -640,6 +691,48 @@ namespace BrushFactory
             token.RotChange = sliderShiftRotation.Value;
             token.SizeChange = sliderShiftSize.Value;
             token.Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex;
+            token.CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex;
+            token.CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex;
+            token.CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex;
+            token.CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex;
+            token.CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex;
+            token.CmbxTabPressureGreenJitter = cmbxTabPressureGreenJitter.SelectedIndex;
+            token.CmbxTabPressureHueJitter = cmbxTabPressureHueJitter.SelectedIndex;
+            token.CmbxTabPressureMinDrawDistance = cmbxTabPressureMinDrawDistance.SelectedIndex;
+            token.CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex;
+            token.CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex;
+            token.CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex;
+            token.CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex;
+            token.CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex;
+            token.CmbxTabPressureRandMinAlpha = cmbxTabPressureRandMinAlpha.SelectedIndex;
+            token.CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex;
+            token.CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex;
+            token.CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex;
+            token.CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex;
+            token.TabPressureBrushAlpha = (int)spinTabPressureBrushAlpha.Value;
+            token.TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value;
+            token.TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value;
+            token.TabPressureBrushSize = (int)spinTabPressureBrushSize.Value;
+            token.TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value;
+            token.TabPressureMaxGreenJitter = (int)spinTabPressureMaxGreenJitter.Value;
+            token.TabPressureMaxHueJitter = (int)spinTabPressureMaxHueJitter.Value;
+            token.TabPressureMaxRedJitter = (int)spinTabPressureMaxRedJitter.Value;
+            token.TabPressureMaxSatJitter = (int)spinTabPressureMaxSatJitter.Value;
+            token.TabPressureMaxValueJitter = (int)spinTabPressureMaxValueJitter.Value;
+            token.TabPressureMinBlueJitter = (int)spinTabPressureMinBlueJitter.Value;
+            token.TabPressureMinDrawDistance = (int)spinTabPressureMinDrawDistance.Value;
+            token.TabPressureMinGreenJitter = (int)spinTabPressureMinGreenJitter.Value;
+            token.TabPressureMinHueJitter = (int)spinTabPressureMinHueJitter.Value;
+            token.TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value;
+            token.TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value;
+            token.TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value;
+            token.TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value;
+            token.TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value;
+            token.TabPressureRandMinAlpha = (int)spinTabPressureRandMinAlpha.Value;
+            token.TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value;
+            token.TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value;
+            token.TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value;
+            token.TabPressureRandVerShift = (int)spinTabPressureRandVerShift.Value;
         }
 
         /// <summary>
@@ -652,6 +745,9 @@ namespace BrushFactory
             //Sets the sizes of the canvas and drawing region.
             displayCanvas.Size = EnvironmentParameters.SourceSurface.Size;
             bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
+            symmetryOrigin = new Point(
+                EnvironmentParameters.SourceSurface.Width / 2,
+                EnvironmentParameters.SourceSurface.Height / 2);
 
             //Sets the canvas dimensions.
             displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
@@ -815,16 +911,33 @@ namespace BrushFactory
         {
             base.OnKeyDown(e);
 
-            //B: Switches to the brush tool.
             if (e.KeyCode == Keys.B)
             {
                 SwitchTool(Tool.Brush);
             }
-
-            //K: Switches to the color picker tool.
-            if (e.KeyCode == Keys.K)
+            else if (e.KeyCode == Keys.E)
+            {
+                SwitchTool(Tool.Eraser);
+            }
+            else if (e.KeyCode == Keys.K)
             {
                 SwitchTool(Tool.ColorPicker);
+            }
+            else if (e.KeyCode == Keys.O)
+            {
+                SwitchTool(Tool.SetSymmetryOrigin);
+
+                // The origin points could be displayed relative to the center or current mouse. It's more convenient
+                // for the user to display at the mouse position so wherever they click to set a new origin point is
+                // exactly where the origin will be when they switch back to brush mode.
+                if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
+                {
+                    symmetryOrigin.X = (int)(mouseLoc.X / displayCanvasZoom);
+                    symmetryOrigin.Y = (int)(mouseLoc.Y / displayCanvasZoom);
+                }
+
+                // Invalidate to immediately update the symmetry origin guidelines drawn in symmetry mode.
+                displayCanvas.Invalidate();
             }
 
             //Display a hand icon while panning.
@@ -1388,14 +1501,33 @@ namespace BrushFactory
                     }
 
                     //Draws the brush for normal and non-radial symmetry.
-                    if (cmbxSymmetry.SelectedIndex < 4)
+                    if (cmbxSymmetry.SelectedIndex < 5)
                     {
-                        g.DrawImage(
-                            bmpBrushRot,
-                            loc.X - (scaleFactor / 2),
-                            loc.Y - (scaleFactor / 2),
-                            scaleFactor,
-                            scaleFactor);
+                        if (activeTool != Tool.Eraser)
+                        {
+                            g.DrawImage(
+                                bmpBrushRot,
+                                loc.X - (scaleFactor / 2),
+                                loc.Y - (scaleFactor / 2),
+                                scaleFactor,
+                                scaleFactor);
+                        }
+                        else
+                        {
+                            int newX = loc.X - (scaleFactor / 2);
+                            int newY = loc.Y - (scaleFactor / 2);
+
+                            using (Bitmap bmp = Utils.CreateBitmapFromSurfaceRegion(
+                                this.EnvironmentParameters.SourceSurface, new Rectangle(
+                                newX, newY, scaleFactor, scaleFactor)))
+                            {
+                                using (Bitmap brush = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                                {
+                                    Utils.CopyBitmapPure(brush, bmp, true);
+                                    g.DrawImage(bmp, new Point(newX, newY));
+                                }
+                            }
+                        }
                     }
 
                     //Draws the brush horizontally reflected.
@@ -1404,7 +1536,7 @@ namespace BrushFactory
                     {
                         g.DrawImage(
                             bmpBrushRot,
-                            bmpCurrentDrawing.Width - (loc.X - (scaleFactor / 2)),
+                            loc.X + scaleFactor/2 + (symmetryOrigin.X - loc.X) * 2,
                             loc.Y - (scaleFactor / 2),
                             scaleFactor * -1,
                             scaleFactor);
@@ -1417,7 +1549,7 @@ namespace BrushFactory
                         g.DrawImage(
                             bmpBrushRot,
                             loc.X - (scaleFactor / 2),
-                            bmpCurrentDrawing.Height - (loc.Y - scaleFactor / 2),
+                            loc.Y + scaleFactor / 2 + (symmetryOrigin.Y - loc.Y) * 2,
                             scaleFactor,
                             scaleFactor * -1);
                     }
@@ -1428,34 +1560,49 @@ namespace BrushFactory
                     {
                         g.DrawImage(
                             bmpBrushRot,
-                            bmpCurrentDrawing.Width - (loc.X - (scaleFactor / 2)),
-                            bmpCurrentDrawing.Height - (loc.Y - (scaleFactor / 2)),
+                            loc.X + scaleFactor / 2 + (symmetryOrigin.X - loc.X) * 2,
+                            loc.Y + scaleFactor / 2 + (symmetryOrigin.Y - loc.Y) * 2,
                             scaleFactor * -1,
                             scaleFactor * -1);
+                    }
+
+                    // Draws at defined offset locations.
+                    else if (cmbxSymmetry.SelectedIndex ==
+                        (int)SymmetryMode.SetPoints)
+                    {
+                        for (int i = 0; i < symmetryOrigins.Count; i++)
+                        {
+                            g.DrawImage(
+                                bmpBrushRot,
+                                loc.X + scaleFactor / 2 + symmetryOrigins[i].X,
+                                loc.Y + scaleFactor / 2 + symmetryOrigins[i].Y,
+                                scaleFactor * -1,
+                                scaleFactor * -1);
+                        }
                     }
 
                     //Draws the brush with radial reflections.
                     else if (cmbxSymmetry.SelectedIndex > 3)
                     {
                         //Gets the center of the image.
-                        Point center = new Point(
-                            (bmpCurrentDrawing.Width / 2) - (newRadius / 2),
-                            (bmpCurrentDrawing.Height / 2) - (newRadius / 2));
+                        Point origin = new Point(
+                            symmetryOrigin.X - (newRadius / 2),
+                            symmetryOrigin.Y - (newRadius / 2));
 
                         //Gets the drawn location relative to center.
-                        Point locRelativeToCenter = new Point(
-                            loc.X - center.X,
-                            loc.Y - center.Y);
+                        Point locRelativeToOrigin = new Point(
+                            loc.X - origin.X,
+                            loc.Y - origin.Y);
 
                         //Gets the distance from the drawing point to center.
                         var dist = Math.Sqrt(
-                            Math.Pow(locRelativeToCenter.X, 2) +
-                            Math.Pow(locRelativeToCenter.Y, 2));
+                            Math.Pow(locRelativeToOrigin.X, 2) +
+                            Math.Pow(locRelativeToOrigin.Y, 2));
 
                         //Gets the angle of the drawing point.
                         var angle = Math.Atan2(
-                            locRelativeToCenter.Y,
-                            locRelativeToCenter.X);
+                            locRelativeToOrigin.Y,
+                            locRelativeToOrigin.X);
 
                         //Draws an N-pt radial reflection.
                         int numPoints = cmbxSymmetry.SelectedIndex - 1;
@@ -1464,8 +1611,8 @@ namespace BrushFactory
                         {
                             g.DrawImage(
                             bmpBrushRot,
-                            center.X + (float)(dist * Math.Cos(angle)),
-                            center.Y + (float)(dist * Math.Sin(angle)),
+                            origin.X + (float)(dist * Math.Cos(angle)),
+                            origin.Y + (float)(dist * Math.Sin(angle)),
                             scaleFactor,
                             scaleFactor);
                             
@@ -1477,9 +1624,9 @@ namespace BrushFactory
                 {
                     // Sets random transparency jitter.
                     float newAlpha = Utils.ClampF((100 - random.Next(finalRandMinAlpha)) / 100f, 0, 1);
-                    float newRed = 0f;
-                    float newGreen = 0f;
-                    float newBlue = 0f;
+                    float newRed = bttnBrushColor.BackColor.R / 255f;
+                    float newGreen = bttnBrushColor.BackColor.G / 255f;
+                    float newBlue = bttnBrushColor.BackColor.B / 255f;
 
                     RgbColor colorRgb = new RgbColor(bttnBrushColor.BackColor.R, bttnBrushColor.BackColor.G, bttnBrushColor.BackColor.B);
 
@@ -1539,7 +1686,7 @@ namespace BrushFactory
                     destination[2] = new Point(xPos, yPos + scaleFactor);
 
                     //Draws the whole image and applies colorations and alpha.
-                    if (cmbxSymmetry.SelectedIndex < 4)
+                    if (cmbxSymmetry.SelectedIndex < 5)
                     {
                         g.DrawImage(
                             bmpBrushRot,
@@ -1593,6 +1740,30 @@ namespace BrushFactory
                                 new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
                                 GraphicsUnit.Pixel,
                                 Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
+                        }
+
+                        // Draws at defined offset locations.
+                        else if (cmbxSymmetry.SelectedIndex ==
+                            (int)SymmetryMode.SetPoints)
+                        {
+                            Rectangle bmpSizeRect = new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height);
+                            ImageAttributes attr = Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha);
+
+                            for (int i = 0; i < symmetryOrigins.Count; i++)
+                            {
+                                int newXPos = xPos + symmetryOrigins[i].X;
+                                int newYPos = yPos + symmetryOrigins[i].Y;
+                                destination[0] = new Point(newXPos, newYPos);
+                                destination[1] = new Point(newXPos + scaleFactor, newYPos);
+                                destination[2] = new Point(newXPos, newYPos + scaleFactor);
+
+                                g.DrawImage(
+                                    bmpBrushRot,
+                                    destination,
+                                    bmpSizeRect,
+                                    GraphicsUnit.Pixel,
+                                    attr);
+                            }
                         }
 
                         //Draws the brush with radial reflections.
@@ -1764,30 +1935,30 @@ namespace BrushFactory
 
             if (settings?.UseDefaultBrushes ?? true)
             {
-                loadedBrushes.Add(new BrushSelectorItem("Line", Resources.BrLine));
-                loadedBrushes.Add(new BrushSelectorItem("Tiny Dots", Resources.BrDotsTiny));
-                loadedBrushes.Add(new BrushSelectorItem("Big Dots", Resources.BrDotsBig));
-                loadedBrushes.Add(new BrushSelectorItem("Spark", Resources.BrSpark));
-                loadedBrushes.Add(new BrushSelectorItem("Gravel", Resources.BrGravel));
-                loadedBrushes.Add(new BrushSelectorItem("Rain", Resources.BrRain));
-                loadedBrushes.Add(new BrushSelectorItem("Grass", Resources.BrGrass));
-                loadedBrushes.Add(new BrushSelectorItem("Smoke", Resources.BrSmoke));
-                loadedBrushes.Add(new BrushSelectorItem("Scales", Resources.BrScales));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 4", Resources.BrFractalDirt));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 3", Resources.BrDirt3));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 2", Resources.BrDirt2));
-                loadedBrushes.Add(new BrushSelectorItem("Dirt 1", Resources.BrDirt));
-                loadedBrushes.Add(new BrushSelectorItem("Cracks", Resources.BrCracks));
-                loadedBrushes.Add(new BrushSelectorItem("Spiral", Resources.BrSpiral));
-                loadedBrushes.Add(new BrushSelectorItem("Segments", Resources.BrCircleSegmented));
-                loadedBrushes.Add(new BrushSelectorItem("Sketchy", Resources.BrCircleSketchy));
-                loadedBrushes.Add(new BrushSelectorItem("Rough", Resources.BrCircleRough));
-                loadedBrushes.Add(new BrushSelectorItem("Circle 3", Resources.BrCircleHard));
-                loadedBrushes.Add(new BrushSelectorItem("Circle 2", Resources.BrCircleMedium));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushLine, Resources.BrLine));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmallDots, Resources.BrDotsTiny));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushBigDots, Resources.BrDotsBig));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpark, Resources.BrSpark));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGravel, Resources.BrGravel));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushRain, Resources.BrRain));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGrass, Resources.BrGrass));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmoke, Resources.BrSmoke));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushScales, Resources.BrScales));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushFractalDirt, Resources.BrFractalDirt));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt3, Resources.BrDirt3));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt2, Resources.BrDirt2));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt, Resources.BrDirt));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCracks, Resources.BrCracks));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpiral, Resources.BrSpiral));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSegmented, Resources.BrCircleSegmented));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSketchy, Resources.BrCircleSketchy));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleRough, Resources.BrCircleRough));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleHard, Resources.BrCircleHard));
+                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleMed, Resources.BrCircleMedium));
             }
 
             //Loads stored brushes.
-            loadedBrushes.Add(new BrushSelectorItem("Circle 1", Resources.BrCircle));
+            loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircle, Resources.BrCircle));
             bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
 
             //Loads any custom brushes.
@@ -4183,10 +4354,11 @@ namespace BrushFactory
         {
             switch (toolToSwitchTo)
             {
-                case (Tool.Brush):
+                case Tool.Brush:
+                case Tool.SetSymmetryOrigin:
                     displayCanvas.Cursor = Cursors.Default;
                     break;
-                case (Tool.ColorPicker):
+                case Tool.ColorPicker:
                     // Lazy-loads the color picker cursor.
                     if (cursorColorPicker == null)
                     {
@@ -4643,10 +4815,38 @@ namespace BrushFactory
         /// </summary>
         private void DisplayCanvas_MouseDown(object sender, MouseEventArgs e)
         {
-            //Displays a context menu for the background.
             if (e.Button == MouseButtons.Right)
             {
-                ShowBgContextMenu(displayCanvas, e.Location);
+                // Removes points near the mouse.
+                if (activeTool == Tool.SetSymmetryOrigin && cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
+                {
+                    // Deletes all points.
+                    if (IsKeyDown(Keys.ControlKey))
+                    {
+                        symmetryOrigins.Clear();
+                    }
+                    // Deletes points within a small radius of the mouse.
+                    else
+                    {
+                        for (int i = 0; i < symmetryOrigins.Count; i++)
+                        {
+                            double radius = Math.Sqrt(
+                                Math.Pow(mouseLoc.X / displayCanvasZoom - (symmetryOrigin.X + symmetryOrigins[i].X), 2) +
+                                Math.Pow(mouseLoc.Y / displayCanvasZoom - (symmetryOrigin.Y + symmetryOrigins[i].Y), 2));
+
+                            if (radius <= 15 / displayCanvasZoom)
+                            {
+                                symmetryOrigins.RemoveAt(i);
+                                i--;
+                            }
+                        }
+                    }
+                }
+                //Displays a context menu for the background.
+                else
+                {
+                    ShowBgContextMenu(displayCanvas, e.Location);
+                }
             }
 
             //Pans the image.
@@ -4657,48 +4857,49 @@ namespace BrushFactory
                 mouseLocPrev = e.Location;
             }
 
-            //Draws with the brush.
             else if (e.Button == MouseButtons.Left)
             {
-                isUserDrawing = true;
                 mouseLocPrev = e.Location;
-                if (mouseLocPrev.X < -10000)
-                { 
-                    Console.WriteLine("overflow");
-                }
 
-                //Repositions the canvas when the user draws out-of-bounds.
-                timerRepositionUpdate.Enabled = true;
-
-                //Adds to the list of undo operations.
-                string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
-
-                //Saves the drawing to the file and saves the file path.
-                bmpCurrentDrawing.Save(path);
-                undoHistory.Push(path);
-                if (!bttnUndo.Enabled)
+                //Draws with the brush.
+                if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
                 {
-                    bttnUndo.Enabled = true;
+                    isUserDrawing = true;
+
+                    //Repositions the canvas when the user draws out-of-bounds.
+                    timerRepositionUpdate.Enabled = true;
+
+                    //Adds to the list of undo operations.
+                    string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
+
+                    //Saves the drawing to the file and saves the file path.
+                    bmpCurrentDrawing.Save(path);
+                    undoHistory.Push(path);
+                    if (!bttnUndo.Enabled)
+                    {
+                        bttnUndo.Enabled = true;
+                    }
+
+                    //Removes all redo history.
+                    redoHistory.Clear();
+
+                    //Draws the brush on the first canvas click.
+                    //Doesn't draw for tablets, since the user hasn't exerted full pressure yet.
+                    if (!chkbxOrientToMouse.Checked && tabletPressureRatio == 0)
+                    {
+                        int finalBrushSize = Utils.GetStrengthMappedValue(sliderBrushSize.Value,
+                            (int)spinTabPressureBrushSize.Value,
+                            sliderBrushSize.Maximum,
+                            tabletPressureRatio,
+                            ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
+
+                        DrawBrush(new Point(
+                            (int)(mouseLocPrev.X / displayCanvasZoom),
+                            (int)(mouseLocPrev.Y / displayCanvasZoom)),
+                            finalBrushSize);
+                    }
                 }
-
-                //Removes all redo history.
-                redoHistory.Clear();
-
-                //Draws the brush on the first canvas click.
-                //Doesn't draw for tablets, since the user hasn't exerted full pressure yet.
-                if (activeTool == Tool.Brush && !chkbxOrientToMouse.Checked && tabletPressureRatio == 0)
-                {
-                    int finalBrushSize = Utils.GetStrengthMappedValue(sliderBrushSize.Value,
-                        (int)spinTabPressureBrushSize.Value,
-                        sliderBrushSize.Maximum,
-                        tabletPressureRatio,
-                        ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
-
-                    DrawBrush(new Point(
-                        (int)(mouseLocPrev.X / displayCanvasZoom),
-                        (int)(mouseLocPrev.Y / displayCanvasZoom)),
-                        finalBrushSize);
-                }
+                // Grabs the color under the mouse.
                 else if (activeTool == Tool.ColorPicker)
                 {
                     GetColorFromCanvas(new Point(
@@ -4706,6 +4907,23 @@ namespace BrushFactory
                         (int)(mouseLocPrev.Y / displayCanvasZoom)));
 
                     SwitchTool(Tool.Brush);
+                }
+                // Changes the symmetry origin or adds a new origin (if in SetPoints symmetry mode).
+                else if (activeTool == Tool.SetSymmetryOrigin)
+                {
+                    if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
+                    {
+                        symmetryOrigins.Add(new Point(
+                            (int)(e.Location.X / displayCanvasZoom - symmetryOrigin.X),
+                            (int)(e.Location.Y / displayCanvasZoom - symmetryOrigin.Y)));
+                    }
+                    else
+                    {
+                        symmetryOrigin = new Point(
+                            Utils.Clamp((int)(e.Location.X / displayCanvasZoom), 0, bmpCurrentDrawing.Width),
+                            Utils.Clamp((int)(e.Location.Y / displayCanvasZoom), 0, bmpCurrentDrawing.Height)
+                        );
+                    }
                 }
             }
         }
@@ -4777,7 +4995,7 @@ namespace BrushFactory
                     mouseLocBrush = mouseLoc;
                 }
 
-                if (activeTool == Tool.Brush)
+                if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
                 {
                     int finalBrushDensity = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushDensity.Value,
                         (int)spinTabPressureBrushDensity.Value,
@@ -4848,6 +5066,15 @@ namespace BrushFactory
                     }
                 }
             }
+            else if (e.Button == MouseButtons.Left
+                && activeTool == Tool.SetSymmetryOrigin
+                && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.SetPoints)
+            {
+                symmetryOrigin = new Point(
+                    Utils.Clamp((int)(e.Location.X / displayCanvasZoom), 0, bmpCurrentDrawing.Width),
+                    Utils.Clamp((int)(e.Location.Y / displayCanvasZoom), 0, bmpCurrentDrawing.Height)
+                );
+            }
 
             displayCanvas.Refresh();
         }
@@ -4873,7 +5100,7 @@ namespace BrushFactory
                 {
                     using (Bitmap prevStroke = new Bitmap(fileAndPath))
                     {
-                        Utils.CopyAlpha(prevStroke, bmpCurrentDrawing);
+                        Utils.CopyBitmapPure(prevStroke, bmpCurrentDrawing, true);
                     }
 
                     displayCanvas.Refresh();
@@ -4938,7 +5165,7 @@ namespace BrushFactory
             }
 
             //Draws the brush as a rectangle when not drawing by mouse.
-            if (activeTool == Tool.Brush && !isUserDrawing)
+            if ((activeTool == Tool.Brush || activeTool == Tool.Eraser) && !isUserDrawing)
             {
                 int radius = (int)(sliderBrushSize.Value * displayCanvasZoom);
 
@@ -4955,6 +5182,55 @@ namespace BrushFactory
                     mouseLoc.Y - (radius / 2) - 1,
                     radius + 2,
                     radius + 2);
+            }
+
+            // Draws the symmetry origins for symmetry modes when it's enabled.
+            if (activeTool == Tool.SetSymmetryOrigin || cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None)
+            {
+                // Draws indicators to see where the user-defined offsets are in SetPoints mode.
+                if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
+                {
+                    // Draws indication lines for the symmetry origin, which in SetPoints mode should be wherever the
+                    // mouse was when the user switched to the tool.
+                    if (activeTool == Tool.SetSymmetryOrigin)
+                    {
+                        e.Graphics.DrawLine(
+                            Pens.Red,
+                            new Point(0, (int)(symmetryOrigin.Y * displayCanvasZoom)),
+                            new Point((int)(bmpCurrentDrawing.Width * displayCanvasZoom), (int)(symmetryOrigin.Y * displayCanvasZoom)));
+                        e.Graphics.DrawLine(
+                            Pens.Red,
+                            new Point((int)(symmetryOrigin.X * displayCanvasZoom), 0),
+                            new Point((int)(symmetryOrigin.X * displayCanvasZoom), (int)(bmpCurrentDrawing.Height * displayCanvasZoom)));
+                    }
+
+                    // Draws a rectangle for each origin point, either relative to the symmetry origin (in
+                    // SetSymmetryOrigin tool) or the mouse (with the Brush tool)
+                    int pointsDrawnX = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.X : (int)(mouseLoc.X / displayCanvasZoom);
+                    int pointsDrawnY = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.Y : (int)(mouseLoc.Y / displayCanvasZoom);
+                    float zoomCompensation = (activeTool == Tool.SetSymmetryOrigin) ? displayCanvasZoom : (displayCanvasZoom);
+
+                    for (int i = 0; i < symmetryOrigins.Count; i++)
+                    {
+                        e.Graphics.DrawRectangle(
+                            Pens.Red,
+                            (pointsDrawnX + symmetryOrigins[i].X) * zoomCompensation - 1,
+                            (pointsDrawnY + symmetryOrigins[i].Y) * zoomCompensation - 1,
+                            2,
+                            2);
+                    }
+                }
+                else
+                {
+                    e.Graphics.DrawLine(
+                        Pens.Red,
+                        new Point(0, (int)(symmetryOrigin.Y * displayCanvasZoom)),
+                        new Point((int)(bmpCurrentDrawing.Width * displayCanvasZoom), (int)(symmetryOrigin.Y * displayCanvasZoom)));
+                    e.Graphics.DrawLine(
+                        Pens.Red,
+                        new Point((int)(symmetryOrigin.X * displayCanvasZoom), 0),
+                        new Point((int)(symmetryOrigin.X * displayCanvasZoom), (int)(bmpCurrentDrawing.Height * displayCanvasZoom)));
+                }
             }
         }
 
@@ -5182,7 +5458,6 @@ namespace BrushFactory
                     }
 
                     BrushSelectorItem currentItem = loadedBrushes[index];
-
                     if (currentItem.State == BrushSelectorItemState.Disk)
                     {
                         currentItem.ToMemory();

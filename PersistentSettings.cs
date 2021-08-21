@@ -336,6 +336,49 @@ namespace BrushFactory
             get;
             set;
         }
+
+        public int TabPressureBrushAlpha { get; set; }
+        public int TabPressureBrushDensity { get; set; }
+        public int TabPressureBrushRotation { get; set; }
+        public int TabPressureBrushSize { get; set; }
+        public int TabPressureMaxBlueJitter { get; set; }
+        public int TabPressureMaxGreenJitter { get; set; }
+        public int TabPressureMaxHueJitter { get; set; }
+        public int TabPressureMaxRedJitter { get; set; }
+        public int TabPressureMaxSatJitter { get; set; }
+        public int TabPressureMaxValueJitter { get; set; }
+        public int TabPressureMinBlueJitter { get; set; }
+        public int TabPressureMinDrawDistance { get; set; }
+        public int TabPressureMinGreenJitter { get; set; }
+        public int TabPressureMinHueJitter { get; set; }
+        public int TabPressureMinRedJitter { get; set; }
+        public int TabPressureMinSatJitter { get; set; }
+        public int TabPressureMinValueJitter { get; set; }
+        public int TabPressureRandHorShift { get; set; }
+        public int TabPressureRandMaxSize { get; set; }
+        public int TabPressureRandMinAlpha { get; set; }
+        public int TabPressureRandMinSize { get; set; }
+        public int TabPressureRandRotLeft { get; set; }
+        public int TabPressureRandRotRight { get; set; }
+        public int TabPressureRandVerShift { get; set; }
+        public int CmbxTabPressureBrushAlpha { get; set; }
+        public int CmbxTabPressureBrushDensity { get; set; }
+        public int CmbxTabPressureBrushRotation { get; set; }
+        public int CmbxTabPressureBrushSize { get; set; }
+        public int CmbxTabPressureBlueJitter { get; set; }
+        public int CmbxTabPressureGreenJitter { get; set; }
+        public int CmbxTabPressureHueJitter { get; set; }
+        public int CmbxTabPressureMinDrawDistance { get; set; }
+        public int CmbxTabPressureRedJitter { get; set; }
+        public int CmbxTabPressureSatJitter { get; set; }
+        public int CmbxTabPressureValueJitter { get; set; }
+        public int CmbxTabPressureRandHorShift { get; set; }
+        public int CmbxTabPressureRandMaxSize { get; set; }
+        public int CmbxTabPressureRandMinAlpha { get; set; }
+        public int CmbxTabPressureRandMinSize { get; set; }
+        public int CmbxTabPressureRandRotLeft { get; set; }
+        public int CmbxTabPressureRandRotRight { get; set; }
+        public int CmbxTabPressureRandVerShift { get; set; }
         #endregion
 
         /// <summary>
@@ -377,6 +420,48 @@ namespace BrushFactory
             RotChange = 0;
             AlphaChange = 0;
             Symmetry = SymmetryMode.None;
+            CmbxTabPressureBrushAlpha = 0;
+            CmbxTabPressureBrushDensity = 0;
+            CmbxTabPressureBrushRotation = 0;
+            CmbxTabPressureBrushSize = 0;
+            CmbxTabPressureBlueJitter = 0;
+            CmbxTabPressureGreenJitter = 0;
+            CmbxTabPressureHueJitter = 0;
+            CmbxTabPressureMinDrawDistance = 0;
+            CmbxTabPressureRedJitter = 0;
+            CmbxTabPressureSatJitter = 0;
+            CmbxTabPressureValueJitter = 0;
+            CmbxTabPressureRandHorShift = 0;
+            CmbxTabPressureRandMaxSize = 0;
+            CmbxTabPressureRandMinAlpha = 0;
+            CmbxTabPressureRandMinSize = 0;
+            CmbxTabPressureRandRotLeft = 0;
+            CmbxTabPressureRandRotRight = 0;
+            CmbxTabPressureRandVerShift = 0;
+            TabPressureBrushAlpha = 0;
+            TabPressureBrushDensity = 0;
+            TabPressureBrushRotation = 0;
+            TabPressureBrushSize = 0;
+            TabPressureMaxBlueJitter = 0;
+            TabPressureMaxGreenJitter = 0;
+            TabPressureMaxHueJitter = 0;
+            TabPressureMaxRedJitter = 0;
+            TabPressureMaxSatJitter = 0;
+            TabPressureMaxValueJitter = 0;
+            TabPressureMinBlueJitter = 0;
+            TabPressureMinDrawDistance = 0;
+            TabPressureMinGreenJitter = 0;
+            TabPressureMinHueJitter = 0;
+            TabPressureMinRedJitter = 0;
+            TabPressureMinSatJitter = 0;
+            TabPressureMinValueJitter = 0;
+            TabPressureRandHorShift = 0;
+            TabPressureRandMaxSize = 0;
+            TabPressureRandMinAlpha = 0;
+            TabPressureRandMinSize = 0;
+            TabPressureRandRotLeft = 0;
+            TabPressureRandRotRight = 0;
+            TabPressureRandVerShift = 0;
             CustomBrushLocations = new HashSet<string>();
         }
 
@@ -416,6 +501,48 @@ namespace BrushFactory
             RandMinH = other.RandMinH;
             RandMinS = other.RandMinS;
             RandMinV = other.RandMinV;
+            CmbxTabPressureBrushAlpha = other.CmbxTabPressureBrushAlpha;
+            CmbxTabPressureBrushDensity = other.CmbxTabPressureBrushDensity;
+            CmbxTabPressureBrushRotation = other.CmbxTabPressureBrushRotation;
+            CmbxTabPressureBrushSize = other.CmbxTabPressureBrushSize;
+            CmbxTabPressureBlueJitter = other.CmbxTabPressureBlueJitter;
+            CmbxTabPressureGreenJitter = other.CmbxTabPressureGreenJitter;
+            CmbxTabPressureHueJitter = other.CmbxTabPressureHueJitter;
+            CmbxTabPressureMinDrawDistance = other.CmbxTabPressureMinDrawDistance;
+            CmbxTabPressureRedJitter = other.CmbxTabPressureRedJitter;
+            CmbxTabPressureSatJitter = other.CmbxTabPressureSatJitter;
+            CmbxTabPressureValueJitter = other.CmbxTabPressureValueJitter;
+            CmbxTabPressureRandHorShift = other.CmbxTabPressureRandHorShift;
+            CmbxTabPressureRandMaxSize = other.CmbxTabPressureRandMaxSize;
+            CmbxTabPressureRandMinAlpha = other.CmbxTabPressureRandMinAlpha;
+            CmbxTabPressureRandMinSize = other.CmbxTabPressureRandMinSize;
+            CmbxTabPressureRandRotLeft = other.CmbxTabPressureRandRotLeft;
+            CmbxTabPressureRandRotRight = other.CmbxTabPressureRandRotRight;
+            CmbxTabPressureRandVerShift = other.CmbxTabPressureRandVerShift;
+            TabPressureBrushAlpha = other.TabPressureBrushAlpha;
+            TabPressureBrushDensity = other.TabPressureBrushDensity;
+            TabPressureBrushRotation = other.TabPressureBrushRotation;
+            TabPressureBrushSize = other.TabPressureBrushSize;
+            TabPressureMaxBlueJitter = other.TabPressureMaxBlueJitter;
+            TabPressureMaxGreenJitter = other.TabPressureMaxGreenJitter;
+            TabPressureMaxHueJitter = other.TabPressureMaxHueJitter;
+            TabPressureMaxRedJitter = other.TabPressureMaxRedJitter;
+            TabPressureMaxSatJitter = other.TabPressureMaxSatJitter;
+            TabPressureMaxValueJitter = other.TabPressureMaxValueJitter;
+            TabPressureMinBlueJitter = other.TabPressureMinBlueJitter;
+            TabPressureMinDrawDistance = other.TabPressureMinDrawDistance;
+            TabPressureMinGreenJitter = other.TabPressureMinGreenJitter;
+            TabPressureMinHueJitter = other.TabPressureMinHueJitter;
+            TabPressureMinRedJitter = other.TabPressureMinRedJitter;
+            TabPressureMinSatJitter = other.TabPressureMinSatJitter;
+            TabPressureMinValueJitter = other.TabPressureMinValueJitter;
+            TabPressureRandHorShift = other.TabPressureRandHorShift;
+            TabPressureRandMaxSize = other.TabPressureRandMaxSize;
+            TabPressureRandMinAlpha = other.TabPressureRandMinAlpha;
+            TabPressureRandMinSize = other.TabPressureRandMinSize;
+            TabPressureRandRotLeft = other.TabPressureRandRotLeft;
+            TabPressureRandRotRight = other.TabPressureRandRotRight;
+            TabPressureRandVerShift = other.TabPressureRandVerShift;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;

@@ -13,6 +13,16 @@
         /// <summary>
         /// The color picker tool, which allows the user to select a color from the canvas.
         /// </summary>
-        ColorPicker
+        ColorPicker,
+
+        /// <summary>
+        /// The eraser tool, which overwrites pixels with the original source image.
+        /// </summary>
+        Eraser,
+
+        /// <summary>
+        /// The set symmetry origin tool, which does exactly as the name implies.
+        /// </summary>
+        SetSymmetryOrigin
     }
 }

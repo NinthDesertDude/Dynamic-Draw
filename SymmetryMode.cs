@@ -5,19 +5,21 @@
     /// </summary>
     public enum SymmetryMode
     {
-        None,
-        Horizontal,
-        Vertical,
-        Star2,
-        Star3,
-        Star4,
-        Star5,
-        Star6,
-        Star7,
-        Star8,
-        Star9,
-        Star10,
-        Star11,
-        Star12
+        // Note: don't change these assigned values. There is brush drawing logic that correlates type and number.
+        None = 0,
+        Horizontal = 1,
+        Vertical = 2,
+        Star2 = 3,
+        SetPoints = 4,
+        Star3 = 5,
+        Star4 = 6,
+        Star5 = 7,
+        Star6 = 8,
+        Star7 = 9,
+        Star8 = 10,
+        Star9 = 11,
+        Star10 = 12,
+        Star11 = 13,
+        Star12 = 14,
     }
 }

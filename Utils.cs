@@ -158,61 +158,6 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Overwrites alpha from one identically-sized bitmap on another.
-        /// Both images must have PixelFormat.Format32bppPArgb.
-        /// Returns success.
-        /// </summary>
-        /// <param name="srcImg">
-        /// The image to copy alpha from.
-        /// </param>
-        /// <param name="dstImg">
-        /// The image to have its alpha overwritten.
-        /// </param>
-        public static unsafe bool CopyAlpha(Bitmap srcImg, Bitmap dstImg)
-        {
-            //Formats and size must be the same.
-            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb ||
-                dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
-                srcImg.Width != dstImg.Width ||
-                srcImg.Height != dstImg.Height)
-            {
-                return false;
-            }
-
-            BitmapData srcData = srcImg.LockBits(
-                new Rectangle(0, 0,
-                    srcImg.Width,
-                    srcImg.Height),
-                ImageLockMode.ReadOnly,
-                srcImg.PixelFormat);
-
-            BitmapData destData = dstImg.LockBits(
-                new Rectangle(0, 0,
-                    dstImg.Width,
-                    dstImg.Height),
-                ImageLockMode.WriteOnly,
-                dstImg.PixelFormat);
-
-            //Iterates through each pixel (repeating bytes of argb), skipping
-            //to the 'a' byte and copying it from the src over the dst bmp.
-            byte* srcRow = (byte*)srcData.Scan0;
-            byte* dstRow = (byte*)destData.Scan0;
-            for (int y = 0; y < srcImg.Height; y++)
-            {
-                for (int x = 0; x < srcImg.Width; x++)
-                {
-                    int ptr = y * srcData.Stride + x * 4;
-                    dstRow[ptr + 3] = srcRow[ptr + 3];
-                }
-            }
-
-            srcImg.UnlockBits(srcData);
-            dstImg.UnlockBits(destData);
-
-            return true;
-        }
-
-        /// <summary>
         /// Strictly copies all data from one bitmap over the other. They
         /// must have the same size and pixel format. Returns success.
         /// </summary>
@@ -222,17 +167,15 @@ namespace BrushFactory
         /// <param name="dstImg">
         /// The image to be overwritten.
         /// </param>
-        public static unsafe bool CopyBitmapPure(Bitmap srcImg, Bitmap dstImg)
+        public static unsafe void CopyBitmapPure(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
         {
-            //TODO: Find the underlying issue and stop using workarounds.
-
             //Formats and size must be the same.
-                if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
+            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
                 dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
                 srcImg.Width != dstImg.Width ||
                 srcImg.Height != dstImg.Height)
             {
-                return false;
+                return;
             }
 
             BitmapData srcData = srcImg.LockBits(
@@ -261,13 +204,22 @@ namespace BrushFactory
 
                 for (int x = 0; x < srcImg.Width; x++)
                 {
-                    if (premultiplySrc)
+                    if (alphaOnly)
                     {
-                        dst->Bgra = src->ConvertToPremultipliedAlpha().Bgra;
+                        dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
+                        dst->A = src->A;
+                        dst->Bgra = dst->ConvertToPremultipliedAlpha().Bgra;
                     }
                     else
                     {
-                        dst->Bgra = src->Bgra;
+                        if (premultiplySrc)
+                        {
+                            dst->Bgra = src->ConvertToPremultipliedAlpha().Bgra;
+                        }
+                        else
+                        {
+                            dst->Bgra = src->Bgra;
+                        }
                     }
 
                     src++;
@@ -277,8 +229,6 @@ namespace BrushFactory
 
             srcImg.UnlockBits(srcData);
             dstImg.UnlockBits(destData);
-
-            return true;
         }
 
         /// <summary>
@@ -317,6 +267,50 @@ namespace BrushFactory
             image.UnlockBits(bitmapData);
 
             return image;
+        }
+
+        /// <summary>
+        /// Returns an aliased bitmap from a portion of the given surface, or null if the srcRect X,Y is negative.
+        /// </summary>
+        /// <param name="surface">The surface to copy a portion of.</param>
+        /// <param name="srcRect">A rectangle describing the region to copy.</param>
+        public static unsafe Bitmap CreateBitmapFromSurfaceRegion(Surface surface, Rectangle srcRect)
+        {
+            if (srcRect.X < 0 || srcRect.Y < 0)
+            {
+                return null;
+            }
+
+            int adjustedWidth = srcRect.Width - Math.Max(srcRect.X + srcRect.Width - surface.Width, 0);
+            int adjustedHeight = srcRect.Height - Math.Max(srcRect.Y + srcRect.Height - surface.Height, 0);
+
+            Bitmap newBmp = new Bitmap(adjustedWidth, adjustedHeight, PixelFormat.Format32bppPArgb);
+
+            BitmapData newBmpData = newBmp.LockBits(
+                new Rectangle(0, 0,
+                    newBmp.Width,
+                    newBmp.Height),
+                ImageLockMode.WriteOnly,
+                newBmp.PixelFormat);
+
+            byte* newBmpRow = (byte*)newBmpData.Scan0;
+            byte* srcRow = (byte*)surface.Scan0.Pointer;
+
+            for (int y = 0; y < adjustedHeight; y++)
+            {
+                ColorBgra* newBmpSrc = (ColorBgra*)(newBmpRow + (y * newBmpData.Stride));
+                ColorBgra* src = (ColorBgra*)(srcRow + srcRect.X*4 + ((srcRect.Y + y) * surface.Stride));
+
+                for (int x = 0; x < adjustedWidth; x++)
+                {
+                    newBmpSrc->Bgra = src->Bgra;
+                    newBmpSrc++;
+                    src++;
+                }
+            }
+
+            newBmp.UnlockBits(newBmpData);
+            return newBmp;
         }
 
         /// <summary>
@@ -551,7 +545,6 @@ namespace BrushFactory
             Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
                 g.DrawImage(origBmp, 0, 0, newSize.Width, newSize.Height);
