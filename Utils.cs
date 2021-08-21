@@ -276,13 +276,24 @@ namespace BrushFactory
         /// <param name="srcRect">A rectangle describing the region to copy.</param>
         public static unsafe Bitmap CreateBitmapFromSurfaceRegion(Surface surface, Rectangle srcRect)
         {
-            if (srcRect.X < 0 || srcRect.Y < 0)
+            int negativeX = srcRect.X < 0 ? -srcRect.X : 0;
+            int negativeY = srcRect.Y < 0 ? -srcRect.Y : 0;
+            int extraX = Math.Max(srcRect.X + srcRect.Width - surface.Width, 0);
+            int extraY = Math.Max(srcRect.Y + srcRect.Height - surface.Height, 0);
+
+            int adjustedWidth = srcRect.Width - negativeX - extraX;
+            int adjustedHeight = srcRect.Height - negativeY - extraY;
+
+            if (adjustedWidth < 1 || adjustedHeight < 1)
             {
                 return null;
             }
 
-            int adjustedWidth = srcRect.Width - Math.Max(srcRect.X + srcRect.Width - surface.Width, 0);
-            int adjustedHeight = srcRect.Height - Math.Max(srcRect.Y + srcRect.Height - surface.Height, 0);
+            Rectangle adjBounds = new Rectangle(
+                srcRect.X < 0 ? 0 : srcRect.X,
+                srcRect.Y < 0 ? 0 : srcRect.Y,
+                adjustedWidth,
+                adjustedHeight);
 
             Bitmap newBmp = new Bitmap(adjustedWidth, adjustedHeight, PixelFormat.Format32bppPArgb);
 
@@ -299,7 +310,7 @@ namespace BrushFactory
             for (int y = 0; y < adjustedHeight; y++)
             {
                 ColorBgra* newBmpSrc = (ColorBgra*)(newBmpRow + (y * newBmpData.Stride));
-                ColorBgra* src = (ColorBgra*)(srcRow + srcRect.X*4 + ((srcRect.Y + y) * surface.Stride));
+                ColorBgra* src = (ColorBgra*)(srcRow + adjBounds.X * 4 + ((adjBounds.Y + y) * surface.Stride));
 
                 for (int x = 0; x < adjustedWidth; x++)
                 {

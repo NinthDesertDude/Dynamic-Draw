@@ -1521,10 +1521,13 @@ namespace BrushFactory
                                 this.EnvironmentParameters.SourceSurface, new Rectangle(
                                 newX, newY, scaleFactor, scaleFactor)))
                             {
-                                using (Bitmap brush = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                                if (bmp != null)
                                 {
-                                    Utils.CopyBitmapPure(brush, bmp, true);
-                                    g.DrawImage(bmp, new Point(newX, newY));
+                                    using (Bitmap brush = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                                    {
+                                        //Utils.CopyBitmapPure(brush, bmp, true);
+                                        g.DrawImage(bmp, new Point(newX, newY));
+                                    }
                                 }
                             }
                         }
