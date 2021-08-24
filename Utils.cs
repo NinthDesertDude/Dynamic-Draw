@@ -270,58 +270,81 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Returns a bitmap 
+        /// 
         /// Returns an aliased bitmap from a portion of the given surface, or null if the srcRect X,Y is negative.
         /// </summary>
         /// <param name="surface">The surface to copy a portion of.</param>
         /// <param name="srcRect">A rectangle describing the region to copy.</param>
-        public static unsafe Bitmap CreateBitmapFromSurfaceRegion(Surface surface, Rectangle srcRect)
+        public static unsafe void CopyErase(Surface surface, Bitmap dest, Bitmap alphaMask, Point location)
         {
-            int negativeX = srcRect.X < 0 ? -srcRect.X : 0;
-            int negativeY = srcRect.Y < 0 ? -srcRect.Y : 0;
-            int extraX = Math.Max(srcRect.X + srcRect.Width - surface.Width, 0);
-            int extraY = Math.Max(srcRect.Y + srcRect.Height - surface.Height, 0);
+            // Calculates the brush regions outside the bounding area of the surface.
+            int negativeX = location.X < 0 ? -location.X : 0;
+            int negativeY = location.Y < 0 ? -location.Y : 0;
+            int extraX = Math.Max(location.X + alphaMask.Width - surface.Width, 0);
+            int extraY = Math.Max(location.Y + alphaMask.Height - surface.Height, 0);
 
-            int adjustedWidth = srcRect.Width - negativeX - extraX;
-            int adjustedHeight = srcRect.Height - negativeY - extraY;
+            int adjWidth = alphaMask.Width - negativeX - extraX;
+            int adjHeight = alphaMask.Height - negativeY - extraY;
 
-            if (adjustedWidth < 1 || adjustedHeight < 1)
+            if (adjWidth < 1 || adjHeight < 1 ||
+                surface.Width != dest.Width || surface.Height != dest.Height)
             {
-                return null;
+                return;
             }
 
             Rectangle adjBounds = new Rectangle(
-                srcRect.X < 0 ? 0 : srcRect.X,
-                srcRect.Y < 0 ? 0 : srcRect.Y,
-                adjustedWidth,
-                adjustedHeight);
+                location.X < 0 ? 0 : location.X,
+                location.Y < 0 ? 0 : location.Y,
+                adjWidth,
+                adjHeight);
 
-            Bitmap newBmp = new Bitmap(adjustedWidth, adjustedHeight, PixelFormat.Format32bppPArgb);
+            BitmapData destData = dest.LockBits(
+                adjBounds,
+                ImageLockMode.ReadWrite,
+                dest.PixelFormat);
 
-            BitmapData newBmpData = newBmp.LockBits(
+            BitmapData alphaMaskData = alphaMask.LockBits(
                 new Rectangle(0, 0,
-                    newBmp.Width,
-                    newBmp.Height),
-                ImageLockMode.WriteOnly,
-                newBmp.PixelFormat);
+                alphaMask.Width,
+                alphaMask.Height),
+                ImageLockMode.ReadOnly,
+                alphaMask.PixelFormat);
 
-            byte* newBmpRow = (byte*)newBmpData.Scan0;
+            byte* destRow = (byte*)destData.Scan0;
+            byte* alphaMaskRow = (byte*)alphaMaskData.Scan0;
             byte* srcRow = (byte*)surface.Scan0.Pointer;
 
-            for (int y = 0; y < adjustedHeight; y++)
+            for (int y = 0; y < adjHeight; y++)
             {
-                ColorBgra* newBmpSrc = (ColorBgra*)(newBmpRow + (y * newBmpData.Stride));
-                ColorBgra* src = (ColorBgra*)(srcRow + adjBounds.X * 4 + ((adjBounds.Y + y) * surface.Stride));
+                ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + negativeX * 4 + ((negativeY + y) * alphaMaskData.Stride));
+                ColorBgra* srcPtr = (ColorBgra*)(srcRow + adjBounds.X * 4 + ((adjBounds.Y + y) * surface.Stride));
+                ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
 
-                for (int x = 0; x < adjustedWidth; x++)
+                float alphaFactor = 0f;
+                float invAlphaFactor = 0f;
+                ColorBgra existingColor = ColorBgra.Transparent;
+
+                for (int x = 0; x < adjWidth; x++)
                 {
-                    newBmpSrc->Bgra = src->Bgra;
-                    newBmpSrc++;
-                    src++;
+                    alphaFactor = alphaMaskPtr->A / 255f;
+                    invAlphaFactor = alphaFactor == 0 ? 1 : 1f / alphaFactor;
+
+                    ColorBgra newColor = ColorBgra.Blend(
+                        destPtr->ConvertFromPremultipliedAlpha(),
+                        *srcPtr,
+                        alphaMaskPtr->A);
+
+                    destPtr->Bgra = newColor.ConvertToPremultipliedAlpha().Bgra;
+
+                    alphaMaskPtr++;
+                    destPtr++;
+                    srcPtr++;
                 }
             }
 
-            newBmp.UnlockBits(newBmpData);
-            return newBmp;
+            dest.UnlockBits(destData);
+            alphaMask.UnlockBits(alphaMaskData);
         }
 
         /// <summary>

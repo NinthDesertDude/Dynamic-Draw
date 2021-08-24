@@ -1517,18 +1517,13 @@ namespace BrushFactory
                             int newX = loc.X - (scaleFactor / 2);
                             int newY = loc.Y - (scaleFactor / 2);
 
-                            using (Bitmap bmp = Utils.CreateBitmapFromSurfaceRegion(
-                                this.EnvironmentParameters.SourceSurface, new Rectangle(
-                                newX, newY, scaleFactor, scaleFactor)))
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
                             {
-                                if (bmp != null)
-                                {
-                                    using (Bitmap brush = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
-                                    {
-                                        //Utils.CopyBitmapPure(brush, bmp, true);
-                                        g.DrawImage(bmp, new Point(newX, newY));
-                                    }
-                                }
+                                Utils.CopyErase(
+                                    this.EnvironmentParameters.SourceSurface,
+                                    bmpCurrentDrawing,
+                                    bmpBrushRotScaled,
+                                    new Point(newX, newY));
                             }
                         }
                     }
