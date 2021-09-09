@@ -208,7 +208,7 @@
     <value>When activated, the color of the brush is replaced by a solid color. Otherwise, the brush maintains its original colors and cannot use color shifting.</value>
   </data>
   <data name="ColorPickerTip" xml:space="preserve">
-    <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the brush afterwards.</value>
+    <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards.</value>
   </data>
   <data name="CustomBrushLocations" xml:space="preserve">
     <value>Custom Brush Locations</value>
@@ -539,5 +539,14 @@
   </data>
   <data name="DefaultBrushSpiral" xml:space="preserve">
     <value>Spiral</value>
+  </data>
+  <data name="ToolBrushTip" xml:space="preserve">
+    <value>Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings.</value>
+  </data>
+  <data name="ToolEraserTip" xml:space="preserve">
+    <value>Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image.</value>
+  </data>
+  <data name="ToolOriginTip" xml:space="preserve">
+    <value>Set Origin Shortcut: O. Activate this tool to change the symmetry origin.</value>
   </data>
 </root>

@@ -27,6 +27,7 @@ namespace BrushFactory
     public class WinBrushFactory : EffectConfigDialog
     {
         #region Fields (Non Gui)
+        private Tool lastTool = Tool.Brush;
         private Tool activeTool = Tool.Brush;
 
         /// <summary>
@@ -195,9 +196,6 @@ namespace BrushFactory
         /// </summary>
         private ImageList dummyImageList;
         private Button bttnCancel;
-        private Button bttnClearBrushes;
-        private Button bttnClearSettings;
-        private Button bttnCustomBrushLocations;
         private Button bttnOk;
         private Button bttnRedo;
         private Button bttnUndo;
@@ -212,7 +210,13 @@ namespace BrushFactory
         /// </summary>
         private Timer timerRepositionUpdate;
         private FlowLayoutPanel panelUndoRedoOkCancel;
-        private FlowLayoutPanel panelSettings;
+        private Button bttnColorPicker;
+        private Panel panelAllSettingsContainer;
+        private Panel panelDockSettingsContainer;
+        private Button bttnToolBrush;
+        private Button bttnToolOrigin;
+        private Button BttnToolEraser;
+        private FlowLayoutPanel flowLayoutPanel1;
         private FlowLayoutPanel panelSettingsContainer;
         private Accordion bttnBrushControls;
         private FlowLayoutPanel panelBrush;
@@ -220,7 +224,6 @@ namespace BrushFactory
         private TrackBar sliderCanvasZoom;
         private DoubleBufferedListView bttnBrushSelector;
         private Panel panelBrushAddPickColor;
-        private Button bttnColorPicker;
         private CheckBox chkbxColorizeBrush;
         private Button bttnAddBrushes;
         private ProgressBar brushLoadProgressBar;
@@ -285,26 +288,23 @@ namespace BrushFactory
         private TrackBar sliderShiftRotation;
         private Label txtShiftAlpha;
         private TrackBar sliderShiftAlpha;
-        private Panel panelAllSettingsContainer;
-        private Panel panelDockSettingsContainer;
-        private Accordion bttnSettings;
         private Accordion bttnTabAssignPressureControls;
         private FlowLayoutPanel panelTabletAssignPressure;
-        private Label txtTabPressureBrushSize;
-        private CmbxTabletValueType cmbxTabPressureBrushSize;
-        private FlowLayoutPanel panelTabPressureBrushSize;
-        private Panel panel8;
-        private NumericUpDown spinTabPressureBrushSize;
-        private FlowLayoutPanel panelTabPressureBrushRotation;
-        private Panel panel2;
-        private Label txtTabPressureBrushRotation;
-        private NumericUpDown spinTabPressureBrushRotation;
-        private CmbxTabletValueType cmbxTabPressureBrushRotation;
         private FlowLayoutPanel panelTabPressureBrushAlpha;
         private Panel panel3;
         private Label txtTabPressureBrushAlpha;
         private NumericUpDown spinTabPressureBrushAlpha;
         private CmbxTabletValueType cmbxTabPressureBrushAlpha;
+        private FlowLayoutPanel panelTabPressureBrushSize;
+        private Panel panel8;
+        private Label txtTabPressureBrushSize;
+        private NumericUpDown spinTabPressureBrushSize;
+        private CmbxTabletValueType cmbxTabPressureBrushSize;
+        private FlowLayoutPanel panelTabPressureBrushRotation;
+        private Panel panel2;
+        private Label txtTabPressureBrushRotation;
+        private NumericUpDown spinTabPressureBrushRotation;
+        private CmbxTabletValueType cmbxTabPressureBrushRotation;
         private FlowLayoutPanel panelTabPressureMinDrawDistance;
         private Panel panel1;
         private Label lblTabPressureMinDrawDistance;
@@ -352,6 +352,7 @@ namespace BrushFactory
         private CmbxTabletValueType cmbxTabPressureRandVerShift;
         private FlowLayoutPanel panelTabPressureRedJitter;
         private Panel panel13;
+        private NumericUpDown spinTabPressureMinRedJitter;
         private Label lblTabPressureRedJitter;
         private NumericUpDown spinTabPressureMaxRedJitter;
         private CmbxTabletValueType cmbxTabPressureRedJitter;
@@ -361,7 +362,6 @@ namespace BrushFactory
         private Label lblTabPressureGreenJitter;
         private NumericUpDown spinTabPressureMaxGreenJitter;
         private CmbxTabletValueType cmbxTabPressureGreenJitter;
-        private NumericUpDown spinTabPressureMinRedJitter;
         private FlowLayoutPanel panelTabPressureBlueJitter;
         private Panel panel15;
         private NumericUpDown spinTabPressureMinBlueJitter;
@@ -386,6 +386,11 @@ namespace BrushFactory
         private Label lblTabPressureValueJitter;
         private NumericUpDown spinTabPressureMaxValueJitter;
         private CmbxTabletValueType cmbxTabPressureValueJitter;
+        private Accordion bttnSettings;
+        private FlowLayoutPanel panelSettings;
+        private Button bttnCustomBrushLocations;
+        private Button bttnClearBrushes;
+        private Button bttnClearSettings;
         private Label txtTooltip;
         #endregion
 
@@ -826,7 +831,7 @@ namespace BrushFactory
             txtShiftSize.Text = string.Format("{0} {1}",
                 Localization.Strings.ShiftSize, sliderShiftSize.Value);
 
-            txtTooltip.Text = Localization.Strings.GeneralTooltip;
+            UpdateTooltip(string.Empty);
 
             bttnAddBrushes.Text = Localization.Strings.AddBrushes;
             bttnBrushColor.Text = Localization.Strings.BrushColor;
@@ -1503,7 +1508,18 @@ namespace BrushFactory
                     //Draws the brush for normal and non-radial symmetry.
                     if (cmbxSymmetry.SelectedIndex < 5)
                     {
-                        if (activeTool != Tool.Eraser)
+                        if (activeTool == Tool.Eraser)
+                        {
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                            {
+                                Utils.CopyErase(
+                                    this.EnvironmentParameters.SourceSurface,
+                                    bmpCurrentDrawing,
+                                    bmpBrushRotScaled,
+                                    new Point(loc.X - (scaleFactor / 2), loc.Y - (scaleFactor / 2)));
+                            }
+                        }
+                        else
                         {
                             g.DrawImage(
                                 bmpBrushRot,
@@ -1511,20 +1527,6 @@ namespace BrushFactory
                                 loc.Y - (scaleFactor / 2),
                                 scaleFactor,
                                 scaleFactor);
-                        }
-                        else
-                        {
-                            int newX = loc.X - (scaleFactor / 2);
-                            int newY = loc.Y - (scaleFactor / 2);
-
-                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
-                            {
-                                Utils.CopyErase(
-                                    this.EnvironmentParameters.SourceSurface,
-                                    bmpCurrentDrawing,
-                                    bmpBrushRotScaled,
-                                    new Point(newX, newY));
-                            }
                         }
                     }
 
@@ -2105,12 +2107,7 @@ namespace BrushFactory
             this.txtTooltip = new System.Windows.Forms.Label();
             this.displayCanvasBG = new System.Windows.Forms.Panel();
             this.displayCanvas = new System.Windows.Forms.PictureBox();
-            this.txtTabPressureBrushSize = new System.Windows.Forms.Label();
-            this.cmbxTabPressureBrushSize = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelSettings = new System.Windows.Forms.FlowLayoutPanel();
-            this.bttnCustomBrushLocations = new System.Windows.Forms.Button();
-            this.bttnClearBrushes = new System.Windows.Forms.Button();
-            this.bttnClearSettings = new System.Windows.Forms.Button();
+            this.bttnToolBrush = new System.Windows.Forms.Button();
             this.dummyImageList = new System.Windows.Forms.ImageList(this.components);
             this.panelUndoRedoOkCancel = new System.Windows.Forms.FlowLayoutPanel();
             this.bttnUndo = new System.Windows.Forms.Button();
@@ -2118,6 +2115,12 @@ namespace BrushFactory
             this.bttnOk = new System.Windows.Forms.Button();
             this.bttnCancel = new System.Windows.Forms.Button();
             this.brushLoadingWorker = new System.ComponentModel.BackgroundWorker();
+            this.bttnColorPicker = new System.Windows.Forms.Button();
+            this.panelAllSettingsContainer = new System.Windows.Forms.Panel();
+            this.panelDockSettingsContainer = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.BttnToolEraser = new System.Windows.Forms.Button();
+            this.bttnToolOrigin = new System.Windows.Forms.Button();
             this.panelSettingsContainer = new System.Windows.Forms.FlowLayoutPanel();
             this.bttnBrushControls = new BrushFactory.Gui.Accordion();
             this.panelBrush = new System.Windows.Forms.FlowLayoutPanel();
@@ -2125,7 +2128,6 @@ namespace BrushFactory
             this.sliderCanvasZoom = new System.Windows.Forms.TrackBar();
             this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
             this.panelBrushAddPickColor = new System.Windows.Forms.Panel();
-            this.bttnColorPicker = new System.Windows.Forms.Button();
             this.chkbxColorizeBrush = new System.Windows.Forms.CheckBox();
             this.bttnAddBrushes = new System.Windows.Forms.Button();
             this.brushLoadProgressBar = new System.Windows.Forms.ProgressBar();
@@ -2199,7 +2201,9 @@ namespace BrushFactory
             this.cmbxTabPressureBrushAlpha = new BrushFactory.Gui.CmbxTabletValueType();
             this.panelTabPressureBrushSize = new System.Windows.Forms.FlowLayoutPanel();
             this.panel8 = new System.Windows.Forms.Panel();
+            this.txtTabPressureBrushSize = new System.Windows.Forms.Label();
             this.spinTabPressureBrushSize = new System.Windows.Forms.NumericUpDown();
+            this.cmbxTabPressureBrushSize = new BrushFactory.Gui.CmbxTabletValueType();
             this.panelTabPressureBrushRotation = new System.Windows.Forms.FlowLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.txtTabPressureBrushRotation = new System.Windows.Forms.Label();
@@ -2287,12 +2291,16 @@ namespace BrushFactory
             this.spinTabPressureMaxValueJitter = new System.Windows.Forms.NumericUpDown();
             this.cmbxTabPressureValueJitter = new BrushFactory.Gui.CmbxTabletValueType();
             this.bttnSettings = new BrushFactory.Gui.Accordion();
-            this.panelAllSettingsContainer = new System.Windows.Forms.Panel();
-            this.panelDockSettingsContainer = new System.Windows.Forms.Panel();
+            this.panelSettings = new System.Windows.Forms.FlowLayoutPanel();
+            this.bttnCustomBrushLocations = new System.Windows.Forms.Button();
+            this.bttnClearBrushes = new System.Windows.Forms.Button();
+            this.bttnClearSettings = new System.Windows.Forms.Button();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
-            this.panelSettings.SuspendLayout();
             this.panelUndoRedoOkCancel.SuspendLayout();
+            this.panelAllSettingsContainer.SuspendLayout();
+            this.panelDockSettingsContainer.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.panelSettingsContainer.SuspendLayout();
             this.panelBrush.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sliderCanvasZoom)).BeginInit();
@@ -2389,8 +2397,7 @@ namespace BrushFactory
             this.panel18.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinValueJitter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxValueJitter)).BeginInit();
-            this.panelAllSettingsContainer.SuspendLayout();
-            this.panelDockSettingsContainer.SuspendLayout();
+            this.panelSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // timerRepositionUpdate
@@ -2401,14 +2408,16 @@ namespace BrushFactory
             // txtTooltip
             // 
             resources.ApplyResources(this.txtTooltip, "txtTooltip");
-            this.txtTooltip.BackColor = System.Drawing.SystemColors.Control;
+            this.txtTooltip.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.txtTooltip.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.txtTooltip.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.txtTooltip.Name = "txtTooltip";
             // 
             // displayCanvasBG
             // 
             resources.ApplyResources(this.displayCanvasBG, "displayCanvasBG");
             this.displayCanvasBG.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(207)))), ((int)(((byte)(207)))), ((int)(((byte)(207)))));
+            this.displayCanvasBG.Controls.Add(this.txtTooltip);
             this.displayCanvasBG.Controls.Add(this.displayCanvas);
             this.displayCanvasBG.Name = "displayCanvasBG";
             this.displayCanvasBG.MouseEnter += new System.EventHandler(this.DisplayCanvasBG_MouseEnter);
@@ -2425,55 +2434,15 @@ namespace BrushFactory
             this.displayCanvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.DisplayCanvas_MouseMove);
             this.displayCanvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.DisplayCanvas_MouseUp);
             // 
-            // txtTabPressureBrushSize
+            // bttnToolBrush
             // 
-            resources.ApplyResources(this.txtTabPressureBrushSize, "txtTabPressureBrushSize");
-            this.txtTabPressureBrushSize.Name = "txtTabPressureBrushSize";
-            // 
-            // cmbxTabPressureBrushSize
-            // 
-            this.cmbxTabPressureBrushSize.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBrushSize.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBrushSize.DropDownHeight = 140;
-            this.cmbxTabPressureBrushSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBrushSize.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBrushSize, "cmbxTabPressureBrushSize");
-            this.cmbxTabPressureBrushSize.FormattingEnabled = true;
-            this.cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
-            this.cmbxTabPressureBrushSize.ValueMember = "ValueMember";
-            // 
-            // panelSettings
-            // 
-            resources.ApplyResources(this.panelSettings, "panelSettings");
-            this.panelSettings.BackColor = System.Drawing.SystemColors.Control;
-            this.panelSettings.Controls.Add(this.bttnCustomBrushLocations);
-            this.panelSettings.Controls.Add(this.bttnClearBrushes);
-            this.panelSettings.Controls.Add(this.bttnClearSettings);
-            this.panelSettings.Name = "panelSettings";
-            // 
-            // bttnCustomBrushLocations
-            // 
-            resources.ApplyResources(this.bttnCustomBrushLocations, "bttnCustomBrushLocations");
-            this.bttnCustomBrushLocations.Name = "bttnCustomBrushLocations";
-            this.bttnCustomBrushLocations.UseVisualStyleBackColor = true;
-            this.bttnCustomBrushLocations.Click += new System.EventHandler(this.BttnPreferences_Click);
-            this.bttnCustomBrushLocations.MouseEnter += new System.EventHandler(this.BttnPreferences_MouseEnter);
-            // 
-            // bttnClearBrushes
-            // 
-            resources.ApplyResources(this.bttnClearBrushes, "bttnClearBrushes");
-            this.bttnClearBrushes.Name = "bttnClearBrushes";
-            this.bttnClearBrushes.UseVisualStyleBackColor = true;
-            this.bttnClearBrushes.Click += new System.EventHandler(this.BttnClearBrushes_Click);
-            this.bttnClearBrushes.MouseEnter += new System.EventHandler(this.BttnClearBrushes_MouseEnter);
-            // 
-            // bttnClearSettings
-            // 
-            resources.ApplyResources(this.bttnClearSettings, "bttnClearSettings");
-            this.bttnClearSettings.Name = "bttnClearSettings";
-            this.bttnClearSettings.UseVisualStyleBackColor = true;
-            this.bttnClearSettings.Click += new System.EventHandler(this.BttnClearSettings_Click);
-            this.bttnClearSettings.MouseEnter += new System.EventHandler(this.BttnClearSettings_MouseEnter);
+            this.bttnToolBrush.BackColor = System.Drawing.SystemColors.ButtonShadow;
+            this.bttnToolBrush.Image = global::BrushFactory.Properties.Resources.ToolBrush;
+            resources.ApplyResources(this.bttnToolBrush, "bttnToolBrush");
+            this.bttnToolBrush.Name = "bttnToolBrush";
+            this.bttnToolBrush.UseVisualStyleBackColor = false;
+            this.bttnToolBrush.Click += new System.EventHandler(this.bttnToolBrush_Click);
+            this.bttnToolBrush.MouseEnter += new System.EventHandler(this.bttnToolBrush_MouseEnter);
             // 
             // dummyImageList
             // 
@@ -2533,6 +2502,58 @@ namespace BrushFactory
             this.brushLoadingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BrushLoadingWorker_DoWork);
             this.brushLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BrushLoadingWorker_ProgressChanged);
             this.brushLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BrushLoadingWorker_RunWorkerCompleted);
+            // 
+            // bttnColorPicker
+            // 
+            this.bttnColorPicker.Image = global::BrushFactory.Properties.Resources.ColorPickerIcon;
+            resources.ApplyResources(this.bttnColorPicker, "bttnColorPicker");
+            this.bttnColorPicker.Name = "bttnColorPicker";
+            this.bttnColorPicker.UseVisualStyleBackColor = true;
+            this.bttnColorPicker.Click += new System.EventHandler(this.BttnToolColorPicker_Click);
+            this.bttnColorPicker.MouseEnter += new System.EventHandler(this.BttnToolColorPicker_MouseEnter);
+            // 
+            // panelAllSettingsContainer
+            // 
+            this.panelAllSettingsContainer.BackColor = System.Drawing.Color.Transparent;
+            this.panelAllSettingsContainer.Controls.Add(this.panelDockSettingsContainer);
+            this.panelAllSettingsContainer.Controls.Add(this.panelUndoRedoOkCancel);
+            resources.ApplyResources(this.panelAllSettingsContainer, "panelAllSettingsContainer");
+            this.panelAllSettingsContainer.Name = "panelAllSettingsContainer";
+            // 
+            // panelDockSettingsContainer
+            // 
+            resources.ApplyResources(this.panelDockSettingsContainer, "panelDockSettingsContainer");
+            this.panelDockSettingsContainer.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.panelDockSettingsContainer.Controls.Add(this.flowLayoutPanel1);
+            this.panelDockSettingsContainer.Controls.Add(this.panelSettingsContainer);
+            this.panelDockSettingsContainer.Name = "panelDockSettingsContainer";
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Controls.Add(this.bttnToolBrush);
+            this.flowLayoutPanel1.Controls.Add(this.BttnToolEraser);
+            this.flowLayoutPanel1.Controls.Add(this.bttnColorPicker);
+            this.flowLayoutPanel1.Controls.Add(this.bttnToolOrigin);
+            resources.ApplyResources(this.flowLayoutPanel1, "flowLayoutPanel1");
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            // 
+            // BttnToolEraser
+            // 
+            this.BttnToolEraser.Image = global::BrushFactory.Properties.Resources.ToolEraser;
+            resources.ApplyResources(this.BttnToolEraser, "BttnToolEraser");
+            this.BttnToolEraser.Name = "BttnToolEraser";
+            this.BttnToolEraser.UseVisualStyleBackColor = true;
+            this.BttnToolEraser.Click += new System.EventHandler(this.BttnToolEraser_Click);
+            this.BttnToolEraser.MouseEnter += new System.EventHandler(this.BttnToolEraser_MouseEnter);
+            // 
+            // bttnToolOrigin
+            // 
+            this.bttnToolOrigin.Image = global::BrushFactory.Properties.Resources.ToolOrigin;
+            resources.ApplyResources(this.bttnToolOrigin, "bttnToolOrigin");
+            this.bttnToolOrigin.Name = "bttnToolOrigin";
+            this.bttnToolOrigin.UseVisualStyleBackColor = true;
+            this.bttnToolOrigin.Click += new System.EventHandler(this.bttnToolOrigin_Click);
+            this.bttnToolOrigin.MouseEnter += new System.EventHandler(this.bttnToolOrigin_MouseEnter);
             // 
             // panelSettingsContainer
             // 
@@ -2618,21 +2639,11 @@ namespace BrushFactory
             // panelBrushAddPickColor
             // 
             resources.ApplyResources(this.panelBrushAddPickColor, "panelBrushAddPickColor");
-            this.panelBrushAddPickColor.Controls.Add(this.bttnColorPicker);
             this.panelBrushAddPickColor.Controls.Add(this.chkbxColorizeBrush);
             this.panelBrushAddPickColor.Controls.Add(this.bttnAddBrushes);
             this.panelBrushAddPickColor.Controls.Add(this.brushLoadProgressBar);
             this.panelBrushAddPickColor.Controls.Add(this.bttnBrushColor);
             this.panelBrushAddPickColor.Name = "panelBrushAddPickColor";
-            // 
-            // bttnColorPicker
-            // 
-            this.bttnColorPicker.Image = global::BrushFactory.Properties.Resources.ColorPickerIcon;
-            resources.ApplyResources(this.bttnColorPicker, "bttnColorPicker");
-            this.bttnColorPicker.Name = "bttnColorPicker";
-            this.bttnColorPicker.UseVisualStyleBackColor = true;
-            this.bttnColorPicker.Click += new System.EventHandler(this.BttnColorPicker_Click);
-            this.bttnColorPicker.MouseEnter += new System.EventHandler(this.BttnColorPicker_MouseEnter);
             // 
             // chkbxColorizeBrush
             // 
@@ -3302,6 +3313,11 @@ namespace BrushFactory
             resources.ApplyResources(this.panel8, "panel8");
             this.panel8.Name = "panel8";
             // 
+            // txtTabPressureBrushSize
+            // 
+            resources.ApplyResources(this.txtTabPressureBrushSize, "txtTabPressureBrushSize");
+            this.txtTabPressureBrushSize.Name = "txtTabPressureBrushSize";
+            // 
             // spinTabPressureBrushSize
             // 
             resources.ApplyResources(this.spinTabPressureBrushSize, "spinTabPressureBrushSize");
@@ -3316,6 +3332,18 @@ namespace BrushFactory
             0,
             -2147483648});
             this.spinTabPressureBrushSize.Name = "spinTabPressureBrushSize";
+            // 
+            // cmbxTabPressureBrushSize
+            // 
+            this.cmbxTabPressureBrushSize.BackColor = System.Drawing.Color.White;
+            this.cmbxTabPressureBrushSize.DisplayMember = "DisplayMember";
+            this.cmbxTabPressureBrushSize.DropDownHeight = 140;
+            this.cmbxTabPressureBrushSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbxTabPressureBrushSize.DropDownWidth = 20;
+            resources.ApplyResources(this.cmbxTabPressureBrushSize, "cmbxTabPressureBrushSize");
+            this.cmbxTabPressureBrushSize.FormattingEnabled = true;
+            this.cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
+            this.cmbxTabPressureBrushSize.ValueMember = "ValueMember";
             // 
             // panelTabPressureBrushRotation
             // 
@@ -4077,20 +4105,38 @@ namespace BrushFactory
             this.bttnSettings.Name = "bttnSettings";
             this.bttnSettings.UseVisualStyleBackColor = false;
             // 
-            // panelAllSettingsContainer
+            // panelSettings
             // 
-            this.panelAllSettingsContainer.BackColor = System.Drawing.Color.Transparent;
-            this.panelAllSettingsContainer.Controls.Add(this.panelDockSettingsContainer);
-            this.panelAllSettingsContainer.Controls.Add(this.panelUndoRedoOkCancel);
-            resources.ApplyResources(this.panelAllSettingsContainer, "panelAllSettingsContainer");
-            this.panelAllSettingsContainer.Name = "panelAllSettingsContainer";
+            resources.ApplyResources(this.panelSettings, "panelSettings");
+            this.panelSettings.BackColor = System.Drawing.SystemColors.Control;
+            this.panelSettings.Controls.Add(this.bttnCustomBrushLocations);
+            this.panelSettings.Controls.Add(this.bttnClearBrushes);
+            this.panelSettings.Controls.Add(this.bttnClearSettings);
+            this.panelSettings.Name = "panelSettings";
             // 
-            // panelDockSettingsContainer
+            // bttnCustomBrushLocations
             // 
-            resources.ApplyResources(this.panelDockSettingsContainer, "panelDockSettingsContainer");
-            this.panelDockSettingsContainer.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.panelDockSettingsContainer.Controls.Add(this.panelSettingsContainer);
-            this.panelDockSettingsContainer.Name = "panelDockSettingsContainer";
+            resources.ApplyResources(this.bttnCustomBrushLocations, "bttnCustomBrushLocations");
+            this.bttnCustomBrushLocations.Name = "bttnCustomBrushLocations";
+            this.bttnCustomBrushLocations.UseVisualStyleBackColor = true;
+            this.bttnCustomBrushLocations.Click += new System.EventHandler(this.BttnPreferences_Click);
+            this.bttnCustomBrushLocations.MouseEnter += new System.EventHandler(this.BttnPreferences_MouseEnter);
+            // 
+            // bttnClearBrushes
+            // 
+            resources.ApplyResources(this.bttnClearBrushes, "bttnClearBrushes");
+            this.bttnClearBrushes.Name = "bttnClearBrushes";
+            this.bttnClearBrushes.UseVisualStyleBackColor = true;
+            this.bttnClearBrushes.Click += new System.EventHandler(this.BttnClearBrushes_Click);
+            this.bttnClearBrushes.MouseEnter += new System.EventHandler(this.BttnClearBrushes_MouseEnter);
+            // 
+            // bttnClearSettings
+            // 
+            resources.ApplyResources(this.bttnClearSettings, "bttnClearSettings");
+            this.bttnClearSettings.Name = "bttnClearSettings";
+            this.bttnClearSettings.UseVisualStyleBackColor = true;
+            this.bttnClearSettings.Click += new System.EventHandler(this.BttnClearSettings_Click);
+            this.bttnClearSettings.MouseEnter += new System.EventHandler(this.BttnClearSettings_MouseEnter);
             // 
             // WinBrushFactory
             // 
@@ -4100,15 +4146,18 @@ namespace BrushFactory
             this.CancelButton = this.bttnCancel;
             this.Controls.Add(this.panelAllSettingsContainer);
             this.Controls.Add(this.displayCanvasBG);
-            this.Controls.Add(this.txtTooltip);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.MaximizeBox = true;
             this.Name = "WinBrushFactory";
             this.displayCanvasBG.ResumeLayout(false);
+            this.displayCanvasBG.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).EndInit();
-            this.panelSettings.ResumeLayout(false);
             this.panelUndoRedoOkCancel.ResumeLayout(false);
+            this.panelAllSettingsContainer.ResumeLayout(false);
+            this.panelDockSettingsContainer.ResumeLayout(false);
+            this.panelDockSettingsContainer.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
             this.panelSettingsContainer.ResumeLayout(false);
             this.panelSettingsContainer.PerformLayout();
             this.panelBrush.ResumeLayout(false);
@@ -4228,9 +4277,7 @@ namespace BrushFactory
             this.panel18.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinValueJitter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxValueJitter)).EndInit();
-            this.panelAllSettingsContainer.ResumeLayout(false);
-            this.panelDockSettingsContainer.ResumeLayout(false);
-            this.panelDockSettingsContainer.PerformLayout();
+            this.panelSettings.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -4350,13 +4397,28 @@ namespace BrushFactory
         /// <param name="toolToSwitchTo">The tool to switch to.</param>
         private void SwitchTool(Tool toolToSwitchTo)
         {
+            bttnToolBrush.BackColor = SystemColors.ButtonFace;
+            BttnToolEraser.BackColor = SystemColors.ButtonFace;
+            bttnColorPicker.BackColor = SystemColors.ButtonFace;
+            bttnToolOrigin.BackColor = SystemColors.ButtonFace;
+
             switch (toolToSwitchTo)
             {
-                case Tool.Brush:
-                case Tool.SetSymmetryOrigin:
+                case Tool.Eraser:
+                    BttnToolEraser.BackColor = SystemColors.ButtonShadow;
                     displayCanvas.Cursor = Cursors.Default;
                     break;
+                case Tool.Brush:
+                    bttnToolBrush.BackColor = SystemColors.ButtonShadow;
+                    displayCanvas.Cursor = Cursors.Default;
+                    break;
+                case Tool.SetSymmetryOrigin:
+                    bttnToolOrigin.BackColor = SystemColors.ButtonShadow;
+                    displayCanvas.Cursor = Cursors.Hand;
+                    break;
                 case Tool.ColorPicker:
+                    bttnColorPicker.BackColor = SystemColors.ButtonShadow;
+
                     // Lazy-loads the color picker cursor.
                     if (cursorColorPicker == null)
                     {
@@ -4369,6 +4431,12 @@ namespace BrushFactory
                     displayCanvas.Cursor = cursorColorPicker;
                     Cursor.Current = cursorColorPicker;
                     break;
+            }
+
+            // Prevents repeated switching to the same tool from changing the last tool (shouldn't match active tool).
+            if (activeTool != toolToSwitchTo)
+            {
+                lastTool = activeTool;
             }
 
             activeTool = toolToSwitchTo;
@@ -4436,6 +4504,23 @@ namespace BrushFactory
             else
             {
                 bttnBrushSelector.VirtualListSize = count;
+            }
+        }
+
+        /// <summary>
+        /// Updates the tooltip popup (reused for all tooltips) and its visibility. It's visible
+        /// when non-null and non empty.
+        /// </summary>
+        /// <param name="newTooltip"></param>
+        private void UpdateTooltip(string newTooltip)
+        {
+            if (string.IsNullOrEmpty(newTooltip))
+            {
+                txtTooltip.Visible = false;
+            } else
+            {
+                txtTooltip.Visible = true;
+                txtTooltip.Text = newTooltip;
             }
         }
 
@@ -4904,7 +4989,7 @@ namespace BrushFactory
                         (int)(mouseLocPrev.X / displayCanvasZoom),
                         (int)(mouseLocPrev.Y / displayCanvasZoom)));
 
-                    SwitchTool(Tool.Brush);
+                    SwitchTool(lastTool);
                 }
                 // Changes the symmetry origin or adds a new origin (if in SetPoints symmetry mode).
                 else if (activeTool == Tool.SetSymmetryOrigin)
@@ -4934,7 +5019,7 @@ namespace BrushFactory
         {
             displayCanvas.Focus();
 
-            txtTooltip.Text = Localization.Strings.GeneralTooltip;
+            UpdateTooltip(string.Empty);
         }
 
         /// <summary>
@@ -5241,7 +5326,7 @@ namespace BrushFactory
         {
             displayCanvas.Focus();
 
-            txtTooltip.Text = Localization.Strings.GeneralTooltip;
+            UpdateTooltip(string.Empty);
         }
 
         /// <summary>
@@ -5254,7 +5339,7 @@ namespace BrushFactory
 
         private void BttnAddBrushes_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.AddBrushesTip;
+            UpdateTooltip(Localization.Strings.AddBrushesTip);
         }
 
         /// <summary>
@@ -5276,7 +5361,7 @@ namespace BrushFactory
 
         private void BttnBrushColor_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.BrushColorTip;
+            UpdateTooltip(Localization.Strings.BrushColorTip);
         }
 
         /// <summary>
@@ -5393,7 +5478,7 @@ namespace BrushFactory
 
         private void BttnBrushSelector_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.BrushSelectorTip;
+            UpdateTooltip(Localization.Strings.BrushSelectorTip);
         }
 
         /// <summary>
@@ -5473,7 +5558,7 @@ namespace BrushFactory
 
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.BrushSmoothingTip;
+            UpdateTooltip(Localization.Strings.BrushSmoothingTip);
         }
 
         /// <summary>
@@ -5489,7 +5574,7 @@ namespace BrushFactory
 
         private void BttnCancel_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.CancelTip;
+            UpdateTooltip(Localization.Strings.CancelTip);
         }
 
         /// <summary>
@@ -5502,7 +5587,7 @@ namespace BrushFactory
 
         private void BttnClearBrushes_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.ClearBrushesTip;
+            UpdateTooltip(Localization.Strings.ClearBrushesTip);
         }
 
         /// <summary>
@@ -5515,20 +5600,7 @@ namespace BrushFactory
 
         private void BttnClearSettings_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.ClearSettingsTip;
-        }
-
-        /// <summary>
-        /// Switches to the color picker tool.
-        /// </summary>
-        private void BttnColorPicker_Click(object sender, EventArgs e)
-        {
-            SwitchTool(Tool.ColorPicker);
-        }
-
-        private void BttnColorPicker_MouseEnter(object sender, EventArgs e)
-        {
-            txtTooltip.Text = Localization.Strings.ColorPickerTip;
+            UpdateTooltip(Localization.Strings.ClearSettingsTip);
         }
 
         /// <summary>
@@ -5557,7 +5629,7 @@ namespace BrushFactory
 
         private void BttnOk_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.OkTip;
+            UpdateTooltip(Localization.Strings.OkTip);
         }
 
         /// <summary>
@@ -5578,7 +5650,7 @@ namespace BrushFactory
 
         private void BttnPreferences_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.CustomBrushLocationsTip;
+            UpdateTooltip(Localization.Strings.CustomBrushLocationsTip);
         }
 
         /// <summary>
@@ -5632,7 +5704,47 @@ namespace BrushFactory
 
         private void BttnRedo_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RedoTip;
+            UpdateTooltip(Localization.Strings.RedoTip);
+        }
+
+        private void bttnToolBrush_Click(object sender, EventArgs e)
+        {
+            SwitchTool(Tool.Brush);
+        }
+
+        private void bttnToolBrush_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.ToolBrushTip);
+        }
+
+        private void BttnToolColorPicker_Click(object sender, EventArgs e)
+        {
+            SwitchTool(Tool.ColorPicker);
+        }
+
+        private void BttnToolColorPicker_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.ColorPickerTip);
+        }
+
+        private void BttnToolEraser_Click(object sender, EventArgs e)
+        {
+            SwitchTool(Tool.Eraser);
+        }
+
+        private void BttnToolEraser_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.ToolEraserTip);
+        }
+
+        private void bttnToolOrigin_Click(object sender, EventArgs e)
+        {
+            SwitchTool(Tool.SetSymmetryOrigin);
+        }
+
+        private void bttnToolOrigin_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.ToolOriginTip);
         }
 
         /// <summary>
@@ -5686,12 +5798,12 @@ namespace BrushFactory
 
         private void BttnUndo_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.UndoTip;
+            UpdateTooltip(Localization.Strings.UndoTip);
         }
 
         private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.SymmetryTip;
+            UpdateTooltip(Localization.Strings.SymmetryTip);
         }
 
         /// <summary>
@@ -5705,17 +5817,17 @@ namespace BrushFactory
 
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.ColorizeBrushTip;
+            UpdateTooltip(Localization.Strings.ColorizeBrushTip);
         }
 
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.LockAlphaTip;
+            UpdateTooltip(Localization.Strings.LockAlphaTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.OrientToMouseTip;
+            UpdateTooltip(Localization.Strings.OrientToMouseTip);
         }
 
         /// <summary>
@@ -5736,7 +5848,7 @@ namespace BrushFactory
 
         private void SliderBrushAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.BrushAlphaTip;
+            UpdateTooltip(Localization.Strings.BrushAlphaTip);
         }
 
         private void SliderBrushAlpha_ValueChanged(object sender, EventArgs e)
@@ -5750,7 +5862,7 @@ namespace BrushFactory
 
         private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.BrushDensityTip;
+            UpdateTooltip(Localization.Strings.BrushDensityTip);
         }
 
         private void SliderBrushDensity_ValueChanged(object sender, EventArgs e)
@@ -5762,7 +5874,7 @@ namespace BrushFactory
 
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.BrushSizeTip;
+            UpdateTooltip(Localization.Strings.BrushSizeTip);
         }
 
         private void SliderBrushSize_ValueChanged(object sender, EventArgs e)
@@ -5777,7 +5889,7 @@ namespace BrushFactory
 
         private void SliderBrushRotation_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.BrushRotationTip;
+            UpdateTooltip(Localization.Strings.BrushRotationTip);
         }
 
         private void SliderBrushRotation_ValueChanged(object sender, EventArgs e)
@@ -5789,7 +5901,7 @@ namespace BrushFactory
 
         private void SliderCanvasZoom_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.CanvasZoomTip;
+            UpdateTooltip(Localization.Strings.CanvasZoomTip);
         }
 
         private void SliderCanvasZoom_ValueChanged(object sender, EventArgs e)
@@ -5799,7 +5911,7 @@ namespace BrushFactory
 
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.MinDrawDistanceTip;
+            UpdateTooltip(Localization.Strings.MinDrawDistanceTip);
         }
 
         private void SliderMinDrawDistance_ValueChanged(object sender, EventArgs e)
@@ -5811,7 +5923,7 @@ namespace BrushFactory
 
         private void SliderRandHorzShift_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandHorzShiftTip;
+            UpdateTooltip(Localization.Strings.RandHorzShiftTip);
         }
 
         private void SliderRandHorzShift_ValueChanged(object sender, EventArgs e)
@@ -5823,7 +5935,7 @@ namespace BrushFactory
 
         private void SliderJitterMaxBlue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterBlueTip;
+            UpdateTooltip(Localization.Strings.JitterBlueTip);
         }
 
         private void SliderJitterMaxBlue_ValueChanged(object sender, EventArgs e)
@@ -5836,7 +5948,7 @@ namespace BrushFactory
 
         private void SliderJitterMaxGreen_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterGreenTip;
+            UpdateTooltip(Localization.Strings.JitterGreenTip);
         }
 
         private void SliderJitterMaxGreen_ValueChanged(object sender, EventArgs e)
@@ -5849,7 +5961,7 @@ namespace BrushFactory
 
         private void SliderJitterMaxRed_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterRedTip;
+            UpdateTooltip(Localization.Strings.JitterRedTip);
         }
 
         private void SliderJitterMaxRed_ValueChanged(object sender, EventArgs e)
@@ -5862,7 +5974,7 @@ namespace BrushFactory
 
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMaxSizeTip;
+            UpdateTooltip(Localization.Strings.RandMaxSizeTip);
         }
 
         private void SliderRandMaxSize_ValueChanged(object sender, EventArgs e)
@@ -5874,7 +5986,7 @@ namespace BrushFactory
 
         private void SliderRandMinAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMinAlphaTip;
+            UpdateTooltip(Localization.Strings.RandMinAlphaTip);
         }
 
         private void SliderRandMinAlpha_ValueChanged(object sender, EventArgs e)
@@ -5886,7 +5998,7 @@ namespace BrushFactory
 
         private void SliderJitterMinBlue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterBlueTip;
+            UpdateTooltip(Localization.Strings.JitterBlueTip);
         }
 
         private void SliderJitterMinBlue_ValueChanged(object sender, EventArgs e)
@@ -5899,7 +6011,7 @@ namespace BrushFactory
 
         private void SliderJitterMinGreen_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterGreenTip;
+            UpdateTooltip(Localization.Strings.JitterGreenTip);
         }
 
         private void SliderJitterMinGreen_ValueChanged(object sender, EventArgs e)
@@ -5920,7 +6032,7 @@ namespace BrushFactory
 
         private void sliderJitterMaxHue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterHueTip;
+            UpdateTooltip(Localization.Strings.JitterHueTip);
         }
 
         private void sliderJitterMinHue_ValueChanged(object sender, EventArgs e)
@@ -5933,12 +6045,12 @@ namespace BrushFactory
 
         private void sliderJitterMinHue_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterHueTip;
+            UpdateTooltip(Localization.Strings.JitterHueTip);
         }
 
         private void SliderJitterMinRed_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterRedTip;
+            UpdateTooltip(Localization.Strings.JitterRedTip);
         }
 
         private void SliderJitterMinRed_ValueChanged(object sender, EventArgs e)
@@ -5959,7 +6071,7 @@ namespace BrushFactory
 
         private void sliderJitterMaxSat_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterSaturationTip;
+            UpdateTooltip(Localization.Strings.JitterSaturationTip);
         }
 
         private void sliderJitterMinSat_ValueChanged(object sender, EventArgs e)
@@ -5972,7 +6084,7 @@ namespace BrushFactory
 
         private void sliderJitterMinSat_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterSaturationTip;
+            UpdateTooltip(Localization.Strings.JitterSaturationTip);
         }
 
         private void sliderJitterMaxVal_ValueChanged(object sender, EventArgs e)
@@ -5985,7 +6097,7 @@ namespace BrushFactory
 
         private void sliderJitterMaxVal_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterValueTip;
+            UpdateTooltip(Localization.Strings.JitterValueTip);
         }
 
         private void sliderJitterMinVal_ValueChanged(object sender, EventArgs e)
@@ -5998,12 +6110,12 @@ namespace BrushFactory
 
         private void sliderJitterMinVal_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.JitterValueTip;
+            UpdateTooltip(Localization.Strings.JitterValueTip);
         }
 
         private void SliderRandMinSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandMinSizeTip;
+            UpdateTooltip(Localization.Strings.RandMinSizeTip);
         }
 
         private void SliderRandMinSize_ValueChanged(object sender, EventArgs e)
@@ -6015,7 +6127,7 @@ namespace BrushFactory
 
         private void SliderRandRotLeft_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandRotLeftTip;
+            UpdateTooltip(Localization.Strings.RandRotLeftTip);
         }
 
         private void SliderRandRotLeft_ValueChanged(object sender, EventArgs e)
@@ -6027,7 +6139,7 @@ namespace BrushFactory
 
         private void SliderRandRotRight_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandRotRightTip;
+            UpdateTooltip(Localization.Strings.RandRotRightTip);
         }
 
         private void SliderRandRotRight_ValueChanged(object sender, EventArgs e)
@@ -6039,7 +6151,7 @@ namespace BrushFactory
 
         private void SliderRandVertShift_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.RandVertShiftTip;
+            UpdateTooltip(Localization.Strings.RandVertShiftTip);
         }
 
         private void SliderRandVertShift_ValueChanged(object sender, EventArgs e)
@@ -6051,7 +6163,7 @@ namespace BrushFactory
 
         private void SliderShiftAlpha_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.ShiftAlphaTip;
+            UpdateTooltip(Localization.Strings.ShiftAlphaTip);
         }
 
         private void SliderShiftAlpha_ValueChanged(object sender, EventArgs e)
@@ -6063,7 +6175,7 @@ namespace BrushFactory
 
         private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.ShiftRotationTip;
+            UpdateTooltip(Localization.Strings.ShiftRotationTip);
         }
 
         private void SliderShiftRotation_ValueChanged(object sender, EventArgs e)
@@ -6075,7 +6187,7 @@ namespace BrushFactory
 
         private void SliderShiftSize_MouseEnter(object sender, EventArgs e)
         {
-            txtTooltip.Text = Localization.Strings.ShiftSizeTip;
+            UpdateTooltip(Localization.Strings.ShiftSizeTip);
         }
 
         private void SliderShiftSize_ValueChanged(object sender, EventArgs e)

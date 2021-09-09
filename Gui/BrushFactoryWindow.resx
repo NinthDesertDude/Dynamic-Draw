@@ -120,32 +120,32 @@
   <metadata name="timerRepositionUpdate.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>183, 17</value>
   </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="txtTooltip.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="txtTooltip.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left, Right</value>
+  <data name="txtTooltip.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="txtTooltip.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 8.25pt</value>
+    <value>Microsoft Sans Serif, 10pt</value>
   </data>
   <data name="txtTooltip.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="txtTooltip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>9, 515</value>
+    <value>0, 0</value>
   </data>
   <data name="txtTooltip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>640, 20</value>
+    <value>78, 19</value>
   </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="txtTooltip.TabIndex" type="System.Int32, mscorlib">
     <value>12</value>
   </data>
   <data name="txtTooltip.Text" xml:space="preserve">
     <value>Tooltip bar</value>
-  </data>
-  <data name="txtTooltip.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleCenter</value>
   </data>
   <data name="&gt;&gt;txtTooltip.Name" xml:space="preserve">
     <value>txtTooltip</value>
@@ -154,10 +154,10 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;txtTooltip.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>displayCanvasBG</value>
   </data>
   <data name="&gt;&gt;txtTooltip.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>0</value>
   </data>
   <data name="displayCanvasBG.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
@@ -190,13 +190,13 @@
     <value>displayCanvasBG</value>
   </data>
   <data name="&gt;&gt;displayCanvas.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="displayCanvasBG.Location" type="System.Drawing.Point, System.Drawing">
     <value>9, 6</value>
   </data>
   <data name="displayCanvasBG.Size" type="System.Drawing.Size, System.Drawing">
-    <value>640, 503</value>
+    <value>643, 530</value>
   </data>
   <data name="displayCanvasBG.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -213,221 +213,35 @@
   <data name="&gt;&gt;displayCanvasBG.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="txtTabPressureBrushSize.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="txtTabPressureBrushSize.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Left</value>
-  </data>
-  <data name="txtTabPressureBrushSize.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 8.25pt</value>
-  </data>
-  <data name="txtTabPressureBrushSize.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="bttnToolBrush.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="txtTabPressureBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
+  <data name="bttnToolBrush.Location" type="System.Drawing.Point, System.Drawing">
+    <value>9, 3</value>
   </data>
-  <data name="txtTabPressureBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
+  <data name="bttnToolBrush.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 0, 3</value>
   </data>
-  <data name="txtTabPressureBrushSize.Size" type="System.Drawing.Size, System.Drawing">
-    <value>60, 13</value>
+  <data name="bttnToolBrush.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 32</value>
   </data>
-  <data name="txtTabPressureBrushSize.TabIndex" type="System.Int32, mscorlib">
-    <value>10</value>
+  <data name="bttnToolBrush.TabIndex" type="System.Int32, mscorlib">
+    <value>26</value>
   </data>
-  <data name="txtTabPressureBrushSize.Text" xml:space="preserve">
-    <value>Brush Size:</value>
+  <data name="bttnToolBrush.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushSize.Name" xml:space="preserve">
-    <value>txtTabPressureBrushSize</value>
+  <data name="&gt;&gt;bttnToolBrush.Name" xml:space="preserve">
+    <value>bttnToolBrush</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushSize.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;bttnToolBrush.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushSize.Parent" xml:space="preserve">
-    <value>panel8</value>
+  <data name="&gt;&gt;bttnToolBrush.Parent" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushSize.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;bttnToolBrush.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 8.25pt</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.IntegralHeight" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.ItemHeight" type="System.Int32, mscorlib">
-    <value>13</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 25</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 0, 0, 3</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.MaxDropDownItems" type="System.Int32, mscorlib">
-    <value>9</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 21</value>
-  </data>
-  <data name="cmbxTabPressureBrushSize.TabIndex" type="System.Int32, mscorlib">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushSize.Name" xml:space="preserve">
-    <value>cmbxTabPressureBrushSize</value>
-  </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushSize.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushSize.Parent" xml:space="preserve">
-    <value>panelTabPressureBrushSize</value>
-  </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushSize.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="panelSettings.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="panelSettings.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
-    <value>GrowAndShrink</value>
-  </data>
-  <data name="bttnCustomBrushLocations.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="bttnCustomBrushLocations.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Center</value>
-  </data>
-  <data name="bttnCustomBrushLocations.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="bttnCustomBrushLocations.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 3</value>
-  </data>
-  <data name="bttnCustomBrushLocations.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 3, 0, 3</value>
-  </data>
-  <data name="bttnCustomBrushLocations.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 23</value>
-  </data>
-  <data name="bttnCustomBrushLocations.TabIndex" type="System.Int32, mscorlib">
-    <value>12</value>
-  </data>
-  <data name="bttnCustomBrushLocations.Text" xml:space="preserve">
-    <value>Custom Brush Locations</value>
-  </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.Name" xml:space="preserve">
-    <value>bttnCustomBrushLocations</value>
-  </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.Parent" xml:space="preserve">
-    <value>panelSettings</value>
-  </data>
-  <data name="&gt;&gt;bttnCustomBrushLocations.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="bttnClearBrushes.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="bttnClearBrushes.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Center</value>
-  </data>
-  <data name="bttnClearBrushes.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="bttnClearBrushes.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 32</value>
-  </data>
-  <data name="bttnClearBrushes.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 3, 0, 3</value>
-  </data>
-  <data name="bttnClearBrushes.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 23</value>
-  </data>
-  <data name="bttnClearBrushes.TabIndex" type="System.Int32, mscorlib">
-    <value>9</value>
-  </data>
-  <data name="bttnClearBrushes.Text" xml:space="preserve">
-    <value>Clear Custom Brushes</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.Name" xml:space="preserve">
-    <value>bttnClearBrushes</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.Parent" xml:space="preserve">
-    <value>panelSettings</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushes.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="bttnClearSettings.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="bttnClearSettings.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Center</value>
-  </data>
-  <data name="bttnClearSettings.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="bttnClearSettings.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 61</value>
-  </data>
-  <data name="bttnClearSettings.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 3, 0, 3</value>
-  </data>
-  <data name="bttnClearSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 23</value>
-  </data>
-  <data name="bttnClearSettings.TabIndex" type="System.Int32, mscorlib">
-    <value>10</value>
-  </data>
-  <data name="bttnClearSettings.Text" xml:space="preserve">
-    <value>Clear Settings</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.Name" xml:space="preserve">
-    <value>bttnClearSettings</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.Parent" xml:space="preserve">
-    <value>panelSettings</value>
-  </data>
-  <data name="&gt;&gt;bttnClearSettings.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="panelSettings.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
-    <value>TopDown</value>
-  </data>
-  <data name="panelSettings.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 2833</value>
-  </data>
-  <data name="panelSettings.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 3, 0, 0</value>
-  </data>
-  <data name="panelSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 87</value>
-  </data>
-  <data name="panelSettings.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;panelSettings.Name" xml:space="preserve">
-    <value>panelSettings</value>
-  </data>
-  <data name="&gt;&gt;panelSettings.Type" xml:space="preserve">
-    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;panelSettings.Parent" xml:space="preserve">
-    <value>panelSettingsContainer</value>
-  </data>
-  <data name="&gt;&gt;panelSettings.ZOrder" xml:space="preserve">
-    <value>13</value>
   </data>
   <metadata name="dummyImageList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>361, 17</value>
@@ -609,6 +423,126 @@
   <metadata name="brushLoadingWorker.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="bttnColorPicker.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="bttnColorPicker.Location" type="System.Drawing.Point, System.Drawing">
+    <value>79, 3</value>
+  </data>
+  <data name="bttnColorPicker.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 0, 3</value>
+  </data>
+  <data name="bttnColorPicker.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 32</value>
+  </data>
+  <data name="bttnColorPicker.TabIndex" type="System.Int32, mscorlib">
+    <value>25</value>
+  </data>
+  <data name="bttnColorPicker.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
+  </data>
+  <data name="&gt;&gt;bttnColorPicker.Name" xml:space="preserve">
+    <value>bttnColorPicker</value>
+  </data>
+  <data name="&gt;&gt;bttnColorPicker.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;bttnColorPicker.Parent" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;bttnColorPicker.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="panelDockSettingsContainer.AutoScroll" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="BttnToolEraser.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="BttnToolEraser.Location" type="System.Drawing.Point, System.Drawing">
+    <value>44, 3</value>
+  </data>
+  <data name="BttnToolEraser.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 0, 3</value>
+  </data>
+  <data name="BttnToolEraser.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 32</value>
+  </data>
+  <data name="BttnToolEraser.TabIndex" type="System.Int32, mscorlib">
+    <value>27</value>
+  </data>
+  <data name="BttnToolEraser.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
+  </data>
+  <data name="&gt;&gt;BttnToolEraser.Name" xml:space="preserve">
+    <value>BttnToolEraser</value>
+  </data>
+  <data name="&gt;&gt;BttnToolEraser.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;BttnToolEraser.Parent" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;BttnToolEraser.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="bttnToolOrigin.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="bttnToolOrigin.Location" type="System.Drawing.Point, System.Drawing">
+    <value>114, 3</value>
+  </data>
+  <data name="bttnToolOrigin.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 0, 3</value>
+  </data>
+  <data name="bttnToolOrigin.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 32</value>
+  </data>
+  <data name="bttnToolOrigin.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="bttnToolOrigin.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
+  </data>
+  <data name="&gt;&gt;bttnToolOrigin.Name" xml:space="preserve">
+    <value>bttnToolOrigin</value>
+  </data>
+  <data name="&gt;&gt;bttnToolOrigin.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;bttnToolOrigin.Parent" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;bttnToolOrigin.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="flowLayoutPanel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 1</value>
+  </data>
+  <data name="flowLayoutPanel1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="flowLayoutPanel1.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>6, 0, 0, 0</value>
+  </data>
+  <data name="flowLayoutPanel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>155, 38</value>
+  </data>
+  <data name="flowLayoutPanel1.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.Name" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.Parent" xml:space="preserve">
+    <value>panelDockSettingsContainer</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="panelSettingsContainer.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -640,7 +574,7 @@
     <value>bttnBrushControls</value>
   </data>
   <data name="&gt;&gt;bttnBrushControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnBrushControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -736,7 +670,7 @@
     <value>bttnBrushSelector</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Type" xml:space="preserve">
-    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.DoubleBufferedListView, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnBrushSelector.Parent" xml:space="preserve">
     <value>panelBrush</value>
@@ -749,36 +683,6 @@
   </data>
   <data name="panelBrushAddPickColor.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
-  </data>
-  <data name="bttnColorPicker.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="bttnColorPicker.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 3</value>
-  </data>
-  <data name="bttnColorPicker.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 0, 3</value>
-  </data>
-  <data name="bttnColorPicker.Size" type="System.Drawing.Size, System.Drawing">
-    <value>32, 32</value>
-  </data>
-  <data name="bttnColorPicker.TabIndex" type="System.Int32, mscorlib">
-    <value>25</value>
-  </data>
-  <data name="bttnColorPicker.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
-    <value>ImageBeforeText</value>
-  </data>
-  <data name="&gt;&gt;bttnColorPicker.Name" xml:space="preserve">
-    <value>bttnColorPicker</value>
-  </data>
-  <data name="&gt;&gt;bttnColorPicker.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnColorPicker.Parent" xml:space="preserve">
-    <value>panelBrushAddPickColor</value>
-  </data>
-  <data name="&gt;&gt;bttnColorPicker.ZOrder" xml:space="preserve">
-    <value>0</value>
   </data>
   <data name="chkbxColorizeBrush.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -808,7 +712,7 @@
     <value>panelBrushAddPickColor</value>
   </data>
   <data name="&gt;&gt;chkbxColorizeBrush.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>0</value>
   </data>
   <data name="bttnAddBrushes.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -817,7 +721,7 @@
     <value>0, 3</value>
   </data>
   <data name="bttnAddBrushes.Size" type="System.Drawing.Size, System.Drawing">
-    <value>126, 32</value>
+    <value>153, 32</value>
   </data>
   <data name="bttnAddBrushes.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -838,7 +742,7 @@
     <value>panelBrushAddPickColor</value>
   </data>
   <data name="&gt;&gt;bttnAddBrushes.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>1</value>
   </data>
   <data name="brushLoadProgressBar.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -862,7 +766,7 @@
     <value>panelBrushAddPickColor</value>
   </data>
   <data name="&gt;&gt;brushLoadProgressBar.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>2</value>
   </data>
   <data name="bttnBrushColor.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top</value>
@@ -895,7 +799,7 @@
     <value>panelBrushAddPickColor</value>
   </data>
   <data name="&gt;&gt;bttnBrushColor.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>3</value>
   </data>
   <data name="panelBrushAddPickColor.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 232</value>
@@ -1180,7 +1084,7 @@
     <value>bttnSpecialSettings</value>
   </data>
   <data name="&gt;&gt;bttnSpecialSettings.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnSpecialSettings.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -1510,7 +1414,7 @@
     <value>bttnJitterBasicsControls</value>
   </data>
   <data name="&gt;&gt;bttnJitterBasicsControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnJitterBasicsControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2005,7 +1909,7 @@
     <value>bttnJitterColorControls</value>
   </data>
   <data name="&gt;&gt;bttnJitterColorControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnJitterColorControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2611,7 +2515,7 @@
     <value>bttnShiftBasicsControls</value>
   </data>
   <data name="&gt;&gt;bttnShiftBasicsControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnShiftBasicsControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2857,7 +2761,7 @@
     <value>bttnTabAssignPressureControls</value>
   </data>
   <data name="&gt;&gt;bttnTabAssignPressureControls.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnTabAssignPressureControls.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -2995,7 +2899,7 @@
     <value>cmbxTabPressureBrushAlpha</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Parent" xml:space="preserve">
     <value>panelTabPressureBrushAlpha</value>
@@ -3035,6 +2939,45 @@
   </data>
   <data name="panelTabPressureBrushSize.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
+  </data>
+  <data name="txtTabPressureBrushSize.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="txtTabPressureBrushSize.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="txtTabPressureBrushSize.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="txtTabPressureBrushSize.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="txtTabPressureBrushSize.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="txtTabPressureBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="txtTabPressureBrushSize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>60, 13</value>
+  </data>
+  <data name="txtTabPressureBrushSize.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="txtTabPressureBrushSize.Text" xml:space="preserve">
+    <value>Brush Size:</value>
+  </data>
+  <data name="&gt;&gt;txtTabPressureBrushSize.Name" xml:space="preserve">
+    <value>txtTabPressureBrushSize</value>
+  </data>
+  <data name="&gt;&gt;txtTabPressureBrushSize.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;txtTabPressureBrushSize.Parent" xml:space="preserve">
+    <value>panel8</value>
+  </data>
+  <data name="&gt;&gt;txtTabPressureBrushSize.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <data name="spinTabPressureBrushSize.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Right</value>
@@ -3086,6 +3029,42 @@
   </data>
   <data name="&gt;&gt;panel8.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.IntegralHeight" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.ItemHeight" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 25</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 3</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.MaxDropDownItems" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 21</value>
+  </data>
+  <data name="cmbxTabPressureBrushSize.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushSize.Name" xml:space="preserve">
+    <value>cmbxTabPressureBrushSize</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushSize.Type" xml:space="preserve">
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushSize.Parent" xml:space="preserve">
+    <value>panelTabPressureBrushSize</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushSize.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="panelTabPressureBrushSize.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>TopDown</value>
@@ -3238,7 +3217,7 @@
     <value>cmbxTabPressureBrushRotation</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushRotation.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushRotation.Parent" xml:space="preserve">
     <value>panelTabPressureBrushRotation</value>
@@ -3397,7 +3376,7 @@
     <value>cmbxTabPressureMinDrawDistance</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureMinDrawDistance.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureMinDrawDistance.Parent" xml:space="preserve">
     <value>panelTabPressureMinDrawDistance</value>
@@ -3556,7 +3535,7 @@
     <value>cmbxTabPressureBrushDensity</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushDensity.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushDensity.Parent" xml:space="preserve">
     <value>panelTabPressureBrushDensity</value>
@@ -3715,7 +3694,7 @@
     <value>cmbxTabPressureRandMinSize</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinSize.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinSize.Parent" xml:space="preserve">
     <value>panelTabPressureRandMinSize</value>
@@ -3874,7 +3853,7 @@
     <value>cmbxTabPressureRandMaxSize</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMaxSize.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMaxSize.Parent" xml:space="preserve">
     <value>panelTabPressureRandMaxSize</value>
@@ -4033,7 +4012,7 @@
     <value>cmbxTabPressureRandRotLeft</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotLeft.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotLeft.Parent" xml:space="preserve">
     <value>panelTabPressureRandRotLeft</value>
@@ -4192,7 +4171,7 @@
     <value>cmbxTabPressureRandRotRight</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotRight.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotRight.Parent" xml:space="preserve">
     <value>panelTabPressureRandRotRight</value>
@@ -4351,7 +4330,7 @@
     <value>cmbxTabPressureRandMinAlpha</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Parent" xml:space="preserve">
     <value>panelTabPressureRandMinAlpha</value>
@@ -4510,7 +4489,7 @@
     <value>cmbxTabPressureRandHorShift</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandHorShift.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandHorShift.Parent" xml:space="preserve">
     <value>panelTabPressureRandHorShift</value>
@@ -4669,7 +4648,7 @@
     <value>cmbxTabPressureRandVerShift</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandVerShift.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandVerShift.Parent" xml:space="preserve">
     <value>panelTabPressureRandVerShift</value>
@@ -4855,7 +4834,7 @@
     <value>cmbxTabPressureRedJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRedJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRedJitter.Parent" xml:space="preserve">
     <value>panelTabPressureRedJitter</value>
@@ -5041,7 +5020,7 @@
     <value>cmbxTabPressureGreenJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureGreenJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureGreenJitter.Parent" xml:space="preserve">
     <value>panelTabPressureGreenJitter</value>
@@ -5227,7 +5206,7 @@
     <value>cmbxTabPressureBlueJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBlueJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBlueJitter.Parent" xml:space="preserve">
     <value>panelTabPressureBlueJitter</value>
@@ -5413,7 +5392,7 @@
     <value>cmbxTabPressureHueJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureHueJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureHueJitter.Parent" xml:space="preserve">
     <value>panelTabPressureHueJitter</value>
@@ -5599,7 +5578,7 @@
     <value>cmbxTabPressureSatJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureSatJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureSatJitter.Parent" xml:space="preserve">
     <value>panelTabPressureSatJitter</value>
@@ -5785,7 +5764,7 @@
     <value>cmbxTabPressureValueJitter</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureValueJitter.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.CmbxTabletValueType, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureValueJitter.Parent" xml:space="preserve">
     <value>panelTabPressureValueJitter</value>
@@ -5872,7 +5851,7 @@
     <value>bttnSettings</value>
   </data>
   <data name="&gt;&gt;bttnSettings.Type" xml:space="preserve">
-    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.767, Culture=neutral, PublicKeyToken=null</value>
+    <value>BrushFactory.Gui.Accordion, BrushFactory, Version=3.0.0.22825, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;bttnSettings.Parent" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -5880,11 +5859,152 @@
   <data name="&gt;&gt;bttnSettings.ZOrder" xml:space="preserve">
     <value>12</value>
   </data>
+  <data name="panelSettings.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="panelSettings.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+    <value>GrowAndShrink</value>
+  </data>
+  <data name="bttnCustomBrushLocations.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="bttnCustomBrushLocations.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Center</value>
+  </data>
+  <data name="bttnCustomBrushLocations.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="bttnCustomBrushLocations.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 3</value>
+  </data>
+  <data name="bttnCustomBrushLocations.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="bttnCustomBrushLocations.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 23</value>
+  </data>
+  <data name="bttnCustomBrushLocations.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="bttnCustomBrushLocations.Text" xml:space="preserve">
+    <value>Custom Brush Locations</value>
+  </data>
+  <data name="&gt;&gt;bttnCustomBrushLocations.Name" xml:space="preserve">
+    <value>bttnCustomBrushLocations</value>
+  </data>
+  <data name="&gt;&gt;bttnCustomBrushLocations.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;bttnCustomBrushLocations.Parent" xml:space="preserve">
+    <value>panelSettings</value>
+  </data>
+  <data name="&gt;&gt;bttnCustomBrushLocations.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="bttnClearBrushes.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="bttnClearBrushes.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Center</value>
+  </data>
+  <data name="bttnClearBrushes.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="bttnClearBrushes.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 32</value>
+  </data>
+  <data name="bttnClearBrushes.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="bttnClearBrushes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 23</value>
+  </data>
+  <data name="bttnClearBrushes.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="bttnClearBrushes.Text" xml:space="preserve">
+    <value>Clear Custom Brushes</value>
+  </data>
+  <data name="&gt;&gt;bttnClearBrushes.Name" xml:space="preserve">
+    <value>bttnClearBrushes</value>
+  </data>
+  <data name="&gt;&gt;bttnClearBrushes.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;bttnClearBrushes.Parent" xml:space="preserve">
+    <value>panelSettings</value>
+  </data>
+  <data name="&gt;&gt;bttnClearBrushes.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="bttnClearSettings.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="bttnClearSettings.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Center</value>
+  </data>
+  <data name="bttnClearSettings.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="bttnClearSettings.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 61</value>
+  </data>
+  <data name="bttnClearSettings.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="bttnClearSettings.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 23</value>
+  </data>
+  <data name="bttnClearSettings.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="bttnClearSettings.Text" xml:space="preserve">
+    <value>Clear Settings</value>
+  </data>
+  <data name="&gt;&gt;bttnClearSettings.Name" xml:space="preserve">
+    <value>bttnClearSettings</value>
+  </data>
+  <data name="&gt;&gt;bttnClearSettings.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;bttnClearSettings.Parent" xml:space="preserve">
+    <value>panelSettings</value>
+  </data>
+  <data name="&gt;&gt;bttnClearSettings.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="panelSettings.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+    <value>TopDown</value>
+  </data>
+  <data name="panelSettings.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 2833</value>
+  </data>
+  <data name="panelSettings.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 0</value>
+  </data>
+  <data name="panelSettings.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 87</value>
+  </data>
+  <data name="panelSettings.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;panelSettings.Name" xml:space="preserve">
+    <value>panelSettings</value>
+  </data>
+  <data name="&gt;&gt;panelSettings.Type" xml:space="preserve">
+    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panelSettings.Parent" xml:space="preserve">
+    <value>panelSettingsContainer</value>
+  </data>
+  <data name="&gt;&gt;panelSettings.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
   <data name="panelSettingsContainer.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>TopDown</value>
   </data>
   <data name="panelSettingsContainer.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
+    <value>0, 35</value>
   </data>
   <data name="panelSettingsContainer.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -5905,10 +6025,7 @@
     <value>panelDockSettingsContainer</value>
   </data>
   <data name="&gt;&gt;panelSettingsContainer.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="panelDockSettingsContainer.AutoScroll" type="System.Boolean, mscorlib">
-    <value>True</value>
+    <value>1</value>
   </data>
   <data name="panelDockSettingsContainer.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>

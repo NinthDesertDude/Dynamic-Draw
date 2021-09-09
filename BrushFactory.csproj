@@ -220,6 +220,9 @@
     <None Include="Resources\BrRain.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\sprToolBrush.png" />
+    <None Include="Resources\sprToolEraser.png" />
+    <None Include="Resources\sprToolOrigin.png" />
     <Content Include="TabletSupport\WintabDN.dll" />
     <None Include="Resources\BrLine.png" />
     <None Include="Resources\BrCircleHard.png" />

@@ -270,8 +270,6 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Returns a bitmap 
-        /// 
         /// Returns an aliased bitmap from a portion of the given surface, or null if the srcRect X,Y is negative.
         /// </summary>
         /// <param name="surface">The surface to copy a portion of.</param>
@@ -321,15 +319,8 @@ namespace BrushFactory
                 ColorBgra* srcPtr = (ColorBgra*)(srcRow + adjBounds.X * 4 + ((adjBounds.Y + y) * surface.Stride));
                 ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
 
-                float alphaFactor = 0f;
-                float invAlphaFactor = 0f;
-                ColorBgra existingColor = ColorBgra.Transparent;
-
                 for (int x = 0; x < adjWidth; x++)
                 {
-                    alphaFactor = alphaMaskPtr->A / 255f;
-                    invAlphaFactor = alphaFactor == 0 ? 1 : 1f / alphaFactor;
-
                     ColorBgra newColor = ColorBgra.Blend(
                         destPtr->ConvertFromPremultipliedAlpha(),
                         *srcPtr,

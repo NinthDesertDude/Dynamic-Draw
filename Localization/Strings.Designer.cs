@@ -394,7 +394,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the brush afterwards..
+        ///   Looks up a localized string similar to Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards..
         /// </summary>
         internal static string ColorPickerTip {
             get {
@@ -1254,6 +1254,33 @@ namespace BrushFactory.Localization {
         internal static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings..
+        /// </summary>
+        internal static string ToolBrushTip {
+            get {
+                return ResourceManager.GetString("ToolBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image..
+        /// </summary>
+        internal static string ToolEraserTip {
+            get {
+                return ResourceManager.GetString("ToolEraserTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set Origin Shortcut: O. Activate this tool to change the symmetry origin..
+        /// </summary>
+        internal static string ToolOriginTip {
+            get {
+                return ResourceManager.GetString("ToolOriginTip", resourceCulture);
             }
         }
         
