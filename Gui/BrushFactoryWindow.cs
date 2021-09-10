@@ -109,18 +109,18 @@ namespace BrushFactory
         /// <summary>
         /// Stores the current mouse location.
         /// </summary>
-        private Point mouseLoc = new Point();
+        private PointF mouseLoc = new PointF();
 
         /// <summary>
         /// Stores the mouse location at the last place a brush stroke was
         /// successfully applied. Used exclusively by minimum draw distance.
         /// </summary>
-        private Point? mouseLocBrush;
+        private PointF? mouseLocBrush;
 
         /// <summary>
         /// Stores the previous mouse location.
         /// </summary>
-        private Point mouseLocPrev = new Point();
+        private PointF mouseLocPrev = new PointF();
 
         private BrushFactorySettings settings;
 
@@ -140,12 +140,12 @@ namespace BrushFactory
         /// </summary>
         BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
 
-        List<Point> symmetryOrigins;
+        List<PointF> symmetryOrigins;
 
         /// <summary>
         /// Where to draw around for symmetry.
         /// </summary>
-        Point symmetryOrigin = Point.Empty;
+        PointF symmetryOrigin = PointF.Empty;
 
         /// <summary>
         /// The tablet service instance used to detect and work with tablets.
@@ -418,7 +418,7 @@ namespace BrushFactory
             cmbxBrushSmoothing.ValueMember = "Method";
 
             //Configures items for the symmetry options combobox.
-            symmetryOrigins = new List<Point>();
+            symmetryOrigins = new List<PointF>();
             symmetryOptions = new BindingList<Tuple<string, SymmetryMode>>();
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryNone, SymmetryMode.None));
             symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryHorizontal, SymmetryMode.Horizontal));
@@ -751,9 +751,9 @@ namespace BrushFactory
             //Sets the sizes of the canvas and drawing region.
             displayCanvas.Size = EnvironmentParameters.SourceSurface.Size;
             bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
-            symmetryOrigin = new Point(
-                EnvironmentParameters.SourceSurface.Width / 2,
-                EnvironmentParameters.SourceSurface.Height / 2);
+            symmetryOrigin = new PointF(
+                EnvironmentParameters.SourceSurface.Width / 2f,
+                EnvironmentParameters.SourceSurface.Height / 2f);
 
             //Sets the canvas dimensions.
             displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
@@ -938,8 +938,8 @@ namespace BrushFactory
                 // exactly where the origin will be when they switch back to brush mode.
                 if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
                 {
-                    symmetryOrigin.X = (int)(mouseLoc.X / displayCanvasZoom);
-                    symmetryOrigin.Y = (int)(mouseLoc.Y / displayCanvasZoom);
+                    symmetryOrigin.X = mouseLoc.X / displayCanvasZoom;
+                    symmetryOrigin.Y = mouseLoc.Y / displayCanvasZoom;
                 }
 
                 // Invalidate to immediately update the symmetry origin guidelines drawn in symmetry mode.
@@ -1208,7 +1208,7 @@ namespace BrushFactory
         /// </summary>
         /// <param name="loc">The location to apply the brush.</param>
         /// <param name="radius">The size to draw the brush at.</param>
-        private void DrawBrush(Point loc, int radius)
+        private void DrawBrush(PointF loc, int radius)
         {
             int finalRandMinSize = Utils.GetStrengthMappedValue(sliderRandMinSize.Value,
                 (int)spinTabPressureRandMinSize.Value,
@@ -1333,13 +1333,13 @@ namespace BrushFactory
             if (finalRandHorzShift != 0 ||
                 finalRandVertShift != 0)
             {
-                loc.X = (int)(loc.X
+                loc.X = loc.X
                     - bmpCurrentDrawing.Width * (finalRandHorzShift / 200f)
-                    + bmpCurrentDrawing.Width * (random.Next(finalRandHorzShift) / 100f));
+                    + bmpCurrentDrawing.Width * (random.Next(finalRandHorzShift) / 100f);
 
-                loc.Y = (int)(loc.Y
+                loc.Y = loc.Y
                     - bmpCurrentDrawing.Height * (finalRandVertShift / 200f)
-                    + bmpCurrentDrawing.Height * (random.Next(finalRandVertShift) / 100f));
+                    + bmpCurrentDrawing.Height * (random.Next(finalRandVertShift) / 100f);
             }
 
             //This is used to randomly rotate the image by some amount.
@@ -1369,8 +1369,8 @@ namespace BrushFactory
             {
                 //Adds to the rotation according to mouse direction. Uses the
                 //original rotation as an offset.
-                int deltaX = mouseLoc.X - mouseLocPrev.X;
-                int deltaY = mouseLoc.Y - mouseLocPrev.Y;
+                float deltaX = mouseLoc.X - mouseLocPrev.X;
+                float deltaY = mouseLoc.Y - mouseLocPrev.Y;
                 rotation += (int)(Math.Atan2(deltaY, deltaX) * 180 / Math.PI);
             }
 
@@ -1517,15 +1517,15 @@ namespace BrushFactory
                                     this.EnvironmentParameters.SourceSurface,
                                     bmpCurrentDrawing,
                                     bmpBrushRotScaled,
-                                    new Point(loc.X - (scaleFactor / 2), loc.Y - (scaleFactor / 2)));
+                                    new Point((int)(loc.X - (scaleFactor / 2f)), (int)(loc.Y - (scaleFactor / 2f))));
                             }
                         }
                         else
                         {
                             g.DrawImage(
                                 bmpBrushRot,
-                                loc.X - (scaleFactor / 2),
-                                loc.Y - (scaleFactor / 2),
+                                loc.X - (scaleFactor / 2f),
+                                loc.Y - (scaleFactor / 2f),
                                 scaleFactor,
                                 scaleFactor);
                         }
@@ -1537,8 +1537,8 @@ namespace BrushFactory
                     {
                         g.DrawImage(
                             bmpBrushRot,
-                            loc.X + scaleFactor/2 + (symmetryOrigin.X - loc.X) * 2,
-                            loc.Y - (scaleFactor / 2),
+                            loc.X + scaleFactor / 2f + (symmetryOrigin.X - loc.X) * 2,
+                            loc.Y - (scaleFactor / 2f),
                             scaleFactor * -1,
                             scaleFactor);
                     }
@@ -1549,8 +1549,8 @@ namespace BrushFactory
                     {
                         g.DrawImage(
                             bmpBrushRot,
-                            loc.X - (scaleFactor / 2),
-                            loc.Y + scaleFactor / 2 + (symmetryOrigin.Y - loc.Y) * 2,
+                            loc.X - (scaleFactor / 2f),
+                            loc.Y + scaleFactor / 2f + (symmetryOrigin.Y - loc.Y) * 2,
                             scaleFactor,
                             scaleFactor * -1);
                     }
@@ -1561,8 +1561,8 @@ namespace BrushFactory
                     {
                         g.DrawImage(
                             bmpBrushRot,
-                            loc.X + scaleFactor / 2 + (symmetryOrigin.X - loc.X) * 2,
-                            loc.Y + scaleFactor / 2 + (symmetryOrigin.Y - loc.Y) * 2,
+                            loc.X + scaleFactor / 2f + (symmetryOrigin.X - loc.X) * 2,
+                            loc.Y + scaleFactor / 2f + (symmetryOrigin.Y - loc.Y) * 2,
                             scaleFactor * -1,
                             scaleFactor * -1);
                     }
@@ -1575,8 +1575,8 @@ namespace BrushFactory
                         {
                             g.DrawImage(
                                 bmpBrushRot,
-                                loc.X + scaleFactor / 2 + symmetryOrigins[i].X,
-                                loc.Y + scaleFactor / 2 + symmetryOrigins[i].Y,
+                                loc.X + scaleFactor / 2f + symmetryOrigins[i].X,
+                                loc.Y + scaleFactor / 2f + symmetryOrigins[i].Y,
                                 scaleFactor * -1,
                                 scaleFactor * -1);
                         }
@@ -1586,12 +1586,12 @@ namespace BrushFactory
                     else if (cmbxSymmetry.SelectedIndex > 3)
                     {
                         //Gets the center of the image.
-                        Point origin = new Point(
-                            symmetryOrigin.X - (newRadius / 2),
-                            symmetryOrigin.Y - (newRadius / 2));
+                        PointF origin = new PointF(
+                            symmetryOrigin.X - (newRadius / 2f),
+                            symmetryOrigin.Y - (newRadius / 2f));
 
                         //Gets the drawn location relative to center.
-                        Point locRelativeToOrigin = new Point(
+                        PointF locRelativeToOrigin = new PointF(
                             loc.X - origin.X,
                             loc.Y - origin.Y);
 
@@ -1611,12 +1611,12 @@ namespace BrushFactory
                         for (int i = 0; i < numPoints; i++)
                         {
                             g.DrawImage(
-                            bmpBrushRot,
-                            origin.X + (float)(dist * Math.Cos(angle)),
-                            origin.Y + (float)(dist * Math.Sin(angle)),
-                            scaleFactor,
-                            scaleFactor);
-                            
+                                bmpBrushRot,
+                                origin.X + (float)(dist * Math.Cos(angle)),
+                                origin.Y + (float)(dist * Math.Sin(angle)),
+                                scaleFactor,
+                                scaleFactor);
+
                             angle += angleIncrease;
                         }
                     }
@@ -1677,14 +1677,14 @@ namespace BrushFactory
                     }
 
                     //Determines the positions to draw the brush at.
-                    Point[] destination = new Point[3];
-                    int xPos = loc.X - (scaleFactor / 2);
-                    int yPos = loc.Y - (scaleFactor / 2);
+                    PointF[] destination = new PointF[3];
+                    float xPos = loc.X - (scaleFactor / 2f);
+                    float yPos = loc.Y - (scaleFactor / 2f);
 
                     //Draws without reflection.
-                    destination[0] = new Point(xPos, yPos);
-                    destination[1] = new Point(xPos + scaleFactor, yPos);
-                    destination[2] = new Point(xPos, yPos + scaleFactor);
+                    destination[0] = new PointF(xPos, yPos);
+                    destination[1] = new PointF(xPos + scaleFactor, yPos);
+                    destination[2] = new PointF(xPos, yPos + scaleFactor);
 
                     //Draws the whole image and applies colorations and alpha.
                     if (cmbxSymmetry.SelectedIndex < 5)
@@ -1705,29 +1705,29 @@ namespace BrushFactory
                         if (cmbxSymmetry.SelectedIndex ==
                             (int)SymmetryMode.Horizontal)
                         {
-                            destination[0] = new Point(bmpCurrentDrawing.Width - xPos, yPos);
-                            destination[1] = new Point(bmpCurrentDrawing.Width - xPos - scaleFactor, yPos);
-                            destination[2] = new Point(bmpCurrentDrawing.Width - xPos, yPos + scaleFactor);
+                            destination[0] = new PointF(bmpCurrentDrawing.Width - xPos, yPos);
+                            destination[1] = new PointF(bmpCurrentDrawing.Width - xPos - scaleFactor, yPos);
+                            destination[2] = new PointF(bmpCurrentDrawing.Width - xPos, yPos + scaleFactor);
                         }
 
                         //Draws the brush vertically reflected.
                         else if (cmbxSymmetry.SelectedIndex ==
                             (int)SymmetryMode.Vertical)
                         {
-                            destination[0] = new Point(xPos, bmpCurrentDrawing.Height - yPos);
-                            destination[1] = new Point(xPos + scaleFactor, bmpCurrentDrawing.Height - yPos);
-                            destination[2] = new Point(xPos, bmpCurrentDrawing.Height - yPos - scaleFactor);
+                            destination[0] = new PointF(xPos, bmpCurrentDrawing.Height - yPos);
+                            destination[1] = new PointF(xPos + scaleFactor, bmpCurrentDrawing.Height - yPos);
+                            destination[2] = new PointF(xPos, bmpCurrentDrawing.Height - yPos - scaleFactor);
                         }
 
                         //Draws the brush horizontally and vertically reflected.
                         else if (cmbxSymmetry.SelectedIndex ==
                             (int)SymmetryMode.Star2)
                         {
-                            destination[0] = new Point(bmpCurrentDrawing.Width - xPos,
+                            destination[0] = new PointF(bmpCurrentDrawing.Width - xPos,
                                 bmpCurrentDrawing.Height - yPos);
-                            destination[1] = new Point(bmpCurrentDrawing.Width - xPos - scaleFactor,
+                            destination[1] = new PointF(bmpCurrentDrawing.Width - xPos - scaleFactor,
                                 bmpCurrentDrawing.Height - yPos);
-                            destination[2] = new Point(bmpCurrentDrawing.Width - xPos,
+                            destination[2] = new PointF(bmpCurrentDrawing.Width - xPos,
                                 bmpCurrentDrawing.Height - yPos - scaleFactor);
                         }
 
@@ -1752,11 +1752,11 @@ namespace BrushFactory
 
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
-                                int newXPos = xPos + symmetryOrigins[i].X;
-                                int newYPos = yPos + symmetryOrigins[i].Y;
-                                destination[0] = new Point(newXPos, newYPos);
-                                destination[1] = new Point(newXPos + scaleFactor, newYPos);
-                                destination[2] = new Point(newXPos, newYPos + scaleFactor);
+                                float newXPos = xPos + symmetryOrigins[i].X;
+                                float newYPos = yPos + symmetryOrigins[i].Y;
+                                destination[0] = new PointF(newXPos, newYPos);
+                                destination[1] = new PointF(newXPos + scaleFactor, newYPos);
+                                destination[2] = new PointF(newXPos, newYPos + scaleFactor);
 
                                 g.DrawImage(
                                     bmpBrushRot,
@@ -1771,12 +1771,12 @@ namespace BrushFactory
                         else if (cmbxSymmetry.SelectedIndex > 3)
                         {
                             //Gets the center of the image.
-                            Point center = new Point(
-                                (bmpCurrentDrawing.Width / 2) - (newRadius / 2),
-                                (bmpCurrentDrawing.Height / 2) - (newRadius / 2));
+                            PointF center = new PointF(
+                                (bmpCurrentDrawing.Width / 2f) - (newRadius / 2f),
+                                (bmpCurrentDrawing.Height / 2f) - (newRadius / 2f));
 
                             //Gets the drawn location relative to center.
-                            Point locRelativeToCenter = new Point(
+                            PointF locRelativeToCenter = new PointF(
                                 loc.X - center.X,
                                 loc.Y - center.Y);
 
@@ -1795,12 +1795,12 @@ namespace BrushFactory
                             double angleIncrease = (2 * Math.PI) / numPoints;
                             for (int i = 0; i < numPoints; i++)
                             {
-                                int posX = (int)(center.X + dist * Math.Cos(angle));
-                                int posY = (int)(center.Y + dist * Math.Sin(angle));
+                                float posX = (float)(center.X + dist * Math.Cos(angle));
+                                float posY = (float)(center.Y + dist * Math.Sin(angle));
 
-                                destination[0] = new Point(posX, posY);
-                                destination[1] = new Point(posX + scaleFactor, posY);
-                                destination[2] = new Point(posX, posY + scaleFactor);
+                                destination[0] = new PointF(posX, posY);
+                                destination[1] = new PointF(posX + scaleFactor, posY);
+                                destination[2] = new PointF(posX, posY + scaleFactor);
 
                                 g.DrawImage(
                                     bmpBrushRot,
@@ -2724,7 +2724,7 @@ namespace BrushFactory
             resources.ApplyResources(this.sliderBrushSize, "sliderBrushSize");
             this.sliderBrushSize.LargeChange = 1;
             this.sliderBrushSize.Maximum = 1000;
-            this.sliderBrushSize.Minimum = 2;
+            this.sliderBrushSize.Minimum = 1;
             this.sliderBrushSize.Name = "sliderBrushSize";
             this.sliderBrushSize.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderBrushSize.Value = 10;
@@ -4288,7 +4288,7 @@ namespace BrushFactory
         /// </summary>
         private static bool IsKeyDown(Keys key)
         {
-            return Interop.SafeNativeMethods.GetKeyState((int)key) < 0;
+            return SafeNativeMethods.GetKeyState((int)key) < 0;
         }
 
         /// <summary>
@@ -4597,26 +4597,24 @@ namespace BrushFactory
                 "{0} {1:p0}", Localization.Strings.CanvasZoom, newZoomFactor);
 
             //Gets the new width and height, adjusted for zooming.
-            int zoomWidth = (int)(bmpCurrentDrawing.Width * newZoomFactor);
-            int zoomHeight = (int)(bmpCurrentDrawing.Height * newZoomFactor);
+            float zoomWidth = bmpCurrentDrawing.Width * newZoomFactor;
+            float zoomHeight = bmpCurrentDrawing.Height * newZoomFactor;
 
-            Point zoomingPoint = isWheelZooming
+            PointF zoomingPoint = isWheelZooming
                 ? mouseLoc
-                : new Point(
-                    displayCanvasBG.ClientSize.Width / 2 - displayCanvas.Location.X,
-                    displayCanvasBG.ClientSize.Height / 2 - displayCanvas.Location.Y);
+                : new PointF(
+                    displayCanvasBG.ClientSize.Width / 2f - displayCanvas.Location.X,
+                    displayCanvasBG.ClientSize.Height / 2f - displayCanvas.Location.Y);
 
-            int zoomX = displayCanvas.Location.X + zoomingPoint.X -
-                zoomingPoint.X * zoomWidth / displayCanvas.Width;
-            int zoomY = displayCanvas.Location.Y + zoomingPoint.Y -
-                zoomingPoint.Y * zoomHeight / displayCanvas.Height;
+            int zoomX = (int)(displayCanvas.Location.X + zoomingPoint.X -
+                zoomingPoint.X * zoomWidth / displayCanvas.Width);
+            int zoomY = (int)(displayCanvas.Location.Y + zoomingPoint.Y -
+                zoomingPoint.Y * zoomHeight / displayCanvas.Height);
 
             isWheelZooming = false;
 
             //Sets the new canvas position (center) and size using zoom.
-            displayCanvas.Bounds = new Rectangle(
-                zoomX, zoomY,
-                zoomWidth, zoomHeight);
+            displayCanvas.Bounds = new Rectangle(zoomX, zoomY, (int)zoomWidth, (int)zoomHeight);
         }
         #endregion
 
@@ -4967,7 +4965,7 @@ namespace BrushFactory
                     //Removes all redo history.
                     redoHistory.Clear();
 
-                    //Draws the brush on the first canvas click.
+                    //Draws the brush on the first canvas click. Lines aren't drawn at a single point.
                     //Doesn't draw for tablets, since the user hasn't exerted full pressure yet.
                     if (!chkbxOrientToMouse.Checked && tabletPressureRatio == 0)
                     {
@@ -4977,9 +4975,9 @@ namespace BrushFactory
                             tabletPressureRatio,
                             ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
 
-                        DrawBrush(new Point(
-                            (int)(mouseLocPrev.X / displayCanvasZoom),
-                            (int)(mouseLocPrev.Y / displayCanvasZoom)),
+                        DrawBrush(new PointF(
+                            mouseLocPrev.X / displayCanvasZoom,
+                            mouseLocPrev.Y / displayCanvasZoom),
                             finalBrushSize);
                     }
                 }
@@ -4997,15 +4995,15 @@ namespace BrushFactory
                 {
                     if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
                     {
-                        symmetryOrigins.Add(new Point(
-                            (int)(e.Location.X / displayCanvasZoom - symmetryOrigin.X),
-                            (int)(e.Location.Y / displayCanvasZoom - symmetryOrigin.Y)));
+                        symmetryOrigins.Add(new PointF(
+                            e.Location.X / displayCanvasZoom - symmetryOrigin.X,
+                            e.Location.Y / displayCanvasZoom - symmetryOrigin.Y));
                     }
                     else
                     {
-                        symmetryOrigin = new Point(
-                            Utils.Clamp((int)(e.Location.X / displayCanvasZoom), 0, bmpCurrentDrawing.Width),
-                            Utils.Clamp((int)(e.Location.Y / displayCanvasZoom), 0, bmpCurrentDrawing.Height)
+                        symmetryOrigin = new PointF(
+                            Utils.ClampF(e.Location.X / displayCanvasZoom, 0, bmpCurrentDrawing.Width),
+                            Utils.ClampF(e.Location.Y / displayCanvasZoom, 0, bmpCurrentDrawing.Height)
                         );
                     }
                 }
@@ -5037,8 +5035,8 @@ namespace BrushFactory
                 Rectangle range = GetRange();
 
                 //Moves the drawing region.
-                int locx = displayCanvas.Left + (mouseLoc.X - mouseLocPrev.X);
-                int locy = displayCanvas.Top + (mouseLoc.Y - mouseLocPrev.Y);
+                int locx = displayCanvas.Left + (int)Math.Round(mouseLoc.X - mouseLocPrev.X);
+                int locy = displayCanvas.Top + (int)Math.Round(mouseLoc.Y - mouseLocPrev.Y);
 
                 //Ensures the user cannot pan beyond the image bounds.
                 if (locx <= range.Left) { locx = range.Left; }
@@ -5060,13 +5058,15 @@ namespace BrushFactory
                         ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureMinDrawDistance.SelectedItem).ValueMember),
                         0, sliderMinDrawDistance.Maximum);
 
+                PointF mouseLocBrushOriginal = mouseLocBrush ?? mouseLocPrev;
+
                 // Doesn't draw unless the minimum drawing distance is met.
                 if (finalMinDrawDistance != 0)
                 {
                     if (mouseLocBrush.HasValue)
                     {
-                        int deltaX = mouseLocBrush.Value.X - mouseLoc.X;
-                        int deltaY = mouseLocBrush.Value.Y - mouseLoc.Y;
+                        float deltaX = mouseLocBrush.Value.X - mouseLoc.X;
+                        float deltaY = mouseLocBrush.Value.Y - mouseLoc.Y;
 
                         if (Math.Sqrt(deltaX * deltaX + deltaY * deltaY) <
                             finalMinDrawDistance * displayCanvasZoom)
@@ -5099,9 +5099,9 @@ namespace BrushFactory
 
                         if (finalBrushSize > 0)
                         {
-                            DrawBrush(new Point(
-                                (int)(mouseLoc.X / displayCanvasZoom),
-                                (int)(mouseLoc.Y / displayCanvasZoom)),
+                            DrawBrush(new PointF(
+                                mouseLoc.X / displayCanvasZoom,
+                                mouseLoc.Y / displayCanvasZoom),
                                 finalBrushSize);
                         }
 
@@ -5134,18 +5134,18 @@ namespace BrushFactory
 
                         for (int i = 1; i <= (int)numIntervals; i++)
                         {
-                            DrawBrush(new Point(
-                                (int)(mouseLocPrev.X / displayCanvasZoom + xDist * brushWidthFrac * i),
-                                (int)(mouseLocPrev.Y / displayCanvasZoom + yDist * brushWidthFrac * i)),
+                            DrawBrush(new PointF(
+                                (float)(mouseLocPrev.X / displayCanvasZoom + xDist * brushWidthFrac * i),
+                                (float)(mouseLocPrev.Y / displayCanvasZoom + yDist * brushWidthFrac * i)),
                                 finalBrushSize);
                         }
 
                         double extraDist = brushWidthFrac * (numIntervals - (int)numIntervals);
 
                         // Same as mouse position except for remainder.
-                        mouseLoc = new Point(
-                            (int)(e.Location.X - xDist * extraDist * displayCanvasZoom),
-                            (int)(e.Location.Y - yDist * extraDist * displayCanvasZoom));
+                        mouseLoc = new PointF(
+                            (float)(e.Location.X - xDist * extraDist * displayCanvasZoom),
+                            (float)(e.Location.Y - yDist * extraDist * displayCanvasZoom));
                         mouseLocPrev = mouseLoc;
                     }
                 }
@@ -5154,9 +5154,9 @@ namespace BrushFactory
                 && activeTool == Tool.SetSymmetryOrigin
                 && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.SetPoints)
             {
-                symmetryOrigin = new Point(
-                    Utils.Clamp((int)(e.Location.X / displayCanvasZoom), 0, bmpCurrentDrawing.Width),
-                    Utils.Clamp((int)(e.Location.Y / displayCanvasZoom), 0, bmpCurrentDrawing.Height)
+                symmetryOrigin = new PointF(
+                    Utils.ClampF(e.Location.X / displayCanvasZoom, 0, bmpCurrentDrawing.Width),
+                    Utils.ClampF(e.Location.Y / displayCanvasZoom, 0, bmpCurrentDrawing.Height)
                 );
             }
 
@@ -5255,15 +5255,15 @@ namespace BrushFactory
 
                 e.Graphics.DrawRectangle(
                     Pens.Black,
-                    mouseLoc.X - (radius / 2),
-                    mouseLoc.Y - (radius / 2),
+                    mouseLoc.X - (radius / 2f),
+                    mouseLoc.Y - (radius / 2f),
                     radius,
                     radius);
 
                 e.Graphics.DrawRectangle(
                     Pens.White,
-                    mouseLoc.X - (radius / 2) - 1,
-                    mouseLoc.Y - (radius / 2) - 1,
+                    mouseLoc.X - (radius / 2f) - 1,
+                    mouseLoc.Y - (radius / 2f) - 1,
                     radius + 2,
                     radius + 2);
             }
@@ -5280,19 +5280,19 @@ namespace BrushFactory
                     {
                         e.Graphics.DrawLine(
                             Pens.Red,
-                            new Point(0, (int)(symmetryOrigin.Y * displayCanvasZoom)),
-                            new Point((int)(bmpCurrentDrawing.Width * displayCanvasZoom), (int)(symmetryOrigin.Y * displayCanvasZoom)));
+                            new PointF(0, symmetryOrigin.Y * displayCanvasZoom),
+                            new PointF(bmpCurrentDrawing.Width * displayCanvasZoom, symmetryOrigin.Y * displayCanvasZoom));
                         e.Graphics.DrawLine(
                             Pens.Red,
-                            new Point((int)(symmetryOrigin.X * displayCanvasZoom), 0),
-                            new Point((int)(symmetryOrigin.X * displayCanvasZoom), (int)(bmpCurrentDrawing.Height * displayCanvasZoom)));
+                            new PointF(symmetryOrigin.X * displayCanvasZoom, 0),
+                            new PointF(symmetryOrigin.X * displayCanvasZoom, bmpCurrentDrawing.Height * displayCanvasZoom));
                     }
 
                     // Draws a rectangle for each origin point, either relative to the symmetry origin (in
                     // SetSymmetryOrigin tool) or the mouse (with the Brush tool)
-                    int pointsDrawnX = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.X : (int)(mouseLoc.X / displayCanvasZoom);
-                    int pointsDrawnY = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.Y : (int)(mouseLoc.Y / displayCanvasZoom);
-                    float zoomCompensation = (activeTool == Tool.SetSymmetryOrigin) ? displayCanvasZoom : (displayCanvasZoom);
+                    float pointsDrawnX = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.X : (mouseLoc.X / displayCanvasZoom);
+                    float pointsDrawnY = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.Y : (mouseLoc.Y / displayCanvasZoom);
+                    float zoomCompensation = (activeTool == Tool.SetSymmetryOrigin) ? displayCanvasZoom : displayCanvasZoom;
 
                     for (int i = 0; i < symmetryOrigins.Count; i++)
                     {
@@ -5308,12 +5308,12 @@ namespace BrushFactory
                 {
                     e.Graphics.DrawLine(
                         Pens.Red,
-                        new Point(0, (int)(symmetryOrigin.Y * displayCanvasZoom)),
-                        new Point((int)(bmpCurrentDrawing.Width * displayCanvasZoom), (int)(symmetryOrigin.Y * displayCanvasZoom)));
+                        new PointF(0, symmetryOrigin.Y * displayCanvasZoom),
+                        new PointF(bmpCurrentDrawing.Width * displayCanvasZoom, symmetryOrigin.Y * displayCanvasZoom));
                     e.Graphics.DrawLine(
                         Pens.Red,
-                        new Point((int)(symmetryOrigin.X * displayCanvasZoom), 0),
-                        new Point((int)(symmetryOrigin.X * displayCanvasZoom), (int)(bmpCurrentDrawing.Height * displayCanvasZoom)));
+                        new PointF(symmetryOrigin.X * displayCanvasZoom, 0),
+                        new PointF(symmetryOrigin.X * displayCanvasZoom, bmpCurrentDrawing.Height * displayCanvasZoom));
                 }
             }
         }
