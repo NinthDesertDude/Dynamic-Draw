@@ -39,12 +39,10 @@ namespace BrushFactory.TabletSupport
         /// </summary>
         public bool Start()
         {
-            winTabContext = CWintabInfo.GetDefaultSystemContext(ECTXOptionValues.CXO_MESSAGES);
-            winTabContext.Options |= (uint)ECTXOptionValues.CXO_SYSTEM;
-
+            winTabContext = CWintabInfo.GetDefaultSystemContext(ECTXOptionValues.CXO_MESSAGES | ECTXOptionValues.CXO_SYSTEM);
             winTabData = new CWintabData(winTabContext);
 
-            // Failed to get the digitizing context
+            // Failed to get the system context
             if (winTabContext == null)
             {
                 return false;

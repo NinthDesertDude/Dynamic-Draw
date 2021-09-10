@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace BrushFactory.Gui
@@ -57,7 +58,7 @@ namespace BrushFactory.Gui
         public CmbxTabletValueType()
         {
             // Don't permanently generate more items over and over in winforms designer.
-            if (!DesignMode)
+            if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
             {
                 this.DropDownStyle = ComboBoxStyle.DropDownList;
                 this.Items.AddRange(GenerateItemOptions());

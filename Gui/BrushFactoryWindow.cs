@@ -1,5 +1,6 @@
 ﻿using BrushFactory.Abr;
 using BrushFactory.Gui;
+using BrushFactory.Interop;
 using BrushFactory.Logic;
 using BrushFactory.Properties;
 using BrushFactory.TabletSupport;
@@ -1605,7 +1606,7 @@ namespace BrushFactory
                             locRelativeToOrigin.X);
 
                         //Draws an N-pt radial reflection.
-                        int numPoints = cmbxSymmetry.SelectedIndex - 1;
+                        int numPoints = cmbxSymmetry.SelectedIndex - 2;
                         double angleIncrease = (2 * Math.PI) / numPoints;
                         for (int i = 0; i < numPoints; i++)
                         {
@@ -1790,7 +1791,7 @@ namespace BrushFactory
                                 locRelativeToCenter.X);
 
                             //Draws an N-pt radial reflection.
-                            int numPoints = cmbxSymmetry.SelectedIndex - 1;
+                            int numPoints = cmbxSymmetry.SelectedIndex - 2;
                             double angleIncrease = (2 * Math.PI) / numPoints;
                             for (int i = 0; i < numPoints; i++)
                             {
@@ -6211,11 +6212,11 @@ namespace BrushFactory
             // button since winforms doesn't support touch events.
             if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
             {
-                Utils.SimulateClick(Utils.MouseEvents.LeftDown);
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftDown);
             }
             else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
             {
-                Utils.SimulateClick(Utils.MouseEvents.LeftUp);
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftUp);
             }
 
             // Updates the pressure.

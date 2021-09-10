@@ -610,15 +610,6 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hold middle mouse button or control and left mouse button to pan image. Right-click for options. Hover over controls to read about them here..
-        /// </summary>
-        internal static string GeneralTooltip {
-            get {
-                return ResourceManager.GetString("GeneralTooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Blue Jitter:.
         /// </summary>
         internal static string JitterBlue {
