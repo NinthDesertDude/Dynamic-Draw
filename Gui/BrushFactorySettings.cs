@@ -188,9 +188,7 @@ namespace BrushFactory
         /// </summary>
         /// <param name="context">The streaming context.</param>
         [OnDeserializing]
-#pragma warning disable RCS1163 // Unused parameter.
         private void OnDeserializing(StreamingContext context)
-#pragma warning restore RCS1163 // Unused parameter.
         {
             // The DataContractSerializer does not call the constructor to initialize the class fields.
             // https://blogs.msdn.microsoft.com/mohamedg/2014/02/05/warning-datacontractserializer-wont-call-your-constructor/

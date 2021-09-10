@@ -103,7 +103,7 @@ namespace BrushFactory
         /// Stores the user's custom brushes by file and path until it can
         /// be copied to persistent settings, or ignored.
         /// </summary>
-        private HashSet<string> loadedBrushPaths =
+        private readonly HashSet<string> loadedBrushPaths =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
@@ -133,14 +133,14 @@ namespace BrushFactory
         /// Contains the list of all interpolation options for applying brush
         /// strokes.
         /// </summary>
-        BindingList<InterpolationItem> smoothingMethods;
+        readonly BindingList<InterpolationItem> smoothingMethods;
 
         /// <summary>
         /// Contains the list of all symmetry options for using brush strokes.
         /// </summary>
-        BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
+        readonly BindingList<Tuple<string, SymmetryMode>> symmetryOptions;
 
-        List<PointF> symmetryOrigins;
+        readonly List<PointF> symmetryOrigins;
 
         /// <summary>
         /// Where to draw around for symmetry.
@@ -150,7 +150,7 @@ namespace BrushFactory
         /// <summary>
         /// The tablet service instance used to detect and work with tablets.
         /// </summary>
-        private TabletService tabletService;
+        private readonly TabletService tabletService;
 
         /// <summary>
         /// The pressure ratio as a value from 0 to 1, where 0 is no pressure at all and 1 is max measurable.
@@ -167,17 +167,17 @@ namespace BrushFactory
         /// </summary>
         private string tokenSelectedBrushName;
 
-        private Random random = new Random();
+        private readonly Random random = new Random();
 
         /// <summary>
         /// List of temporary file names to load to perform redo.
         /// </summary>
-        private Stack<string> redoHistory = new Stack<string>();
+        private readonly Stack<string> redoHistory = new Stack<string>();
 
         /// <summary>
         /// List of temporary file names to load to perform undo.
         /// </summary>
-        private Stack<string> undoHistory = new Stack<string>();
+        private readonly Stack<string> undoHistory = new Stack<string>();
 
         /// <summary>
         /// A list of all visible items in the brush selector for thumbnails.
@@ -409,32 +409,36 @@ namespace BrushFactory
             loadedBrushes = new BrushSelectorItemCollection();
 
             //Configures items for the smoothing method combobox.
-            smoothingMethods = new BindingList<InterpolationItem>();
-            smoothingMethods.Add(new InterpolationItem(Localization.Strings.SmoothingNormal, InterpolationMode.Bilinear));
-            smoothingMethods.Add(new InterpolationItem(Localization.Strings.SmoothingHigh, InterpolationMode.HighQualityBicubic));
-            smoothingMethods.Add(new InterpolationItem(Localization.Strings.SmoothingJagged, InterpolationMode.NearestNeighbor));
+            smoothingMethods = new BindingList<InterpolationItem>
+            {
+                new InterpolationItem(Localization.Strings.SmoothingNormal, InterpolationMode.Bilinear),
+                new InterpolationItem(Localization.Strings.SmoothingHigh, InterpolationMode.HighQualityBicubic),
+                new InterpolationItem(Localization.Strings.SmoothingJagged, InterpolationMode.NearestNeighbor)
+            };
             cmbxBrushSmoothing.DataSource = smoothingMethods;
             cmbxBrushSmoothing.DisplayMember = "Name";
             cmbxBrushSmoothing.ValueMember = "Method";
 
             //Configures items for the symmetry options combobox.
             symmetryOrigins = new List<PointF>();
-            symmetryOptions = new BindingList<Tuple<string, SymmetryMode>>();
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryNone, SymmetryMode.None));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryHorizontal, SymmetryMode.Horizontal));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryVertical, SymmetryMode.Vertical));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryBoth, SymmetryMode.Star2));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.SymmetrySetPoints, SymmetryMode.SetPoints));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry3pt, SymmetryMode.Star3));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry4pt, SymmetryMode.Star4));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry5pt, SymmetryMode.Star5));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry6pt, SymmetryMode.Star6));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry7pt, SymmetryMode.Star7));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry8pt, SymmetryMode.Star8));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry9pt, SymmetryMode.Star9));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry10pt, SymmetryMode.Star10));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry11pt, SymmetryMode.Star11));
-            symmetryOptions.Add(new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry12pt, SymmetryMode.Star12));
+            symmetryOptions = new BindingList<Tuple<string, SymmetryMode>>
+            {
+                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryNone, SymmetryMode.None),
+                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryHorizontal, SymmetryMode.Horizontal),
+                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryVertical, SymmetryMode.Vertical),
+                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryBoth, SymmetryMode.Star2),
+                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetrySetPoints, SymmetryMode.SetPoints),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry3pt, SymmetryMode.Star3),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry4pt, SymmetryMode.Star4),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry5pt, SymmetryMode.Star5),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry6pt, SymmetryMode.Star6),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry7pt, SymmetryMode.Star7),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry8pt, SymmetryMode.Star8),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry9pt, SymmetryMode.Star9),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry10pt, SymmetryMode.Star10),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry11pt, SymmetryMode.Star11),
+                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry12pt, SymmetryMode.Star12)
+            };
             cmbxSymmetry.DataSource = symmetryOptions;
             cmbxSymmetry.DisplayMember = "Item1";
             cmbxSymmetry.ValueMember = "Item2";
@@ -5058,8 +5062,6 @@ namespace BrushFactory
                         ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureMinDrawDistance.SelectedItem).ValueMember),
                         0, sliderMinDrawDistance.Maximum);
 
-                PointF mouseLocBrushOriginal = mouseLocBrush ?? mouseLocPrev;
-
                 // Doesn't draw unless the minimum drawing distance is met.
                 if (finalMinDrawDistance != 0)
                 {
@@ -5349,9 +5351,11 @@ namespace BrushFactory
         private void BttnBrushColor_Click(object sender, EventArgs e)
         {
             //Creates and configures a color dialog to display.
-            ColorDialog dialog = new ColorDialog();
-            dialog.FullOpen = true;
-            dialog.Color = bttnBrushColor.BackColor;
+            ColorDialog dialog = new ColorDialog
+            {
+                FullOpen = true,
+                Color = bttnBrushColor.BackColor
+            };
 
             //If the user successfully chooses a color.
             if (dialog.ShowDialog() == DialogResult.OK)
