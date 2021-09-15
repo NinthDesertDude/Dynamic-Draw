@@ -50,9 +50,9 @@ namespace BrushFactory
         private Bitmap bmpCurrentDrawing = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
 
         /// <summary>
-        /// Loads user's custom brushes asynchronously.
+        /// Loads user's custom brush images asynchronously.
         /// </summary>
-        private BackgroundWorker brushLoadingWorker;
+        private BackgroundWorker brushImageLoadingWorker;
 
         /// <summary>
         /// Stores the disposable data for the color picker cursor.
@@ -67,7 +67,7 @@ namespace BrushFactory
         /// <summary>
         /// Whether the brush loading worker should reload brushes after cancelation.
         /// </summary>
-        private bool doReinitializeBrushes;
+        private bool doReinitializeBrushImages;
 
         /// <summary>
         /// Indicates whether the brushes need to be imported from the
@@ -97,14 +97,19 @@ namespace BrushFactory
         /// <summary>
         /// Creates the list of brushes used by the brush selector.
         /// </summary>
-        private BrushSelectorItemCollection loadedBrushes;
+        private BrushSelectorItemCollection loadedBrushImages;
 
         /// <summary>
-        /// Stores the user's custom brushes by file and path until it can
+        /// Stores the user's custom brush images by file and path until it can
         /// be copied to persistent settings, or ignored.
         /// </summary>
-        private readonly HashSet<string> loadedBrushPaths =
+        private readonly HashSet<string> loadedBrushImagePaths =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The name identifying the currently loaded brush, or null if no saved brush is currently active.
+        /// </summary>
+        private string currentBrushName = null;
 
         /// <summary>
         /// Stores the current mouse location.
@@ -122,6 +127,10 @@ namespace BrushFactory
         /// </summary>
         private PointF mouseLocPrev = new PointF();
 
+        /// <summary>
+        /// All user settings including custom brushes / brush image locations and the previous brush settings from
+        /// the last time the effect was ran.
+        /// </summary>
         private BrushFactorySettings settings;
 
         /// <summary>
@@ -165,7 +174,7 @@ namespace BrushFactory
         /// <summary>
         /// The selected brush name from the effect token.
         /// </summary>
-        private string tokenSelectedBrushName;
+        private string tokenSelectedBrushImageName;
 
         private readonly Random random = new Random();
 
@@ -182,12 +191,12 @@ namespace BrushFactory
         /// <summary>
         /// A list of all visible items in the brush selector for thumbnails.
         /// </summary>
-        private ListViewItem[] visibleBrushes;
+        private ListViewItem[] visibleBrushImages;
 
         /// <summary>
         /// The starting index in the brush selector cache.
         /// </summary>
-        private int visibleBrushesIndex;
+        private int visibleBrushImagesIndex;
         #endregion
 
         #region Fields (Gui)
@@ -223,11 +232,11 @@ namespace BrushFactory
         private FlowLayoutPanel panelBrush;
         private Label txtCanvasZoom;
         private TrackBar sliderCanvasZoom;
-        private DoubleBufferedListView bttnBrushSelector;
+        private DoubleBufferedListView listviewBrushImagePicker;
         private Panel panelBrushAddPickColor;
         private CheckBox chkbxColorizeBrush;
-        private Button bttnAddBrushes;
-        private ProgressBar brushLoadProgressBar;
+        private Button bttnAddBrushImages;
+        private ProgressBar brushImageLoadProgressBar;
         private Button bttnBrushColor;
         private Label txtBrushAlpha;
         private TrackBar sliderBrushAlpha;
@@ -389,9 +398,12 @@ namespace BrushFactory
         private CmbxTabletValueType cmbxTabPressureValueJitter;
         private Accordion bttnSettings;
         private FlowLayoutPanel panelSettings;
-        private Button bttnCustomBrushLocations;
-        private Button bttnClearBrushes;
+        private Button bttnCustomBrushImageLocations;
+        private Button bttnClearBrushImages;
         private Button bttnClearSettings;
+        private ListView listviewBrushPicker;
+        private Button bttnSaveBrush;
+        private Button bttnDeleteBrush;
         private Label txtTooltip;
         #endregion
 
@@ -406,7 +418,7 @@ namespace BrushFactory
             TempDirectory.CleanupPreviousDirectories();
             tempDir = new TempDirectory();
 
-            loadedBrushes = new BrushSelectorItemCollection();
+            loadedBrushImages = new BrushSelectorItemCollection();
 
             //Configures items for the smoothing method combobox.
             smoothingMethods = new BindingList<InterpolationItem>
@@ -552,107 +564,19 @@ namespace BrushFactory
         {
             //Copies GUI values from the settings.
             PersistentSettings token = (PersistentSettings)effectToken;
-            sliderBrushSize.Value = token.BrushSize;
 
-            //Loads custom brushes if possible, but skips duplicates. This
+            //Loads custom brush images if possible, but skips duplicates. This
             //method is called twice by Paint.NET for some reason, so this
             //ensures there are no duplicates. Brush names are unique.
-            if (token.CustomBrushLocations.Count > 0 && !token.CustomBrushLocations.SetEquals(loadedBrushPaths))
+            if (token.CustomBrushLocations.Count > 0 && !token.CustomBrushLocations.SetEquals(loadedBrushImagePaths))
             {
-                loadedBrushPaths.UnionWith(token.CustomBrushLocations);
+                loadedBrushImagePaths.UnionWith(token.CustomBrushLocations);
                 importBrushesFromToken = true;
             }
 
-            tokenSelectedBrushName = token.BrushName;
-
-            //Sets the brush color to the primary color if it was transparent.
-            //Else, copies it. This works since the user colors are opaque.
-            bttnBrushColor.BackColor = token.BrushColor;
-
-            //Sets the text color for visibility against the back color.
-            Color oppositeColor = Color.FromArgb(
-                (byte)(255 - token.BrushColor.R),
-                (byte)(255 - token.BrushColor.G),
-                (byte)(255 - token.BrushColor.B));
-
-            bttnBrushColor.ForeColor = oppositeColor;
-
-            //Sets all other fields.
-            sliderBrushAlpha.Value = token.BrushAlpha;
-            sliderBrushDensity.Value = token.BrushDensity;
-            sliderBrushRotation.Value = token.BrushRotation;
-            sliderRandHorzShift.Value = token.RandHorzShift;
-            sliderRandMaxSize.Value = token.RandMaxSize;
-            sliderRandMinAlpha.Value = token.RandMinAlpha;
-            sliderRandMinSize.Value = token.RandMinSize;
-            sliderRandRotLeft.Value = token.RandRotLeft;
-            sliderRandRotRight.Value = token.RandRotRight;
-            sliderRandVertShift.Value = token.RandVertShift;
-            chkbxOrientToMouse.Checked = token.DoRotateWithMouse;
-            chkbxColorizeBrush.Checked = token.DoColorizeBrush;
-            chkbxLockAlpha.Checked = token.DoLockAlpha;
-            sliderMinDrawDistance.Value = token.MinDrawDistance;
-            sliderJitterMaxRed.Value = token.RandMaxR;
-            sliderJitterMaxGreen.Value = token.RandMaxG;
-            sliderJitterMaxBlue.Value = token.RandMaxB;
-            sliderJitterMinRed.Value = token.RandMinR;
-            sliderJitterMinGreen.Value = token.RandMinG;
-            sliderJitterMinBlue.Value = token.RandMinB;
-            sliderJitterMaxHue.Value = token.RandMaxH;
-            sliderJitterMaxSat.Value = token.RandMaxS;
-            sliderJitterMaxVal.Value = token.RandMaxV;
-            sliderJitterMinHue.Value = token.RandMinH;
-            sliderJitterMinSat.Value = token.RandMinS;
-            sliderJitterMinVal.Value = token.RandMinV;
-            sliderShiftSize.Value = token.SizeChange;
-            sliderShiftRotation.Value = token.RotChange;
-            sliderShiftAlpha.Value  = token.AlphaChange;
-            cmbxTabPressureBrushAlpha.SelectedIndex = token.CmbxTabPressureBrushAlpha;
-            cmbxTabPressureBrushDensity.SelectedIndex = token.CmbxTabPressureBrushDensity;
-            cmbxTabPressureBrushRotation.SelectedIndex = token.CmbxTabPressureBrushRotation;
-            cmbxTabPressureBrushSize.SelectedIndex = token.CmbxTabPressureBrushSize;
-            cmbxTabPressureBlueJitter.SelectedIndex = token.CmbxTabPressureBlueJitter;
-            cmbxTabPressureGreenJitter.SelectedIndex = token.CmbxTabPressureGreenJitter;
-            cmbxTabPressureHueJitter.SelectedIndex = token.CmbxTabPressureHueJitter;
-            cmbxTabPressureMinDrawDistance.SelectedIndex = token.CmbxTabPressureMinDrawDistance;
-            cmbxTabPressureRedJitter.SelectedIndex = token.CmbxTabPressureRedJitter;
-            cmbxTabPressureSatJitter.SelectedIndex = token.CmbxTabPressureSatJitter;
-            cmbxTabPressureValueJitter.SelectedIndex = token.CmbxTabPressureValueJitter;
-            cmbxTabPressureRandHorShift.SelectedIndex = token.CmbxTabPressureRandHorShift;
-            cmbxTabPressureRandMaxSize.SelectedIndex = token.CmbxTabPressureRandMaxSize;
-            cmbxTabPressureRandMinAlpha.SelectedIndex = token.CmbxTabPressureRandMinAlpha;
-            cmbxTabPressureRandMinSize.SelectedIndex = token.CmbxTabPressureRandMinSize;
-            cmbxTabPressureRandRotLeft.SelectedIndex = token.CmbxTabPressureRandRotLeft;
-            cmbxTabPressureRandRotRight.SelectedIndex = token.CmbxTabPressureRandRotRight;
-            cmbxTabPressureRandVerShift.SelectedIndex = token.CmbxTabPressureRandVerShift;
-            spinTabPressureBrushAlpha.Value = token.TabPressureBrushAlpha;
-            spinTabPressureBrushDensity.Value = token.TabPressureBrushDensity;
-            spinTabPressureBrushRotation.Value = token.TabPressureBrushRotation;
-            spinTabPressureBrushSize.Value = token.TabPressureBrushSize;
-            spinTabPressureMaxBlueJitter.Value = token.TabPressureMaxBlueJitter;
-            spinTabPressureMaxGreenJitter.Value = token.TabPressureMaxGreenJitter;
-            spinTabPressureMaxHueJitter.Value = token.TabPressureMaxHueJitter;
-            spinTabPressureMaxRedJitter.Value = token.TabPressureMaxRedJitter;
-            spinTabPressureMaxSatJitter.Value = token.TabPressureMaxSatJitter;
-            spinTabPressureMaxValueJitter.Value = token.TabPressureMaxValueJitter;
-            spinTabPressureMinBlueJitter.Value = token.TabPressureMinBlueJitter;
-            spinTabPressureMinDrawDistance.Value = token.TabPressureMinDrawDistance;
-            spinTabPressureMinGreenJitter.Value = token.TabPressureMinGreenJitter;
-            spinTabPressureMinHueJitter.Value = token.TabPressureMinHueJitter;
-            spinTabPressureMinRedJitter.Value = token.TabPressureMinRedJitter;
-            spinTabPressureMinSatJitter.Value = token.TabPressureMinSatJitter;
-            spinTabPressureMinValueJitter.Value = token.TabPressureMinValueJitter;
-            spinTabPressureRandHorShift.Value = token.TabPressureRandHorShift;
-            spinTabPressureRandMaxSize.Value = token.TabPressureRandMaxSize;
-            spinTabPressureRandMinAlpha.Value = token.TabPressureRandMinAlpha;
-            spinTabPressureRandMinSize.Value = token.TabPressureRandMinSize;
-            spinTabPressureRandRotLeft.Value = token.TabPressureRandRotLeft;
-            spinTabPressureRandRotRight.Value = token.TabPressureRandRotRight;
-            spinTabPressureRandVerShift.Value = token.TabPressureRandVerShift;
-            cmbxSymmetry.SelectedIndex = (int)token.Symmetry;
-
-            //Re-applies color and alpha information.
-            UpdateBrush();
+            // Updates brush settings and the current image.
+            UpdateBrush(token.CurrentBrushSettings);
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -663,86 +587,86 @@ namespace BrushFactory
         {
             var token = (PersistentSettings)EffectToken;
 
-            int index = bttnBrushSelector.SelectedIndices.Count > 0
-                ? bttnBrushSelector.SelectedIndices[0]
+            int index = listviewBrushImagePicker.SelectedIndices.Count > 0
+                ? listviewBrushImagePicker.SelectedIndices[0]
                 : -1;
 
-            token.AlphaChange = sliderShiftAlpha.Value;
-            token.BrushAlpha = sliderBrushAlpha.Value;
-            token.BrushColor = bttnBrushColor.BackColor;
-            token.BrushDensity = sliderBrushDensity.Value;
-            token.BrushName = index >= 0 ? loadedBrushes[index].Name : string.Empty;
-            token.BrushRotation = sliderBrushRotation.Value;
-            token.BrushSize = sliderBrushSize.Value;
-            token.CustomBrushLocations = loadedBrushPaths;
-            token.DoColorizeBrush = chkbxColorizeBrush.Checked;
-            token.DoLockAlpha = chkbxLockAlpha.Checked;
-            token.DoRotateWithMouse = chkbxOrientToMouse.Checked;
-            token.MinDrawDistance = sliderMinDrawDistance.Value;
-            token.RandHorzShift = sliderRandHorzShift.Value;
-            token.RandMaxB = sliderJitterMaxBlue.Value;
-            token.RandMaxG = sliderJitterMaxGreen.Value;
-            token.RandMaxR = sliderJitterMaxRed.Value;
-            token.RandMaxH = sliderJitterMaxHue.Value;
-            token.RandMaxS = sliderJitterMaxSat.Value;
-            token.RandMaxV = sliderJitterMaxVal.Value;
-            token.RandMaxSize = sliderRandMaxSize.Value;
-            token.RandMinAlpha = sliderRandMinAlpha.Value;
-            token.RandMinB = sliderJitterMinBlue.Value;
-            token.RandMinG = sliderJitterMinGreen.Value;
-            token.RandMinR = sliderJitterMinRed.Value;
-            token.RandMinH = sliderJitterMinHue.Value;
-            token.RandMinS = sliderJitterMinSat.Value;
-            token.RandMinV = sliderJitterMinVal.Value;
-            token.RandMinSize = sliderRandMinSize.Value;
-            token.RandRotLeft = sliderRandRotLeft.Value;
-            token.RandRotRight = sliderRandRotRight.Value;
-            token.RandVertShift = sliderRandVertShift.Value;
-            token.RotChange = sliderShiftRotation.Value;
-            token.SizeChange = sliderShiftSize.Value;
-            token.Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex;
-            token.CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex;
-            token.CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex;
-            token.CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex;
-            token.CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex;
-            token.CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex;
-            token.CmbxTabPressureGreenJitter = cmbxTabPressureGreenJitter.SelectedIndex;
-            token.CmbxTabPressureHueJitter = cmbxTabPressureHueJitter.SelectedIndex;
-            token.CmbxTabPressureMinDrawDistance = cmbxTabPressureMinDrawDistance.SelectedIndex;
-            token.CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex;
-            token.CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex;
-            token.CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex;
-            token.CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex;
-            token.CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex;
-            token.CmbxTabPressureRandMinAlpha = cmbxTabPressureRandMinAlpha.SelectedIndex;
-            token.CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex;
-            token.CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex;
-            token.CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex;
-            token.CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex;
-            token.TabPressureBrushAlpha = (int)spinTabPressureBrushAlpha.Value;
-            token.TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value;
-            token.TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value;
-            token.TabPressureBrushSize = (int)spinTabPressureBrushSize.Value;
-            token.TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value;
-            token.TabPressureMaxGreenJitter = (int)spinTabPressureMaxGreenJitter.Value;
-            token.TabPressureMaxHueJitter = (int)spinTabPressureMaxHueJitter.Value;
-            token.TabPressureMaxRedJitter = (int)spinTabPressureMaxRedJitter.Value;
-            token.TabPressureMaxSatJitter = (int)spinTabPressureMaxSatJitter.Value;
-            token.TabPressureMaxValueJitter = (int)spinTabPressureMaxValueJitter.Value;
-            token.TabPressureMinBlueJitter = (int)spinTabPressureMinBlueJitter.Value;
-            token.TabPressureMinDrawDistance = (int)spinTabPressureMinDrawDistance.Value;
-            token.TabPressureMinGreenJitter = (int)spinTabPressureMinGreenJitter.Value;
-            token.TabPressureMinHueJitter = (int)spinTabPressureMinHueJitter.Value;
-            token.TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value;
-            token.TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value;
-            token.TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value;
-            token.TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value;
-            token.TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value;
-            token.TabPressureRandMinAlpha = (int)spinTabPressureRandMinAlpha.Value;
-            token.TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value;
-            token.TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value;
-            token.TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value;
-            token.TabPressureRandVerShift = (int)spinTabPressureRandVerShift.Value;
+            token.CustomBrushLocations = loadedBrushImagePaths;
+            token.CurrentBrushSettings.AlphaChange = sliderShiftAlpha.Value;
+            token.CurrentBrushSettings.BrushAlpha = sliderBrushAlpha.Value;
+            token.CurrentBrushSettings.BrushColor = bttnBrushColor.BackColor;
+            token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
+            token.CurrentBrushSettings.BrushImageName = index >= 0 ? loadedBrushImages[index].Name : string.Empty;
+            token.CurrentBrushSettings.BrushRotation = sliderBrushRotation.Value;
+            token.CurrentBrushSettings.BrushSize = sliderBrushSize.Value;
+            token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
+            token.CurrentBrushSettings.DoLockAlpha = chkbxLockAlpha.Checked;
+            token.CurrentBrushSettings.DoRotateWithMouse = chkbxOrientToMouse.Checked;
+            token.CurrentBrushSettings.MinDrawDistance = sliderMinDrawDistance.Value;
+            token.CurrentBrushSettings.RandHorzShift = sliderRandHorzShift.Value;
+            token.CurrentBrushSettings.RandMaxB = sliderJitterMaxBlue.Value;
+            token.CurrentBrushSettings.RandMaxG = sliderJitterMaxGreen.Value;
+            token.CurrentBrushSettings.RandMaxR = sliderJitterMaxRed.Value;
+            token.CurrentBrushSettings.RandMaxH = sliderJitterMaxHue.Value;
+            token.CurrentBrushSettings.RandMaxS = sliderJitterMaxSat.Value;
+            token.CurrentBrushSettings.RandMaxV = sliderJitterMaxVal.Value;
+            token.CurrentBrushSettings.RandMaxSize = sliderRandMaxSize.Value;
+            token.CurrentBrushSettings.RandMinAlpha = sliderRandMinAlpha.Value;
+            token.CurrentBrushSettings.RandMinB = sliderJitterMinBlue.Value;
+            token.CurrentBrushSettings.RandMinG = sliderJitterMinGreen.Value;
+            token.CurrentBrushSettings.RandMinR = sliderJitterMinRed.Value;
+            token.CurrentBrushSettings.RandMinH = sliderJitterMinHue.Value;
+            token.CurrentBrushSettings.RandMinS = sliderJitterMinSat.Value;
+            token.CurrentBrushSettings.RandMinV = sliderJitterMinVal.Value;
+            token.CurrentBrushSettings.RandMinSize = sliderRandMinSize.Value;
+            token.CurrentBrushSettings.RandRotLeft = sliderRandRotLeft.Value;
+            token.CurrentBrushSettings.RandRotRight = sliderRandRotRight.Value;
+            token.CurrentBrushSettings.RandVertShift = sliderRandVertShift.Value;
+            token.CurrentBrushSettings.RotChange = sliderShiftRotation.Value;
+            token.CurrentBrushSettings.SizeChange = sliderShiftSize.Value;
+            token.CurrentBrushSettings.Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureGreenJitter = cmbxTabPressureGreenJitter.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureHueJitter = cmbxTabPressureHueJitter.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureMinDrawDistance = cmbxTabPressureMinDrawDistance.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandMinAlpha = cmbxTabPressureRandMinAlpha.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex;
+            token.CurrentBrushSettings.TabPressureBrushAlpha = (int)spinTabPressureBrushAlpha.Value;
+            token.CurrentBrushSettings.TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value;
+            token.CurrentBrushSettings.TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value;
+            token.CurrentBrushSettings.TabPressureBrushSize = (int)spinTabPressureBrushSize.Value;
+            token.CurrentBrushSettings.TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value;
+            token.CurrentBrushSettings.TabPressureMaxGreenJitter = (int)spinTabPressureMaxGreenJitter.Value;
+            token.CurrentBrushSettings.TabPressureMaxHueJitter = (int)spinTabPressureMaxHueJitter.Value;
+            token.CurrentBrushSettings.TabPressureMaxRedJitter = (int)spinTabPressureMaxRedJitter.Value;
+            token.CurrentBrushSettings.TabPressureMaxSatJitter = (int)spinTabPressureMaxSatJitter.Value;
+            token.CurrentBrushSettings.TabPressureMaxValueJitter = (int)spinTabPressureMaxValueJitter.Value;
+            token.CurrentBrushSettings.TabPressureMinBlueJitter = (int)spinTabPressureMinBlueJitter.Value;
+            token.CurrentBrushSettings.TabPressureMinDrawDistance = (int)spinTabPressureMinDrawDistance.Value;
+            token.CurrentBrushSettings.TabPressureMinGreenJitter = (int)spinTabPressureMinGreenJitter.Value;
+            token.CurrentBrushSettings.TabPressureMinHueJitter = (int)spinTabPressureMinHueJitter.Value;
+            token.CurrentBrushSettings.TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value;
+            token.CurrentBrushSettings.TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value;
+            token.CurrentBrushSettings.TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value;
+            token.CurrentBrushSettings.TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value;
+            token.CurrentBrushSettings.TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value;
+            token.CurrentBrushSettings.TabPressureRandMinAlpha = (int)spinTabPressureRandMinAlpha.Value;
+            token.CurrentBrushSettings.TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value;
+            token.CurrentBrushSettings.TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value;
+            token.CurrentBrushSettings.TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value;
+            token.CurrentBrushSettings.TabPressureRandVerShift = (int)spinTabPressureRandVerShift.Value;
         }
 
         /// <summary>
@@ -838,12 +762,12 @@ namespace BrushFactory
 
             UpdateTooltip(string.Empty);
 
-            bttnAddBrushes.Text = Localization.Strings.AddBrushes;
+            bttnAddBrushImages.Text = Localization.Strings.AddBrushImages;
             bttnBrushColor.Text = Localization.Strings.BrushColor;
             bttnCancel.Text = Localization.Strings.Cancel;
-            bttnClearBrushes.Text = Localization.Strings.ClearBrushes;
+            bttnClearBrushImages.Text = Localization.Strings.ClearBrushImages;
             bttnClearSettings.Text = Localization.Strings.ClearSettings;
-            bttnCustomBrushLocations.Text = Localization.Strings.CustomBrushLocations;
+            bttnCustomBrushImageLocations.Text = Localization.Strings.CustomBrushImageLocations;
             bttnOk.Text = Localization.Strings.Ok;
             bttnUndo.Text = Localization.Strings.Undo;
             bttnRedo.Text = Localization.Strings.Redo;
@@ -851,6 +775,25 @@ namespace BrushFactory
             chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
             chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
             chkbxOrientToMouse.Text = Localization.Strings.OrientToMouse;
+
+            cmbxTabPressureBlueJitter.Text = Localization.Strings.JitterBlue;
+            cmbxTabPressureBrushAlpha.Text = Localization.Strings.Alpha;
+            cmbxTabPressureBrushDensity.Text = Localization.Strings.BrushDensity;
+            cmbxTabPressureBrushRotation.Text = Localization.Strings.Rotation;
+            cmbxTabPressureBrushSize.Text = Localization.Strings.Size;
+            cmbxTabPressureGreenJitter.Text = Localization.Strings.JitterGreen;
+            cmbxTabPressureHueJitter.Text = Localization.Strings.JitterHue;
+            cmbxTabPressureMinDrawDistance.Text = Localization.Strings.MinDrawDistanceShort;
+            cmbxTabPressureRandHorShift.Text = Localization.Strings.RandHorzShift;
+            cmbxTabPressureRandMaxSize.Text = Localization.Strings.RandMaxSize;
+            cmbxTabPressureRandMinAlpha.Text = Localization.Strings.RandMinAlpha;
+            cmbxTabPressureRandMinSize.Text = Localization.Strings.RandMinSize;
+            cmbxTabPressureRandRotLeft.Text = Localization.Strings.RandRotLeft;
+            cmbxTabPressureRandRotRight.Text = Localization.Strings.RandRotRight;
+            cmbxTabPressureRandVerShift.Text = Localization.Strings.RandVertShift;
+
+            bttnDeleteBrush.Text = Localization.Strings.DeleteBrush;
+            bttnSaveBrush.Text = Localization.Strings.SaveNewBrush;
 
             //Forces the window to cover the screen without being maximized.
             Rectangle workingArea = Screen.FromControl(this).WorkingArea;
@@ -889,6 +832,16 @@ namespace BrushFactory
                 // Loading the settings is split into a separate method to allow the defaults
                 // to be used if an error occurs.
                 settings.LoadSavedSettings();
+
+                // Populates the brush picker with saved brush names, which will be used to look up the settings later.
+                if (listviewBrushPicker.Items.Count == 0)
+                {
+                    listviewBrushPicker.Items.Add(new ListViewItem(Localization.Strings.CustomBrushesDefaultBrush));
+                    foreach (var keyValPair in settings.CustomBrushes)
+                    {
+                        listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1134,13 +1087,13 @@ namespace BrushFactory
         {
             base.OnFormClosing(e);
 
-            if (brushLoadingWorker.IsBusy)
+            if (brushImageLoadingWorker.IsBusy)
             {
                 e.Cancel = true;
                 if (DialogResult == DialogResult.Cancel)
                 {
                     isFormClosing = true;
-                    brushLoadingWorker.CancelAsync();
+                    brushImageLoadingWorker.CancelAsync();
                 }
             }
 
@@ -1180,10 +1133,10 @@ namespace BrushFactory
         {
             if (disposing)
             {
-                if (loadedBrushes != null)
+                if (loadedBrushImages != null)
                 {
-                    loadedBrushes.Dispose();
-                    loadedBrushes = null;
+                    loadedBrushImages.Dispose();
+                    loadedBrushImages = null;
                 }
                 if (tempDir != null)
                 {
@@ -1298,7 +1251,7 @@ namespace BrushFactory
                 // If not changing sliderBrushAlpha already by shifting it in the if-statement above, the brush has to
                 // be manually redrawn when modifying brush alpha. This is done to avoid editing sliderBrushAlpha and
                 // having to use an extra variable to mitigate the cumulative effect it would cause.
-                UpdateBrush();
+                UpdateBrushImage();
             }
 
             if (sliderShiftRotation.Value != 0)
@@ -1834,148 +1787,148 @@ namespace BrushFactory
 
         /// <summary>
         /// Presents an open file dialog to the user, allowing them to select
-        /// any number of brush files to load and add as custom brushes.
+        /// any number of brush image files to load and add as custom brush images.
         /// Returns false if the user cancels or an error occurred.
         /// </summary>
         /// <param name="doAddToSettings">
-        /// If true, the brush will be added to the settings.
+        /// If true, the brush image will be added to the settings.
         /// </param>
-        private void ImportBrushes(bool doAddToSettings)
+        private void ImportBrushImages(bool doAddToSettings)
         {
-            //Configures a dialog to get the brush(es) path(s).
+            //Configures a dialog to get the brush image(s) path(s).
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             string defPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             openFileDialog.InitialDirectory = defPath;
             openFileDialog.Multiselect = true;
-            openFileDialog.Title = "Load custom brushes";
-            openFileDialog.Filter = "Images and abr brushes|" +
-                "*.png;*.bmp;*.jpg;*.gif;*.tif;*.exif*.jpeg;*.tiff;*.abr;";
+            openFileDialog.Title = Localization.Strings.CustomBrushImagesDirectoryTitle;
+            openFileDialog.Filter = Localization.Strings.CustomBrushImagesDirectoryFilter +
+                "|*.png;*.bmp;*.jpg;*.gif;*.tif;*.exif*.jpeg;*.tiff;*.abr;";
 
             //Displays the dialog. Loads the files if it worked.
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                ImportBrushesFromFiles(openFileDialog.FileNames, doAddToSettings, true);
+                ImportBrushImagesFromFiles(openFileDialog.FileNames, doAddToSettings, true);
             }
         }
 
         /// <summary>
-        /// Attempts to load any number of brush files and add them as custom
-        /// brushes. This does not interact with the user.
+        /// Attempts to load any number of brush image files and add them as custom
+        /// brush images. This does not interact with the user.
         /// </summary>
         /// <param name="fileAndPath">
         /// If empty, the user will be presented with a dialog to select
         /// files.
         /// </param>
         /// <param name="doAddToSettings">
-        /// If true, the brush will be added to the settings.
+        /// If true, the brush image will be added to the settings.
         /// </param>
         /// <param name="displayError">
         /// Errors should only be displayed if it's a user-initiated action.
         /// </param>
-        private void ImportBrushesFromFiles(
+        private void ImportBrushImagesFromFiles(
             IReadOnlyCollection<string> filePaths,
             bool doAddToSettings,
             bool doDisplayErrors)
         {
-            if (!brushLoadingWorker.IsBusy)
+            if (!brushImageLoadingWorker.IsBusy)
             {
                 int listViewItemHeight = GetListViewItemHeight();
                 int maxBrushSize = sliderBrushSize.Maximum;
 
-                BrushLoadingSettings workerArgs = new BrushLoadingSettings(filePaths, doAddToSettings, doDisplayErrors, listViewItemHeight, maxBrushSize);
-                bttnAddBrushes.Visible = false;
-                brushLoadProgressBar.Visible = true;
+                BrushImageLoadingSettings workerArgs = new BrushImageLoadingSettings(filePaths, doAddToSettings, doDisplayErrors, listViewItemHeight, maxBrushSize);
+                bttnAddBrushImages.Visible = false;
+                brushImageLoadProgressBar.Visible = true;
 
-                brushLoadingWorker.RunWorkerAsync(workerArgs);
+                brushImageLoadingWorker.RunWorkerAsync(workerArgs);
             }
         }
 
         /// <summary>
-        /// Attempts to load any brush files from the specified directories and add them as custom
-        /// brushes. This does not interact with the user.
+        /// Attempts to load any brush image files from the specified directories and add them as custom
+        /// brush images. This does not interact with the user.
         /// </summary>
         /// <param name="directories">
         /// The search directories.
         /// </param>
-        private void ImportBrushesFromDirectories(IEnumerable<string> directories)
+        private void ImportBrushImagesFromDirectories(IEnumerable<string> directories)
         {
-            if (!brushLoadingWorker.IsBusy)
+            if (!brushImageLoadingWorker.IsBusy)
             {
                 int listViewItemHeight = GetListViewItemHeight();
                 int maxBrushSize = sliderBrushSize.Maximum;
 
-                BrushLoadingSettings workerArgs = new BrushLoadingSettings(directories, listViewItemHeight, maxBrushSize);
-                bttnAddBrushes.Visible = false;
-                brushLoadProgressBar.Visible = true;
+                BrushImageLoadingSettings workerArgs = new BrushImageLoadingSettings(directories, listViewItemHeight, maxBrushSize);
+                bttnAddBrushImages.Visible = false;
+                brushImageLoadProgressBar.Visible = true;
 
-                brushLoadingWorker.RunWorkerAsync(workerArgs);
+                brushImageLoadingWorker.RunWorkerAsync(workerArgs);
             }
         }
 
         /// <summary>
         /// Sets the brushes to be used, clearing any that already exist and
-        /// removing all custom brushes as a result.
+        /// removing all custom brush images as a result.
         /// </summary>
         private void InitBrushes()
         {
-            if (brushLoadingWorker.IsBusy)
+            if (brushImageLoadingWorker.IsBusy)
             {
                 // Signal the background worker to abort and call this method when it completes.
                 // This prevents a few crashes caused by race conditions when modifying the brush
                 // collection from multiple threads.
-                doReinitializeBrushes = true;
-                brushLoadingWorker.CancelAsync();
+                doReinitializeBrushImages = true;
+                brushImageLoadingWorker.CancelAsync();
                 return;
             }
 
             bmpBrush = new Bitmap(Resources.BrCircle);
 
-            if (loadedBrushes.Count > 0)
+            if (loadedBrushImages.Count > 0)
             {
                 // Disposes and removes all of the existing items in the collection.
-                bttnBrushSelector.VirtualListSize = 0;
-                loadedBrushes.Clear();
+                listviewBrushImagePicker.VirtualListSize = 0;
+                loadedBrushImages.Clear();
             }
 
             if (settings?.UseDefaultBrushes ?? true)
             {
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushLine, Resources.BrLine));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmallDots, Resources.BrDotsTiny));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushBigDots, Resources.BrDotsBig));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpark, Resources.BrSpark));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGravel, Resources.BrGravel));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushRain, Resources.BrRain));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGrass, Resources.BrGrass));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmoke, Resources.BrSmoke));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushScales, Resources.BrScales));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushFractalDirt, Resources.BrFractalDirt));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt3, Resources.BrDirt3));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt2, Resources.BrDirt2));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt, Resources.BrDirt));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCracks, Resources.BrCracks));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpiral, Resources.BrSpiral));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSegmented, Resources.BrCircleSegmented));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSketchy, Resources.BrCircleSketchy));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleRough, Resources.BrCircleRough));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleHard, Resources.BrCircleHard));
-                loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleMed, Resources.BrCircleMedium));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushLine, Resources.BrLine));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmallDots, Resources.BrDotsTiny));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushBigDots, Resources.BrDotsBig));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpark, Resources.BrSpark));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGravel, Resources.BrGravel));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushRain, Resources.BrRain));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGrass, Resources.BrGrass));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmoke, Resources.BrSmoke));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushScales, Resources.BrScales));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushFractalDirt, Resources.BrFractalDirt));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt3, Resources.BrDirt3));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt2, Resources.BrDirt2));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt, Resources.BrDirt));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCracks, Resources.BrCracks));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpiral, Resources.BrSpiral));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSegmented, Resources.BrCircleSegmented));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSketchy, Resources.BrCircleSketchy));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleRough, Resources.BrCircleRough));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleHard, Resources.BrCircleHard));
+                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleMed, Resources.BrCircleMedium));
             }
 
-            //Loads stored brushes.
-            loadedBrushes.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircle, Resources.BrCircle));
-            bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
+            //Loads stored brush images.
+            loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircle, Resources.BrCircle));
+            listviewBrushImagePicker.VirtualListSize = loadedBrushImages.Count;
 
-            //Loads any custom brushes.
+            //Loads any custom brush images.
             if (importBrushesFromToken)
             {
                 importBrushesFromToken = false;
 
-                ImportBrushesFromFiles(loadedBrushPaths, false, false);
+                ImportBrushImagesFromFiles(loadedBrushImagePaths, false, false);
             }
             else
             {
-                ImportBrushesFromDirectories(settings?.CustomBrushDirectories ?? new HashSet<string>());
+                ImportBrushImagesFromDirectories(settings?.CustomBrushImageDirectories ?? new HashSet<string>());
             }
         }
 
@@ -2041,27 +1994,27 @@ namespace BrushFactory
         /// </summary>
         private int GetListViewItemHeight()
         {
-            if (bttnBrushSelector.VirtualListSize == 0)
+            if (listviewBrushImagePicker.VirtualListSize == 0)
             {
                 // Suspend the ListView painting while the dummy item is added and removed.
-                bttnBrushSelector.BeginUpdate();
+                listviewBrushImagePicker.BeginUpdate();
 
                 // Add and remove a dummy item to get the ListView item height.
-                loadedBrushes.Add(new BrushSelectorItem("Dummy", Resources.BrCircle));
-                bttnBrushSelector.VirtualListSize = 1;
+                loadedBrushImages.Add(new BrushSelectorItem("Dummy", Resources.BrCircle));
+                listviewBrushImagePicker.VirtualListSize = 1;
 
-                int itemHeight = bttnBrushSelector.GetItemRect(0, ItemBoundsPortion.Entire).Height;
+                int itemHeight = listviewBrushImagePicker.GetItemRect(0, ItemBoundsPortion.Entire).Height;
 
-                bttnBrushSelector.VirtualListSize = 0;
-                loadedBrushes.Clear();
+                listviewBrushImagePicker.VirtualListSize = 0;
+                loadedBrushImages.Clear();
 
-                bttnBrushSelector.EndUpdate();
+                listviewBrushImagePicker.EndUpdate();
 
                 return itemHeight;
             }
             else
             {
-                return bttnBrushSelector.GetItemRect(0, ItemBoundsPortion.Entire).Height;
+                return listviewBrushImagePicker.GetItemRect(0, ItemBoundsPortion.Entire).Height;
             }
         }
 
@@ -2119,7 +2072,7 @@ namespace BrushFactory
             this.bttnRedo = new System.Windows.Forms.Button();
             this.bttnOk = new System.Windows.Forms.Button();
             this.bttnCancel = new System.Windows.Forms.Button();
-            this.brushLoadingWorker = new System.ComponentModel.BackgroundWorker();
+            this.brushImageLoadingWorker = new System.ComponentModel.BackgroundWorker();
             this.bttnColorPicker = new System.Windows.Forms.Button();
             this.panelAllSettingsContainer = new System.Windows.Forms.Panel();
             this.panelDockSettingsContainer = new System.Windows.Forms.Panel();
@@ -2131,11 +2084,12 @@ namespace BrushFactory
             this.panelBrush = new System.Windows.Forms.FlowLayoutPanel();
             this.txtCanvasZoom = new System.Windows.Forms.Label();
             this.sliderCanvasZoom = new System.Windows.Forms.TrackBar();
-            this.bttnBrushSelector = new BrushFactory.DoubleBufferedListView();
+            this.listviewBrushPicker = new System.Windows.Forms.ListView();
+            this.listviewBrushImagePicker = new BrushFactory.DoubleBufferedListView();
             this.panelBrushAddPickColor = new System.Windows.Forms.Panel();
             this.chkbxColorizeBrush = new System.Windows.Forms.CheckBox();
-            this.bttnAddBrushes = new System.Windows.Forms.Button();
-            this.brushLoadProgressBar = new System.Windows.Forms.ProgressBar();
+            this.bttnAddBrushImages = new System.Windows.Forms.Button();
+            this.brushImageLoadProgressBar = new System.Windows.Forms.ProgressBar();
             this.bttnBrushColor = new System.Windows.Forms.Button();
             this.txtBrushAlpha = new System.Windows.Forms.Label();
             this.sliderBrushAlpha = new System.Windows.Forms.TrackBar();
@@ -2297,9 +2251,11 @@ namespace BrushFactory
             this.cmbxTabPressureValueJitter = new BrushFactory.Gui.CmbxTabletValueType();
             this.bttnSettings = new BrushFactory.Gui.Accordion();
             this.panelSettings = new System.Windows.Forms.FlowLayoutPanel();
-            this.bttnCustomBrushLocations = new System.Windows.Forms.Button();
-            this.bttnClearBrushes = new System.Windows.Forms.Button();
+            this.bttnCustomBrushImageLocations = new System.Windows.Forms.Button();
+            this.bttnClearBrushImages = new System.Windows.Forms.Button();
             this.bttnClearSettings = new System.Windows.Forms.Button();
+            this.bttnDeleteBrush = new System.Windows.Forms.Button();
+            this.bttnSaveBrush = new System.Windows.Forms.Button();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.panelUndoRedoOkCancel.SuspendLayout();
@@ -2414,7 +2370,6 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.txtTooltip, "txtTooltip");
             this.txtTooltip.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.txtTooltip.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.txtTooltip.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.txtTooltip.Name = "txtTooltip";
             // 
@@ -2500,13 +2455,13 @@ namespace BrushFactory
             this.bttnCancel.Click += new System.EventHandler(this.BttnCancel_Click);
             this.bttnCancel.MouseEnter += new System.EventHandler(this.BttnCancel_MouseEnter);
             // 
-            // brushLoadingWorker
+            // brushImageLoadingWorker
             // 
-            this.brushLoadingWorker.WorkerReportsProgress = true;
-            this.brushLoadingWorker.WorkerSupportsCancellation = true;
-            this.brushLoadingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BrushLoadingWorker_DoWork);
-            this.brushLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BrushLoadingWorker_ProgressChanged);
-            this.brushLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BrushLoadingWorker_RunWorkerCompleted);
+            this.brushImageLoadingWorker.WorkerReportsProgress = true;
+            this.brushImageLoadingWorker.WorkerSupportsCancellation = true;
+            this.brushImageLoadingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BrushImageLoadingWorker_DoWork);
+            this.brushImageLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BrushImageLoadingWorker_ProgressChanged);
+            this.brushImageLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BrushImageLoadingWorker_RunWorkerCompleted);
             // 
             // bttnColorPicker
             // 
@@ -2594,7 +2549,8 @@ namespace BrushFactory
             this.panelBrush.BackColor = System.Drawing.SystemColors.Control;
             this.panelBrush.Controls.Add(this.txtCanvasZoom);
             this.panelBrush.Controls.Add(this.sliderCanvasZoom);
-            this.panelBrush.Controls.Add(this.bttnBrushSelector);
+            this.panelBrush.Controls.Add(this.listviewBrushPicker);
+            this.panelBrush.Controls.Add(this.listviewBrushImagePicker);
             this.panelBrush.Controls.Add(this.panelBrushAddPickColor);
             this.panelBrush.Controls.Add(this.txtBrushAlpha);
             this.panelBrush.Controls.Add(this.sliderBrushAlpha);
@@ -2622,31 +2578,41 @@ namespace BrushFactory
             this.sliderCanvasZoom.ValueChanged += new System.EventHandler(this.SliderCanvasZoom_ValueChanged);
             this.sliderCanvasZoom.MouseEnter += new System.EventHandler(this.SliderCanvasZoom_MouseEnter);
             // 
-            // bttnBrushSelector
+            // listviewBrushPicker
             // 
-            this.bttnBrushSelector.HideSelection = false;
-            this.bttnBrushSelector.LargeImageList = this.dummyImageList;
-            resources.ApplyResources(this.bttnBrushSelector, "bttnBrushSelector");
-            this.bttnBrushSelector.MultiSelect = false;
-            this.bttnBrushSelector.Name = "bttnBrushSelector";
-            this.bttnBrushSelector.OwnerDraw = true;
-            this.bttnBrushSelector.ShowItemToolTips = true;
-            this.bttnBrushSelector.UseCompatibleStateImageBehavior = false;
-            this.bttnBrushSelector.VirtualMode = true;
-            this.bttnBrushSelector.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.BttnBrushSelector_CacheVirtualItems);
-            this.bttnBrushSelector.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.BttnBrushSelector_DrawColumnHeader);
-            this.bttnBrushSelector.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.BttnBrushSelector_DrawItem);
-            this.bttnBrushSelector.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.BttnBrushSelector_DrawSubItem);
-            this.bttnBrushSelector.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.BttnBrushSelector_RetrieveVirtualItem);
-            this.bttnBrushSelector.SelectedIndexChanged += new System.EventHandler(this.BttnBrushSelector_SelectedIndexChanged);
-            this.bttnBrushSelector.MouseEnter += new System.EventHandler(this.BttnBrushSelector_MouseEnter);
+            this.listviewBrushPicker.HideSelection = false;
+            resources.ApplyResources(this.listviewBrushPicker, "listviewBrushPicker");
+            this.listviewBrushPicker.Name = "listviewBrushPicker";
+            this.listviewBrushPicker.UseCompatibleStateImageBehavior = false;
+            this.listviewBrushPicker.View = System.Windows.Forms.View.List;
+            this.listviewBrushPicker.SelectedIndexChanged += new System.EventHandler(this.ListViewBrushPicker_SelectedIndexChanged);
+            this.listviewBrushPicker.MouseEnter += new System.EventHandler(this.listviewBrushPicker_MouseEnter);
+            // 
+            // listviewBrushImagePicker
+            // 
+            this.listviewBrushImagePicker.HideSelection = false;
+            this.listviewBrushImagePicker.LargeImageList = this.dummyImageList;
+            resources.ApplyResources(this.listviewBrushImagePicker, "listviewBrushImagePicker");
+            this.listviewBrushImagePicker.MultiSelect = false;
+            this.listviewBrushImagePicker.Name = "listviewBrushImagePicker";
+            this.listviewBrushImagePicker.OwnerDraw = true;
+            this.listviewBrushImagePicker.ShowItemToolTips = true;
+            this.listviewBrushImagePicker.UseCompatibleStateImageBehavior = false;
+            this.listviewBrushImagePicker.VirtualMode = true;
+            this.listviewBrushImagePicker.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.ListViewBrushImagePicker_CacheVirtualItems);
+            this.listviewBrushImagePicker.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.ListViewBrushImagePicker_DrawColumnHeader);
+            this.listviewBrushImagePicker.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.ListViewBrushImagePicker_DrawItem);
+            this.listviewBrushImagePicker.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.ListViewBrushImagePicker_DrawSubItem);
+            this.listviewBrushImagePicker.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.ListViewBrushImagePicker_RetrieveVirtualItem);
+            this.listviewBrushImagePicker.SelectedIndexChanged += new System.EventHandler(this.ListViewBrushImagePicker_SelectedIndexChanged);
+            this.listviewBrushImagePicker.MouseEnter += new System.EventHandler(this.ListViewBrushImagePicker_MouseEnter);
             // 
             // panelBrushAddPickColor
             // 
             resources.ApplyResources(this.panelBrushAddPickColor, "panelBrushAddPickColor");
             this.panelBrushAddPickColor.Controls.Add(this.chkbxColorizeBrush);
-            this.panelBrushAddPickColor.Controls.Add(this.bttnAddBrushes);
-            this.panelBrushAddPickColor.Controls.Add(this.brushLoadProgressBar);
+            this.panelBrushAddPickColor.Controls.Add(this.bttnAddBrushImages);
+            this.panelBrushAddPickColor.Controls.Add(this.brushImageLoadProgressBar);
             this.panelBrushAddPickColor.Controls.Add(this.bttnBrushColor);
             this.panelBrushAddPickColor.Name = "panelBrushAddPickColor";
             // 
@@ -2660,19 +2626,19 @@ namespace BrushFactory
             this.chkbxColorizeBrush.CheckedChanged += new System.EventHandler(this.ChkbxColorizeBrush_CheckedChanged);
             this.chkbxColorizeBrush.MouseEnter += new System.EventHandler(this.ChkbxColorizeBrush_MouseEnter);
             // 
-            // bttnAddBrushes
+            // bttnAddBrushImages
             // 
-            this.bttnAddBrushes.Image = global::BrushFactory.Properties.Resources.AddBrushIcon;
-            resources.ApplyResources(this.bttnAddBrushes, "bttnAddBrushes");
-            this.bttnAddBrushes.Name = "bttnAddBrushes";
-            this.bttnAddBrushes.UseVisualStyleBackColor = true;
-            this.bttnAddBrushes.Click += new System.EventHandler(this.BttnAddBrushes_Click);
-            this.bttnAddBrushes.MouseEnter += new System.EventHandler(this.BttnAddBrushes_MouseEnter);
+            this.bttnAddBrushImages.Image = global::BrushFactory.Properties.Resources.AddBrushIcon;
+            resources.ApplyResources(this.bttnAddBrushImages, "bttnAddBrushImages");
+            this.bttnAddBrushImages.Name = "bttnAddBrushImages";
+            this.bttnAddBrushImages.UseVisualStyleBackColor = true;
+            this.bttnAddBrushImages.Click += new System.EventHandler(this.BttnAddBrushImages_Click);
+            this.bttnAddBrushImages.MouseEnter += new System.EventHandler(this.BttnAddBrushImages_MouseEnter);
             // 
-            // brushLoadProgressBar
+            // brushImageLoadProgressBar
             // 
-            resources.ApplyResources(this.brushLoadProgressBar, "brushLoadProgressBar");
-            this.brushLoadProgressBar.Name = "brushLoadProgressBar";
+            resources.ApplyResources(this.brushImageLoadProgressBar, "brushImageLoadProgressBar");
+            this.brushImageLoadProgressBar.Name = "brushImageLoadProgressBar";
             // 
             // bttnBrushColor
             // 
@@ -4114,26 +4080,28 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.panelSettings, "panelSettings");
             this.panelSettings.BackColor = System.Drawing.SystemColors.Control;
-            this.panelSettings.Controls.Add(this.bttnCustomBrushLocations);
-            this.panelSettings.Controls.Add(this.bttnClearBrushes);
+            this.panelSettings.Controls.Add(this.bttnCustomBrushImageLocations);
+            this.panelSettings.Controls.Add(this.bttnClearBrushImages);
             this.panelSettings.Controls.Add(this.bttnClearSettings);
+            this.panelSettings.Controls.Add(this.bttnDeleteBrush);
+            this.panelSettings.Controls.Add(this.bttnSaveBrush);
             this.panelSettings.Name = "panelSettings";
             // 
-            // bttnCustomBrushLocations
+            // bttnCustomBrushImageLocations
             // 
-            resources.ApplyResources(this.bttnCustomBrushLocations, "bttnCustomBrushLocations");
-            this.bttnCustomBrushLocations.Name = "bttnCustomBrushLocations";
-            this.bttnCustomBrushLocations.UseVisualStyleBackColor = true;
-            this.bttnCustomBrushLocations.Click += new System.EventHandler(this.BttnPreferences_Click);
-            this.bttnCustomBrushLocations.MouseEnter += new System.EventHandler(this.BttnPreferences_MouseEnter);
+            resources.ApplyResources(this.bttnCustomBrushImageLocations, "bttnCustomBrushImageLocations");
+            this.bttnCustomBrushImageLocations.Name = "bttnCustomBrushImageLocations";
+            this.bttnCustomBrushImageLocations.UseVisualStyleBackColor = true;
+            this.bttnCustomBrushImageLocations.Click += new System.EventHandler(this.BttnPreferences_Click);
+            this.bttnCustomBrushImageLocations.MouseEnter += new System.EventHandler(this.BttnPreferences_MouseEnter);
             // 
-            // bttnClearBrushes
+            // bttnClearBrushImages
             // 
-            resources.ApplyResources(this.bttnClearBrushes, "bttnClearBrushes");
-            this.bttnClearBrushes.Name = "bttnClearBrushes";
-            this.bttnClearBrushes.UseVisualStyleBackColor = true;
-            this.bttnClearBrushes.Click += new System.EventHandler(this.BttnClearBrushes_Click);
-            this.bttnClearBrushes.MouseEnter += new System.EventHandler(this.BttnClearBrushes_MouseEnter);
+            resources.ApplyResources(this.bttnClearBrushImages, "bttnClearBrushImages");
+            this.bttnClearBrushImages.Name = "bttnClearBrushImages";
+            this.bttnClearBrushImages.UseVisualStyleBackColor = true;
+            this.bttnClearBrushImages.Click += new System.EventHandler(this.BttnClearBrushImages_Click);
+            this.bttnClearBrushImages.MouseEnter += new System.EventHandler(this.BttnClearBrushImages_MouseEnter);
             // 
             // bttnClearSettings
             // 
@@ -4142,6 +4110,22 @@ namespace BrushFactory
             this.bttnClearSettings.UseVisualStyleBackColor = true;
             this.bttnClearSettings.Click += new System.EventHandler(this.BttnClearSettings_Click);
             this.bttnClearSettings.MouseEnter += new System.EventHandler(this.BttnClearSettings_MouseEnter);
+            // 
+            // bttnDeleteBrush
+            // 
+            resources.ApplyResources(this.bttnDeleteBrush, "bttnDeleteBrush");
+            this.bttnDeleteBrush.Name = "bttnDeleteBrush";
+            this.bttnDeleteBrush.UseVisualStyleBackColor = true;
+            this.bttnDeleteBrush.Click += new System.EventHandler(this.bttnDeleteBrush_Click);
+            this.bttnDeleteBrush.MouseEnter += new System.EventHandler(this.bttnDeleteBrush_MouseEnter);
+            // 
+            // bttnSaveBrush
+            // 
+            resources.ApplyResources(this.bttnSaveBrush, "bttnSaveBrush");
+            this.bttnSaveBrush.Name = "bttnSaveBrush";
+            this.bttnSaveBrush.UseVisualStyleBackColor = true;
+            this.bttnSaveBrush.Click += new System.EventHandler(this.bttnSaveBrush_Click);
+            this.bttnSaveBrush.MouseEnter += new System.EventHandler(this.bttnSaveBrush_MouseEnter);
             // 
             // WinBrushFactory
             // 
@@ -4448,9 +4432,98 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Recreates the brush with color and alpha effects applied.
+        /// Updates all settings based on the currently selected brush.
         /// </summary>
-        private void UpdateBrush()
+        private void UpdateBrush(BrushSettings settings)
+        {
+            // Whether the delete brush button is enabled or not.
+            bttnDeleteBrush.Enabled = currentBrushName != null;
+
+            //Copies GUI values from the settings.
+            sliderBrushSize.Value = settings.BrushSize;
+            tokenSelectedBrushImageName = settings.BrushImageName;
+
+            //Sets all other fields.
+            sliderBrushAlpha.Value = settings.BrushAlpha;
+            sliderBrushDensity.Value = settings.BrushDensity;
+            sliderBrushRotation.Value = settings.BrushRotation;
+            sliderRandHorzShift.Value = settings.RandHorzShift;
+            sliderRandMaxSize.Value = settings.RandMaxSize;
+            sliderRandMinAlpha.Value = settings.RandMinAlpha;
+            sliderRandMinSize.Value = settings.RandMinSize;
+            sliderRandRotLeft.Value = settings.RandRotLeft;
+            sliderRandRotRight.Value = settings.RandRotRight;
+            sliderRandVertShift.Value = settings.RandVertShift;
+            chkbxOrientToMouse.Checked = settings.DoRotateWithMouse;
+            chkbxColorizeBrush.Checked = settings.DoColorizeBrush;
+            chkbxLockAlpha.Checked = settings.DoLockAlpha;
+            sliderMinDrawDistance.Value = settings.MinDrawDistance;
+            sliderJitterMaxRed.Value = settings.RandMaxR;
+            sliderJitterMaxGreen.Value = settings.RandMaxG;
+            sliderJitterMaxBlue.Value = settings.RandMaxB;
+            sliderJitterMinRed.Value = settings.RandMinR;
+            sliderJitterMinGreen.Value = settings.RandMinG;
+            sliderJitterMinBlue.Value = settings.RandMinB;
+            sliderJitterMaxHue.Value = settings.RandMaxH;
+            sliderJitterMaxSat.Value = settings.RandMaxS;
+            sliderJitterMaxVal.Value = settings.RandMaxV;
+            sliderJitterMinHue.Value = settings.RandMinH;
+            sliderJitterMinSat.Value = settings.RandMinS;
+            sliderJitterMinVal.Value = settings.RandMinV;
+            sliderShiftSize.Value = settings.SizeChange;
+            sliderShiftRotation.Value = settings.RotChange;
+            sliderShiftAlpha.Value = settings.AlphaChange;
+            cmbxTabPressureBrushAlpha.SelectedIndex = settings.CmbxTabPressureBrushAlpha;
+            cmbxTabPressureBrushDensity.SelectedIndex = settings.CmbxTabPressureBrushDensity;
+            cmbxTabPressureBrushRotation.SelectedIndex = settings.CmbxTabPressureBrushRotation;
+            cmbxTabPressureBrushSize.SelectedIndex = settings.CmbxTabPressureBrushSize;
+            cmbxTabPressureBlueJitter.SelectedIndex = settings.CmbxTabPressureBlueJitter;
+            cmbxTabPressureGreenJitter.SelectedIndex = settings.CmbxTabPressureGreenJitter;
+            cmbxTabPressureHueJitter.SelectedIndex = settings.CmbxTabPressureHueJitter;
+            cmbxTabPressureMinDrawDistance.SelectedIndex = settings.CmbxTabPressureMinDrawDistance;
+            cmbxTabPressureRedJitter.SelectedIndex = settings.CmbxTabPressureRedJitter;
+            cmbxTabPressureSatJitter.SelectedIndex = settings.CmbxTabPressureSatJitter;
+            cmbxTabPressureValueJitter.SelectedIndex = settings.CmbxTabPressureValueJitter;
+            cmbxTabPressureRandHorShift.SelectedIndex = settings.CmbxTabPressureRandHorShift;
+            cmbxTabPressureRandMaxSize.SelectedIndex = settings.CmbxTabPressureRandMaxSize;
+            cmbxTabPressureRandMinAlpha.SelectedIndex = settings.CmbxTabPressureRandMinAlpha;
+            cmbxTabPressureRandMinSize.SelectedIndex = settings.CmbxTabPressureRandMinSize;
+            cmbxTabPressureRandRotLeft.SelectedIndex = settings.CmbxTabPressureRandRotLeft;
+            cmbxTabPressureRandRotRight.SelectedIndex = settings.CmbxTabPressureRandRotRight;
+            cmbxTabPressureRandVerShift.SelectedIndex = settings.CmbxTabPressureRandVerShift;
+            spinTabPressureBrushAlpha.Value = settings.TabPressureBrushAlpha;
+            spinTabPressureBrushDensity.Value = settings.TabPressureBrushDensity;
+            spinTabPressureBrushRotation.Value = settings.TabPressureBrushRotation;
+            spinTabPressureBrushSize.Value = settings.TabPressureBrushSize;
+            spinTabPressureMaxBlueJitter.Value = settings.TabPressureMaxBlueJitter;
+            spinTabPressureMaxGreenJitter.Value = settings.TabPressureMaxGreenJitter;
+            spinTabPressureMaxHueJitter.Value = settings.TabPressureMaxHueJitter;
+            spinTabPressureMaxRedJitter.Value = settings.TabPressureMaxRedJitter;
+            spinTabPressureMaxSatJitter.Value = settings.TabPressureMaxSatJitter;
+            spinTabPressureMaxValueJitter.Value = settings.TabPressureMaxValueJitter;
+            spinTabPressureMinBlueJitter.Value = settings.TabPressureMinBlueJitter;
+            spinTabPressureMinDrawDistance.Value = settings.TabPressureMinDrawDistance;
+            spinTabPressureMinGreenJitter.Value = settings.TabPressureMinGreenJitter;
+            spinTabPressureMinHueJitter.Value = settings.TabPressureMinHueJitter;
+            spinTabPressureMinRedJitter.Value = settings.TabPressureMinRedJitter;
+            spinTabPressureMinSatJitter.Value = settings.TabPressureMinSatJitter;
+            spinTabPressureMinValueJitter.Value = settings.TabPressureMinValueJitter;
+            spinTabPressureRandHorShift.Value = settings.TabPressureRandHorShift;
+            spinTabPressureRandMaxSize.Value = settings.TabPressureRandMaxSize;
+            spinTabPressureRandMinAlpha.Value = settings.TabPressureRandMinAlpha;
+            spinTabPressureRandMinSize.Value = settings.TabPressureRandMinSize;
+            spinTabPressureRandRotLeft.Value = settings.TabPressureRandRotLeft;
+            spinTabPressureRandRotRight.Value = settings.TabPressureRandRotRight;
+            spinTabPressureRandVerShift.Value = settings.TabPressureRandVerShift;
+            cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
+
+            UpdateBrushColor(settings.BrushColor);
+        }
+
+        /// <summary>
+        /// Recreates the brush image with color and alpha effects applied.
+        /// </summary>
+        private void UpdateBrushImage()
         {
             int finalBrushAlpha = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushAlpha.Value,
                 (int)spinTabPressureBrushAlpha.Value,
@@ -4494,7 +4567,7 @@ namespace BrushFactory
 
             //Sets the back color and updates the brushes.
             bttnBrushColor.BackColor = newColor;
-            UpdateBrush();
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -4502,13 +4575,13 @@ namespace BrushFactory
         /// </summary>
         private void UpdateListViewVirtualItemCount(int count)
         {
-            if (bttnBrushSelector.InvokeRequired)
+            if (listviewBrushImagePicker.InvokeRequired)
             {
-                bttnBrushSelector.Invoke(new Action<int>((int value) => bttnBrushSelector.VirtualListSize = value), count);
+                listviewBrushImagePicker.Invoke(new Action<int>((int value) => listviewBrushImagePicker.VirtualListSize = value), count);
             }
             else
             {
-                bttnBrushSelector.VirtualListSize = count;
+                listviewBrushImagePicker.VirtualListSize = count;
             }
         }
 
@@ -4623,10 +4696,10 @@ namespace BrushFactory
         #endregion
 
         #region Methods (event handlers)
-        private void BrushLoadingWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void BrushImageLoadingWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
-            BrushLoadingSettings args = (BrushLoadingSettings)e.Argument;
+            BrushImageLoadingSettings args = (BrushImageLoadingSettings)e.Argument;
 
             try
             {
@@ -4641,13 +4714,13 @@ namespace BrushFactory
                     filePaths = args.FilePaths;
                 }
 
-                int brushesLoadedCount = 0;
-                int brushesDetectedCount = filePaths.Count;
+                int brushImagesLoadedCount = 0;
+                int brushImagesDetectedCount = filePaths.Count;
 
                 int maxThumbnailHeight = args.ListViewItemHeight;
-                int maxBrushSize = args.MaxBrushSize;
+                int maxBrushImageSize = args.MaxBrushSize;
 
-                //Attempts to load a bitmap from a file to use as a brush.
+                //Attempts to load a bitmap from a file to use as a brush image.
                 foreach (string file in filePaths)
                 {
                     if (backgroundWorker.CancellationPending)
@@ -4656,8 +4729,8 @@ namespace BrushFactory
                         return;
                     }
 
-                    backgroundWorker.ReportProgress(GetProgressPercentage(brushesLoadedCount, brushesDetectedCount));
-                    brushesLoadedCount++;
+                    backgroundWorker.ReportProgress(GetProgressPercentage(brushImagesLoadedCount, brushImagesDetectedCount));
+                    brushImagesLoadedCount++;
 
                     try
                     {
@@ -4665,13 +4738,13 @@ namespace BrushFactory
                         {
                             try
                             {
-                                using (AbrBrushCollection brushes = AbrReader.LoadBrushes(file))
+                                using (AbrBrushCollection brushImages = AbrReader.LoadBrushes(file))
                                 {
                                     string location = Path.GetFileName(file);
 
-                                    brushesDetectedCount += brushes.Count;
+                                    brushImagesDetectedCount += brushImages.Count;
 
-                                    for (int i = 0; i < brushes.Count; i++)
+                                    for (int i = 0; i < brushImages.Count; i++)
                                     {
                                         if (backgroundWorker.CancellationPending)
                                         {
@@ -4679,35 +4752,35 @@ namespace BrushFactory
                                             return;
                                         }
 
-                                        backgroundWorker.ReportProgress(GetProgressPercentage(brushesLoadedCount, brushesDetectedCount));
-                                        brushesLoadedCount++;
+                                        backgroundWorker.ReportProgress(GetProgressPercentage(brushImagesLoadedCount, brushImagesDetectedCount));
+                                        brushImagesLoadedCount++;
 
-                                        AbrBrush item = brushes[i];
+                                        AbrBrush item = brushImages[i];
 
-                                        // Creates the brush space.
+                                        // Creates the brush image space.
                                         int size = Math.Max(item.Image.Width, item.Image.Height);
 
-                                        Bitmap scaledBrush = null;
+                                        Bitmap scaledBrushImage = null;
 
-                                        if (size > maxBrushSize)
+                                        if (size > maxBrushImageSize)
                                         {
-                                            size = maxBrushSize;
-                                            Size newImageSize = Utils.ComputeBrushSize(item.Image.Width, item.Image.Height, maxBrushSize);
-                                            scaledBrush = Utils.ScaleImage(item.Image, newImageSize);
+                                            size = maxBrushImageSize;
+                                            Size newImageSize = Utils.ComputeBrushSize(item.Image.Width, item.Image.Height, maxBrushImageSize);
+                                            scaledBrushImage = Utils.ScaleImage(item.Image, newImageSize);
                                         }
 
                                         Bitmap brushImage = new Bitmap(size, size, PixelFormat.Format32bppPArgb);
 
                                         //Pads the image to be square if needed, makes fully
                                         //opaque images use intensity for alpha, and draws the
-                                        //altered loaded bitmap to the brush.
+                                        //altered loaded bitmap to the brush image.
                                         Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
-                                            Utils.MakeTransparent(scaledBrush ?? item.Image)), brushImage);
+                                            Utils.MakeTransparent(scaledBrushImage ?? item.Image)), brushImage);
 
-                                        if (scaledBrush != null)
+                                        if (scaledBrushImage != null)
                                         {
-                                            scaledBrush.Dispose();
-                                            scaledBrush = null;
+                                            scaledBrushImage.Dispose();
+                                            scaledBrushImage = null;
                                         }
 
                                         string filename = item.Name;
@@ -4722,19 +4795,19 @@ namespace BrushFactory
 
                                         //Appends invisible spaces to files with the same name
                                         //until they're unique.
-                                        while (loadedBrushes.Any(brush => brush.Name.Equals(filename, StringComparison.Ordinal)))
+                                        while (loadedBrushImages.Any(brush => brush.Name.Equals(filename, StringComparison.Ordinal)))
                                         {
                                             filename += " ";
                                         }
 
-                                        // Add the brush to the list and generate the ListView thumbnail.
+                                        // Add the brush image to the list and generate the ListView thumbnail.
 
-                                        loadedBrushes.Add(
+                                        loadedBrushImages.Add(
                                             new BrushSelectorItem(filename, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
 
                                         if ((i % 2) == 0)
                                         {
-                                            UpdateListViewVirtualItemCount(loadedBrushes.Count);
+                                            UpdateListViewVirtualItemCount(loadedBrushImages.Count);
                                         }
                                     }
                                 }
@@ -4755,11 +4828,11 @@ namespace BrushFactory
                                 int size = Math.Max(bmp.Width, bmp.Height);
 
                                 Bitmap scaledBrush = null;
-                                if (size > maxBrushSize)
+                                if (size > maxBrushImageSize)
                                 {
-                                    size = maxBrushSize;
+                                    size = maxBrushImageSize;
 
-                                    Size newImageSize = Utils.ComputeBrushSize(bmp.Width, bmp.Height, maxBrushSize);
+                                    Size newImageSize = Utils.ComputeBrushSize(bmp.Width, bmp.Height, maxBrushImageSize);
 
                                     scaledBrush = Utils.ScaleImage(bmp, newImageSize);
                                 }
@@ -4791,7 +4864,7 @@ namespace BrushFactory
 
                             //Appends invisible spaces to files with the same name
                             //until they're unique.
-                            while (loadedBrushes.Any(a =>
+                            while (loadedBrushImages.Any(a =>
                             { return (a.Name.Equals(filename)); }))
                             {
                                 filename += " ";
@@ -4800,19 +4873,19 @@ namespace BrushFactory
                             string location = Path.GetDirectoryName(file);
 
                             //Adds the brush without the period at the end.
-                            loadedBrushes.Add(
+                            loadedBrushImages.Add(
                                 new BrushSelectorItem(filename, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
 
-                            if ((brushesLoadedCount % 2) == 0)
+                            if ((brushImagesLoadedCount % 2) == 0)
                             {
-                                UpdateListViewVirtualItemCount(loadedBrushes.Count);
+                                UpdateListViewVirtualItemCount(loadedBrushImages.Count);
                             }
                         }
 
                         if (args.AddtoSettings)
                         {
-                            //Adds the brush location into settings.
-                            loadedBrushPaths.Add(file);
+                            //Adds the brush image location into settings.
+                            loadedBrushImagePaths.Add(file);
                         }
                     }
                     catch (Exception ex)
@@ -4839,12 +4912,12 @@ namespace BrushFactory
             }
         }
 
-        private void BrushLoadingWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void BrushImageLoadingWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            brushLoadProgressBar.Value = e.ProgressPercentage;
+            brushImageLoadProgressBar.Value = e.ProgressPercentage;
         }
 
-        private void BrushLoadingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void BrushImageLoadingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled)
             {
@@ -4852,14 +4925,14 @@ namespace BrushFactory
                 {
                     Close();
                 }
-                else if (doReinitializeBrushes)
+                else if (doReinitializeBrushImages)
                 {
                     InitBrushes();
                 }
             }
             else
             {
-                BrushLoadingSettings workerArgs = (BrushLoadingSettings)e.Result;
+                BrushImageLoadingSettings workerArgs = (BrushImageLoadingSettings)e.Result;
 
                 if (e.Error != null && workerArgs.DisplayErrors)
                 {
@@ -4867,16 +4940,16 @@ namespace BrushFactory
                 }
                 else
                 {
-                    bttnBrushSelector.VirtualListSize = loadedBrushes.Count;
+                    listviewBrushImagePicker.VirtualListSize = loadedBrushImages.Count;
 
-                    if (loadedBrushes.Count > 0)
+                    if (loadedBrushImages.Count > 0)
                     {
                         // Select the user's previous brush if it is present, otherwise select the last added brush.
-                        int selectedItemIndex = loadedBrushes.Count - 1;
+                        int selectedItemIndex = loadedBrushImages.Count - 1;
 
-                        if (!string.IsNullOrEmpty(tokenSelectedBrushName))
+                        if (!string.IsNullOrEmpty(tokenSelectedBrushImageName))
                         {
-                            int index = loadedBrushes.FindIndex(brush => brush.Name.Equals(tokenSelectedBrushName));
+                            int index = loadedBrushImages.FindIndex(brush => brush.Name.Equals(tokenSelectedBrushImageName));
 
                             if (index >= 0)
                             {
@@ -4884,15 +4957,15 @@ namespace BrushFactory
                             }
                         }
 
-                        bttnBrushSelector.SelectedIndices.Clear();
-                        bttnBrushSelector.SelectedIndices.Add(selectedItemIndex);
-                        bttnBrushSelector.EnsureVisible(selectedItemIndex);
+                        listviewBrushImagePicker.SelectedIndices.Clear();
+                        listviewBrushImagePicker.SelectedIndices.Add(selectedItemIndex);
+                        listviewBrushImagePicker.EnsureVisible(selectedItemIndex);
                     }
                 }
 
-                brushLoadProgressBar.Value = 0;
-                brushLoadProgressBar.Visible = false;
-                bttnAddBrushes.Visible = true;
+                brushImageLoadProgressBar.Value = 0;
+                brushImageLoadProgressBar.Visible = false;
+                bttnAddBrushImages.Visible = true;
             }
         }
 
@@ -5195,7 +5268,7 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Redraws the canvas and draws circles to indicate brush location.
+        /// Redraws the canvas and draws shapes to illustrate the current tool.
         /// </summary>
         private void DisplayCanvas_Paint(object sender, PaintEventArgs e)
         {
@@ -5335,14 +5408,14 @@ namespace BrushFactory
         /// <summary>
         /// Displays a dialog allowing the user to add new brushes.
         /// </summary>
-        private void BttnAddBrushes_Click(object sender, EventArgs e)
+        private void BttnAddBrushImages_Click(object sender, EventArgs e)
         {
-            ImportBrushes(true);
+            ImportBrushImages(true);
         }
 
-        private void BttnAddBrushes_MouseEnter(object sender, EventArgs e)
+        private void BttnAddBrushImages_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.AddBrushesTip);
+            UpdateTooltip(Localization.Strings.AddBrushImagesTip);
         }
 
         /// <summary>
@@ -5369,198 +5442,6 @@ namespace BrushFactory
             UpdateTooltip(Localization.Strings.BrushColorTip);
         }
 
-        /// <summary>
-        /// Handles the CacheVirtualItems event of the bttnBrushSelector control.
-        /// </summary>
-        private void BttnBrushSelector_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
-        {
-            // Check if the cache needs to be refreshed.
-            if (visibleBrushes != null && e.StartIndex >= visibleBrushesIndex && e.EndIndex <= visibleBrushesIndex + visibleBrushes.Length)
-            {
-                // If the newly requested cache is a subset of the old cache,
-                // no need to rebuild everything, so do nothing.
-                return;
-            }
-
-            visibleBrushesIndex = e.StartIndex;
-            // The indexes are inclusive.
-            int length = e.EndIndex - e.StartIndex + 1;
-            visibleBrushes = new ListViewItem[length];
-
-            // Fill the cache with the appropriate ListViewItems.
-            for (int i = 0; i < length; i++)
-            {
-                int itemIndex = visibleBrushesIndex + i;
-
-                BrushSelectorItem brush = loadedBrushes[itemIndex];
-                string name = brush.Name;
-                string tooltipText;
-
-                if (!string.IsNullOrEmpty(brush.Location))
-                {
-                    tooltipText = name + "\n" + brush.Location;
-                }
-                else
-                {
-                    tooltipText = name;
-                }
-
-                visibleBrushes[i] = new ListViewItem
-                {
-                    // When the text is an empty string it will not
-                    // be included ListViewItem size calculation.
-                    Text = string.Empty,
-                    ImageIndex = itemIndex,
-                    ToolTipText = tooltipText
-                };
-            }
-        }
-
-        /// <summary>
-        /// Handles the DrawColumnHeader event of the bttnBrushSelector control.
-        /// </summary>
-        private void BttnBrushSelector_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
-        {
-            e.DrawDefault = true;
-        }
-
-        /// <summary>
-        /// Handles the DrawItem event of the bttnBrushSelector control.
-        /// </summary>
-        private void BttnBrushSelector_DrawItem(object sender, DrawListViewItemEventArgs e)
-        {
-            BrushSelectorItem item = loadedBrushes[e.ItemIndex];
-
-            Rectangle drawRect = new Rectangle(e.Bounds.Left, e.Bounds.Top, item.BrushWidth, item.BrushHeight);
-
-            // The brush image is always square.
-            if (item.BrushHeight > e.Bounds.Height)
-            {
-                drawRect.Width = item.BrushWidth * e.Bounds.Height / item.BrushHeight;
-                drawRect.Height = e.Bounds.Height;
-            }
-
-            // Center the image.
-            if (drawRect.Width < e.Bounds.Width)
-            {
-                drawRect.X = e.Bounds.X + ((e.Bounds.Width - drawRect.Width) / 2);
-            }
-            if (drawRect.Height < e.Bounds.Height)
-            {
-                drawRect.Y = e.Bounds.Y + ((e.Bounds.Height - drawRect.Height) / 2);
-            }
-
-            Bitmap thumbnail = item.Thumbnail;
-
-            if (thumbnail == null ||
-                drawRect.Width != thumbnail.Width ||
-                drawRect.Height != thumbnail.Height)
-            {
-                item.GenerateListViewThumbnail(e.Bounds.Height, e.Item.Selected);
-                thumbnail = item.Thumbnail;
-            }
-
-            if (e.Item.Selected)
-            {
-                e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
-                e.DrawFocusRectangle();
-            }
-            else
-            {
-                e.DrawBackground();
-            }
-
-            e.Graphics.DrawImage(thumbnail, drawRect);
-        }
-
-        /// <summary>
-        /// Handles the DrawSubItem event of the bttnBrushSelector control.
-        /// </summary>
-        private void BttnBrushSelector_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
-        {
-            e.DrawDefault = true;
-        }
-
-        private void BttnBrushSelector_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Localization.Strings.BrushSelectorTip);
-        }
-
-        /// <summary>
-        /// Handles the RetrieveVirtualItem event of the bttnBrushSelector control.
-        /// </summary>
-        private void BttnBrushSelector_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
-        {
-            if (visibleBrushes != null && e.ItemIndex >= visibleBrushesIndex && e.ItemIndex < visibleBrushesIndex + visibleBrushes.Length)
-            {
-                e.Item = visibleBrushes[e.ItemIndex - visibleBrushesIndex];
-            }
-            else
-            {
-                BrushSelectorItem brush = loadedBrushes[e.ItemIndex];
-                string name = brush.Name;
-                string tooltipText;
-
-                if (!string.IsNullOrEmpty(brush.Location))
-                {
-                    tooltipText = name + "\n" + brush.Location;
-                }
-                else
-                {
-                    tooltipText = name;
-                }
-
-                e.Item = new ListViewItem
-                {
-                    // When the text is an empty string it will not
-                    // be included ListViewItem size calculation.
-                    Text = string.Empty,
-                    ImageIndex = e.ItemIndex,
-                    ToolTipText = tooltipText
-                };
-            }
-        }
-
-        /// <summary>
-        /// Sets the brush when the user changes it with the selector.
-        /// </summary>
-        private void BttnBrushSelector_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //Gets the currently selected item.
-
-            if (bttnBrushSelector.SelectedIndices.Count > 0)
-            {
-                int index = bttnBrushSelector.SelectedIndices[0];
-
-                if (index >= 0)
-                {
-                    int previousItemIndex = bttnBrushSelector.PreviousItemIndex;
-
-                    if (previousItemIndex >= 0)
-                    {
-                        BrushSelectorItem previousItem = loadedBrushes[previousItemIndex];
-                        if (previousItem.State == BrushSelectorItemState.Memory)
-                        {
-                            previousItem.ToDisk();
-                        }
-                    }
-
-                    BrushSelectorItem currentItem = loadedBrushes[index];
-                    if (currentItem.State == BrushSelectorItemState.Disk)
-                    {
-                        currentItem.ToMemory();
-                    }
-
-                    bmpBrush?.Dispose();
-                    bmpBrush = Utils.FormatImage(
-                        currentItem.Brush,
-                        PixelFormat.Format32bppPArgb);
-
-                    UpdateBrush();
-                }
-            }
-        }
-
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.BrushSmoothingTip);
@@ -5583,16 +5464,16 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Removes all brushes added by the user.
+        /// Removes all brush images added by the user.
         /// </summary>
-        private void BttnClearBrushes_Click(object sender, EventArgs e)
+        private void BttnClearBrushImages_Click(object sender, EventArgs e)
         {
             InitBrushes();
         }
 
-        private void BttnClearBrushes_MouseEnter(object sender, EventArgs e)
+        private void BttnClearBrushImages_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ClearBrushesTip);
+            UpdateTooltip(Localization.Strings.ClearBrushImagesTip);
         }
 
         /// <summary>
@@ -5606,6 +5487,30 @@ namespace BrushFactory
         private void BttnClearSettings_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.ClearSettingsTip);
+        }
+
+        /// <summary>
+        /// Deletes the current brush without changing the brush settings.
+        /// </summary>
+        private void bttnDeleteBrush_Click(object sender, EventArgs e)
+        {
+            if (currentBrushName == null || currentBrushName.Equals(Localization.Strings.CustomBrushesDefaultBrush))
+            {
+                MessageBox.Show(Localization.Strings.DeleteBrushErrorDefault);
+            }
+            else
+            {
+                settings.CustomBrushes.Remove(currentBrushName);
+                listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
+                settings.MarkSettingsChanged();
+                currentBrushName = null;
+                bttnDeleteBrush.Enabled = false;
+            }
+        }
+
+        private void bttnDeleteBrush_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.DeleteBrushTip);
         }
 
         /// <summary>
@@ -5655,7 +5560,7 @@ namespace BrushFactory
 
         private void BttnPreferences_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.CustomBrushLocationsTip);
+            UpdateTooltip(Localization.Strings.CustomBrushImageLocationsTip);
         }
 
         /// <summary>
@@ -5710,6 +5615,133 @@ namespace BrushFactory
         private void BttnRedo_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.RedoTip);
+        }
+
+        /// <summary>
+        /// Saves the current brush settings as a separate brush.
+        /// </summary>
+        private void bttnSaveBrush_Click(object sender, EventArgs e)
+        {
+            int index = listviewBrushImagePicker.SelectedIndices.Count > 0
+                ? listviewBrushImagePicker.SelectedIndices[0]
+                : -1;
+
+            // Opens a textbox dialog to name the custom brush. Brush names must be unique, so the brush will have
+            // spaces appended to the end of the name until naming conflicts are resolved.
+            TextboxDialog dlg = new TextboxDialog(
+                Localization.Strings.CustomBrushDialogTitle,
+                Localization.Strings.CustomBrushDialogDescription,
+                Localization.Strings.Ok,
+                (txt) => string.IsNullOrWhiteSpace(txt) ? Localization.Strings.CustomBrushDialogErrorName : null);
+
+            DialogResult result = dlg.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                string inputText = dlg.GetSubmittedText();
+                while (
+                    settings.CustomBrushes.ContainsKey(inputText) ||
+                    inputText.Equals(Localization.Strings.CustomBrushesDefaultBrush))
+                {
+                    inputText += " ";
+                }
+
+                BrushSettings newSettings = new BrushSettings()
+                {
+                    AlphaChange = sliderShiftAlpha.Value,
+                    BrushAlpha = sliderBrushAlpha.Value,
+                    BrushColor = bttnBrushColor.BackColor,
+                    BrushDensity = sliderBrushDensity.Value,
+                    BrushImageName = index >= 0 ? loadedBrushImages[index].Name : string.Empty,
+                    BrushRotation = sliderBrushRotation.Value,
+                    BrushSize = sliderBrushSize.Value,
+                    DoColorizeBrush = chkbxColorizeBrush.Checked,
+                    DoLockAlpha = chkbxLockAlpha.Checked,
+                    DoRotateWithMouse = chkbxOrientToMouse.Checked,
+                    MinDrawDistance = sliderMinDrawDistance.Value,
+                    RandHorzShift = sliderRandHorzShift.Value,
+                    RandMaxB = sliderJitterMaxBlue.Value,
+                    RandMaxG = sliderJitterMaxGreen.Value,
+                    RandMaxR = sliderJitterMaxRed.Value,
+                    RandMaxH = sliderJitterMaxHue.Value,
+                    RandMaxS = sliderJitterMaxSat.Value,
+                    RandMaxV = sliderJitterMaxVal.Value,
+                    RandMaxSize = sliderRandMaxSize.Value,
+                    RandMinAlpha = sliderRandMinAlpha.Value,
+                    RandMinB = sliderJitterMinBlue.Value,
+                    RandMinG = sliderJitterMinGreen.Value,
+                    RandMinR = sliderJitterMinRed.Value,
+                    RandMinH = sliderJitterMinHue.Value,
+                    RandMinS = sliderJitterMinSat.Value,
+                    RandMinV = sliderJitterMinVal.Value,
+                    RandMinSize = sliderRandMinSize.Value,
+                    RandRotLeft = sliderRandRotLeft.Value,
+                    RandRotRight = sliderRandRotRight.Value,
+                    RandVertShift = sliderRandVertShift.Value,
+                    RotChange = sliderShiftRotation.Value,
+                    SizeChange = sliderShiftSize.Value,
+                    Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
+                    CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex,
+                    CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex,
+                    CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex,
+                    CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex,
+                    CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex,
+                    CmbxTabPressureGreenJitter = cmbxTabPressureGreenJitter.SelectedIndex,
+                    CmbxTabPressureHueJitter = cmbxTabPressureHueJitter.SelectedIndex,
+                    CmbxTabPressureMinDrawDistance = cmbxTabPressureMinDrawDistance.SelectedIndex,
+                    CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex,
+                    CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex,
+                    CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex,
+                    CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex,
+                    CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex,
+                    CmbxTabPressureRandMinAlpha = cmbxTabPressureRandMinAlpha.SelectedIndex,
+                    CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex,
+                    CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex,
+                    CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex,
+                    CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex,
+                    TabPressureBrushAlpha = (int)spinTabPressureBrushAlpha.Value,
+                    TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value,
+                    TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value,
+                    TabPressureBrushSize = (int)spinTabPressureBrushSize.Value,
+                    TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value,
+                    TabPressureMaxGreenJitter = (int)spinTabPressureMaxGreenJitter.Value,
+                    TabPressureMaxHueJitter = (int)spinTabPressureMaxHueJitter.Value,
+                    TabPressureMaxRedJitter = (int)spinTabPressureMaxRedJitter.Value,
+                    TabPressureMaxSatJitter = (int)spinTabPressureMaxSatJitter.Value,
+                    TabPressureMaxValueJitter = (int)spinTabPressureMaxValueJitter.Value,
+                    TabPressureMinBlueJitter = (int)spinTabPressureMinBlueJitter.Value,
+                    TabPressureMinDrawDistance = (int)spinTabPressureMinDrawDistance.Value,
+                    TabPressureMinGreenJitter = (int)spinTabPressureMinGreenJitter.Value,
+                    TabPressureMinHueJitter = (int)spinTabPressureMinHueJitter.Value,
+                    TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value,
+                    TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value,
+                    TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value,
+                    TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value,
+                    TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value,
+                    TabPressureRandMinAlpha = (int)spinTabPressureRandMinAlpha.Value,
+                    TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value,
+                    TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value,
+                    TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value,
+                    TabPressureRandVerShift = (int)spinTabPressureRandVerShift.Value
+                };
+
+                settings.CustomBrushes.Add(inputText, newSettings);
+                settings.MarkSettingsChanged();
+
+                // Deselect whatever's selected and add a brush as selected.
+                foreach (ListViewItem item in listviewBrushPicker.Items)
+                {
+                    item.Selected = false;
+                }
+
+                listviewBrushPicker.Items.Add(new ListViewItem(inputText) { Selected = true });
+                currentBrushName = inputText;
+                bttnDeleteBrush.Enabled = true;
+            }
+        }
+
+        private void bttnSaveBrush_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.SaveNewBrushTip);
         }
 
         private void bttnToolBrush_Click(object sender, EventArgs e)
@@ -5817,7 +5849,7 @@ namespace BrushFactory
         /// </summary>
         private void ChkbxColorizeBrush_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateBrush();
+            UpdateBrushImage();
         }
 
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
@@ -5851,6 +5883,247 @@ namespace BrushFactory
             panelDockSettingsContainer.PerformLayout(); // visually update scrollbar since it won't always.
         }
 
+        /// <summary>
+        /// Handles the CacheVirtualItems event of the listviewBrushPicker control.
+        /// </summary>
+        private void ListViewBrushImagePicker_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
+        {
+            // Check if the cache needs to be refreshed.
+            if (visibleBrushImages != null && e.StartIndex >= visibleBrushImagesIndex && e.EndIndex <= visibleBrushImagesIndex + visibleBrushImages.Length)
+            {
+                // If the newly requested cache is a subset of the old cache,
+                // no need to rebuild everything, so do nothing.
+                return;
+            }
+
+            visibleBrushImagesIndex = e.StartIndex;
+            // The indexes are inclusive.
+            int length = e.EndIndex - e.StartIndex + 1;
+            visibleBrushImages = new ListViewItem[length];
+
+            // Fill the cache with the appropriate ListViewItems.
+            for (int i = 0; i < length; i++)
+            {
+                int itemIndex = visibleBrushImagesIndex + i;
+
+                BrushSelectorItem brushImage = loadedBrushImages[itemIndex];
+                string name = brushImage.Name;
+                string tooltipText;
+
+                if (!string.IsNullOrEmpty(brushImage.Location))
+                {
+                    tooltipText = name + "\n" + brushImage.Location;
+                }
+                else
+                {
+                    tooltipText = name;
+                }
+
+                visibleBrushImages[i] = new ListViewItem
+                {
+                    // When the text is an empty string it will not
+                    // be included in ListViewItem size calculation.
+                    Text = string.Empty,
+                    ImageIndex = itemIndex,
+                    ToolTipText = tooltipText
+                };
+            }
+        }
+
+        /// <summary>
+        /// Handles the DrawColumnHeader event of the listviewBrushPicker control.
+        /// </summary>
+        private void ListViewBrushImagePicker_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            e.DrawDefault = true;
+        }
+
+        /// <summary>
+        /// Handles the DrawItem event of the listviewBrushPicker control.
+        /// </summary>
+        private void ListViewBrushImagePicker_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            BrushSelectorItem item = loadedBrushImages[e.ItemIndex];
+
+            Rectangle drawRect = new Rectangle(e.Bounds.Left, e.Bounds.Top, item.BrushWidth, item.BrushHeight);
+
+            // The brush image is always square.
+            if (item.BrushHeight > e.Bounds.Height)
+            {
+                drawRect.Width = item.BrushWidth * e.Bounds.Height / item.BrushHeight;
+                drawRect.Height = e.Bounds.Height;
+            }
+
+            // Center the image.
+            if (drawRect.Width < e.Bounds.Width)
+            {
+                drawRect.X = e.Bounds.X + ((e.Bounds.Width - drawRect.Width) / 2);
+            }
+            if (drawRect.Height < e.Bounds.Height)
+            {
+                drawRect.Y = e.Bounds.Y + ((e.Bounds.Height - drawRect.Height) / 2);
+            }
+
+            Bitmap thumbnail = item.Thumbnail;
+
+            if (thumbnail == null ||
+                drawRect.Width != thumbnail.Width ||
+                drawRect.Height != thumbnail.Height)
+            {
+                item.GenerateListViewThumbnail(e.Bounds.Height, e.Item.Selected);
+                thumbnail = item.Thumbnail;
+            }
+
+            if (e.Item.Selected)
+            {
+                e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
+                e.DrawFocusRectangle();
+            }
+            else
+            {
+                e.DrawBackground();
+            }
+
+            e.Graphics.DrawImage(thumbnail, drawRect);
+        }
+
+        /// <summary>
+        /// Handles the DrawSubItem event of the listviewBrushPicker control.
+        /// </summary>
+        private void ListViewBrushImagePicker_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            e.DrawDefault = true;
+        }
+
+        private void ListViewBrushImagePicker_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.BrushImageSelectorTip);
+        }
+
+        /// <summary>
+        /// Handles the RetrieveVirtualItem event of the listviewBrushPicker control.
+        /// </summary>
+        private void ListViewBrushImagePicker_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
+        {
+            if (visibleBrushImages != null && e.ItemIndex >= visibleBrushImagesIndex && e.ItemIndex < visibleBrushImagesIndex + visibleBrushImages.Length)
+            {
+                e.Item = visibleBrushImages[e.ItemIndex - visibleBrushImagesIndex];
+            }
+            else
+            {
+                BrushSelectorItem brush = loadedBrushImages[e.ItemIndex];
+                string name = brush.Name;
+                string tooltipText;
+
+                if (!string.IsNullOrEmpty(brush.Location))
+                {
+                    tooltipText = name + "\n" + brush.Location;
+                }
+                else
+                {
+                    tooltipText = name;
+                }
+
+                e.Item = new ListViewItem
+                {
+                    // When the text is an empty string it will not
+                    // be included ListViewItem size calculation.
+                    Text = string.Empty,
+                    ImageIndex = e.ItemIndex,
+                    ToolTipText = tooltipText
+                };
+            }
+        }
+
+        /// <summary>
+        /// Sets the brush image when the user changes it with the selector.
+        /// </summary>
+        private void ListViewBrushImagePicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listviewBrushImagePicker.SelectedIndices.Count > 0)
+            {
+                int index = listviewBrushImagePicker.SelectedIndices[0];
+
+                if (index >= 0)
+                {
+                    int previousItemIndex = listviewBrushImagePicker.PreviousItemIndex;
+
+                    // Unloads virtualized item thumbnails to save memory.
+                    if (previousItemIndex >= 0)
+                    {
+                        BrushSelectorItem previousItem = loadedBrushImages[previousItemIndex];
+                        if (previousItem.State == BrushSelectorItemState.Memory)
+                        {
+                            previousItem.ToDisk();
+                        }
+                    }
+
+                    // Loads item thumbnails that should be displayed.
+                    BrushSelectorItem currentItem = loadedBrushImages[index];
+                    if (currentItem.State == BrushSelectorItemState.Disk)
+                    {
+                        currentItem.ToMemory();
+                    }
+
+                    bmpBrush?.Dispose();
+                    bmpBrush = Utils.FormatImage(
+                        currentItem.Brush,
+                        PixelFormat.Format32bppPArgb);
+
+                    UpdateBrushImage();
+                }
+            }
+        }
+
+        private void listviewBrushPicker_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.BrushSelectorTip);
+        }
+
+        /// <summary>
+        /// Sets the brush when the user changes it with the selector.
+        /// </summary>
+        private void ListViewBrushPicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listviewBrushPicker.SelectedIndices.Count > 0)
+            {
+                ListViewItem selection = listviewBrushPicker.SelectedItems[0];
+
+                if (selection?.Text == Localization.Strings.CustomBrushesDefaultBrush)
+                {
+                    currentBrushName = selection.Text;
+                    UpdateBrush(new BrushSettings());
+                }
+                else if (selection != null)
+                {
+                    currentBrushName = selection.Text;
+                    UpdateBrush(settings.CustomBrushes[selection.Text]);
+                }
+
+                // Updates which brush image is active for the newly-selected brush, handling the default brush as a
+                // special case.
+                if (listviewBrushImagePicker?.Items != null && selection?.Text != null)
+                {
+                    int index = loadedBrushImages.FindIndex((entry) =>
+                    {
+                        if (string.IsNullOrEmpty(currentBrushName) ||
+                            currentBrushName.Equals(Localization.Strings.CustomBrushesDefaultBrush))
+                        {
+                            return entry.Name.Equals(Localization.Strings.DefaultBrushCircle);
+                        }
+
+                        return entry.Name.Equals(settings.CustomBrushes[currentBrushName].BrushImageName);
+                    });
+
+                    if (index >= 0)
+                    {
+                        listviewBrushImagePicker.Items[index].Selected = true;
+                        ListViewBrushImagePicker_SelectedIndexChanged(null, null);
+                    }
+                }
+            }
+        }
+
         private void SliderBrushAlpha_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.BrushAlphaTip);
@@ -5862,7 +6135,7 @@ namespace BrushFactory
                 Localization.Strings.Alpha,
                 sliderBrushAlpha.Value);
 
-            UpdateBrush();
+            UpdateBrushImage();
         }
 
         private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)

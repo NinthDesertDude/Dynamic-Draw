@@ -20,6 +20,7 @@ namespace BrushFactory
         private bool loadedSettings;
 
         private HashSet<string> customBrushDirectories;
+        private Dictionary<string, BrushSettings> customBrushes;
         private bool useDefaultBrushes;
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace BrushFactory
         /// </value>
         /// <exception cref="ArgumentNullException">value is null.</exception>
         [DataMember(Name = "CustomBrushDirectories")]
-        public HashSet<string> CustomBrushDirectories
+        public HashSet<string> CustomBrushImageDirectories
         {
             get
             {
@@ -63,6 +64,17 @@ namespace BrushFactory
                 }
             }
         }
+
+        [DataMember(Name = "CustomBrushes")]
+        public Dictionary<string, BrushSettings> CustomBrushes { get { return customBrushes; } set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                customBrushes = new Dictionary<string, BrushSettings>(value);
+                changed = true;
+            } }
 
         /// <summary>
         /// Gets or sets a value indicating whether to use the default brushes.
@@ -108,7 +120,8 @@ namespace BrushFactory
                         DataContractSerializer serializer = new DataContractSerializer(typeof(BrushFactorySettings));
                         BrushFactorySettings savedSettings = (BrushFactorySettings)serializer.ReadObject(stream);
 
-                        customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushDirectories, StringComparer.OrdinalIgnoreCase);
+                        customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
+                        customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
                         useDefaultBrushes = savedSettings.UseDefaultBrushes;
                         changed = false;
                     }
@@ -152,7 +165,17 @@ namespace BrushFactory
         private void InitializeDefaultSettings()
         {
             customBrushDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            customBrushes = new Dictionary<string, BrushSettings>();
             useDefaultBrushes = true;
+        }
+
+        /// <summary>
+        /// Explicitly marks settings as changed so they'll be serialized to file. Use this only when modifying items in
+        /// collections; collections and primitive settings do this for direct assignment already.
+        /// </summary>
+        public void MarkSettingsChanged()
+        {
+            changed = true;
         }
 
         /// <summary>

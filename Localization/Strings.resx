@@ -126,17 +126,17 @@
   <data name="AbrUnsupportedMinorVersionFormat" xml:space="preserve">
     <value>Unsupported ABR version: {0}.{1}</value>
   </data>
-  <data name="AddBrushes" xml:space="preserve">
-    <value>Add Brushes...</value>
+  <data name="AddBrushImages" xml:space="preserve">
+    <value>Add Brush Images</value>
   </data>
-  <data name="AddBrushesTip" xml:space="preserve">
-    <value>Select additional brushes to add to the list.</value>
+  <data name="AddBrushImagesTip" xml:space="preserve">
+    <value>Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings).</value>
   </data>
   <data name="AddFolder" xml:space="preserve">
-    <value>Add Folder</value>
+    <value>Add folder</value>
   </data>
-  <data name="AddFolderTip" xml:space="preserve">
-    <value>Browse for a directory to add to the list of places to load custom brushes from.</value>
+  <data name="AddFoldersTip" xml:space="preserve">
+    <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Brush Factory starts. Images in sub-folders will not.</value>
   </data>
   <data name="Alpha" xml:space="preserve">
     <value>Brush Transparency:</value>
@@ -157,16 +157,16 @@
     <value>Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines.</value>
   </data>
   <data name="BrushLocations" xml:space="preserve">
-    <value>Custom Brush Directories To Auto-Load</value>
+    <value>Brush image directories and files to load when Brush Factory starts</value>
   </data>
   <data name="BrushLocationsTextboxTip" xml:space="preserve">
-    <value>Places to look for brushes appear here. Type a new address or use 'add folder' to add your own.</value>
+    <value>Places to look for brush images appear here. Type a new address or use 'add folder' to add your own.</value>
   </data>
   <data name="BrushRotationTip" xml:space="preserve">
     <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
   </data>
-  <data name="BrushSelectorTip" xml:space="preserve">
-    <value>Lets you choose another brush to use.</value>
+  <data name="BrushImageSelectorTip" xml:space="preserve">
+    <value>Lets you choose another brush image to use.</value>
   </data>
   <data name="BrushSizeTip" xml:space="preserve">
     <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>
@@ -181,7 +181,7 @@
     <value>Quit without saving changes.</value>
   </data>
   <data name="CannotLoadSettingsError" xml:space="preserve">
-    <value>Your custom brushes couldn't be loaded. You can try defining them again.</value>
+    <value>Your custom brush images couldn't be loaded. You can try defining them again.</value>
   </data>
   <data name="CanvasZoom" xml:space="preserve">
     <value>Canvas Zoom:</value>
@@ -189,17 +189,17 @@
   <data name="CanvasZoomTip" xml:space="preserve">
     <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.</value>
   </data>
-  <data name="ClearBrushes" xml:space="preserve">
-    <value>Clear Custom Brushes</value>
+  <data name="ClearBrushImages" xml:space="preserve">
+    <value>Clear Custom Brush Images</value>
   </data>
-  <data name="ClearBrushesTip" xml:space="preserve">
-    <value>Removes any custom brushes that were added. The normal brushes will remain.</value>
+  <data name="ClearBrushImagesTip" xml:space="preserve">
+    <value>Removes search locations for custom brush images you might've set, then unloads all custom brush images.</value>
   </data>
   <data name="ClearSettings" xml:space="preserve">
-    <value>Clear Settings</value>
+    <value>Clear Current Brush Settings</value>
   </data>
   <data name="ClearSettingsTip" xml:space="preserve">
-    <value>Resets all settings to the default values they had when the plugin first loaded.</value>
+    <value>Clears all temporary changes to the current brush settings.</value>
   </data>
   <data name="ColorizeBrush" xml:space="preserve">
     <value>Colorize Brush</value>
@@ -210,11 +210,11 @@
   <data name="ColorPickerTip" xml:space="preserve">
     <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards.</value>
   </data>
-  <data name="CustomBrushLocations" xml:space="preserve">
-    <value>Custom Brush Locations</value>
+  <data name="CustomBrushImageLocations" xml:space="preserve">
+    <value>Brush Image Locations</value>
   </data>
-  <data name="CustomBrushLocationsTip" xml:space="preserve">
-    <value>Define where to look for brushes when this plugin loads.</value>
+  <data name="CustomBrushImageLocationsTip" xml:space="preserve">
+    <value>Define where to look for brush images when this plugin loads.</value>
   </data>
   <data name="JitterBlue" xml:space="preserve">
     <value>Blue Jitter:</value>
@@ -253,10 +253,10 @@
     <value>While drawing, the brush color will randomly shift based on the provided amounts.</value>
   </data>
   <data name="LoadDefaultBrushes" xml:space="preserve">
-    <value>Load Default Brushes?</value>
+    <value>Load Default Brush Images?</value>
   </data>
   <data name="LoadDefaultBrushesTip" xml:space="preserve">
-    <value>If turned off, only the circle brush and any custom brushes will be loaded.</value>
+    <value>If turned off, only the circle brush image and custom brush images will be loaded.</value>
   </data>
   <data name="LockAlpha" xml:space="preserve">
     <value>Lock Alpha</value>
@@ -545,5 +545,50 @@
   </data>
   <data name="ToolOriginTip" xml:space="preserve">
     <value>Set Origin Shortcut: O. Activate this tool to change the symmetry origin.</value>
+  </data>
+  <data name="CustomBrushImagesDirectoryFilter" xml:space="preserve">
+    <value>Images and abr brushes</value>
+  </data>
+  <data name="CustomBrushImagesDirectoryTitle" xml:space="preserve">
+    <value>Load custom brush images</value>
+  </data>
+  <data name="DeleteBrush" xml:space="preserve">
+    <value>Delete Brush</value>
+  </data>
+  <data name="DeleteBrushTip" xml:space="preserve">
+    <value>Deletes the current brush. Current brush settings are unaffected.</value>
+  </data>
+  <data name="SaveNewBrush" xml:space="preserve">
+    <value>Save New Brush</value>
+  </data>
+  <data name="SaveNewBrushTip" xml:space="preserve">
+    <value>Saves the current brush settings as a brush under a unique name.</value>
+  </data>
+  <data name="MinDrawDistanceShort" xml:space="preserve">
+    <value>Min. Draw Distance</value>
+  </data>
+  <data name="CustomBrushDialogDescription" xml:space="preserve">
+    <value>Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved).</value>
+  </data>
+  <data name="CustomBrushDialogErrorName" xml:space="preserve">
+    <value>A brush name is required unless you cancel the dialog.</value>
+  </data>
+  <data name="CustomBrushDialogTitle" xml:space="preserve">
+    <value>Add a custom brush</value>
+  </data>
+  <data name="CustomBrushesDefaultBrush" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="DeleteBrushErrorDefault" xml:space="preserve">
+    <value>The default brush can't be deleted.</value>
+  </data>
+  <data name="BrushSelectorTip" xml:space="preserve">
+    <value>Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen.</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>Add files</value>
+  </data>
+  <data name="AddFilesTip" xml:space="preserve">
+    <value>Browse for files to load as custom brush images when Brush Factory starts.</value>
   </data>
 </root>

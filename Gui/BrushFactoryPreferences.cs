@@ -35,15 +35,17 @@ namespace BrushFactory.Gui
             bttnSave.Text = Localization.Strings.SavePreferences;
             chkbxLoadDefaultBrushes.Text = Localization.Strings.LoadDefaultBrushes;
             bttnAddFolder.Text = Localization.Strings.AddFolder;
+            bttnAddFiles.Text = Localization.Strings.AddFiles;
             txtBrushLocations.Text = Localization.Strings.BrushLocations;
             tooltip.SetToolTip(bttnCancel, Localization.Strings.CancelTip);
             tooltip.SetToolTip(bttnSave, Localization.Strings.SavePreferencesTip);
             tooltip.SetToolTip(chkbxLoadDefaultBrushes, Localization.Strings.LoadDefaultBrushesTip);
-            tooltip.SetToolTip(bttnAddFolder, Localization.Strings.AddFolderTip);
+            tooltip.SetToolTip(bttnAddFolder, Localization.Strings.AddFoldersTip);
+            tooltip.SetToolTip(bttnAddFiles, Localization.Strings.AddFilesTip);
             tooltip.SetToolTip(txtbxBrushLocations, Localization.Strings.BrushLocationsTextboxTip);
 
             chkbxLoadDefaultBrushes.Checked = settings.UseDefaultBrushes;
-            foreach (string item in settings.CustomBrushDirectories)
+            foreach (string item in settings.CustomBrushImageDirectories)
             {
                 txtbxBrushLocations.AppendText(item + Environment.NewLine);
             }
@@ -60,7 +62,7 @@ namespace BrushFactory.Gui
                 new[] { "\r\n", "\r", "\n" },
                 StringSplitOptions.RemoveEmptyEntries);
 
-            settings.CustomBrushDirectories = new HashSet<string>(values, StringComparer.OrdinalIgnoreCase);
+            settings.CustomBrushImageDirectories = new HashSet<string>(values, StringComparer.OrdinalIgnoreCase);
             settings.UseDefaultBrushes = chkbxLoadDefaultBrushes.Checked;
         }
         #endregion
@@ -84,6 +86,26 @@ namespace BrushFactory.Gui
                 }
 
                 txtbxBrushLocations.AppendText(dlg.SelectedPath);
+            }
+        }
+
+        /// <summary>
+        /// Allows the user to browse for files to add.
+        /// </summary>
+        private void bttnAddFiles_Click(object sender, EventArgs e)
+        {
+            //Opens a folder browser.
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Multiselect = true;
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                //Appends the chosen directory to the textbox of directories.
+                if (txtbxBrushLocations.Text != string.Empty)
+                {
+                    txtbxBrushLocations.AppendText(Environment.NewLine);
+                }
+
+                txtbxBrushLocations.AppendText(string.Join("\n", dlg.FileNames));
             }
         }
 

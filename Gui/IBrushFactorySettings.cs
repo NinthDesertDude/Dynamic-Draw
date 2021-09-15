@@ -15,7 +15,7 @@ namespace BrushFactory
         /// The custom brush directories.
         /// </value>
         /// <exception cref="ArgumentNullException">value is null.</exception>
-        HashSet<string> CustomBrushDirectories { get; set; }
+        HashSet<string> CustomBrushImageDirectories { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to use the default brushes.

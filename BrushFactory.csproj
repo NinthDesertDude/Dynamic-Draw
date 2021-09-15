@@ -131,10 +131,17 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Gui\IBrushFactorySettings.cs" />
+    <Compile Include="Gui\TextboxDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Gui\TextboxDialog.Designer.cs">
+      <DependentUpon>TextboxDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Interop\SafeNativeMethods.cs" />
     <Compile Include="InterpolationItem.cs" />
-    <Compile Include="Logic\BrushLoadingSettings.cs" />
+    <Compile Include="Logic\BrushImageLoadingSettings.cs" />
     <Compile Include="Logic\Tool.cs" />
+    <Compile Include="BrushSettings.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -165,6 +172,9 @@
     <EmbeddedResource Include="Gui\BrushFactoryWindow.resx">
       <SubType>Designer</SubType>
       <DependentUpon>BrushFactoryWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Gui\TextboxDialog.resx">
+      <DependentUpon>TextboxDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -151,25 +151,43 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Brushes....
+        ///   Looks up a localized string similar to Add Brush Images.
         /// </summary>
-        internal static string AddBrushes {
+        internal static string AddBrushImages {
             get {
-                return ResourceManager.GetString("AddBrushes", resourceCulture);
+                return ResourceManager.GetString("AddBrushImages", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select additional brushes to add to the list..
+        ///   Looks up a localized string similar to Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings)..
         /// </summary>
-        internal static string AddBrushesTip {
+        internal static string AddBrushImagesTip {
             get {
-                return ResourceManager.GetString("AddBrushesTip", resourceCulture);
+                return ResourceManager.GetString("AddBrushImagesTip", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Folder.
+        ///   Looks up a localized string similar to Add files.
+        /// </summary>
+        internal static string AddFiles {
+            get {
+                return ResourceManager.GetString("AddFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Brush Factory starts..
+        /// </summary>
+        internal static string AddFilesTip {
+            get {
+                return ResourceManager.GetString("AddFilesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add folder.
         /// </summary>
         internal static string AddFolder {
             get {
@@ -178,11 +196,11 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for a directory to add to the list of places to load custom brushes from..
+        ///   Looks up a localized string similar to Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Brush Factory starts. Images in sub-folders will not..
         /// </summary>
-        internal static string AddFolderTip {
+        internal static string AddFoldersTip {
             get {
-                return ResourceManager.GetString("AddFolderTip", resourceCulture);
+                return ResourceManager.GetString("AddFoldersTip", resourceCulture);
             }
         }
         
@@ -241,7 +259,16 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom Brush Directories To Auto-Load.
+        ///   Looks up a localized string similar to Lets you choose another brush image to use..
+        /// </summary>
+        internal static string BrushImageSelectorTip {
+            get {
+                return ResourceManager.GetString("BrushImageSelectorTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush image directories and files to load when Brush Factory starts.
         /// </summary>
         internal static string BrushLocations {
             get {
@@ -250,7 +277,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Places to look for brushes appear here. Type a new address or use &apos;add folder&apos; to add your own..
+        ///   Looks up a localized string similar to Places to look for brush images appear here. Type a new address or use &apos;add folder&apos; to add your own..
         /// </summary>
         internal static string BrushLocationsTextboxTip {
             get {
@@ -268,7 +295,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lets you choose another brush to use..
+        ///   Looks up a localized string similar to Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen..
         /// </summary>
         internal static string BrushSelectorTip {
             get {
@@ -313,7 +340,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your custom brushes couldn&apos;t be loaded. You can try defining them again..
+        ///   Looks up a localized string similar to Your custom brush images couldn&apos;t be loaded. You can try defining them again..
         /// </summary>
         internal static string CannotLoadSettingsError {
             get {
@@ -340,25 +367,25 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear Custom Brushes.
+        ///   Looks up a localized string similar to Clear Custom Brush Images.
         /// </summary>
-        internal static string ClearBrushes {
+        internal static string ClearBrushImages {
             get {
-                return ResourceManager.GetString("ClearBrushes", resourceCulture);
+                return ResourceManager.GetString("ClearBrushImages", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Removes any custom brushes that were added. The normal brushes will remain..
+        ///   Looks up a localized string similar to Removes search locations for custom brush images you might&apos;ve set, then unloads all custom brush images..
         /// </summary>
-        internal static string ClearBrushesTip {
+        internal static string ClearBrushImagesTip {
             get {
-                return ResourceManager.GetString("ClearBrushesTip", resourceCulture);
+                return ResourceManager.GetString("ClearBrushImagesTip", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear Settings.
+        ///   Looks up a localized string similar to Clear Current Brush Settings.
         /// </summary>
         internal static string ClearSettings {
             get {
@@ -367,7 +394,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resets all settings to the default values they had when the plugin first loaded..
+        ///   Looks up a localized string similar to Clears all temporary changes to the current brush settings..
         /// </summary>
         internal static string ClearSettingsTip {
             get {
@@ -403,20 +430,74 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom Brush Locations.
+        ///   Looks up a localized string similar to Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved)..
         /// </summary>
-        internal static string CustomBrushLocations {
+        internal static string CustomBrushDialogDescription {
             get {
-                return ResourceManager.GetString("CustomBrushLocations", resourceCulture);
+                return ResourceManager.GetString("CustomBrushDialogDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Define where to look for brushes when this plugin loads..
+        ///   Looks up a localized string similar to A brush name is required unless you cancel the dialog..
         /// </summary>
-        internal static string CustomBrushLocationsTip {
+        internal static string CustomBrushDialogErrorName {
             get {
-                return ResourceManager.GetString("CustomBrushLocationsTip", resourceCulture);
+                return ResourceManager.GetString("CustomBrushDialogErrorName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a custom brush.
+        /// </summary>
+        internal static string CustomBrushDialogTitle {
+            get {
+                return ResourceManager.GetString("CustomBrushDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default.
+        /// </summary>
+        internal static string CustomBrushesDefaultBrush {
+            get {
+                return ResourceManager.GetString("CustomBrushesDefaultBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Image Locations.
+        /// </summary>
+        internal static string CustomBrushImageLocations {
+            get {
+                return ResourceManager.GetString("CustomBrushImageLocations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Define where to look for brush images when this plugin loads..
+        /// </summary>
+        internal static string CustomBrushImageLocationsTip {
+            get {
+                return ResourceManager.GetString("CustomBrushImageLocationsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Images and abr brushes.
+        /// </summary>
+        internal static string CustomBrushImagesDirectoryFilter {
+            get {
+                return ResourceManager.GetString("CustomBrushImagesDirectoryFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Load custom brush images.
+        /// </summary>
+        internal static string CustomBrushImagesDirectoryTitle {
+            get {
+                return ResourceManager.GetString("CustomBrushImagesDirectoryTitle", resourceCulture);
             }
         }
         
@@ -610,6 +691,33 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete Brush.
+        /// </summary>
+        internal static string DeleteBrush {
+            get {
+                return ResourceManager.GetString("DeleteBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The default brush can&apos;t be deleted..
+        /// </summary>
+        internal static string DeleteBrushErrorDefault {
+            get {
+                return ResourceManager.GetString("DeleteBrushErrorDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deletes the current brush. Current brush settings are unaffected..
+        /// </summary>
+        internal static string DeleteBrushTip {
+            get {
+                return ResourceManager.GetString("DeleteBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Blue Jitter:.
         /// </summary>
         internal static string JitterBlue {
@@ -718,7 +826,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Load Default Brushes?.
+        ///   Looks up a localized string similar to Load Default Brush Images?.
         /// </summary>
         internal static string LoadDefaultBrushes {
             get {
@@ -727,7 +835,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If turned off, only the circle brush and any custom brushes will be loaded..
+        ///   Looks up a localized string similar to If turned off, only the circle brush image and custom brush images will be loaded..
         /// </summary>
         internal static string LoadDefaultBrushesTip {
             get {
@@ -777,6 +885,15 @@ namespace BrushFactory.Localization {
         internal static string MinDrawDistance {
             get {
                 return ResourceManager.GetString("MinDrawDistance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Min. Draw Distance.
+        /// </summary>
+        internal static string MinDrawDistanceShort {
+            get {
+                return ResourceManager.GetString("MinDrawDistanceShort", resourceCulture);
             }
         }
         
@@ -975,6 +1092,24 @@ namespace BrushFactory.Localization {
         internal static string Rotation {
             get {
                 return ResourceManager.GetString("Rotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save New Brush.
+        /// </summary>
+        internal static string SaveNewBrush {
+            get {
+                return ResourceManager.GetString("SaveNewBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saves the current brush settings as a brush under a unique name..
+        /// </summary>
+        internal static string SaveNewBrushTip {
+            get {
+                return ResourceManager.GetString("SaveNewBrushTip", resourceCulture);
             }
         }
         
