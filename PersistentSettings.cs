@@ -1,5 +1,5 @@
+using BrushFactory.Logic;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace BrushFactory
 {
@@ -16,14 +16,19 @@ namespace BrushFactory
         public BrushSettings CurrentBrushSettings { get; set; }
 
         /// <summary>
-        /// Contains a list of all custom brushes to reload. The dialog will
-        /// attempt to read the paths of each brush and add them if possible.
+        /// Contains a list of all custom brushes to reload. The program will attempt to read the paths of each brush
+        /// and add them if possible.
         /// </summary>
         public HashSet<string> CustomBrushLocations
         {
             get;
             set;
         }
+
+        /// <summary>
+        /// Contains a list of all keyboard shortcuts.
+        /// </summary>
+        public HashSet<KeyboardShortcut> KeyboardShortcuts { get; set; }
         #endregion
 
         /// <summary>
@@ -33,6 +38,69 @@ namespace BrushFactory
         {
             CurrentBrushSettings = new BrushSettings();
             CustomBrushLocations = new HashSet<string>();
+            KeyboardShortcuts = new HashSet<KeyboardShortcut>()
+            {
+                new KeyboardShortcut()
+                {
+                    ActionData = $"{(int)Tool.Brush}|set",
+                    Key = System.Windows.Forms.Keys.B,
+                    Target = ShortcutTarget.SelectedTool
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = $"{(int)Tool.ColorPicker}|set",
+                    Key = System.Windows.Forms.Keys.K,
+                    Target = ShortcutTarget.SelectedTool
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = $"{(int)Tool.Eraser}|set",
+                    Key = System.Windows.Forms.Keys.E,
+                    Target = ShortcutTarget.SelectedTool
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = $"{(int)Tool.SetSymmetryOrigin}|set",
+                    Key = System.Windows.Forms.Keys.O,
+                    Target = ShortcutTarget.SelectedTool
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = null,
+                    Key = System.Windows.Forms.Keys.Z,
+                    Target = ShortcutTarget.UndoAction,
+                    RequireCtrl = true
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = null,
+                    Key = System.Windows.Forms.Keys.Y,
+                    Target = ShortcutTarget.RedoAction,
+                    RequireCtrl = true
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = null,
+                    Key = System.Windows.Forms.Keys.Z,
+                    Target = ShortcutTarget.RedoAction,
+                    RequireCtrl = true,
+                    RequireShift = true
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = "100|add",
+                    Key = System.Windows.Forms.Keys.Oemplus,
+                    Target = ShortcutTarget.CanvasZoom,
+                    RequireCtrl = true
+                },
+                new KeyboardShortcut()
+                {
+                    ActionData = "100|sub",
+                    Key = System.Windows.Forms.Keys.OemMinus,
+                    Target = ShortcutTarget.CanvasZoom,
+                    RequireCtrl = true
+                }
+            };
         }
 
         /// <summary>
@@ -45,6 +113,7 @@ namespace BrushFactory
             CustomBrushLocations = new HashSet<string>(
                 other.CustomBrushLocations,
                 other.CustomBrushLocations.Comparer);
+            KeyboardShortcuts = new HashSet<KeyboardShortcut>(other.KeyboardShortcuts);
         }
 
         /// <summary>

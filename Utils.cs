@@ -250,7 +250,7 @@ namespace BrushFactory
 
             for (int y = 0; y < surface.Height; y++)
             {
-                ColorBgra* src = surface.GetRowAddressUnchecked(y);
+                ColorBgra* src = surface.GetRowPointerUnchecked(y);
                 // The ColorBgra structure matches the memory layout
                 // of the 32bppArgb and 32bppPArgb pixel formats.
                 ColorBgra* dst = (ColorBgra*)(dstScan0 + (y * dstStride));

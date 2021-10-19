@@ -403,6 +403,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not use clipboard image..
+        /// </summary>
+        internal static string ClipboardErrorUnusable {
+            get {
+                return ResourceManager.GetString("ClipboardErrorUnusable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Colorize Brush.
         /// </summary>
         internal static string ColorizeBrush {
@@ -700,15 +709,6 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The default brush can&apos;t be deleted..
-        /// </summary>
-        internal static string DeleteBrushErrorDefault {
-            get {
-                return ResourceManager.GetString("DeleteBrushErrorDefault", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Deletes the current brush. Current brush settings are unaffected..
         /// </summary>
         internal static string DeleteBrushTip {
@@ -907,6 +907,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No Shortcut.
+        /// </summary>
+        internal static string NoShortcut {
+            get {
+                return ResourceManager.GetString("NoShortcut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ok.
         /// </summary>
         internal static string Ok {
@@ -1078,6 +1087,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File could not be found for redo..
+        /// </summary>
+        internal static string RedoFileNotFoundError {
+            get {
+                return ResourceManager.GetString("RedoFileNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Redo Shortcut: Ctrl + Y. Restores changes removed by undo, if possible..
         /// </summary>
         internal static string RedoTip {
@@ -1128,6 +1146,15 @@ namespace BrushFactory.Localization {
         internal static string SavePreferencesTip {
             get {
                 return ResourceManager.GetString("SavePreferencesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press new key....
+        /// </summary>
+        internal static string SetShortcutText {
+            get {
+                return ResourceManager.GetString("SetShortcutText", resourceCulture);
             }
         }
         
@@ -1191,6 +1218,375 @@ namespace BrushFactory.Localization {
         internal static string ShiftSizeTip {
             get {
                 return ResourceManager.GetString("ShiftSizeTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Transparency.
+        /// </summary>
+        internal static string ShortcutAlpha {
+            get {
+                return ResourceManager.GetString("ShortcutAlpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alpha Shift.
+        /// </summary>
+        internal static string ShortcutAlphaShift {
+            get {
+                return ResourceManager.GetString("ShortcutAlphaShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Smoothing.
+        /// </summary>
+        internal static string ShortcutBrushSmoothing {
+            get {
+                return ResourceManager.GetString("ShortcutBrushSmoothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canvas Zoom.
+        /// </summary>
+        internal static string ShortcutCanvasZoom {
+            get {
+                return ResourceManager.GetString("ShortcutCanvasZoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Colorize Brush.
+        /// </summary>
+        internal static string ShortcutColorizeBrush {
+            get {
+                return ResourceManager.GetString("ShortcutColorizeBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Stroke Density.
+        /// </summary>
+        internal static string ShortcutDensity {
+            get {
+                return ResourceManager.GetString("ShortcutDensity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to False.
+        /// </summary>
+        internal static string ShortcutIntentBoolFalse {
+            get {
+                return ResourceManager.GetString("ShortcutIntentBoolFalse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle.
+        /// </summary>
+        internal static string ShortcutIntentBoolToggle {
+            get {
+                return ResourceManager.GetString("ShortcutIntentBoolToggle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to True.
+        /// </summary>
+        internal static string ShortcutIntentBoolTrue {
+            get {
+                return ResourceManager.GetString("ShortcutIntentBoolTrue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        internal static string ShortcutIntentNumAdd {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add (wrap around).
+        /// </summary>
+        internal static string ShortcutIntentNumAddWrap {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumAddWrap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set.
+        /// </summary>
+        internal static string ShortcutIntentNumSet {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subtract.
+        /// </summary>
+        internal static string ShortcutIntentNumSub {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumSub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subtract (wrap around).
+        /// </summary>
+        internal static string ShortcutIntentNumSubWrap {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumSubWrap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blue Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterBlueMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterBlueMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blue Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterBlueMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterBlueMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Green Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterGreenMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterGreenMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Green Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterGreenMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterGreenMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Horizontal Spray.
+        /// </summary>
+        internal static string ShortcutJitterHorSpray {
+            get {
+                return ResourceManager.GetString("ShortcutJitterHorSpray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hue Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterHueMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterHueMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hue Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterHueMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterHueMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Max Size.
+        /// </summary>
+        internal static string ShortcutJitterMaxSize {
+            get {
+                return ResourceManager.GetString("ShortcutJitterMaxSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Min Alpha.
+        /// </summary>
+        internal static string ShortcutJitterMinAlpha {
+            get {
+                return ResourceManager.GetString("ShortcutJitterMinAlpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Min Size.
+        /// </summary>
+        internal static string ShortcutJitterMinSize {
+            get {
+                return ResourceManager.GetString("ShortcutJitterMinSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Red Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterRedMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRedMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Red Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterRedMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRedMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Rot to Left.
+        /// </summary>
+        internal static string ShortcutJitterRotLeft {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRotLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Rot to Right.
+        /// </summary>
+        internal static string ShortcutJitterRotRight {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRotRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saturation Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterSatMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterSatMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saturation Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterSatMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterSatMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterValueMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterValueMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterValueMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterValueMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vertical Spray.
+        /// </summary>
+        internal static string ShortcutJitterVerSpray {
+            get {
+                return ResourceManager.GetString("ShortcutJitterVerSpray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotation.
+        /// </summary>
+        internal static string ShortcutRotation {
+            get {
+                return ResourceManager.GetString("ShortcutRotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotation Shift.
+        /// </summary>
+        internal static string ShortcutRotShift {
+            get {
+                return ResourceManager.GetString("ShortcutRotShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Brush.
+        /// </summary>
+        internal static string ShortcutSelectedBrush {
+            get {
+                return ResourceManager.GetString("ShortcutSelectedBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Brush Image.
+        /// </summary>
+        internal static string ShortcutSelectedBrushImage {
+            get {
+                return ResourceManager.GetString("ShortcutSelectedBrushImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Tool.
+        /// </summary>
+        internal static string ShortcutSelectedTool {
+            get {
+                return ResourceManager.GetString("ShortcutSelectedTool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        internal static string ShortcutSize {
+            get {
+                return ResourceManager.GetString("ShortcutSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size Shift.
+        /// </summary>
+        internal static string ShortcutSizeShift {
+            get {
+                return ResourceManager.GetString("ShortcutSizeShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry Mode.
+        /// </summary>
+        internal static string ShortcutSymmetryMode {
+            get {
+                return ResourceManager.GetString("ShortcutSymmetryMode", resourceCulture);
             }
         }
         
@@ -1375,6 +1771,24 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tab Pressure.
+        /// </summary>
+        internal static string TabPressure {
+            get {
+                return ResourceManager.GetString("TabPressure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} {1}.
+        /// </summary>
+        internal static string TabPressureSetting {
+            get {
+                return ResourceManager.GetString("TabPressureSetting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Brush Factory.
         /// </summary>
         internal static string Title {
@@ -1429,6 +1843,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to How the associated number will influence the setting for full pressure on a drawing tablet. Partial pressure will also influence the setting to a proportionally smaller degree (on a linear curve)..
+        /// </summary>
+        internal static string ValueInfluenceTip {
+            get {
+                return ResourceManager.GetString("ValueInfluenceTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add as number.
         /// </summary>
         internal static string ValueTypeAdd {
@@ -1456,11 +1879,47 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add as percent of self: At full pressure, the setting equals itself plus this percent of itself, e.g. 30% when the setting is 50 would make the setting 65..
+        /// </summary>
+        internal static string ValueTypeAddPercentCurrentTip {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercentCurrentTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as percent of max: At full value, the setting equals itself plus this percent of the max possible value it can have, e.g. if the setting is 50 out of 200 and the percent is 30%, at full pressure the setting would be 110..
+        /// </summary>
+        internal static string ValueTypeAddPercentTip {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercentTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as number: At full pressure, the setting equals itself plus this number..
+        /// </summary>
+        internal static string ValueTypeAddTip {
+            get {
+                return ResourceManager.GetString("ValueTypeAddTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Match the percent of max.
         /// </summary>
         internal static string ValueTypeMatchPercent {
             get {
                 return ResourceManager.GetString("ValueTypeMatchPercent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match the percent of max: At full pressure, the setting equals this percent of the max possible value it can have, e.g. 30% of 200 at full pressure would make the setting 60..
+        /// </summary>
+        internal static string ValueTypeMatchPercentTip {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchPercentTip", resourceCulture);
             }
         }
         
@@ -1474,11 +1933,29 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Match the number: At full pressure, the setting equals this number..
+        /// </summary>
+        internal static string ValueTypeMatchValueTip {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchValueTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not in use.
         /// </summary>
         internal static string ValueTypeNothing {
             get {
                 return ResourceManager.GetString("ValueTypeNothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not in use: Tablet pressure doesn&apos;t affect anything..
+        /// </summary>
+        internal static string ValueTypeNothingTip {
+            get {
+                return ResourceManager.GetString("ValueTypeNothingTip", resourceCulture);
             }
         }
     }

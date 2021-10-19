@@ -107,6 +107,11 @@ namespace BrushFactory
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
+        /// The list of registered keyboard shortcuts.
+        /// </summary>
+        private HashSet<KeyboardShortcut> keyboardShortcuts;
+
+        /// <summary>
         /// The name identifying the currently loaded brush, or null if no saved brush is currently active.
         /// </summary>
         private string currentBrushName = null;
@@ -419,6 +424,7 @@ namespace BrushFactory
             tempDir = new TempDirectory();
 
             loadedBrushImages = new BrushSelectorItemCollection();
+            keyboardShortcuts = new HashSet<KeyboardShortcut>();
 
             //Configures items for the smoothing method combobox.
             smoothingMethods = new BindingList<InterpolationItem>
@@ -572,6 +578,16 @@ namespace BrushFactory
             {
                 loadedBrushImagePaths.UnionWith(token.CustomBrushLocations);
                 importBrushesFromToken = true;
+            }
+
+            foreach (KeyboardShortcut shortcut in token.KeyboardShortcuts)
+            {
+                shortcut.OnInvoke += () =>
+                {
+                    HandleShortcut(shortcut);
+                };
+
+                keyboardShortcuts.Add(shortcut);
             }
 
             // Updates brush settings and the current image.
@@ -874,51 +890,12 @@ namespace BrushFactory
         {
             base.OnKeyDown(e);
 
-            if (e.KeyCode == Keys.B)
-            {
-                SwitchTool(Tool.Brush);
-            }
-            else if (e.KeyCode == Keys.E)
-            {
-                SwitchTool(Tool.Eraser);
-            }
-            else if (e.KeyCode == Keys.K)
-            {
-                SwitchTool(Tool.ColorPicker);
-            }
-            else if (e.KeyCode == Keys.O)
-            {
-                SwitchTool(Tool.SetSymmetryOrigin);
-
-                // The origin points could be displayed relative to the center or current mouse. It's more convenient
-                // for the user to display at the mouse position so wherever they click to set a new origin point is
-                // exactly where the origin will be when they switch back to brush mode.
-                if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
-                {
-                    symmetryOrigin.X = mouseLoc.X / displayCanvasZoom;
-                    symmetryOrigin.Y = mouseLoc.Y / displayCanvasZoom;
-                }
-
-                // Invalidate to immediately update the symmetry origin guidelines drawn in symmetry mode.
-                displayCanvas.Invalidate();
-            }
+            KeyShortcutManager.FireShortcuts(keyboardShortcuts, e.KeyCode, e.Control, e.Shift, e.Alt);
 
             //Display a hand icon while panning.
             if (e.Control)
             {
                 Cursor = Cursors.Hand;
-            }
-
-            //Ctrl + Z: Undo.
-            if (e.Control && e.KeyCode == Keys.Z)
-            {
-                BttnUndo_Click(this, e);
-            }
-
-            //Ctrl + Y: Redo.
-            if (e.Control && e.KeyCode == Keys.Y)
-            {
-                BttnRedo_Click(this, e);
             }
 
             // [, Ctrl + [ increase rotation, alpha, size. ], Ctrl + ] decrease.
@@ -935,14 +912,14 @@ namespace BrushFactory
 
             if (amountChange != 0)
             {
-                if (IsKeyDown(Keys.R))
+                if (KeyShortcutManager.IsKeyDown(Keys.R))
                 {
                     sliderBrushRotation.Value = Utils.Clamp(
                         sliderBrushRotation.Value + amountChange,
                         sliderBrushRotation.Minimum,
                         sliderBrushRotation.Maximum);
                 }
-                else if (IsKeyDown(Keys.A))
+                else if (KeyShortcutManager.IsKeyDown(Keys.A))
                 {
                     sliderBrushAlpha.Value = Utils.Clamp(
                         sliderBrushAlpha.Value + amountChange,
@@ -987,7 +964,7 @@ namespace BrushFactory
             if (ModifierKeys == Keys.Control)
             {
                 //Ctrl + S + Wheel: Changes the brush size.
-                if (IsKeyDown(Keys.S))
+                if (KeyShortcutManager.IsKeyDown(Keys.S))
                 {
                     int changeFactor;
 
@@ -1019,7 +996,7 @@ namespace BrushFactory
                 }
 
                 //Ctrl + R + Wheel: Changes the brush rotation.
-                else if (IsKeyDown(Keys.R))
+                else if (KeyShortcutManager.IsKeyDown(Keys.R))
                 {
                     sliderBrushRotation.Value = Utils.Clamp(
                     sliderBrushRotation.Value + Math.Sign(e.Delta) * 20,
@@ -1028,7 +1005,7 @@ namespace BrushFactory
                 }
 
                 //Ctrl + A + Wheel: Changes the brush alpha.
-                else if (IsKeyDown(Keys.A))
+                else if (KeyShortcutManager.IsKeyDown(Keys.A))
                 {
                     sliderBrushAlpha.Value = Utils.Clamp(
                     sliderBrushAlpha.Value + Math.Sign(e.Delta) * 10,
@@ -1783,6 +1760,247 @@ namespace BrushFactory
         private void GetColorFromCanvas(Point loc)
         {
             UpdateBrushColor(bmpCurrentDrawing.GetPixel(loc.X, loc.Y));
+        }
+
+        /// <summary>
+        /// Executes actions for invoked keyboard shortcuts. This is connected to shortcuts located in persistent
+        /// settings from <see cref="InitTokenFromDialog"/>.
+        /// </summary>
+        /// <param name="shortcut">Any shortcut invoked</param>
+        private void HandleShortcut(KeyboardShortcut shortcut)
+        {
+            switch (shortcut.Target)
+            {
+                case ShortcutTarget.Alpha:
+                    sliderBrushAlpha.Value = 
+                        shortcut.GetDataAsInt(sliderBrushAlpha.Value,
+                        sliderBrushAlpha.Minimum,
+                        sliderBrushAlpha.Maximum);
+                    break;
+                case ShortcutTarget.AlphaShift:
+                    sliderBrushAlpha.Value = 
+                        shortcut.GetDataAsInt(sliderBrushAlpha.Value,
+                        sliderBrushAlpha.Minimum,
+                        sliderBrushAlpha.Maximum);
+                    break;
+                case ShortcutTarget.BrushStrokeDensity:
+                    sliderBrushDensity.Value = 
+                        shortcut.GetDataAsInt(sliderBrushDensity.Value,
+                        sliderBrushDensity.Minimum,
+                        sliderBrushDensity.Maximum);
+                    break;
+                case ShortcutTarget.CanvasZoom:
+                    sliderCanvasZoom.Value = 
+                        shortcut.GetDataAsInt(sliderCanvasZoom.Value,
+                        sliderCanvasZoom.Minimum, sliderCanvasZoom.Maximum);
+                    break;
+                case ShortcutTarget.Color:
+                    UpdateBrushColor(shortcut.GetDataAsColor());
+                    break;
+                case ShortcutTarget.ColorizeBrush:
+                    chkbxColorizeBrush.Checked = shortcut.GetDataAsBool(chkbxColorizeBrush.Checked);
+                    UpdateBrushImage();
+                    break;
+                case ShortcutTarget.JitterBlueMax:
+                    sliderJitterMaxBlue.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMaxBlue.Value,
+                        sliderJitterMaxBlue.Minimum, sliderJitterMaxBlue.Maximum);
+                    break;
+                case ShortcutTarget.JitterBlueMin:
+                    sliderJitterMinBlue.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMinBlue.Value,
+                        sliderJitterMinBlue.Minimum, sliderJitterMinBlue.Maximum);
+                    break;
+                case ShortcutTarget.JitterGreenMax:
+                    sliderJitterMaxGreen.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMaxGreen.Value,
+                        sliderJitterMaxGreen.Minimum, sliderJitterMaxGreen.Maximum);
+                    break;
+                case ShortcutTarget.JitterGreenMin:
+                    sliderJitterMinGreen.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMinGreen.Value,
+                        sliderJitterMinGreen.Minimum, sliderJitterMinGreen.Maximum);
+                    break;
+                case ShortcutTarget.JitterHorSpray:
+                    sliderRandHorzShift.Value = 
+                        shortcut.GetDataAsInt(sliderRandHorzShift.Value,
+                        sliderRandHorzShift.Minimum, sliderRandHorzShift.Maximum);
+                    break;
+                case ShortcutTarget.JitterHueMax:
+                    sliderJitterMaxHue.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMaxHue.Value,
+                        sliderJitterMaxHue.Minimum, sliderJitterMaxHue.Maximum);
+                    break;
+                case ShortcutTarget.JitterHueMin:
+                    sliderJitterMinHue.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMinHue.Value,
+                        sliderJitterMinHue.Minimum, sliderJitterMinHue.Maximum);
+                    break;
+                case ShortcutTarget.JitterMaxSize:
+                    sliderRandMaxSize.Value = 
+                        shortcut.GetDataAsInt(sliderRandMaxSize.Value,
+                        sliderRandMaxSize.Minimum, sliderRandMaxSize.Maximum);
+                    break;
+                case ShortcutTarget.JitterMinAlpha:
+                    sliderRandMinAlpha.Value = 
+                        shortcut.GetDataAsInt(sliderRandMinAlpha.Value,
+                        sliderRandMinAlpha.Minimum, sliderRandMinAlpha.Maximum);
+                    break;
+                case ShortcutTarget.JitterMinSize:
+                    sliderRandMinSize.Value = 
+                        shortcut.GetDataAsInt(sliderRandMinSize.Value,
+                        sliderRandMinSize.Minimum, sliderRandMinSize.Maximum);
+                    break;
+                case ShortcutTarget.JitterRedMax:
+                    sliderJitterMaxRed.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMaxRed.Value,
+                        sliderJitterMaxRed.Minimum, sliderJitterMaxRed.Maximum);
+                    break;
+                case ShortcutTarget.JitterRedMin:
+                    sliderJitterMinRed.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMinRed.Value,
+                        sliderJitterMinRed.Minimum, sliderJitterMinRed.Maximum);
+                    break;
+                case ShortcutTarget.JitterRotLeft:
+                    sliderRandRotLeft.Value = 
+                        shortcut.GetDataAsInt(sliderRandRotLeft.Value,
+                        sliderRandRotLeft.Minimum, sliderRandRotLeft.Maximum);
+                    break;
+                case ShortcutTarget.JitterRotRight:
+                    sliderRandRotRight.Value = 
+                        shortcut.GetDataAsInt(sliderRandRotRight.Value,
+                        sliderRandRotRight.Minimum, sliderRandRotRight.Maximum);
+                    break;
+                case ShortcutTarget.JitterSatMax:
+                    sliderJitterMaxSat.Value = 
+                        shortcut.GetDataAsInt(sliderJitterMaxSat.Value,
+                        sliderJitterMaxSat.Minimum, sliderJitterMaxSat.Maximum);
+                    break;
+                case ShortcutTarget.JitterSatMin:
+                    sliderJitterMinSat.Value =
+                        shortcut.GetDataAsInt(sliderJitterMinSat.Value,
+                        sliderJitterMinSat.Minimum, sliderJitterMinSat.Maximum);
+                    break;
+                case ShortcutTarget.JitterValMax:
+                    sliderJitterMaxVal.Value =
+                        shortcut.GetDataAsInt(sliderJitterMaxVal.Value,
+                        sliderJitterMaxVal.Minimum, sliderJitterMaxVal.Maximum);
+                    break;
+                case ShortcutTarget.JitterValMin:
+                    sliderJitterMinVal.Value =
+                        shortcut.GetDataAsInt(sliderJitterMinVal.Value,
+                        sliderJitterMinVal.Minimum, sliderJitterMinVal.Maximum);
+                    break;
+                case ShortcutTarget.JitterVerSpray:
+                    sliderRandVertShift.Value =
+                        shortcut.GetDataAsInt(sliderRandVertShift.Value,
+                        sliderRandVertShift.Minimum, sliderRandVertShift.Maximum);
+                    break;
+                case ShortcutTarget.LockAlpha:
+                    chkbxLockAlpha.Checked = shortcut.GetDataAsBool(chkbxLockAlpha.Checked);
+                    break;
+                case ShortcutTarget.MinDrawDistance:
+                    sliderMinDrawDistance.Value =
+                        shortcut.GetDataAsInt(sliderMinDrawDistance.Value,
+                        sliderMinDrawDistance.Minimum, sliderMinDrawDistance.Maximum);
+                    break;
+                case ShortcutTarget.RotateWithMouse:
+                    chkbxOrientToMouse.Checked = shortcut.GetDataAsBool(chkbxOrientToMouse.Checked);
+                    break;
+                case ShortcutTarget.Rotation:
+                    sliderBrushRotation.Value =
+                        shortcut.GetDataAsInt(sliderBrushRotation.Value,
+                        sliderBrushRotation.Minimum, sliderBrushRotation.Maximum);
+                    break;
+                case ShortcutTarget.RotShift:
+                    sliderShiftRotation.Value =
+                        shortcut.GetDataAsInt(sliderShiftRotation.Value,
+                        sliderShiftRotation.Minimum, sliderShiftRotation.Maximum);
+                    break;
+                case ShortcutTarget.SelectedBrush:
+                    for (int i = 0; i < listviewBrushPicker.Items.Count; i++)
+                    {
+                        if (shortcut.ActionData.Equals(
+                            listviewBrushImagePicker.Items[i].Text, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            listviewBrushImagePicker.Items[i].Selected = true;
+                        }
+                    }
+                    break;
+                case ShortcutTarget.SelectedBrushImage:
+                    int selectedBrushIndex = -1;
+                    for (int i = 0; i < loadedBrushImages.Count; i++)
+                    {
+                        //
+                        if (shortcut.ActionData.Equals(loadedBrushImages[i].Name, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            selectedBrushIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (selectedBrushIndex == -1)
+                    {
+                        for (int i = 0; i < loadedBrushImages.Count; i++)
+                        {
+                            if (shortcut.ActionData.Equals(loadedBrushImages[i].Location, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                selectedBrushIndex = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (selectedBrushIndex != -1)
+                    {
+                        listviewBrushPicker.Items[selectedBrushIndex].Selected = true;
+                    }
+                    break;
+                case ShortcutTarget.SelectedTool:
+                    Tool newTool = (Tool)shortcut.GetDataAsInt((int)activeTool, 0, Enum.GetValues(typeof(Tool)).Length);
+                    SwitchTool(newTool);
+
+                    if (newTool == Tool.SetSymmetryOrigin)
+                    {
+                        // The origin points could be displayed relative to the center or current mouse. It's more convenient
+                        // for the user to display at the mouse position so wherever they click to set a new origin point is
+                        // exactly where the origin will be when they switch back to brush mode.
+                        if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
+                        {
+                            symmetryOrigin.X = mouseLoc.X / displayCanvasZoom;
+                            symmetryOrigin.Y = mouseLoc.Y / displayCanvasZoom;
+                        }
+
+                        // Invalidate to immediately update the symmetry origin guidelines drawn in symmetry mode.
+                        displayCanvas.Invalidate();
+                    }
+                    break;
+                case ShortcutTarget.Size:
+                    sliderBrushSize.Value =
+                        shortcut.GetDataAsInt(sliderBrushSize.Value,
+                        sliderBrushSize.Minimum, sliderBrushSize.Maximum);
+                    break;
+                case ShortcutTarget.SizeShift:
+                    sliderShiftSize.Value =
+                        shortcut.GetDataAsInt(sliderShiftSize.Value,
+                        sliderShiftSize.Minimum, sliderShiftSize.Maximum);
+                    break;
+                case ShortcutTarget.SmoothingMode:
+                    cmbxBrushSmoothing.SelectedIndex =
+                        shortcut.GetDataAsInt(cmbxBrushSmoothing.SelectedIndex,
+                        0, cmbxBrushSmoothing.Items.Count);
+                    break;
+                case ShortcutTarget.SymmetryMode:
+                    cmbxSymmetry.SelectedIndex = 
+                        shortcut.GetDataAsInt((int)cmbxSymmetry.SelectedIndex, 0, cmbxSymmetry.Items.Count);
+                    break;
+                case ShortcutTarget.UndoAction:
+                    BttnUndo_Click(null, null);
+                    break;
+                case ShortcutTarget.RedoAction:
+                    BttnRedo_Click(null, null);
+                    break;
+            };
         }
 
         /// <summary>
@@ -3269,6 +3487,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushAlpha.FormattingEnabled = true;
             this.cmbxTabPressureBrushAlpha.Name = "cmbxTabPressureBrushAlpha";
             this.cmbxTabPressureBrushAlpha.ValueMember = "ValueMember";
+            this.cmbxTabPressureBrushAlpha.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushSize
             // 
@@ -3315,6 +3534,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushSize.FormattingEnabled = true;
             this.cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
             this.cmbxTabPressureBrushSize.ValueMember = "ValueMember";
+            this.cmbxTabPressureBrushSize.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushRotation
             // 
@@ -3361,6 +3581,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushRotation.FormattingEnabled = true;
             this.cmbxTabPressureBrushRotation.Name = "cmbxTabPressureBrushRotation";
             this.cmbxTabPressureBrushRotation.ValueMember = "ValueMember";
+            this.cmbxTabPressureBrushRotation.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureMinDrawDistance
             // 
@@ -3402,6 +3623,7 @@ namespace BrushFactory
             this.cmbxTabPressureMinDrawDistance.FormattingEnabled = true;
             this.cmbxTabPressureMinDrawDistance.Name = "cmbxTabPressureMinDrawDistance";
             this.cmbxTabPressureMinDrawDistance.ValueMember = "ValueMember";
+            this.cmbxTabPressureMinDrawDistance.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushDensity
             // 
@@ -3448,6 +3670,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushDensity.FormattingEnabled = true;
             this.cmbxTabPressureBrushDensity.Name = "cmbxTabPressureBrushDensity";
             this.cmbxTabPressureBrushDensity.ValueMember = "ValueMember";
+            this.cmbxTabPressureBrushDensity.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMinSize
             // 
@@ -3494,6 +3717,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandMinSize.FormattingEnabled = true;
             this.cmbxTabPressureRandMinSize.Name = "cmbxTabPressureRandMinSize";
             this.cmbxTabPressureRandMinSize.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandMinSize.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMaxSize
             // 
@@ -3540,6 +3764,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandMaxSize.FormattingEnabled = true;
             this.cmbxTabPressureRandMaxSize.Name = "cmbxTabPressureRandMaxSize";
             this.cmbxTabPressureRandMaxSize.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandMaxSize.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandRotLeft
             // 
@@ -3586,6 +3811,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandRotLeft.FormattingEnabled = true;
             this.cmbxTabPressureRandRotLeft.Name = "cmbxTabPressureRandRotLeft";
             this.cmbxTabPressureRandRotLeft.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandRotLeft.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandRotRight
             // 
@@ -3632,6 +3858,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandRotRight.FormattingEnabled = true;
             this.cmbxTabPressureRandRotRight.Name = "cmbxTabPressureRandRotRight";
             this.cmbxTabPressureRandRotRight.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandRotRight.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMinAlpha
             // 
@@ -3673,6 +3900,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandMinAlpha.FormattingEnabled = true;
             this.cmbxTabPressureRandMinAlpha.Name = "cmbxTabPressureRandMinAlpha";
             this.cmbxTabPressureRandMinAlpha.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandMinAlpha.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandHorShift
             // 
@@ -3714,6 +3942,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandHorShift.FormattingEnabled = true;
             this.cmbxTabPressureRandHorShift.Name = "cmbxTabPressureRandHorShift";
             this.cmbxTabPressureRandHorShift.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandHorShift.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandVerShift
             // 
@@ -3755,6 +3984,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandVerShift.FormattingEnabled = true;
             this.cmbxTabPressureRandVerShift.Name = "cmbxTabPressureRandVerShift";
             this.cmbxTabPressureRandVerShift.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandVerShift.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRedJitter
             // 
@@ -3807,6 +4037,7 @@ namespace BrushFactory
             this.cmbxTabPressureRedJitter.FormattingEnabled = true;
             this.cmbxTabPressureRedJitter.Name = "cmbxTabPressureRedJitter";
             this.cmbxTabPressureRedJitter.ValueMember = "ValueMember";
+            this.cmbxTabPressureRedJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureGreenJitter
             // 
@@ -3859,6 +4090,7 @@ namespace BrushFactory
             this.cmbxTabPressureGreenJitter.FormattingEnabled = true;
             this.cmbxTabPressureGreenJitter.Name = "cmbxTabPressureGreenJitter";
             this.cmbxTabPressureGreenJitter.ValueMember = "ValueMember";
+            this.cmbxTabPressureGreenJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBlueJitter
             // 
@@ -3911,6 +4143,7 @@ namespace BrushFactory
             this.cmbxTabPressureBlueJitter.FormattingEnabled = true;
             this.cmbxTabPressureBlueJitter.Name = "cmbxTabPressureBlueJitter";
             this.cmbxTabPressureBlueJitter.ValueMember = "ValueMember";
+            this.cmbxTabPressureBlueJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureHueJitter
             // 
@@ -3963,6 +4196,7 @@ namespace BrushFactory
             this.cmbxTabPressureHueJitter.FormattingEnabled = true;
             this.cmbxTabPressureHueJitter.Name = "cmbxTabPressureHueJitter";
             this.cmbxTabPressureHueJitter.ValueMember = "ValueMember";
+            this.cmbxTabPressureHueJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureSatJitter
             // 
@@ -4015,6 +4249,7 @@ namespace BrushFactory
             this.cmbxTabPressureSatJitter.FormattingEnabled = true;
             this.cmbxTabPressureSatJitter.Name = "cmbxTabPressureSatJitter";
             this.cmbxTabPressureSatJitter.ValueMember = "ValueMember";
+            this.cmbxTabPressureSatJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureValueJitter
             // 
@@ -4067,6 +4302,7 @@ namespace BrushFactory
             this.cmbxTabPressureValueJitter.FormattingEnabled = true;
             this.cmbxTabPressureValueJitter.Name = "cmbxTabPressureValueJitter";
             this.cmbxTabPressureValueJitter.ValueMember = "ValueMember";
+            this.cmbxTabPressureValueJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // bttnSettings
             // 
@@ -4272,14 +4508,6 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Determines whether the specified key is down.
-        /// </summary>
-        private static bool IsKeyDown(Keys key)
-        {
-            return SafeNativeMethods.GetKeyState((int)key) < 0;
-        }
-
-        /// <summary>
         /// Renders the clipboard image with the checkerboard pattern under the transparent areas.
         /// </summary>
         /// <param name="stream">The stream containing the clipboard image.</param>
@@ -4367,7 +4595,8 @@ namespace BrushFactory
                             }
                             catch
                             {
-                                MessageBox.Show("Could not use clipboard image.");
+                                MessageBox.Show(Localization.Strings.ClipboardErrorUnusable,
+                                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                             finally
                             {
@@ -4437,7 +4666,8 @@ namespace BrushFactory
         private void UpdateBrush(BrushSettings settings)
         {
             // Whether the delete brush button is enabled or not.
-            bttnDeleteBrush.Enabled = currentBrushName != null;
+            bttnDeleteBrush.Enabled = currentBrushName != null &&
+                !currentBrushName.Equals(Localization.Strings.CustomBrushesDefaultBrush);
 
             //Copies GUI values from the settings.
             sliderBrushSize.Value = settings.BrushSize;
@@ -4969,6 +5199,18 @@ namespace BrushFactory
             }
         }
 
+        private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
+        {
+            UpdateTooltip(
+                Localization.Strings.ValueInfluenceTip + "\n\n"
+                + Localization.Strings.ValueTypeNothingTip + "\n"
+                + Localization.Strings.ValueTypeAddTip + "\n"
+                + Localization.Strings.ValueTypeAddPercentTip + "\n"
+                + Localization.Strings.ValueTypeAddPercentCurrentTip + "\n"
+                + Localization.Strings.ValueTypeMatchValueTip + "\n"
+                + Localization.Strings.ValueTypeMatchPercentTip);
+        }
+
         /// <summary>
         /// Sets up image panning and drawing to occur with mouse movement.
         /// </summary>
@@ -4980,7 +5222,7 @@ namespace BrushFactory
                 if (activeTool == Tool.SetSymmetryOrigin && cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
                 {
                     // Deletes all points.
-                    if (IsKeyDown(Keys.ControlKey))
+                    if (KeyShortcutManager.IsKeyDown(Keys.ControlKey))
                     {
                         symmetryOrigins.Clear();
                     }
@@ -5010,7 +5252,7 @@ namespace BrushFactory
 
             //Pans the image.
             else if (e.Button == MouseButtons.Middle ||
-                (e.Button == MouseButtons.Left && IsKeyDown(Keys.ControlKey)))
+                (e.Button == MouseButtons.Left && KeyShortcutManager.IsKeyDown(Keys.ControlKey)))
             {
                 isUserPanning = true;
                 mouseLocPrev = e.Location;
@@ -5494,18 +5736,11 @@ namespace BrushFactory
         /// </summary>
         private void bttnDeleteBrush_Click(object sender, EventArgs e)
         {
-            if (currentBrushName == null || currentBrushName.Equals(Localization.Strings.CustomBrushesDefaultBrush))
-            {
-                MessageBox.Show(Localization.Strings.DeleteBrushErrorDefault);
-            }
-            else
-            {
-                settings.CustomBrushes.Remove(currentBrushName);
-                listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
-                settings.MarkSettingsChanged();
-                currentBrushName = null;
-                bttnDeleteBrush.Enabled = false;
-            }
+            settings.CustomBrushes.Remove(currentBrushName);
+            listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
+            settings.MarkSettingsChanged();
+            currentBrushName = null;
+            bttnDeleteBrush.Enabled = false;
         }
 
         private void bttnDeleteBrush_MouseEnter(object sender, EventArgs e)
@@ -5598,7 +5833,8 @@ namespace BrushFactory
             }
             else
             {
-                MessageBox.Show("File could not be found for redo.");
+                MessageBox.Show(Localization.Strings.RedoFileNotFoundError,
+                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             //Handles enabling undo or disabling redo for the user's clarity.
@@ -5819,7 +6055,8 @@ namespace BrushFactory
             }
             else
             {
-                MessageBox.Show("File could not be found for undo.");
+                MessageBox.Show(Localization.Strings.RedoFileNotFoundError,
+                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             //Handles enabling redo or disabling undo for the user's clarity.

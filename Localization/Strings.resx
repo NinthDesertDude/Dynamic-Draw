@@ -579,9 +579,6 @@
   <data name="CustomBrushesDefaultBrush" xml:space="preserve">
     <value>Default</value>
   </data>
-  <data name="DeleteBrushErrorDefault" xml:space="preserve">
-    <value>The default brush can't be deleted.</value>
-  </data>
   <data name="BrushSelectorTip" xml:space="preserve">
     <value>Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen.</value>
   </data>
@@ -590,5 +587,167 @@
   </data>
   <data name="AddFilesTip" xml:space="preserve">
     <value>Browse for files to load as custom brush images when Brush Factory starts.</value>
+  </data>
+  <data name="ClipboardErrorUnusable" xml:space="preserve">
+    <value>Could not use clipboard image.</value>
+  </data>
+  <data name="RedoFileNotFoundError" xml:space="preserve">
+    <value>File could not be found for redo.</value>
+  </data>
+  <data name="ValueInfluenceTip" xml:space="preserve">
+    <value>How the associated number will influence the setting for full pressure on a drawing tablet. Partial pressure will also influence the setting to a proportionally smaller degree (on a linear curve).</value>
+  </data>
+  <data name="ValueTypeAddPercentCurrentTip" xml:space="preserve">
+    <value>Add as percent of self: At full pressure, the setting equals itself plus this percent of itself, e.g. 30% when the setting is 50 would make the setting 65.</value>
+  </data>
+  <data name="ValueTypeAddPercentTip" xml:space="preserve">
+    <value>Add as percent of max: At full value, the setting equals itself plus this percent of the max possible value it can have, e.g. if the setting is 50 out of 200 and the percent is 30%, at full pressure the setting would be 110.</value>
+  </data>
+  <data name="ValueTypeAddTip" xml:space="preserve">
+    <value>Add as number: At full pressure, the setting equals itself plus this number.</value>
+  </data>
+  <data name="ValueTypeMatchPercentTip" xml:space="preserve">
+    <value>Match the percent of max: At full pressure, the setting equals this percent of the max possible value it can have, e.g. 30% of 200 at full pressure would make the setting 60.</value>
+  </data>
+  <data name="ValueTypeMatchValueTip" xml:space="preserve">
+    <value>Match the number: At full pressure, the setting equals this number.</value>
+  </data>
+  <data name="ValueTypeNothingTip" xml:space="preserve">
+    <value>Not in use: Tablet pressure doesn't affect anything.</value>
+  </data>
+  <data name="SetShortcutText" xml:space="preserve">
+    <value>Press new key...</value>
+  </data>
+  <data name="ShortcutAlpha" xml:space="preserve">
+    <value>Brush Transparency</value>
+  </data>
+  <data name="ShortcutAlphaShift" xml:space="preserve">
+    <value>Alpha Shift</value>
+  </data>
+  <data name="ShortcutBrushSmoothing" xml:space="preserve">
+    <value>Brush Smoothing</value>
+  </data>
+  <data name="ShortcutCanvasZoom" xml:space="preserve">
+    <value>Canvas Zoom</value>
+  </data>
+  <data name="ShortcutColorizeBrush" xml:space="preserve">
+    <value>Colorize Brush</value>
+  </data>
+  <data name="ShortcutDensity" xml:space="preserve">
+    <value>Brush Stroke Density</value>
+  </data>
+  <data name="ShortcutJitterBlueMax" xml:space="preserve">
+    <value>Blue Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterBlueMin" xml:space="preserve">
+    <value>Blue Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterGreenMax" xml:space="preserve">
+    <value>Green Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterGreenMin" xml:space="preserve">
+    <value>Green Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterHorSpray" xml:space="preserve">
+    <value>Horizontal Spray</value>
+  </data>
+  <data name="ShortcutJitterHueMax" xml:space="preserve">
+    <value>Hue Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterHueMin" xml:space="preserve">
+    <value>Hue Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterMaxSize" xml:space="preserve">
+    <value>Random Max Size</value>
+  </data>
+  <data name="ShortcutJitterMinAlpha" xml:space="preserve">
+    <value>Random Min Alpha</value>
+  </data>
+  <data name="ShortcutJitterMinSize" xml:space="preserve">
+    <value>Random Min Size</value>
+  </data>
+  <data name="ShortcutJitterRedMax" xml:space="preserve">
+    <value>Red Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterRedMin" xml:space="preserve">
+    <value>Red Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterRotLeft" xml:space="preserve">
+    <value>Random Rot to Left</value>
+  </data>
+  <data name="ShortcutJitterRotRight" xml:space="preserve">
+    <value>Random Rot to Right</value>
+  </data>
+  <data name="ShortcutJitterSatMax" xml:space="preserve">
+    <value>Saturation Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterSatMin" xml:space="preserve">
+    <value>Saturation Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterValueMax" xml:space="preserve">
+    <value>Value Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterValueMin" xml:space="preserve">
+    <value>Value Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterVerSpray" xml:space="preserve">
+    <value>Vertical Spray</value>
+  </data>
+  <data name="ShortcutRotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="ShortcutRotShift" xml:space="preserve">
+    <value>Rotation Shift</value>
+  </data>
+  <data name="ShortcutSelectedBrush" xml:space="preserve">
+    <value>Selected Brush</value>
+  </data>
+  <data name="ShortcutSelectedBrushImage" xml:space="preserve">
+    <value>Selected Brush Image</value>
+  </data>
+  <data name="ShortcutSelectedTool" xml:space="preserve">
+    <value>Selected Tool</value>
+  </data>
+  <data name="ShortcutSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="ShortcutSizeShift" xml:space="preserve">
+    <value>Size Shift</value>
+  </data>
+  <data name="ShortcutSymmetryMode" xml:space="preserve">
+    <value>Symmetry Mode</value>
+  </data>
+  <data name="TabPressure" xml:space="preserve">
+    <value>Tab Pressure</value>
+  </data>
+  <data name="TabPressureSetting" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="NoShortcut" xml:space="preserve">
+    <value>No Shortcut</value>
+  </data>
+  <data name="ShortcutIntentBoolFalse" xml:space="preserve">
+    <value>False</value>
+  </data>
+  <data name="ShortcutIntentBoolToggle" xml:space="preserve">
+    <value>Toggle</value>
+  </data>
+  <data name="ShortcutIntentBoolTrue" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="ShortcutIntentNumAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ShortcutIntentNumAddWrap" xml:space="preserve">
+    <value>Add (wrap around)</value>
+  </data>
+  <data name="ShortcutIntentNumSet" xml:space="preserve">
+    <value>Set</value>
+  </data>
+  <data name="ShortcutIntentNumSub" xml:space="preserve">
+    <value>Subtract</value>
+  </data>
+  <data name="ShortcutIntentNumSubWrap" xml:space="preserve">
+    <value>Subtract (wrap around)</value>
   </data>
 </root>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using BrushFactory.Logic;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,7 @@ namespace BrushFactory
 
         private HashSet<string> customBrushDirectories;
         private Dictionary<string, BrushSettings> customBrushes;
+        private HashSet<KeyboardShortcut> keyboardShortcuts;
         private bool useDefaultBrushes;
 
         /// <summary>
@@ -75,6 +77,26 @@ namespace BrushFactory
                 customBrushes = new Dictionary<string, BrushSettings>(value);
                 changed = true;
             } }
+
+        /// <summary>
+        /// Gets or sets the list of registered keyboard shortcuts (user-changeable).
+        /// </summary>
+        [DataMember(Name = "KeyboardShortcuts")]
+        public HashSet<KeyboardShortcut> KeyboardShortcuts
+        {
+            get
+            {
+                return keyboardShortcuts;
+            }
+            set
+            {
+                if (keyboardShortcuts != value)
+                {
+                    keyboardShortcuts = value;
+                    changed = true;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether to use the default brushes.
