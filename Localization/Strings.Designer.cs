@@ -889,15 +889,6 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Min. Draw Distance.
-        /// </summary>
-        internal static string MinDrawDistanceShort {
-            get {
-                return ResourceManager.GetString("MinDrawDistanceShort", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Each brush stroke must be at least this far apart to have an effect. Used, for example, to make lines. Draws lines when set to high values when brush density is not zero..
         /// </summary>
         internal static string MinDrawDistanceTip {

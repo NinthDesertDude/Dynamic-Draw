@@ -42,7 +42,7 @@ namespace BrushFactory
                 { ShortcutTarget.JitterValMin, new Setting(Localization.Strings.ShortcutJitterValueMin, 0, 100) },
                 { ShortcutTarget.JitterVerSpray, new Setting(Localization.Strings.ShortcutJitterVerSpray, 0, 100) },
                 { ShortcutTarget.LockAlpha, new Setting(Localization.Strings.LockAlpha, ShortcutTargetDataType.Bool) },
-                { ShortcutTarget.MinDrawDistance, new Setting(Localization.Strings.MinDrawDistanceShort, 0, 100) },
+                { ShortcutTarget.MinDrawDistance, new Setting(Localization.Strings.MinDrawDistance, 0, 100) },
                 { ShortcutTarget.RedoAction, new Setting(Localization.Strings.Redo, ShortcutTargetDataType.Action) },
                 { ShortcutTarget.RotateWithMouse, new Setting(Localization.Strings.OrientToMouse, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.Rotation, new Setting(Localization.Strings.ShortcutRotation, -180, 180) },
@@ -75,7 +75,7 @@ namespace BrushFactory
                 { ShortcutTarget.TabPressureJitterValMax, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterValueMax), -100, 100) },
                 { ShortcutTarget.TabPressureJitterValMin, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterValueMin), -100, 100) },
                 { ShortcutTarget.TabPressureJitterVerShift, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterVerSpray), -100, 100) },
-                { ShortcutTarget.TabPressureMinDrawDistance, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.MinDrawDistanceShort), -100, 100) },
+                { ShortcutTarget.TabPressureMinDrawDistance, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.MinDrawDistance), -100, 100) },
                 { ShortcutTarget.TabPressureSize, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutSize), -1000, 1000) },
                 { ShortcutTarget.TabPressureRotation, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutRotation), -180, 180) },
                 { ShortcutTarget.UndoAction, new Setting(Localization.Strings.Undo, ShortcutTargetDataType.Action) }

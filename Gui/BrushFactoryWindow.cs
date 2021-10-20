@@ -117,6 +117,13 @@ namespace BrushFactory
         private string currentBrushName = null;
 
         /// <summary>
+        /// The calculated minimum draw distance including factors such as pressure sensitivity.
+        /// This is specially tracked as a top-level variable since it's set in the MouseMove
+        /// event and must be read in the Paint event.
+        /// </summary>
+        private int finalMinDrawDistance = 0;
+
+        /// <summary>
         /// Stores the current mouse location.
         /// </summary>
         private PointF mouseLoc = new PointF();
@@ -580,12 +587,13 @@ namespace BrushFactory
                 importBrushesFromToken = true;
             }
 
+            keyboardShortcuts.Clear(); // Prevents duplicate shortcut handling.
             foreach (KeyboardShortcut shortcut in token.KeyboardShortcuts)
             {
-                shortcut.OnInvoke += () =>
+                shortcut.OnInvoke = new Action(() =>
                 {
                     HandleShortcut(shortcut);
-                };
+                });
 
                 keyboardShortcuts.Add(shortcut);
             }
@@ -799,7 +807,7 @@ namespace BrushFactory
             cmbxTabPressureBrushSize.Text = Localization.Strings.Size;
             cmbxTabPressureGreenJitter.Text = Localization.Strings.JitterGreen;
             cmbxTabPressureHueJitter.Text = Localization.Strings.JitterHue;
-            cmbxTabPressureMinDrawDistance.Text = Localization.Strings.MinDrawDistanceShort;
+            cmbxTabPressureMinDrawDistance.Text = Localization.Strings.MinDrawDistance;
             cmbxTabPressureRandHorShift.Text = Localization.Strings.RandHorzShift;
             cmbxTabPressureRandMaxSize.Text = Localization.Strings.RandMaxSize;
             cmbxTabPressureRandMinAlpha.Text = Localization.Strings.RandMinAlpha;
@@ -5370,7 +5378,7 @@ namespace BrushFactory
 
             else if (isUserDrawing)
             {
-                int finalMinDrawDistance = Utils.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
+                finalMinDrawDistance = Utils.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
                         (int)spinTabPressureMinDrawDistance.Value,
                         sliderMinDrawDistance.Maximum,
                         tabletPressureRatio,
@@ -5565,24 +5573,40 @@ namespace BrushFactory
                     1 / displayCanvasZoom);
             }
 
-            //Draws the brush as a rectangle when not drawing by mouse.
-            if ((activeTool == Tool.Brush || activeTool == Tool.Eraser) && !isUserDrawing)
+            if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
             {
-                int radius = (int)(sliderBrushSize.Value * displayCanvasZoom);
+                //Draws the brush as a rectangle when not drawing by mouse.
+                if (!isUserDrawing)
+                {
+                    int radius = (int)(sliderBrushSize.Value * displayCanvasZoom);
 
-                e.Graphics.DrawRectangle(
-                    Pens.Black,
-                    mouseLoc.X - (radius / 2f),
-                    mouseLoc.Y - (radius / 2f),
-                    radius,
-                    radius);
+                    e.Graphics.DrawRectangle(
+                        Pens.Black,
+                        mouseLoc.X - (radius / 2f),
+                        mouseLoc.Y - (radius / 2f),
+                        radius,
+                        radius);
 
-                e.Graphics.DrawRectangle(
-                    Pens.White,
-                    mouseLoc.X - (radius / 2f) - 1,
-                    mouseLoc.Y - (radius / 2f) - 1,
-                    radius + 2,
-                    radius + 2);
+                    e.Graphics.DrawRectangle(
+                        Pens.White,
+                        mouseLoc.X - (radius / 2f) - 1,
+                        mouseLoc.Y - (radius / 2f) - 1,
+                        radius + 2,
+                        radius + 2);
+                }
+
+                // Draws the minimum distance circle if min distance is in use.
+                else if (finalMinDrawDistance > 0)
+                {
+                    int radius = (int)(finalMinDrawDistance * 2 * displayCanvasZoom);
+
+                    e.Graphics.DrawEllipse(
+                        Pens.Red,
+                        (mouseLocBrush.HasValue ? mouseLocBrush.Value.X : mouseLoc.X) - (radius / 2f) - 1,
+                        (mouseLocBrush.HasValue ? mouseLocBrush.Value.Y : mouseLoc.Y) - (radius / 2f) - 1,
+                        radius + 2,
+                        radius + 2);
+                }
             }
 
             // Draws the symmetry origins for symmetry modes when it's enabled.
