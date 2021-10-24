@@ -197,6 +197,7 @@ namespace BrushFactory
             //Copies each pixel.
             byte* srcRow = (byte*)srcData.Scan0;
             byte* dstRow = (byte*)destData.Scan0;
+            float alphaFactor;
             for (int y = 0; y < srcImg.Height; y++)
             {
                 ColorBgra* src = (ColorBgra*)(srcRow + (y * srcData.Stride));
@@ -204,17 +205,24 @@ namespace BrushFactory
 
                 for (int x = 0; x < srcImg.Width; x++)
                 {
+                    alphaFactor = src->A / 255f;
+
                     if (alphaOnly)
                     {
                         dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
+                        dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
+                        dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
+                        dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
                         dst->A = src->A;
-                        dst->Bgra = dst->ConvertToPremultipliedAlpha().Bgra;
                     }
                     else
                     {
                         if (premultiplySrc)
                         {
-                            dst->Bgra = src->ConvertToPremultipliedAlpha().Bgra;
+                            dst->B = (byte)Math.Ceiling(src->B * alphaFactor);
+                            dst->G = (byte)Math.Ceiling(src->G * alphaFactor);
+                            dst->R = (byte)Math.Ceiling(src->R * alphaFactor);
+                            dst->A = src->A;
                         }
                         else
                         {
