@@ -1,22 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E5BEB701-F1C7-4DC1-9ECB-839237613E10}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BrushFactory</RootNamespace>
-    <AssemblyName>BrushFactory</AssemblyName>
-    <StartupObject>
-    </StartupObject>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <UpgradeBackupLocation />
+    <StartupObject></StartupObject>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -32,135 +18,48 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Deterministic>false</Deterministic>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <OutputPath></OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\..\..\..\..\Program Files\paint.net\Effects\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\..\..\..\..\Program Files\paint.net\Effects\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <ItemGroup>
     <Reference Include="PaintDotNet.Base">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
     </Reference>
     <Reference Include="PaintDotNet.Core">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Core.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Core.dll</HintPath>
     </Reference>
     <Reference Include="PaintDotNet.Data">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Data.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Data.dll</HintPath>
     </Reference>
     <Reference Include="PaintDotNet.Effects">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Effects.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Effects.dll</HintPath>
     </Reference>
     <Reference Include="PaintDotNet.Framework">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Framework.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Framework.dll</HintPath>
     </Reference>
     <Reference Include="PaintDotNet.Resources">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.Resources.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Resources.dll</HintPath>
     </Reference>
     <Reference Include="PaintDotNet.SystemLayer">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\paint.net\PaintDotNet.SystemLayer.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.SystemLayer.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
+    <Reference Include="WintabDN">
+      <HintPath>TabletSupport\WintabDN.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abr\AbrBrush.cs" />
-    <Compile Include="Abr\AbrBrushCollection.cs" />
-    <Compile Include="Abr\AbrReader.cs" />
-    <Compile Include="Abr\Internal\BigEndianBinaryReader.cs" />
-    <Compile Include="Abr\Internal\BrushSectionParser.cs" />
-    <Compile Include="Abr\Internal\RLEHelper.cs" />
-    <Compile Include="Abr\Internal\SampledBrush.cs" />
-    <Compile Include="Abr\Internal\SampledBrushCollection.cs" />
-    <Compile Include="Gui\BrushFactoryPreferences.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Gui\BrushFactoryPreferences.Designer.cs">
-      <DependentUpon>BrushFactoryPreferences.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Gui\BrushFactorySettings.cs" />
-    <Compile Include="Gui\BrushSelectorItem.cs" />
-    <Compile Include="Gui\BrushSelectorItemCollection.cs" />
-    <Compile Include="Gui\DoubleBufferedListView.cs">
+    <Compile Update="Gui\CmbxTabletValueType.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Gui\IBrushFactorySettings.cs" />
-    <Compile Include="Interop\SafeNativeMethods.cs" />
-    <Compile Include="InterpolationItem.cs" />
-    <Compile Include="Logic\BrushLoadingSettings.cs" />
-    <Compile Include="Logic\Tool.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
+    <Compile Update="Gui\Accordion.cs">
+      <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SymmetryMode.cs" />
-    <Compile Include="TempDirectory.cs" />
-    <Compile Include="UserSettings.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="PersistentSettings.cs" />
-    <Compile Include="BrushFactoryEffect.cs" />
-    <Compile Include="Gui\BrushFactoryWindow.cs">
-      <SubType>Form</SubType>
+    <Compile Update="Gui\DoubleBufferedListView.cs">
+      <SubType>Component</SubType>
     </Compile>
-    <Compile Include="RenderSettings.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Localization\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Gui\BrushFactoryPreferences.resx">
-      <DependentUpon>BrushFactoryPreferences.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Gui\BrushFactoryWindow.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>BrushFactoryWindow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -185,59 +84,19 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\BG.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Localization\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BrCircle.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BrDotsBig.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BrSmoke.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BrGrass.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BrRain.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BrLine.png" />
-    <None Include="Resources\BrCircleHard.png" />
-    <None Include="Resources\BrCircleMedium.png" />
-    <None Include="Resources\BrCircleRough.png" />
-    <None Include="Resources\BrCircleSegmented.png" />
-    <None Include="Resources\BrCircleSketchy.png" />
-    <None Include="Resources\BrCracks.png" />
-    <None Include="Resources\BrDirt.png" />
-    <None Include="Resources\BrDirt2.png" />
-    <None Include="Resources\BrDirt3.png" />
-    <None Include="Resources\BrDotsTiny.png" />
-    <None Include="Resources\BrFractalDirt.png" />
-    <None Include="Resources\BrScales.png" />
-    <None Include="Resources\BrSpiral.png" />
-    <None Include="Resources\BrGravel.png" />
-    <None Include="Resources\BrSpark.png" />
-    <None Include="Resources\icon.ico" />
-    <None Include="Resources\AddBrushIcon.png" />
-    <None Include="Resources\ColorPickerIcon.png" />
-    <None Include="Resources\ColorPickerCursor.cur" />
+    <Content Include="TabletSupport\WintabDN.dll" />
     <Content Include="Resources\icon.png" />
   </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>cd $(OutDir)..
-PaintDotNet.exe</PostBuildEvent>
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <NoWarn>1701;1702;CA1416;IDE0090</NoWarn>
   </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;C:\Program Files\paint.net\Effects\paintdotnet.exe" />
+  </Target>
 </Project>

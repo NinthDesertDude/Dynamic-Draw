@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using BrushFactory.Logic;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,6 +21,8 @@ namespace BrushFactory
         private bool loadedSettings;
 
         private HashSet<string> customBrushDirectories;
+        private Dictionary<string, BrushSettings> customBrushes;
+        private HashSet<KeyboardShortcut> keyboardShortcuts;
         private bool useDefaultBrushes;
 
         /// <summary>
@@ -43,7 +46,7 @@ namespace BrushFactory
         /// </value>
         /// <exception cref="ArgumentNullException">value is null.</exception>
         [DataMember(Name = "CustomBrushDirectories")]
-        public HashSet<string> CustomBrushDirectories
+        public HashSet<string> CustomBrushImageDirectories
         {
             get
             {
@@ -59,6 +62,37 @@ namespace BrushFactory
                 if (!customBrushDirectories.SetEquals(value))
                 {
                     customBrushDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
+                    changed = true;
+                }
+            }
+        }
+
+        [DataMember(Name = "CustomBrushes")]
+        public Dictionary<string, BrushSettings> CustomBrushes { get { return customBrushes; } set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                customBrushes = new Dictionary<string, BrushSettings>(value);
+                changed = true;
+            } }
+
+        /// <summary>
+        /// Gets or sets the list of registered keyboard shortcuts (user-changeable).
+        /// </summary>
+        [DataMember(Name = "KeyboardShortcuts")]
+        public HashSet<KeyboardShortcut> KeyboardShortcuts
+        {
+            get
+            {
+                return keyboardShortcuts;
+            }
+            set
+            {
+                if (keyboardShortcuts != value)
+                {
+                    keyboardShortcuts = value;
                     changed = true;
                 }
             }
@@ -108,7 +142,8 @@ namespace BrushFactory
                         DataContractSerializer serializer = new DataContractSerializer(typeof(BrushFactorySettings));
                         BrushFactorySettings savedSettings = (BrushFactorySettings)serializer.ReadObject(stream);
 
-                        customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushDirectories, StringComparer.OrdinalIgnoreCase);
+                        customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
+                        customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
                         useDefaultBrushes = savedSettings.UseDefaultBrushes;
                         changed = false;
                     }
@@ -152,7 +187,17 @@ namespace BrushFactory
         private void InitializeDefaultSettings()
         {
             customBrushDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            customBrushes = new Dictionary<string, BrushSettings>();
             useDefaultBrushes = true;
+        }
+
+        /// <summary>
+        /// Explicitly marks settings as changed so they'll be serialized to file. Use this only when modifying items in
+        /// collections; collections and primitive settings do this for direct assignment already.
+        /// </summary>
+        public void MarkSettingsChanged()
+        {
+            changed = true;
         }
 
         /// <summary>
@@ -188,9 +233,7 @@ namespace BrushFactory
         /// </summary>
         /// <param name="context">The streaming context.</param>
         [OnDeserializing]
-#pragma warning disable RCS1163 // Unused parameter.
         private void OnDeserializing(StreamingContext context)
-#pragma warning restore RCS1163 // Unused parameter.
         {
             // The DataContractSerializer does not call the constructor to initialize the class fields.
             // https://blogs.msdn.microsoft.com/mohamedg/2014/02/05/warning-datacontractserializer-wont-call-your-constructor/

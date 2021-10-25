@@ -1,8 +1,10 @@
-﻿using PaintDotNet;
+﻿using BrushFactory.Gui;
+using PaintDotNet;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace BrushFactory
 {
@@ -56,7 +58,7 @@ namespace BrushFactory
         /// </param>
         /// <param name="color">The color to overwrite the image with.</param>
         /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
-        public static unsafe void ColorImage(Bitmap img, Color color, float alpha)
+        public static unsafe void ColorImage(Bitmap img, Color? col, float alpha)
         {
             BitmapData bmpData = img.LockBits(
                 new Rectangle(0, 0,
@@ -66,57 +68,30 @@ namespace BrushFactory
                 img.PixelFormat);
 
             byte* row = (byte*)bmpData.Scan0;
+            Color color = col ?? default;
+            ColorBgra pixel;
 
             for (int y = 0; y < img.Height; y++)
             {
                 for (int x = 0; x < img.Width; x++)
                 {
                     int ptr = y * bmpData.Stride + x * 4;
-                    ColorBgra pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(row[ptr + 3] * alpha)).ConvertToPremultipliedAlpha();
+
+                    if (col != null)
+                    {
+                        pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(row[ptr + 3] * alpha)).ConvertToPremultipliedAlpha();
+                    }
+                    else
+                    {
+                        ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
+                        unmultipliedPixel.A = (byte)(unmultipliedPixel.A * alpha);
+                        pixel = unmultipliedPixel.ConvertToPremultipliedAlpha();
+                    }
 
                     row[ptr + 3] = pixel.A;
                     row[ptr + 2] = pixel.R;
                     row[ptr + 1] = pixel.G;
                     row[ptr] = pixel.B;
-                }
-            }
-
-            img.UnlockBits(bmpData);
-        }
-
-        /// <summary>
-        /// Multiplies alpha by an amount.
-        /// </summary>
-        /// <param name="img">
-        /// The affected image.
-        /// </param>
-        /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
-        public static unsafe void ColorImage(Bitmap img, float alpha)
-        {
-            BitmapData bmpData = img.LockBits(
-                new Rectangle(0, 0,
-                    img.Width,
-                    img.Height),
-                ImageLockMode.ReadOnly,
-                img.PixelFormat);
-
-            byte* row = (byte*)bmpData.Scan0;
-
-            for (int y = 0; y < img.Height; y++)
-            {
-                for (int x = 0; x < img.Width; x++)
-                {
-                    int ptr = y * bmpData.Stride + x * 4;
-                    ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
-
-                    unmultipliedPixel.A = (byte)(unmultipliedPixel.A * alpha);
-
-                    ColorBgra premultiplied = unmultipliedPixel.ConvertToPremultipliedAlpha();
-
-                    row[ptr + 3] = premultiplied.A;
-                    row[ptr + 2] = premultiplied.R;
-                    row[ptr + 1] = premultiplied.G;
-                    row[ptr] = premultiplied.B;
                 }
             }
 
@@ -156,61 +131,6 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Overwrites alpha from one identically-sized bitmap on another.
-        /// Both images must have PixelFormat.Format32bppPArgb.
-        /// Returns success.
-        /// </summary>
-        /// <param name="srcImg">
-        /// The image to copy alpha from.
-        /// </param>
-        /// <param name="dstImg">
-        /// The image to have its alpha overwritten.
-        /// </param>
-        public static unsafe bool CopyAlpha(Bitmap srcImg, Bitmap dstImg)
-        {
-            //Formats and size must be the same.
-            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb ||
-                dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
-                srcImg.Width != dstImg.Width ||
-                srcImg.Height != dstImg.Height)
-            {
-                return false;
-            }
-
-            BitmapData srcData = srcImg.LockBits(
-                new Rectangle(0, 0,
-                    srcImg.Width,
-                    srcImg.Height),
-                ImageLockMode.ReadOnly,
-                srcImg.PixelFormat);
-
-            BitmapData destData = dstImg.LockBits(
-                new Rectangle(0, 0,
-                    dstImg.Width,
-                    dstImg.Height),
-                ImageLockMode.WriteOnly,
-                dstImg.PixelFormat);
-
-            //Iterates through each pixel (repeating bytes of argb), skipping
-            //to the 'a' byte and copying it from the src over the dst bmp.
-            byte* srcRow = (byte*)srcData.Scan0;
-            byte* dstRow = (byte*)destData.Scan0;
-            for (int y = 0; y < srcImg.Height; y++)
-            {
-                for (int x = 0; x < srcImg.Width; x++)
-                {
-                    int ptr = y * srcData.Stride + x * 4;
-                    dstRow[ptr + 3] = srcRow[ptr + 3];
-                }
-            }
-
-            srcImg.UnlockBits(srcData);
-            dstImg.UnlockBits(destData);
-
-            return true;
-        }
-
-        /// <summary>
         /// Strictly copies all data from one bitmap over the other. They
         /// must have the same size and pixel format. Returns success.
         /// </summary>
@@ -220,17 +140,15 @@ namespace BrushFactory
         /// <param name="dstImg">
         /// The image to be overwritten.
         /// </param>
-        public static unsafe bool CopyBitmapPure(Bitmap srcImg, Bitmap dstImg)
+        public static unsafe void OverwriteBits(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
         {
-            //TODO: Find the underlying issue and stop using workarounds.
-
             //Formats and size must be the same.
-                if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
+            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
                 dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
                 srcImg.Width != dstImg.Width ||
                 srcImg.Height != dstImg.Height)
             {
-                return false;
+                return;
             }
 
             BitmapData srcData = srcImg.LockBits(
@@ -252,6 +170,7 @@ namespace BrushFactory
             //Copies each pixel.
             byte* srcRow = (byte*)srcData.Scan0;
             byte* dstRow = (byte*)destData.Scan0;
+            float alphaFactor;
             for (int y = 0; y < srcImg.Height; y++)
             {
                 ColorBgra* src = (ColorBgra*)(srcRow + (y * srcData.Stride));
@@ -259,13 +178,29 @@ namespace BrushFactory
 
                 for (int x = 0; x < srcImg.Width; x++)
                 {
-                    if (premultiplySrc)
+                    alphaFactor = src->A / 255f;
+
+                    if (alphaOnly)
                     {
-                        dst->Bgra = src->ConvertToPremultipliedAlpha().Bgra;
+                        dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
+                        dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
+                        dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
+                        dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
+                        dst->A = src->A;
                     }
                     else
                     {
-                        dst->Bgra = src->Bgra;
+                        if (premultiplySrc)
+                        {
+                            dst->B = (byte)Math.Ceiling(src->B * alphaFactor);
+                            dst->G = (byte)Math.Ceiling(src->G * alphaFactor);
+                            dst->R = (byte)Math.Ceiling(src->R * alphaFactor);
+                            dst->A = src->A;
+                        }
+                        else
+                        {
+                            dst->Bgra = src->Bgra;
+                        }
                     }
 
                     src++;
@@ -275,8 +210,6 @@ namespace BrushFactory
 
             srcImg.UnlockBits(srcData);
             dstImg.UnlockBits(destData);
-
-            return true;
         }
 
         /// <summary>
@@ -298,7 +231,7 @@ namespace BrushFactory
 
             for (int y = 0; y < surface.Height; y++)
             {
-                ColorBgra* src = surface.GetRowAddressUnchecked(y);
+                ColorBgra* src = surface.GetRowPointerUnchecked(y);
                 // The ColorBgra structure matches the memory layout
                 // of the 32bppArgb and 32bppPArgb pixel formats.
                 ColorBgra* dst = (ColorBgra*)(dstScan0 + (y * dstStride));
@@ -315,6 +248,80 @@ namespace BrushFactory
             image.UnlockBits(bitmapData);
 
             return image;
+        }
+
+        /// <summary>
+        /// Returns an aliased bitmap from a portion of the given surface, or null if the srcRect X,Y is negative.
+        /// </summary>
+        /// <param name="surface">The surface to copy a portion of.</param>
+        /// <param name="srcRect">A rectangle describing the region to copy.</param>
+        public static unsafe void CopyErase(Surface surface, Bitmap dest, Bitmap alphaMask, Point location)
+        {
+            // Calculates the brush regions outside the bounding area of the surface.
+            int negativeX = location.X < 0 ? -location.X : 0;
+            int negativeY = location.Y < 0 ? -location.Y : 0;
+            int extraX = Math.Max(location.X + alphaMask.Width - surface.Width, 0);
+            int extraY = Math.Max(location.Y + alphaMask.Height - surface.Height, 0);
+
+            int adjWidth = alphaMask.Width - negativeX - extraX;
+            int adjHeight = alphaMask.Height - negativeY - extraY;
+
+            if (adjWidth < 1 || adjHeight < 1 ||
+                surface.Width != dest.Width || surface.Height != dest.Height)
+            {
+                return;
+            }
+
+            Rectangle adjBounds = new Rectangle(
+                location.X < 0 ? 0 : location.X,
+                location.Y < 0 ? 0 : location.Y,
+                adjWidth,
+                adjHeight);
+
+            BitmapData destData = dest.LockBits(
+                adjBounds,
+                ImageLockMode.ReadWrite,
+                dest.PixelFormat);
+
+            BitmapData alphaMaskData = alphaMask.LockBits(
+                new Rectangle(0, 0,
+                alphaMask.Width,
+                alphaMask.Height),
+                ImageLockMode.ReadOnly,
+                alphaMask.PixelFormat);
+
+            byte* destRow = (byte*)destData.Scan0;
+            byte* alphaMaskRow = (byte*)alphaMaskData.Scan0;
+            byte* srcRow = (byte*)surface.Scan0.Pointer;
+            float alphaFactor;
+
+            for (int y = 0; y < adjHeight; y++)
+            {
+                ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + negativeX * 4 + ((negativeY + y) * alphaMaskData.Stride));
+                ColorBgra* srcPtr = (ColorBgra*)(srcRow + adjBounds.X * 4 + ((adjBounds.Y + y) * surface.Stride));
+                ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
+
+                for (int x = 0; x < adjWidth; x++)
+                {
+                    ColorBgra newColor = ColorBgra.Blend(
+                        destPtr->ConvertFromPremultipliedAlpha(),
+                        *srcPtr,
+                        alphaMaskPtr->A);
+
+                    alphaFactor = newColor.A / 255f;
+                    destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
+                    destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
+                    destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                    destPtr->A = newColor.A;
+
+                    alphaMaskPtr++;
+                    destPtr++;
+                    srcPtr++;
+                }
+            }
+
+            dest.UnlockBits(destData);
+            alphaMask.UnlockBits(alphaMaskData);
         }
 
         /// <summary>
@@ -549,13 +556,46 @@ namespace BrushFactory
             Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
                 g.DrawImage(origBmp, 0, 0, newSize.Width, newSize.Height);
                 return newBmp;
             }
         }
-		#endregion
-	}
+
+        /// <summary>
+        /// Takes a given setting value and adjusts it linearly via a target value using the given value-handling
+        /// method (which decides what the target value is). Returns the value unaffected if no mapping is set. This
+        /// doesn't clamp or prevent resulting invalid values.
+        /// </summary>
+        /// <param name="settingValue">The value of a setting, e.g. the brush transparency slider's value.</param>
+        /// <param name="targetValue">A number used to influence the setting value according to the handling.</param>
+        /// <param name="maxRange">The </param>
+        /// <param name="inputRatio"></param>
+        /// <param name="method"></param>
+        public static int GetStrengthMappedValue(
+            int settingValue,
+            int targetValue,
+            int maxRange,
+            float inputRatio,
+            CmbxTabletValueType.ValueHandlingMethod method)
+        {
+            switch (method)
+            {
+                case CmbxTabletValueType.ValueHandlingMethod.Add:
+                    return (int)(settingValue + inputRatio * targetValue);
+                case CmbxTabletValueType.ValueHandlingMethod.AddPercent:
+                    return (int)(settingValue + inputRatio * targetValue / 100 * maxRange);
+                case CmbxTabletValueType.ValueHandlingMethod.AddPercentCurrent:
+                    return (int)(settingValue + inputRatio * targetValue / 100 * settingValue);
+                case CmbxTabletValueType.ValueHandlingMethod.MatchValue:
+                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue);
+                case CmbxTabletValueType.ValueHandlingMethod.MatchPercent:
+                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue / 100 * maxRange);
+            }
+
+            return settingValue;
+        }
+    }
+    #endregion
 }

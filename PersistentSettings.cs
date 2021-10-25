@@ -1,5 +1,7 @@
+using BrushFactory.Gui;
+using BrushFactory.Localization;
+using BrushFactory.Logic;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace BrushFactory
 {
@@ -9,73 +11,96 @@ namespace BrushFactory
     /// </summary>
     public class PersistentSettings : PaintDotNet.Effects.EffectConfigToken
     {
+        /// <summary>
+        /// The built-in default keyboard shortcuts.
+        /// </summary>
+        private static readonly HashSet<KeyboardShortcut> defaultShortcuts = new()
+        {
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.Brush}|set",
+                Key = System.Windows.Forms.Keys.B,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.ColorPicker}|set",
+                Key = System.Windows.Forms.Keys.K,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.Eraser}|set",
+                Key = System.Windows.Forms.Keys.E,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.SetSymmetryOrigin}|set",
+                Key = System.Windows.Forms.Keys.O,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.Z,
+                Target = ShortcutTarget.UndoAction,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.Y,
+                Target = ShortcutTarget.RedoAction,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.Z,
+                Target = ShortcutTarget.RedoAction,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "100|add",
+                Key = System.Windows.Forms.Keys.Oemplus,
+                Target = ShortcutTarget.CanvasZoom,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "100|sub",
+                Key = System.Windows.Forms.Keys.OemMinus,
+                Target = ShortcutTarget.CanvasZoom,
+                RequireCtrl = true
+            }
+        };
+
+        public static readonly Dictionary<string, BrushSettings> defaultBrushes = new()
+        {
+            {
+                Strings.CustomBrushesDefaultBrush,
+                new BrushSettings()
+                {
+                    BrushImageName = Strings.DefaultBrushCircle,
+                    BrushDensity = 2,
+                    CmbxTabPressureBrushSize = (int)CmbxTabletValueType.ValueHandlingMethod.Add,
+                    TabPressureBrushSize = 10,
+                }
+            }
+        };
+
         #region Fields
         /// <summary>
-        /// Increments/decrements the alpha by an amount after each stroke.
+        /// The last used brush settings the user had.
         /// </summary>
-        public int AlphaChange
-        {
-            get;
-            set;
-        }
+        public BrushSettings CurrentBrushSettings { get; set; }
 
         /// <summary>
-        /// The brush's transparency.
-        /// </summary>
-        public int BrushAlpha
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The color of the brush, which replaces the brush color.
-        /// </summary>
-        public Color BrushColor
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The closeness of applied brush images while drawing.
-        /// </summary>
-        public int BrushDensity
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The active brush index, as chosen from built-in brushes.
-        /// </summary>
-        public string BrushName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The brush's orientation in degrees.
-        /// </summary>
-        public int BrushRotation
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The brush's radius.
-        /// </summary>
-        public int BrushSize
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Contains a list of all custom brushes to reload. The dialog will
-        /// attempt to read the paths of each brush and add them if possible.
+        /// Contains a list of all custom brushes to reload. The program will attempt to read the paths of each brush
+        /// and add them if possible.
         /// </summary>
         public HashSet<string> CustomBrushLocations
         {
@@ -84,258 +109,9 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Whether the brush rotates with the mouse direction or not.
+        /// Contains a list of all keyboard shortcuts.
         /// </summary>
-        public bool DoRotateWithMouse
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Whether to overwrite brush colors when drawing or not.
-        /// </summary>
-        public bool DoColorizeBrush
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Whether to prevent brush strokes from changing alpha or not.
-        /// </summary>
-        public bool DoLockAlpha
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Whether to save the settings when the effect is applied.
-        /// </summary>
-        public bool DoSaveSettings
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized maximum brush transparency.
-        /// </summary>
-        public int RandMaxAlpha
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized maximum brush size.
-        /// </summary>
-        public int RandMaxSize
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized minimum brush transparency.
-        /// </summary>
-        public int RandMinAlpha
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized minimum brush size.
-        /// </summary>
-        public int RandMinSize
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized counter-clockwise rotation.
-        /// </summary>
-        public int RandRotLeft
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized clockwise rotation.
-        /// </summary>
-        public int RandRotRight
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized horizontal shifting with respect to canvas size.
-        /// </summary>
-        public int RandHorzShift
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized vertical shifting with respect to canvas size.
-        /// </summary>
-        public int RandVertShift
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Doesn't apply brush strokes until the mouse is a certain distance
-        /// from its last location.
-        /// </summary>
-        public int MinDrawDistance
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Adds a random amount of red to each stroke.
-        /// </summary>
-        public int RandMaxR
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Adds a random amount of green to each stroke.
-        /// </summary>
-        public int RandMaxG
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Adds a random amount of blue to each stroke.
-        /// </summary>
-        public int RandMaxB
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Subtracts a random amount of red from each stroke.
-        /// </summary>
-        public int RandMinR
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Subtracts a random amount of green from each stroke.
-        /// </summary>
-        public int RandMinG
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Subtracts a random amount of blue from each stroke.
-        /// </summary>
-        public int RandMinB
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Adds a random amount of hue to each stroke.
-        /// </summary>
-        public int RandMaxH
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Adds a random amount of saturation to each stroke.
-        /// </summary>
-        public int RandMaxS
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Adds a random amount of value to each stroke.
-        /// </summary>
-        public int RandMaxV
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Subtracts a random amount of hue from each stroke.
-        /// </summary>
-        public int RandMinH
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Subtracts a random amount of saturation from each stroke.
-        /// </summary>
-        public int RandMinS
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Subtracts a random amount of value from each stroke.
-        /// </summary>
-        public int RandMinV
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Increments/decrements the size by an amount after each stroke.
-        /// </summary>
-        public int SizeChange
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Increments/decrements the rotation by an amount after each stroke.
-        /// </summary>
-        public int RotChange
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Sets whether to draw horizontal, vertical, or radial reflections
-        /// of the current image.
-        /// </summary>
-        public SymmetryMode Symmetry
-        {
-            get;
-            set;
-        }
+        public HashSet<KeyboardShortcut> KeyboardShortcuts { get; set; }
         #endregion
 
         /// <summary>
@@ -343,41 +119,9 @@ namespace BrushFactory
         /// </summary>
         public PersistentSettings()
         {
-            BrushSize = 20;
-            BrushName = string.Empty;
-            BrushRotation = 0;
-            BrushAlpha = 0;
-            BrushColor = UserSettings.userPrimaryColor;
-            BrushDensity = 10;
-            RandMaxAlpha = 0;
-            RandMinAlpha = 0;
-            RandMaxSize = 0;
-            RandMinSize = 0;
-            RandRotLeft = 0;
-            RandRotRight = 0;
-            RandHorzShift = 0;
-            RandVertShift = 0;
-            DoRotateWithMouse = false;
-            DoColorizeBrush = true;
-            DoLockAlpha = false;
-            MinDrawDistance = 0;
-            RandMaxR = 0;
-            RandMaxG = 0;
-            RandMaxB = 0;
-            RandMinR = 0;
-            RandMinG = 0;
-            RandMinB = 0;
-            RandMaxH = 0;
-            RandMaxS = 0;
-            RandMaxV = 0;
-            RandMinH = 0;
-            RandMinS = 0;
-            RandMinV = 0;
-            SizeChange = 0;
-            RotChange = 0;
-            AlphaChange = 0;
-            Symmetry = SymmetryMode.None;
+            CurrentBrushSettings = defaultBrushes[Strings.CustomBrushesDefaultBrush];
             CustomBrushLocations = new HashSet<string>();
+            KeyboardShortcuts = new HashSet<KeyboardShortcut>(defaultShortcuts);
         }
 
         /// <summary>
@@ -386,43 +130,11 @@ namespace BrushFactory
         protected PersistentSettings(PersistentSettings other)
             : base(other)
         {
-            BrushSize = other.BrushSize;
-            BrushName = other.BrushName;
-            BrushRotation = other.BrushRotation;
-            BrushAlpha = other.BrushAlpha;
-            BrushColor = other.BrushColor;
-            BrushDensity = other.BrushDensity;
-            RandMaxAlpha = other.RandMaxAlpha;
-            RandMinAlpha = other.RandMinAlpha;
-            RandMaxSize = other.RandMaxSize;
-            RandMinSize = other.RandMinSize;
-            RandRotLeft = other.RandRotLeft;
-            RandRotRight = other.RandRotRight;
-            RandHorzShift = other.RandHorzShift;
-            RandVertShift = other.RandVertShift;
-            DoRotateWithMouse = other.DoRotateWithMouse;
-            DoColorizeBrush = other.DoColorizeBrush;
-            DoLockAlpha = other.DoLockAlpha;
-            MinDrawDistance = other.MinDrawDistance;
-            RandMaxR = other.RandMaxR;
-            RandMaxG = other.RandMaxG;
-            RandMaxB = other.RandMaxB;
-            RandMinR = other.RandMinR;
-            RandMinG = other.RandMinG;
-            RandMinB = other.RandMinB;
-            RandMaxH = other.RandMaxH;
-            RandMaxS = other.RandMaxS;
-            RandMaxV = other.RandMaxV;
-            RandMinH = other.RandMinH;
-            RandMinS = other.RandMinS;
-            RandMinV = other.RandMinV;
-            SizeChange = other.SizeChange;
-            RotChange = other.RotChange;
-            AlphaChange = other.AlphaChange;
-            Symmetry = other.Symmetry;
+            CurrentBrushSettings = new BrushSettings(other.CurrentBrushSettings);
             CustomBrushLocations = new HashSet<string>(
                 other.CustomBrushLocations,
                 other.CustomBrushLocations.Comparer);
+            KeyboardShortcuts = new HashSet<KeyboardShortcut>(other.KeyboardShortcuts);
         }
 
         /// <summary>

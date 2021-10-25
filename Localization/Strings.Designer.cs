@@ -88,25 +88,124 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Brushes....
+        ///   Looks up a localized string similar to Basics.
         /// </summary>
-        internal static string AddBrushes {
+        internal static string AccordionBrush {
             get {
-                return ResourceManager.GetString("AddBrushes", resourceCulture);
+                return ResourceManager.GetString("AccordionBrush", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select additional brushes to add to the list..
+        ///   Looks up a localized string similar to Jitter - Basics.
         /// </summary>
-        internal static string AddBrushesTip {
+        internal static string AccordionJitterBasics {
             get {
-                return ResourceManager.GetString("AddBrushesTip", resourceCulture);
+                return ResourceManager.GetString("AccordionJitterBasics", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Folder.
+        ///   Looks up a localized string similar to Jitter - Color.
+        /// </summary>
+        internal static string AccordionJitterColor {
+            get {
+                return ResourceManager.GetString("AccordionJitterColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string AccordionSettings {
+            get {
+                return ResourceManager.GetString("AccordionSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shift - Basics.
+        /// </summary>
+        internal static string AccordionShiftBasics {
+            get {
+                return ResourceManager.GetString("AccordionShiftBasics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Special Settings.
+        /// </summary>
+        internal static string AccordionSpecialSettings {
+            get {
+                return ResourceManager.GetString("AccordionSpecialSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tablet - Assign Pressure.
+        /// </summary>
+        internal static string AccordionTabPressureControls {
+            get {
+                return ResourceManager.GetString("AccordionTabPressureControls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Brush Images.
+        /// </summary>
+        internal static string AddBrushImages {
+            get {
+                return ResourceManager.GetString("AddBrushImages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings)..
+        /// </summary>
+        internal static string AddBrushImagesTip {
+            get {
+                return ResourceManager.GetString("AddBrushImagesTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string
+        /// </summary>
+        internal static string AutomaticBrushDensity {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string
+        /// </summary>
+        internal static string AutomaticBrushDensityTip {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensityTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add files.
+        /// </summary>
+        internal static string AddFiles {
+            get {
+                return ResourceManager.GetString("AddFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Brush Factory starts..
+        /// </summary>
+        internal static string AddFilesTip {
+            get {
+                return ResourceManager.GetString("AddFilesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add folder.
         /// </summary>
         internal static string AddFolder {
             get {
@@ -115,11 +214,11 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for a directory to add to the list of places to load custom brushes from..
+        ///   Looks up a localized string similar to Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Brush Factory starts. Images in sub-folders will not..
         /// </summary>
-        internal static string AddFolderTip {
+        internal static string AddFoldersTip {
             get {
-                return ResourceManager.GetString("AddFolderTip", resourceCulture);
+                return ResourceManager.GetString("AddFoldersTip", resourceCulture);
             }
         }
         
@@ -178,7 +277,16 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom Brush Directories To Auto-Load.
+        ///   Looks up a localized string similar to Lets you choose another brush image to use..
+        /// </summary>
+        internal static string BrushImageSelectorTip {
+            get {
+                return ResourceManager.GetString("BrushImageSelectorTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush image directories and files to load when Brush Factory starts.
         /// </summary>
         internal static string BrushLocations {
             get {
@@ -187,20 +295,11 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Places to look for brushes appear here. Type a new address or use &apos;add folder&apos; to add your own..
+        ///   Looks up a localized string similar to Places to look for brush images appear here. Type a new address or use &apos;add folder&apos; to add your own..
         /// </summary>
         internal static string BrushLocationsTextboxTip {
             get {
                 return ResourceManager.GetString("BrushLocationsTextboxTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Misc. brush options.
-        /// </summary>
-        internal static string BrushOptions {
-            get {
-                return ResourceManager.GetString("BrushOptions", resourceCulture);
             }
         }
         
@@ -214,7 +313,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lets you choose another brush to use..
+        ///   Looks up a localized string similar to Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen..
         /// </summary>
         internal static string BrushSelectorTip {
             get {
@@ -259,7 +358,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your custom brushes couldn&apos;t be loaded. You can try defining them again..
+        ///   Looks up a localized string similar to Your custom brush images couldn&apos;t be loaded. You can try defining them again..
         /// </summary>
         internal static string CannotLoadSettingsError {
             get {
@@ -286,25 +385,25 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear Custom Brushes.
+        ///   Looks up a localized string similar to Clear Custom Brush Images.
         /// </summary>
-        internal static string ClearBrushes {
+        internal static string ClearBrushImages {
             get {
-                return ResourceManager.GetString("ClearBrushes", resourceCulture);
+                return ResourceManager.GetString("ClearBrushImages", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Removes any custom brushes that were added. The normal brushes will remain..
+        ///   Looks up a localized string similar to Removes search locations for custom brush images you might&apos;ve set, then unloads all custom brush images..
         /// </summary>
-        internal static string ClearBrushesTip {
+        internal static string ClearBrushImagesTip {
             get {
-                return ResourceManager.GetString("ClearBrushesTip", resourceCulture);
+                return ResourceManager.GetString("ClearBrushImagesTip", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear Settings.
+        ///   Looks up a localized string similar to Clear Current Brush Settings.
         /// </summary>
         internal static string ClearSettings {
             get {
@@ -313,11 +412,20 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resets all settings to the default values they had when the plugin first loaded..
+        ///   Looks up a localized string similar to Clears all temporary changes to the current brush settings..
         /// </summary>
         internal static string ClearSettingsTip {
             get {
                 return ResourceManager.GetString("ClearSettingsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not use clipboard image..
+        /// </summary>
+        internal static string ClipboardErrorUnusable {
+            get {
+                return ResourceManager.GetString("ClipboardErrorUnusable", resourceCulture);
             }
         }
         
@@ -340,7 +448,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the brush afterwards..
+        ///   Looks up a localized string similar to Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards..
         /// </summary>
         internal static string ColorPickerTip {
             get {
@@ -349,29 +457,281 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom Brush Locations.
+        ///   Looks up a localized string similar to Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved)..
         /// </summary>
-        internal static string CustomBrushLocations {
+        internal static string CustomBrushDialogDescription {
             get {
-                return ResourceManager.GetString("CustomBrushLocations", resourceCulture);
+                return ResourceManager.GetString("CustomBrushDialogDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Define where to look for brushes when this plugin loads..
+        ///   Looks up a localized string similar to A brush name is required unless you cancel the dialog..
         /// </summary>
-        internal static string CustomBrushLocationsTip {
+        internal static string CustomBrushDialogErrorName {
             get {
-                return ResourceManager.GetString("CustomBrushLocationsTip", resourceCulture);
+                return ResourceManager.GetString("CustomBrushDialogErrorName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hold middle mouse button or control and left mouse button to pan image. Right-click for options. Hover over controls to read about them here..
+        ///   Looks up a localized string similar to Add a custom brush.
         /// </summary>
-        internal static string GeneralTooltip {
+        internal static string CustomBrushDialogTitle {
             get {
-                return ResourceManager.GetString("GeneralTooltip", resourceCulture);
+                return ResourceManager.GetString("CustomBrushDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default.
+        /// </summary>
+        internal static string CustomBrushesDefaultBrush {
+            get {
+                return ResourceManager.GetString("CustomBrushesDefaultBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Image Locations.
+        /// </summary>
+        internal static string CustomBrushImageLocations {
+            get {
+                return ResourceManager.GetString("CustomBrushImageLocations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Define where to look for brush images when this plugin loads..
+        /// </summary>
+        internal static string CustomBrushImageLocationsTip {
+            get {
+                return ResourceManager.GetString("CustomBrushImageLocationsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Images and abr brushes.
+        /// </summary>
+        internal static string CustomBrushImagesDirectoryFilter {
+            get {
+                return ResourceManager.GetString("CustomBrushImagesDirectoryFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Load custom brush images.
+        /// </summary>
+        internal static string CustomBrushImagesDirectoryTitle {
+            get {
+                return ResourceManager.GetString("CustomBrushImagesDirectoryTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Big Dots.
+        /// </summary>
+        internal static string DefaultBrushBigDots {
+            get {
+                return ResourceManager.GetString("DefaultBrushBigDots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Circle Light 256px.
+        /// </summary>
+        internal static string DefaultBrushCircle {
+            get {
+                return ResourceManager.GetString("DefaultBrushCircle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Circle Hard 256px.
+        /// </summary>
+        internal static string DefaultBrushCircleHard {
+            get {
+                return ResourceManager.GetString("DefaultBrushCircleHard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Circle Med 256px.
+        /// </summary>
+        internal static string DefaultBrushCircleMed {
+            get {
+                return ResourceManager.GetString("DefaultBrushCircleMed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rough.
+        /// </summary>
+        internal static string DefaultBrushCircleRough {
+            get {
+                return ResourceManager.GetString("DefaultBrushCircleRough", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Segmented.
+        /// </summary>
+        internal static string DefaultBrushCircleSegmented {
+            get {
+                return ResourceManager.GetString("DefaultBrushCircleSegmented", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sketchy.
+        /// </summary>
+        internal static string DefaultBrushCircleSketchy {
+            get {
+                return ResourceManager.GetString("DefaultBrushCircleSketchy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cracks.
+        /// </summary>
+        internal static string DefaultBrushCracks {
+            get {
+                return ResourceManager.GetString("DefaultBrushCracks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dirt.
+        /// </summary>
+        internal static string DefaultBrushDirt {
+            get {
+                return ResourceManager.GetString("DefaultBrushDirt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dirt 2.
+        /// </summary>
+        internal static string DefaultBrushDirt2 {
+            get {
+                return ResourceManager.GetString("DefaultBrushDirt2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dirt 3.
+        /// </summary>
+        internal static string DefaultBrushDirt3 {
+            get {
+                return ResourceManager.GetString("DefaultBrushDirt3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fractal.
+        /// </summary>
+        internal static string DefaultBrushFractalDirt {
+            get {
+                return ResourceManager.GetString("DefaultBrushFractalDirt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grass.
+        /// </summary>
+        internal static string DefaultBrushGrass {
+            get {
+                return ResourceManager.GetString("DefaultBrushGrass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gravel.
+        /// </summary>
+        internal static string DefaultBrushGravel {
+            get {
+                return ResourceManager.GetString("DefaultBrushGravel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Line.
+        /// </summary>
+        internal static string DefaultBrushLine {
+            get {
+                return ResourceManager.GetString("DefaultBrushLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rain.
+        /// </summary>
+        internal static string DefaultBrushRain {
+            get {
+                return ResourceManager.GetString("DefaultBrushRain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scales.
+        /// </summary>
+        internal static string DefaultBrushScales {
+            get {
+                return ResourceManager.GetString("DefaultBrushScales", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Small Dots.
+        /// </summary>
+        internal static string DefaultBrushSmallDots {
+            get {
+                return ResourceManager.GetString("DefaultBrushSmallDots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smoke.
+        /// </summary>
+        internal static string DefaultBrushSmoke {
+            get {
+                return ResourceManager.GetString("DefaultBrushSmoke", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spark.
+        /// </summary>
+        internal static string DefaultBrushSpark {
+            get {
+                return ResourceManager.GetString("DefaultBrushSpark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spiral.
+        /// </summary>
+        internal static string DefaultBrushSpiral {
+            get {
+                return ResourceManager.GetString("DefaultBrushSpiral", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Brush.
+        /// </summary>
+        internal static string DeleteBrush {
+            get {
+                return ResourceManager.GetString("DeleteBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deletes the current brush. Current brush settings are unaffected..
+        /// </summary>
+        internal static string DeleteBrushTip {
+            get {
+                return ResourceManager.GetString("DeleteBrushTip", resourceCulture);
             }
         }
         
@@ -484,7 +844,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Load Default Brushes?.
+        ///   Looks up a localized string similar to Load Default Brush Images?.
         /// </summary>
         internal static string LoadDefaultBrushes {
             get {
@@ -493,7 +853,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If turned off, only the circle brush and any custom brushes will be loaded..
+        ///   Looks up a localized string similar to If turned off, only the circle brush image and custom brush images will be loaded..
         /// </summary>
         internal static string LoadDefaultBrushesTip {
             get {
@@ -552,6 +912,15 @@ namespace BrushFactory.Localization {
         internal static string MinDrawDistanceTip {
             get {
                 return ResourceManager.GetString("MinDrawDistanceTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Shortcut.
+        /// </summary>
+        internal static string NoShortcut {
+            get {
+                return ResourceManager.GetString("NoShortcut", resourceCulture);
             }
         }
         
@@ -727,6 +1096,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File could not be found for redo..
+        /// </summary>
+        internal static string RedoFileNotFoundError {
+            get {
+                return ResourceManager.GetString("RedoFileNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Redo Shortcut: Ctrl + Y. Restores changes removed by undo, if possible..
         /// </summary>
         internal static string RedoTip {
@@ -745,6 +1123,24 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Save New Brush.
+        /// </summary>
+        internal static string SaveNewBrush {
+            get {
+                return ResourceManager.GetString("SaveNewBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saves the current brush settings as a brush under a unique name..
+        /// </summary>
+        internal static string SaveNewBrushTip {
+            get {
+                return ResourceManager.GetString("SaveNewBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save.
         /// </summary>
         internal static string SavePreferences {
@@ -759,6 +1155,15 @@ namespace BrushFactory.Localization {
         internal static string SavePreferencesTip {
             get {
                 return ResourceManager.GetString("SavePreferencesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press new key....
+        /// </summary>
+        internal static string SetShortcutText {
+            get {
+                return ResourceManager.GetString("SetShortcutText", resourceCulture);
             }
         }
         
@@ -826,11 +1231,533 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Brush Transparency.
+        /// </summary>
+        internal static string ShortcutAlpha {
+            get {
+                return ResourceManager.GetString("ShortcutAlpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alpha Shift.
+        /// </summary>
+        internal static string ShortcutAlphaShift {
+            get {
+                return ResourceManager.GetString("ShortcutAlphaShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Smoothing.
+        /// </summary>
+        internal static string ShortcutBrushSmoothing {
+            get {
+                return ResourceManager.GetString("ShortcutBrushSmoothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canvas Zoom.
+        /// </summary>
+        internal static string ShortcutCanvasZoom {
+            get {
+                return ResourceManager.GetString("ShortcutCanvasZoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Colorize Brush.
+        /// </summary>
+        internal static string ShortcutColorizeBrush {
+            get {
+                return ResourceManager.GetString("ShortcutColorizeBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Stroke Density.
+        /// </summary>
+        internal static string ShortcutDensity {
+            get {
+                return ResourceManager.GetString("ShortcutDensity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to False.
+        /// </summary>
+        internal static string ShortcutIntentBoolFalse {
+            get {
+                return ResourceManager.GetString("ShortcutIntentBoolFalse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle.
+        /// </summary>
+        internal static string ShortcutIntentBoolToggle {
+            get {
+                return ResourceManager.GetString("ShortcutIntentBoolToggle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to True.
+        /// </summary>
+        internal static string ShortcutIntentBoolTrue {
+            get {
+                return ResourceManager.GetString("ShortcutIntentBoolTrue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        internal static string ShortcutIntentNumAdd {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add (wrap around).
+        /// </summary>
+        internal static string ShortcutIntentNumAddWrap {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumAddWrap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set.
+        /// </summary>
+        internal static string ShortcutIntentNumSet {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subtract.
+        /// </summary>
+        internal static string ShortcutIntentNumSub {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumSub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subtract (wrap around).
+        /// </summary>
+        internal static string ShortcutIntentNumSubWrap {
+            get {
+                return ResourceManager.GetString("ShortcutIntentNumSubWrap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blue Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterBlueMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterBlueMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blue Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterBlueMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterBlueMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Green Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterGreenMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterGreenMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Green Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterGreenMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterGreenMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Horizontal Spray.
+        /// </summary>
+        internal static string ShortcutJitterHorSpray {
+            get {
+                return ResourceManager.GetString("ShortcutJitterHorSpray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hue Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterHueMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterHueMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hue Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterHueMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterHueMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Max Size.
+        /// </summary>
+        internal static string ShortcutJitterMaxSize {
+            get {
+                return ResourceManager.GetString("ShortcutJitterMaxSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Min Alpha.
+        /// </summary>
+        internal static string ShortcutJitterMinAlpha {
+            get {
+                return ResourceManager.GetString("ShortcutJitterMinAlpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Min Size.
+        /// </summary>
+        internal static string ShortcutJitterMinSize {
+            get {
+                return ResourceManager.GetString("ShortcutJitterMinSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Red Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterRedMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRedMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Red Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterRedMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRedMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Rot to Left.
+        /// </summary>
+        internal static string ShortcutJitterRotLeft {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRotLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random Rot to Right.
+        /// </summary>
+        internal static string ShortcutJitterRotRight {
+            get {
+                return ResourceManager.GetString("ShortcutJitterRotRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saturation Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterSatMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterSatMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saturation Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterSatMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterSatMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value Jitter Max.
+        /// </summary>
+        internal static string ShortcutJitterValueMax {
+            get {
+                return ResourceManager.GetString("ShortcutJitterValueMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value Jitter Min.
+        /// </summary>
+        internal static string ShortcutJitterValueMin {
+            get {
+                return ResourceManager.GetString("ShortcutJitterValueMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vertical Spray.
+        /// </summary>
+        internal static string ShortcutJitterVerSpray {
+            get {
+                return ResourceManager.GetString("ShortcutJitterVerSpray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotation.
+        /// </summary>
+        internal static string ShortcutRotation {
+            get {
+                return ResourceManager.GetString("ShortcutRotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotation Shift.
+        /// </summary>
+        internal static string ShortcutRotShift {
+            get {
+                return ResourceManager.GetString("ShortcutRotShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Brush.
+        /// </summary>
+        internal static string ShortcutSelectedBrush {
+            get {
+                return ResourceManager.GetString("ShortcutSelectedBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Brush Image.
+        /// </summary>
+        internal static string ShortcutSelectedBrushImage {
+            get {
+                return ResourceManager.GetString("ShortcutSelectedBrushImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Tool.
+        /// </summary>
+        internal static string ShortcutSelectedTool {
+            get {
+                return ResourceManager.GetString("ShortcutSelectedTool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        internal static string ShortcutSize {
+            get {
+                return ResourceManager.GetString("ShortcutSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size Shift.
+        /// </summary>
+        internal static string ShortcutSizeShift {
+            get {
+                return ResourceManager.GetString("ShortcutSizeShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry Mode.
+        /// </summary>
+        internal static string ShortcutSymmetryMode {
+            get {
+                return ResourceManager.GetString("ShortcutSymmetryMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Brush Size:.
         /// </summary>
         internal static string Size {
             get {
                 return ResourceManager.GetString("Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smoothing: High.
+        /// </summary>
+        internal static string SmoothingHigh {
+            get {
+                return ResourceManager.GetString("SmoothingHigh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smoothing: Jagged.
+        /// </summary>
+        internal static string SmoothingJagged {
+            get {
+                return ResourceManager.GetString("SmoothingJagged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Smoothing: Normal.
+        /// </summary>
+        internal static string SmoothingNormal {
+            get {
+                return ResourceManager.GetString("SmoothingNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 10-point.
+        /// </summary>
+        internal static string Symmetry10pt {
+            get {
+                return ResourceManager.GetString("Symmetry10pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 11-point.
+        /// </summary>
+        internal static string Symmetry11pt {
+            get {
+                return ResourceManager.GetString("Symmetry11pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 12-point.
+        /// </summary>
+        internal static string Symmetry12pt {
+            get {
+                return ResourceManager.GetString("Symmetry12pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 3-point.
+        /// </summary>
+        internal static string Symmetry3pt {
+            get {
+                return ResourceManager.GetString("Symmetry3pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 4-point.
+        /// </summary>
+        internal static string Symmetry4pt {
+            get {
+                return ResourceManager.GetString("Symmetry4pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 5-point.
+        /// </summary>
+        internal static string Symmetry5pt {
+            get {
+                return ResourceManager.GetString("Symmetry5pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 6-point.
+        /// </summary>
+        internal static string Symmetry6pt {
+            get {
+                return ResourceManager.GetString("Symmetry6pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 7-point.
+        /// </summary>
+        internal static string Symmetry7pt {
+            get {
+                return ResourceManager.GetString("Symmetry7pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 8-point.
+        /// </summary>
+        internal static string Symmetry8pt {
+            get {
+                return ResourceManager.GetString("Symmetry8pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: 9-point.
+        /// </summary>
+        internal static string Symmetry9pt {
+            get {
+                return ResourceManager.GetString("Symmetry9pt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: Both.
+        /// </summary>
+        internal static string SymmetryBoth {
+            get {
+                return ResourceManager.GetString("SymmetryBoth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: Horizontal.
+        /// </summary>
+        internal static string SymmetryHorizontal {
+            get {
+                return ResourceManager.GetString("SymmetryHorizontal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: None.
+        /// </summary>
+        internal static string SymmetryNone {
+            get {
+                return ResourceManager.GetString("SymmetryNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symmetry: At Points.
+        /// </summary>
+        internal static string SymmetrySetPoints {
+            get {
+                return ResourceManager.GetString("SymmetrySetPoints", resourceCulture);
             }
         }
         
@@ -844,38 +1771,29 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color.
+        ///   Looks up a localized string similar to Symmetry: Vertical.
         /// </summary>
-        internal static string TabColor {
+        internal static string SymmetryVertical {
             get {
-                return ResourceManager.GetString("TabColor", resourceCulture);
+                return ResourceManager.GetString("SymmetryVertical", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Controls.
+        ///   Looks up a localized string similar to Tab Pressure.
         /// </summary>
-        internal static string TabControls {
+        internal static string TabPressure {
             get {
-                return ResourceManager.GetString("TabControls", resourceCulture);
+                return ResourceManager.GetString("TabPressure", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Jitter.
+        ///   Looks up a localized string similar to {0} {1}.
         /// </summary>
-        internal static string TabJitter {
+        internal static string TabPressureSetting {
             get {
-                return ResourceManager.GetString("TabJitter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Other.
-        /// </summary>
-        internal static string TabOther {
-            get {
-                return ResourceManager.GetString("TabOther", resourceCulture);
+                return ResourceManager.GetString("TabPressureSetting", resourceCulture);
             }
         }
         
@@ -885,6 +1803,33 @@ namespace BrushFactory.Localization {
         internal static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings..
+        /// </summary>
+        internal static string ToolBrushTip {
+            get {
+                return ResourceManager.GetString("ToolBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image..
+        /// </summary>
+        internal static string ToolEraserTip {
+            get {
+                return ResourceManager.GetString("ToolEraserTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set Origin Shortcut: O. Activate this tool to change the symmetry origin..
+        /// </summary>
+        internal static string ToolOriginTip {
+            get {
+                return ResourceManager.GetString("ToolOriginTip", resourceCulture);
             }
         }
         
@@ -903,6 +1848,123 @@ namespace BrushFactory.Localization {
         internal static string UndoTip {
             get {
                 return ResourceManager.GetString("UndoTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How the associated number will influence the setting for full pressure on a drawing tablet. Partial pressure will also influence the setting to a proportionally smaller degree (on a linear curve)..
+        /// </summary>
+        internal static string ValueInfluenceTip {
+            get {
+                return ResourceManager.GetString("ValueInfluenceTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as number.
+        /// </summary>
+        internal static string ValueTypeAdd {
+            get {
+                return ResourceManager.GetString("ValueTypeAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as percent of max.
+        /// </summary>
+        internal static string ValueTypeAddPercent {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as percent of self.
+        /// </summary>
+        internal static string ValueTypeAddPercentCurrent {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercentCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as percent of self: At full pressure, the setting equals itself plus this percent of itself, e.g. 30% when the setting is 50 would make the setting 65..
+        /// </summary>
+        internal static string ValueTypeAddPercentCurrentTip {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercentCurrentTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as percent of max: At full value, the setting equals itself plus this percent of the max possible value it can have, e.g. if the setting is 50 out of 200 and the percent is 30%, at full pressure the setting would be 110..
+        /// </summary>
+        internal static string ValueTypeAddPercentTip {
+            get {
+                return ResourceManager.GetString("ValueTypeAddPercentTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add as number: At full pressure, the setting equals itself plus this number..
+        /// </summary>
+        internal static string ValueTypeAddTip {
+            get {
+                return ResourceManager.GetString("ValueTypeAddTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match the percent of max.
+        /// </summary>
+        internal static string ValueTypeMatchPercent {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchPercent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match the percent of max: At full pressure, the setting equals this percent of the max possible value it can have, e.g. 30% of 200 at full pressure would make the setting 60..
+        /// </summary>
+        internal static string ValueTypeMatchPercentTip {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchPercentTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match the number.
+        /// </summary>
+        internal static string ValueTypeMatchValue {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match the number: At full pressure, the setting equals this number..
+        /// </summary>
+        internal static string ValueTypeMatchValueTip {
+            get {
+                return ResourceManager.GetString("ValueTypeMatchValueTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not in use.
+        /// </summary>
+        internal static string ValueTypeNothing {
+            get {
+                return ResourceManager.GetString("ValueTypeNothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not in use: Tablet pressure doesn&apos;t affect anything..
+        /// </summary>
+        internal static string ValueTypeNothingTip {
+            get {
+                return ResourceManager.GetString("ValueTypeNothingTip", resourceCulture);
             }
         }
     }

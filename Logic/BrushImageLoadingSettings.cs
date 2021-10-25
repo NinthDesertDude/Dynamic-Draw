@@ -3,9 +3,9 @@
 namespace BrushFactory.Logic
 {
     /// <summary>
-    /// A collection of settings read when loading user-defined brushes from files and directories.
+    /// A collection of settings read when loading user-defined brush images from files and directories.
     /// </summary>
-    internal sealed class BrushLoadingSettings
+    internal sealed class BrushImageLoadingSettings
     {
         /// <summary>
         /// Gets the file paths used when adding image files.
@@ -41,8 +41,8 @@ namespace BrushFactory.Logic
         /// <param name="addtoSettings"><c>true</c> if the files will be added to the settings; otherwise, <c>false</c>.</param>
         /// <param name="displayErrors"><c>true</c> error messages should be displayed; otherwise, <c>false</c>.</param>
         /// <param name="listViewItemHeight">The height of a single ListView item.</param>
-        /// <param name="maxBrushSize">The maximum size of a brush.</param>
-        public BrushLoadingSettings(IReadOnlyCollection<string> filePaths, bool addtoSettings, bool displayErrors,
+        /// <param name="maxBrushSize">The maximum size of a brush image.</param>
+        public BrushImageLoadingSettings(IReadOnlyCollection<string> filePaths, bool addtoSettings, bool displayErrors,
             int listViewItemHeight, int maxBrushSize)
         {
             FilePaths = filePaths;
@@ -58,8 +58,8 @@ namespace BrushFactory.Logic
         /// </summary>
         /// <param name="directories">The directories that are searched for image files.</param>
         /// <param name="listViewItemHeight">The height of a single ListView item.</param>
-        /// <param name="maxBrushSize">The maximum size of a brush.</param>
-        public BrushLoadingSettings(IEnumerable<string> directories, int listViewItemHeight, int maxBrushSize)
+        /// <param name="maxBrushSize">The maximum size of a brush image.</param>
+        public BrushImageLoadingSettings(IEnumerable<string> directories, int listViewItemHeight, int maxBrushSize)
         {
             FilePaths = null;
             SearchDirectories = directories;

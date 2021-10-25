@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AbrBrushNameFallbackFormat" xml:space="preserve">
     <value>Brush {0}</value>
@@ -126,17 +126,17 @@
   <data name="AbrUnsupportedMinorVersionFormat" xml:space="preserve">
     <value>Unsupported ABR version: {0}.{1}</value>
   </data>
-  <data name="AddBrushes" xml:space="preserve">
-    <value>Add Brushes...</value>
+  <data name="AddBrushImages" xml:space="preserve">
+    <value>Add Brush Images</value>
   </data>
-  <data name="AddBrushesTip" xml:space="preserve">
-    <value>Select additional brushes to add to the list.</value>
+  <data name="AddBrushImagesTip" xml:space="preserve">
+    <value>Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings).</value>
   </data>
   <data name="AddFolder" xml:space="preserve">
-    <value>Add Folder</value>
+    <value>Add folder</value>
   </data>
-  <data name="AddFolderTip" xml:space="preserve">
-    <value>Browse for a directory to add to the list of places to load custom brushes from.</value>
+  <data name="AddFoldersTip" xml:space="preserve">
+    <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Brush Factory starts. Images in sub-folders will not.</value>
   </data>
   <data name="Alpha" xml:space="preserve">
     <value>Brush Transparency:</value>
@@ -157,19 +157,16 @@
     <value>Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines.</value>
   </data>
   <data name="BrushLocations" xml:space="preserve">
-    <value>Custom Brush Directories To Auto-Load</value>
+    <value>Brush image directories and files to load when Brush Factory starts</value>
   </data>
   <data name="BrushLocationsTextboxTip" xml:space="preserve">
-    <value>Places to look for brushes appear here. Type a new address or use 'add folder' to add your own.</value>
-  </data>
-  <data name="BrushOptions" xml:space="preserve">
-    <value>Misc. brush options</value>
+    <value>Places to look for brush images appear here. Type a new address or use 'add folder' to add your own.</value>
   </data>
   <data name="BrushRotationTip" xml:space="preserve">
     <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
   </data>
-  <data name="BrushSelectorTip" xml:space="preserve">
-    <value>Lets you choose another brush to use.</value>
+  <data name="BrushImageSelectorTip" xml:space="preserve">
+    <value>Lets you choose another brush image to use.</value>
   </data>
   <data name="BrushSizeTip" xml:space="preserve">
     <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>
@@ -184,7 +181,7 @@
     <value>Quit without saving changes.</value>
   </data>
   <data name="CannotLoadSettingsError" xml:space="preserve">
-    <value>Your custom brushes couldn't be loaded. You can try defining them again.</value>
+    <value>Your custom brush images couldn't be loaded. You can try defining them again.</value>
   </data>
   <data name="CanvasZoom" xml:space="preserve">
     <value>Canvas Zoom:</value>
@@ -192,17 +189,17 @@
   <data name="CanvasZoomTip" xml:space="preserve">
     <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.</value>
   </data>
-  <data name="ClearBrushes" xml:space="preserve">
-    <value>Clear Custom Brushes</value>
+  <data name="ClearBrushImages" xml:space="preserve">
+    <value>Clear Custom Brush Images</value>
   </data>
-  <data name="ClearBrushesTip" xml:space="preserve">
-    <value>Removes any custom brushes that were added. The normal brushes will remain.</value>
+  <data name="ClearBrushImagesTip" xml:space="preserve">
+    <value>Removes search locations for custom brush images you might've set, then unloads all custom brush images.</value>
   </data>
   <data name="ClearSettings" xml:space="preserve">
-    <value>Clear Settings</value>
+    <value>Clear Current Brush Settings</value>
   </data>
   <data name="ClearSettingsTip" xml:space="preserve">
-    <value>Resets all settings to the default values they had when the plugin first loaded.</value>
+    <value>Clears all temporary changes to the current brush settings.</value>
   </data>
   <data name="ColorizeBrush" xml:space="preserve">
     <value>Colorize Brush</value>
@@ -211,16 +208,13 @@
     <value>When activated, the color of the brush is replaced by a solid color. Otherwise, the brush maintains its original colors and cannot use color shifting.</value>
   </data>
   <data name="ColorPickerTip" xml:space="preserve">
-    <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the brush afterwards.</value>
+    <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards.</value>
   </data>
-  <data name="CustomBrushLocations" xml:space="preserve">
-    <value>Custom Brush Locations</value>
+  <data name="CustomBrushImageLocations" xml:space="preserve">
+    <value>Brush Image Locations</value>
   </data>
-  <data name="CustomBrushLocationsTip" xml:space="preserve">
-    <value>Define where to look for brushes when this plugin loads.</value>
-  </data>
-  <data name="GeneralTooltip" xml:space="preserve">
-    <value>Hold middle mouse button or control and left mouse button to pan image. Right-click for options. Hover over controls to read about them here.</value>
+  <data name="CustomBrushImageLocationsTip" xml:space="preserve">
+    <value>Define where to look for brush images when this plugin loads.</value>
   </data>
   <data name="JitterBlue" xml:space="preserve">
     <value>Blue Jitter:</value>
@@ -259,10 +253,10 @@
     <value>While drawing, the brush color will randomly shift based on the provided amounts.</value>
   </data>
   <data name="LoadDefaultBrushes" xml:space="preserve">
-    <value>Load Default Brushes?</value>
+    <value>Load Default Brush Images?</value>
   </data>
   <data name="LoadDefaultBrushesTip" xml:space="preserve">
-    <value>If turned off, only the circle brush and any custom brushes will be loaded.</value>
+    <value>If turned off, only the circle brush image and custom brush images will be loaded.</value>
   </data>
   <data name="LockAlpha" xml:space="preserve">
     <value>Lock Alpha</value>
@@ -275,9 +269,6 @@
   </data>
   <data name="MaximizeWindowTip" xml:space="preserve">
     <value>Whether to maximize the window or not. Click to toggle.</value>
-  </data>
-  <data name="MinDrawDistance" xml:space="preserve">
-    <value>Minimum Draw Distance:</value>
   </data>
   <data name="MinDrawDistanceTip" xml:space="preserve">
     <value>Each brush stroke must be at least this far apart to have an effect. Used, for example, to make lines. Draws lines when set to high values when brush density is not zero.</value>
@@ -375,18 +366,6 @@
   <data name="SymmetryTip" xml:space="preserve">
     <value>While drawing, the brush can be mirrored horizontally and/or vertically.</value>
   </data>
-  <data name="TabColor" xml:space="preserve">
-    <value>Color</value>
-  </data>
-  <data name="TabControls" xml:space="preserve">
-    <value>Controls</value>
-  </data>
-  <data name="TabJitter" xml:space="preserve">
-    <value>Jitter</value>
-  </data>
-  <data name="TabOther" xml:space="preserve">
-    <value>Other</value>
-  </data>
   <data name="Title" xml:space="preserve">
     <value>Brush Factory</value>
   </data>
@@ -398,5 +377,380 @@
   </data>
   <data name="SettingsUnavailableError" xml:space="preserve">
     <value>The settings folder could not be located. Your settings may not be loaded or saved.</value>
+  </data>
+  <data name="AccordionBrush" xml:space="preserve">
+    <value>Basics</value>
+  </data>
+  <data name="AccordionJitterBasics" xml:space="preserve">
+    <value>Jitter - Basics</value>
+  </data>
+  <data name="AccordionJitterColor" xml:space="preserve">
+    <value>Jitter - Color</value>
+  </data>
+  <data name="AccordionShiftBasics" xml:space="preserve">
+    <value>Shift - Basics</value>
+  </data>
+  <data name="AccordionSpecialSettings" xml:space="preserve">
+    <value>Special Settings</value>
+  </data>
+  <data name="AccordionSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SmoothingHigh" xml:space="preserve">
+    <value>Smoothing: High</value>
+  </data>
+  <data name="SmoothingJagged" xml:space="preserve">
+    <value>Smoothing: Jagged</value>
+  </data>
+  <data name="SmoothingNormal" xml:space="preserve">
+    <value>Smoothing: Normal</value>
+  </data>
+  <data name="Symmetry10pt" xml:space="preserve">
+    <value>Symmetry: 10-point</value>
+  </data>
+  <data name="Symmetry11pt" xml:space="preserve">
+    <value>Symmetry: 11-point</value>
+  </data>
+  <data name="Symmetry12pt" xml:space="preserve">
+    <value>Symmetry: 12-point</value>
+  </data>
+  <data name="Symmetry3pt" xml:space="preserve">
+    <value>Symmetry: 3-point</value>
+  </data>
+  <data name="Symmetry4pt" xml:space="preserve">
+    <value>Symmetry: 4-point</value>
+  </data>
+  <data name="Symmetry5pt" xml:space="preserve">
+    <value>Symmetry: 5-point</value>
+  </data>
+  <data name="Symmetry6pt" xml:space="preserve">
+    <value>Symmetry: 6-point</value>
+  </data>
+  <data name="Symmetry7pt" xml:space="preserve">
+    <value>Symmetry: 7-point</value>
+  </data>
+  <data name="Symmetry8pt" xml:space="preserve">
+    <value>Symmetry: 8-point</value>
+  </data>
+  <data name="Symmetry9pt" xml:space="preserve">
+    <value>Symmetry: 9-point</value>
+  </data>
+  <data name="SymmetryBoth" xml:space="preserve">
+    <value>Symmetry: Both</value>
+  </data>
+  <data name="SymmetryHorizontal" xml:space="preserve">
+    <value>Symmetry: Horizontal</value>
+  </data>
+  <data name="SymmetryNone" xml:space="preserve">
+    <value>Symmetry: None</value>
+  </data>
+  <data name="SymmetryVertical" xml:space="preserve">
+    <value>Symmetry: Vertical</value>
+  </data>
+  <data name="AccordionTabPressureControls" xml:space="preserve">
+    <value>Tablet - Assign Pressure</value>
+  </data>
+  <data name="ValueTypeAdd" xml:space="preserve">
+    <value>Add as number</value>
+  </data>
+  <data name="ValueTypeAddPercent" xml:space="preserve">
+    <value>Add as percent of max</value>
+  </data>
+  <data name="ValueTypeMatchValue" xml:space="preserve">
+    <value>Match the number</value>
+  </data>
+  <data name="ValueTypeNothing" xml:space="preserve">
+    <value>Not in use</value>
+  </data>
+  <data name="ValueTypeAddPercentCurrent" xml:space="preserve">
+    <value>Add as percent of self</value>
+  </data>
+  <data name="ValueTypeMatchPercent" xml:space="preserve">
+    <value>Match the percent of max</value>
+  </data>
+  <data name="SymmetrySetPoints" xml:space="preserve">
+    <value>Symmetry: At Points</value>
+  </data>
+  <data name="DefaultBrushBigDots" xml:space="preserve">
+    <value>Big Dots</value>
+  </data>
+  <data name="DefaultBrushCircle" xml:space="preserve">
+    <value>Circle Light 256px</value>
+  </data>
+  <data name="DefaultBrushCircleHard" xml:space="preserve">
+    <value>Circle Hard 256px</value>
+  </data>
+  <data name="DefaultBrushCircleMed" xml:space="preserve">
+    <value>Circle Med 256px</value>
+  </data>
+  <data name="DefaultBrushCircleRough" xml:space="preserve">
+    <value>Rough</value>
+  </data>
+  <data name="DefaultBrushCircleSegmented" xml:space="preserve">
+    <value>Segmented</value>
+  </data>
+  <data name="DefaultBrushCircleSketchy" xml:space="preserve">
+    <value>Sketchy</value>
+  </data>
+  <data name="DefaultBrushCracks" xml:space="preserve">
+    <value>Cracks</value>
+  </data>
+  <data name="DefaultBrushDirt" xml:space="preserve">
+    <value>Dirt</value>
+  </data>
+  <data name="DefaultBrushDirt2" xml:space="preserve">
+    <value>Dirt 2</value>
+  </data>
+  <data name="DefaultBrushDirt3" xml:space="preserve">
+    <value>Dirt 3</value>
+  </data>
+  <data name="DefaultBrushFractalDirt" xml:space="preserve">
+    <value>Fractal</value>
+  </data>
+  <data name="DefaultBrushGrass" xml:space="preserve">
+    <value>Grass</value>
+  </data>
+  <data name="DefaultBrushGravel" xml:space="preserve">
+    <value>Gravel</value>
+  </data>
+  <data name="DefaultBrushLine" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="DefaultBrushRain" xml:space="preserve">
+    <value>Rain</value>
+  </data>
+  <data name="DefaultBrushScales" xml:space="preserve">
+    <value>Scales</value>
+  </data>
+  <data name="DefaultBrushSmallDots" xml:space="preserve">
+    <value>Small Dots</value>
+  </data>
+  <data name="DefaultBrushSmoke" xml:space="preserve">
+    <value>Smoke</value>
+  </data>
+  <data name="DefaultBrushSpark" xml:space="preserve">
+    <value>Spark</value>
+  </data>
+  <data name="DefaultBrushSpiral" xml:space="preserve">
+    <value>Spiral</value>
+  </data>
+  <data name="ToolBrushTip" xml:space="preserve">
+    <value>Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings.</value>
+  </data>
+  <data name="ToolEraserTip" xml:space="preserve">
+    <value>Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image.</value>
+  </data>
+  <data name="ToolOriginTip" xml:space="preserve">
+    <value>Set Origin Shortcut: O. Activate this tool to change the symmetry origin.</value>
+  </data>
+  <data name="CustomBrushImagesDirectoryFilter" xml:space="preserve">
+    <value>Images and abr brushes</value>
+  </data>
+  <data name="CustomBrushImagesDirectoryTitle" xml:space="preserve">
+    <value>Load custom brush images</value>
+  </data>
+  <data name="DeleteBrush" xml:space="preserve">
+    <value>Delete Brush</value>
+  </data>
+  <data name="DeleteBrushTip" xml:space="preserve">
+    <value>Deletes the current brush. Current brush settings are unaffected.</value>
+  </data>
+  <data name="SaveNewBrush" xml:space="preserve">
+    <value>Save New Brush</value>
+  </data>
+  <data name="SaveNewBrushTip" xml:space="preserve">
+    <value>Saves the current brush settings as a brush under a unique name.</value>
+  </data>
+  <data name="MinDrawDistance" xml:space="preserve">
+    <value>Min. Draw Distance</value>
+  </data>
+  <data name="CustomBrushDialogDescription" xml:space="preserve">
+    <value>Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved).</value>
+  </data>
+  <data name="CustomBrushDialogErrorName" xml:space="preserve">
+    <value>A brush name is required unless you cancel the dialog.</value>
+  </data>
+  <data name="CustomBrushDialogTitle" xml:space="preserve">
+    <value>Add a custom brush</value>
+  </data>
+  <data name="CustomBrushesDefaultBrush" xml:space="preserve">
+    <value>Pencil</value>
+  </data>
+  <data name="BrushSelectorTip" xml:space="preserve">
+    <value>Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen.</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>Add files</value>
+  </data>
+  <data name="AddFilesTip" xml:space="preserve">
+    <value>Browse for files to load as custom brush images when Brush Factory starts.</value>
+  </data>
+  <data name="ClipboardErrorUnusable" xml:space="preserve">
+    <value>Could not use clipboard image.</value>
+  </data>
+  <data name="RedoFileNotFoundError" xml:space="preserve">
+    <value>File could not be found for redo.</value>
+  </data>
+  <data name="ValueInfluenceTip" xml:space="preserve">
+    <value>How the associated number will influence the setting for full pressure on a drawing tablet. Partial pressure will also influence the setting to a proportionally smaller degree (on a linear curve).</value>
+  </data>
+  <data name="ValueTypeAddPercentCurrentTip" xml:space="preserve">
+    <value>Add as percent of self: At full pressure, the setting equals itself plus this percent of itself, e.g. 30% when the setting is 50 would make the setting 65.</value>
+  </data>
+  <data name="ValueTypeAddPercentTip" xml:space="preserve">
+    <value>Add as percent of max: At full value, the setting equals itself plus this percent of the max possible value it can have, e.g. if the setting is 50 out of 200 and the percent is 30%, at full pressure the setting would be 110.</value>
+  </data>
+  <data name="ValueTypeAddTip" xml:space="preserve">
+    <value>Add as number: At full pressure, the setting equals itself plus this number.</value>
+  </data>
+  <data name="ValueTypeMatchPercentTip" xml:space="preserve">
+    <value>Match the percent of max: At full pressure, the setting equals this percent of the max possible value it can have, e.g. 30% of 200 at full pressure would make the setting 60.</value>
+  </data>
+  <data name="ValueTypeMatchValueTip" xml:space="preserve">
+    <value>Match the number: At full pressure, the setting equals this number.</value>
+  </data>
+  <data name="ValueTypeNothingTip" xml:space="preserve">
+    <value>Not in use: Tablet pressure doesn't affect anything.</value>
+  </data>
+  <data name="SetShortcutText" xml:space="preserve">
+    <value>Press new key...</value>
+  </data>
+  <data name="ShortcutAlpha" xml:space="preserve">
+    <value>Brush Transparency</value>
+  </data>
+  <data name="ShortcutAlphaShift" xml:space="preserve">
+    <value>Alpha Shift</value>
+  </data>
+  <data name="ShortcutBrushSmoothing" xml:space="preserve">
+    <value>Brush Smoothing</value>
+  </data>
+  <data name="ShortcutCanvasZoom" xml:space="preserve">
+    <value>Canvas Zoom</value>
+  </data>
+  <data name="ShortcutColorizeBrush" xml:space="preserve">
+    <value>Colorize Brush</value>
+  </data>
+  <data name="ShortcutDensity" xml:space="preserve">
+    <value>Brush Stroke Density</value>
+  </data>
+  <data name="ShortcutJitterBlueMax" xml:space="preserve">
+    <value>Blue Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterBlueMin" xml:space="preserve">
+    <value>Blue Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterGreenMax" xml:space="preserve">
+    <value>Green Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterGreenMin" xml:space="preserve">
+    <value>Green Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterHorSpray" xml:space="preserve">
+    <value>Horizontal Spray</value>
+  </data>
+  <data name="ShortcutJitterHueMax" xml:space="preserve">
+    <value>Hue Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterHueMin" xml:space="preserve">
+    <value>Hue Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterMaxSize" xml:space="preserve">
+    <value>Random Max Size</value>
+  </data>
+  <data name="ShortcutJitterMinAlpha" xml:space="preserve">
+    <value>Random Min Alpha</value>
+  </data>
+  <data name="ShortcutJitterMinSize" xml:space="preserve">
+    <value>Random Min Size</value>
+  </data>
+  <data name="ShortcutJitterRedMax" xml:space="preserve">
+    <value>Red Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterRedMin" xml:space="preserve">
+    <value>Red Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterRotLeft" xml:space="preserve">
+    <value>Random Rot to Left</value>
+  </data>
+  <data name="ShortcutJitterRotRight" xml:space="preserve">
+    <value>Random Rot to Right</value>
+  </data>
+  <data name="ShortcutJitterSatMax" xml:space="preserve">
+    <value>Saturation Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterSatMin" xml:space="preserve">
+    <value>Saturation Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterValueMax" xml:space="preserve">
+    <value>Value Jitter Max</value>
+  </data>
+  <data name="ShortcutJitterValueMin" xml:space="preserve">
+    <value>Value Jitter Min</value>
+  </data>
+  <data name="ShortcutJitterVerSpray" xml:space="preserve">
+    <value>Vertical Spray</value>
+  </data>
+  <data name="ShortcutRotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="ShortcutRotShift" xml:space="preserve">
+    <value>Rotation Shift</value>
+  </data>
+  <data name="ShortcutSelectedBrush" xml:space="preserve">
+    <value>Selected Brush</value>
+  </data>
+  <data name="ShortcutSelectedBrushImage" xml:space="preserve">
+    <value>Selected Brush Image</value>
+  </data>
+  <data name="ShortcutSelectedTool" xml:space="preserve">
+    <value>Selected Tool</value>
+  </data>
+  <data name="ShortcutSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="ShortcutSizeShift" xml:space="preserve">
+    <value>Size Shift</value>
+  </data>
+  <data name="ShortcutSymmetryMode" xml:space="preserve">
+    <value>Symmetry Mode</value>
+  </data>
+  <data name="TabPressure" xml:space="preserve">
+    <value>Tab Pressure</value>
+  </data>
+  <data name="TabPressureSetting" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="NoShortcut" xml:space="preserve">
+    <value>No Shortcut</value>
+  </data>
+  <data name="ShortcutIntentBoolFalse" xml:space="preserve">
+    <value>False</value>
+  </data>
+  <data name="ShortcutIntentBoolToggle" xml:space="preserve">
+    <value>Toggle</value>
+  </data>
+  <data name="ShortcutIntentBoolTrue" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="ShortcutIntentNumAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ShortcutIntentNumAddWrap" xml:space="preserve">
+    <value>Add (wrap around)</value>
+  </data>
+  <data name="ShortcutIntentNumSet" xml:space="preserve">
+    <value>Set</value>
+  </data>
+  <data name="ShortcutIntentNumSub" xml:space="preserve">
+    <value>Subtract</value>
+  </data>
+  <data name="ShortcutIntentNumSubWrap" xml:space="preserve">
+    <value>Subtract (wrap around)</value>
+  </data>
+  <data name="AutomaticBrushDensity" xml:space="preserve">
+    <value>Auto manage density</value>
+  </data>
+  <data name="AutomaticBrushDensityTip" xml:space="preserve">
+    <value>If this is toggled on, the density will automatically adjust based on the brush size to ensure a smooth line at any brush size.</value>
   </data>
 </root>
