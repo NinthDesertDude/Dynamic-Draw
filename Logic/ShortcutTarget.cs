@@ -57,179 +57,185 @@
         MinDrawDistance = 9,
 
         /// <summary>
+        /// If true, the value of brush stroke density will be automatically set based on the final brush size to
+        /// always be smooth.
+        /// </summary>
+        AutomaticBrushDensity = 10,
+
+        /// <summary>
         /// The distance between the mouse location and last applied location is filled with brush strokes while
         /// drawing. The distance is divided into fractions equal to 1/xth the size of the brush (assuming square),
         /// where x is this value. Zero turns off brush stroke density.
         /// </summary>
-        BrushStrokeDensity = 10,
+        BrushStrokeDensity = 11,
 
         /// <summary>
         /// What sort of symmetry to use when drawing, e.g. mirrors, radial, or multipoint.
         /// </summary>
-        SymmetryMode = 11,
+        SymmetryMode = 12,
 
         /// <summary>
         /// The type of smoothing to apply on brush strokes.
         /// </summary>
-        SmoothingMode = 12,
+        SmoothingMode = 13,
 
         /// <summary>
         /// Whether or not the brush should follow the mouse (assuming right points to the mouse in the unrotated
         /// image).
         /// </summary>
-        RotateWithMouse = 13,
+        RotateWithMouse = 14,
 
         /// <summary>
         /// If true, the alpha value is left unchanged at the end of a brush stroke.
         /// </summary>
-        LockAlpha = 14,
+        LockAlpha = 15,
 
         /// <summary>
         /// The amount the brush randomly shrinks from its normal value on each brush application.
         /// </summary>
-        JitterMinSize = 15,
+        JitterMinSize = 16,
 
         /// <summary>
         /// The amount the brush randomly grows from its normal value on each brush application.
         /// </summary>
-        JitterMaxSize = 16,
+        JitterMaxSize = 17,
 
         /// <summary>
         /// The amount the brush is randomly rotated left from its normal value on each brush application.
         /// </summary>
-        JitterRotLeft = 17,
+        JitterRotLeft = 18,
 
         /// <summary>
         /// The amount the brush is randomly rotated right from its normal value on each brush application.
         /// </summary>
-        JitterRotRight = 18,
+        JitterRotRight = 19,
 
         /// <summary>
         /// The amount of random transparency over the brush's normal value on each brush application.
         /// </summary>
-        JitterMinAlpha = 19,
+        JitterMinAlpha = 20,
 
         /// <summary>
         /// The amount of random horizontal shift from the brush's normal x-position on each brush application.
         /// </summary>
-        JitterHorSpray = 20,
+        JitterHorSpray = 21,
 
         /// <summary>
         /// The amount of random vertical shift from the brush's normal y-position on each brush application.
         /// </summary>
-        JitterVerSpray = 21,
+        JitterVerSpray = 22,
 
         /// <summary>
         /// The amount of additional redness the brush has on each application.
         /// </summary>
-        JitterRedMax = 22,
+        JitterRedMax = 23,
 
         /// <summary>
         /// The amount of additional greenness the brush has on each application.
         /// </summary>
-        JitterGreenMax = 23,
+        JitterGreenMax = 24,
 
         /// <summary>
         /// The amount of additional blueness the brush has on each application.
         /// </summary>
-        JitterBlueMax = 24,
+        JitterBlueMax = 25,
 
         /// <summary>
         /// How hue-shifted the brush is on each application.
         /// </summary>
-        JitterHueMax = 25,
+        JitterHueMax = 26,
 
         /// <summary>
         /// The amount of saturation the brush has on each application.
         /// </summary>
-        JitterSatMax = 26,
+        JitterSatMax = 27,
 
         /// <summary>
         /// How much extra brightness the brush has on each application.
         /// </summary>
-        JitterValMax = 27,
+        JitterValMax = 28,
 
         /// <summary>
         /// The amount of additional redness the brush has on each application.
         /// </summary>
-        JitterRedMin = 28,
+        JitterRedMin = 29,
 
         /// <summary>
         /// The amount of additional greenness the brush has on each application.
         /// </summary>
-        JitterGreenMin = 29,
+        JitterGreenMin = 30,
 
         /// <summary>
         /// The amount of additional blueness the brush has on each application.
         /// </summary>
-        JitterBlueMin = 30,
+        JitterBlueMin = 31,
 
         /// <summary>
         /// How hue-shifted the brush is on each application.
         /// </summary>
-        JitterHueMin = 31,
+        JitterHueMin = 32,
 
         /// <summary>
         /// The amount of saturation the brush has on each application.
         /// </summary>
-        JitterSatMin = 32,
+        JitterSatMin = 33,
 
         /// <summary>
         /// How much extra brightness the brush has on each application.
         /// </summary>
-        JitterValMin = 33,
+        JitterValMin = 34,
 
         /// <summary>
         /// How much the size of the brush permanently increases on each application. Brush size reflects at the
         /// range bounds.
         /// </summary>
-        SizeShift = 34,
+        SizeShift = 35,
 
         /// <summary>
         /// How much the tilt of the brush permanently increases on each application. Tilt wraps around at the range
         /// bounds.
         /// </summary>
-        RotShift = 35,
+        RotShift = 36,
 
         /// <summary>
         /// How much the transparency of the brush permanently increases on each application. Transparency reflects
         /// at the range bounds.
         /// </summary>
-        AlphaShift = 36,
+        AlphaShift = 37,
 
-        TabPressureAlpha = 37,
-        TabPressureSize = 38,
-        TabPressureRotation = 39,
-        TabPressureMinDrawDistance = 40,
-        TabPressureBrushDensity = 41,
-        TabPressureJitterMinSize = 42,
-        TabPressureJitterMaxSize = 43,
-        TabPressureJitterRotLeft = 44,
-        TabPressureJitterRotRight = 45,
-        TabPressureJitterMinAlpha = 46,
-        TabPressureJitterHorShift = 47,
-        TabPressureJitterVerShift = 48,
-        TabPressureJitterRedMax = 49,
-        TabPressureJitterRedMin = 50,
-        TabPressureJitterGreenMax = 51,
-        TabPressureJitterGreenMin = 52,
-        TabPressureJitterBlueMax = 53,
-        TabPressureJitterBlueMin = 54,
-        TabPressureJitterHueMax = 55,
-        TabPressureJitterHueMin = 56,
-        TabPressureJitterSatMax = 57,
-        TabPressureJitterSatMin = 58,
-        TabPressureJitterValMax = 59,
-        TabPressureJitterValMin = 60,
+        TabPressureAlpha = 38,
+        TabPressureSize = 39,
+        TabPressureRotation = 40,
+        TabPressureMinDrawDistance = 41,
+        TabPressureBrushDensity = 42,
+        TabPressureJitterMinSize = 43,
+        TabPressureJitterMaxSize = 44,
+        TabPressureJitterRotLeft = 45,
+        TabPressureJitterRotRight = 46,
+        TabPressureJitterMinAlpha = 47,
+        TabPressureJitterHorShift = 48,
+        TabPressureJitterVerShift = 49,
+        TabPressureJitterRedMax = 50,
+        TabPressureJitterRedMin = 51,
+        TabPressureJitterGreenMax = 52,
+        TabPressureJitterGreenMin = 53,
+        TabPressureJitterBlueMax = 54,
+        TabPressureJitterBlueMin = 55,
+        TabPressureJitterHueMax = 56,
+        TabPressureJitterHueMin = 57,
+        TabPressureJitterSatMax = 58,
+        TabPressureJitterSatMin = 59,
+        TabPressureJitterValMax = 60,
+        TabPressureJitterValMin = 61,
 
         /// <summary>
         /// The action to undo a change.
         /// </summary>
-        UndoAction = 61,
+        UndoAction = 62,
 
         /// <summary>
         /// The action to redo a change.
         /// </summary>
-        RedoAction = 62
+        RedoAction = 63
     }
 }

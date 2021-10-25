@@ -109,7 +109,7 @@ namespace BrushFactory
         /// <summary>
         /// The list of registered keyboard shortcuts.
         /// </summary>
-        private HashSet<KeyboardShortcut> keyboardShortcuts;
+        private readonly HashSet<KeyboardShortcut> keyboardShortcuts;
 
         /// <summary>
         /// The name identifying the currently loaded brush, or null if no saved brush is currently active.
@@ -262,6 +262,7 @@ namespace BrushFactory
         private TrackBar sliderMinDrawDistance;
         private Label txtBrushDensity;
         private TrackBar sliderBrushDensity;
+        private CheckBox chkbxAutomaticBrushDensity;
         private ComboBox cmbxSymmetry;
         private ComboBox cmbxBrushSmoothing;
         private CheckBox chkbxOrientToMouse;
@@ -620,6 +621,7 @@ namespace BrushFactory
             token.CurrentBrushSettings.BrushAlpha = sliderBrushAlpha.Value;
             token.CurrentBrushSettings.BrushColor = bttnBrushColor.BackColor;
             token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
+            token.CurrentBrushSettings.AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked;
             token.CurrentBrushSettings.BrushImageName = index >= 0 ? loadedBrushImages[index].Name : string.Empty;
             token.CurrentBrushSettings.BrushRotation = sliderBrushRotation.Value;
             token.CurrentBrushSettings.BrushSize = sliderBrushSize.Value;
@@ -799,6 +801,7 @@ namespace BrushFactory
             chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
             chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
             chkbxOrientToMouse.Text = Localization.Strings.OrientToMouse;
+            chkbxAutomaticBrushDensity.Text = Localization.Strings.AutomaticBrushDensity;
 
             cmbxTabPressureBlueJitter.Text = Localization.Strings.JitterBlue;
             cmbxTabPressureBrushAlpha.Text = Localization.Strings.Alpha;
@@ -860,7 +863,10 @@ namespace BrushFactory
                 // Populates the brush picker with saved brush names, which will be used to look up the settings later.
                 if (listviewBrushPicker.Items.Count == 0)
                 {
-                    listviewBrushPicker.Items.Add(new ListViewItem(Localization.Strings.CustomBrushesDefaultBrush));
+                    foreach (var keyValPair in PersistentSettings.defaultBrushes)
+                    {
+                        listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
+                    }
                     foreach (var keyValPair in settings.CustomBrushes)
                     {
                         listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
@@ -1152,6 +1158,12 @@ namespace BrushFactory
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(PointF loc, int radius)
         {
+            if ((InterpolationMode)cmbxBrushSmoothing.SelectedValue == InterpolationMode.NearestNeighbor)
+            {
+                loc.X = (int)loc.X;
+                loc.Y = (int)loc.Y;
+            }
+
             int finalRandMinSize = Utils.GetStrengthMappedValue(sliderRandMinSize.Value,
                 (int)spinTabPressureRandMinSize.Value,
                 sliderRandMinSize.Maximum,
@@ -1167,6 +1179,8 @@ namespace BrushFactory
             int newRadius = Utils.Clamp(radius
                 - random.Next(finalRandMinSize)
                 + random.Next(finalRandMaxSize), 0, int.MaxValue);
+
+            UpdateBrushDensity(newRadius);
 
             if (bmpBrushEffects == null)
             {
@@ -1761,6 +1775,22 @@ namespace BrushFactory
             }
         }
 
+        private void UpdateBrushDensity(int brushSize)
+        {
+            if (chkbxAutomaticBrushDensity.Checked)
+            {
+                if (brushSize == 1 || brushSize == 2) { sliderBrushDensity.Value = brushSize; }
+                else if (brushSize > 2 && brushSize < 6) { sliderBrushDensity.Value = 3; }
+                else if (brushSize > 5 && brushSize < 8) { sliderBrushDensity.Value = 4; }
+                else if (brushSize > 7 && brushSize < 21) { sliderBrushDensity.Value = 5; }
+                else if (brushSize > 20 && brushSize < 26) { sliderBrushDensity.Value = 6; }
+                else if (brushSize > 25 && brushSize < 46) { sliderBrushDensity.Value = 7; }
+                else if (brushSize > 45 && brushSize < 81) { sliderBrushDensity.Value = 8; }
+                else if (brushSize > 80 && brushSize < 251) { sliderBrushDensity.Value = 9; }
+                else { sliderBrushDensity.Value = 10; }
+            }
+        }
+
         /// <summary>
         /// Sets the active color based on the color from the canvas at the given point.
         /// </summary>
@@ -1790,6 +1820,9 @@ namespace BrushFactory
                         shortcut.GetDataAsInt(sliderBrushAlpha.Value,
                         sliderBrushAlpha.Minimum,
                         sliderBrushAlpha.Maximum);
+                    break;
+                case ShortcutTarget.AutomaticBrushDensity:
+                    chkbxAutomaticBrushDensity.Checked = shortcut.GetDataAsBool(chkbxAutomaticBrushDensity.Checked);
                     break;
                 case ShortcutTarget.BrushStrokeDensity:
                     sliderBrushDensity.Value = 
@@ -2173,7 +2206,7 @@ namespace BrushFactory
         /// or non-directory path is ignored.
         /// </summary>
         /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
-        private IReadOnlyCollection<string> FilesInDirectory(IEnumerable<string> dirs, BackgroundWorker backgroundWorker)
+        private static IReadOnlyCollection<string> FilesInDirectory(IEnumerable<string> dirs, BackgroundWorker backgroundWorker)
         {
             List<string> pathsToReturn = new List<string>();
 
@@ -2482,6 +2515,7 @@ namespace BrushFactory
             this.bttnClearSettings = new System.Windows.Forms.Button();
             this.bttnDeleteBrush = new System.Windows.Forms.Button();
             this.bttnSaveBrush = new System.Windows.Forms.Button();
+            this.chkbxAutomaticBrushDensity = new System.Windows.Forms.CheckBox();
             this.displayCanvasBG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.panelUndoRedoOkCancel.SuspendLayout();
@@ -2941,6 +2975,7 @@ namespace BrushFactory
             this.panelSpecialSettings.BackColor = System.Drawing.SystemColors.Control;
             this.panelSpecialSettings.Controls.Add(this.txtMinDrawDistance);
             this.panelSpecialSettings.Controls.Add(this.sliderMinDrawDistance);
+            this.panelSpecialSettings.Controls.Add(this.chkbxAutomaticBrushDensity);
             this.panelSpecialSettings.Controls.Add(this.txtBrushDensity);
             this.panelSpecialSettings.Controls.Add(this.sliderBrushDensity);
             this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
@@ -2965,6 +3000,15 @@ namespace BrushFactory
             this.sliderMinDrawDistance.ValueChanged += new System.EventHandler(this.SliderMinDrawDistance_ValueChanged);
             this.sliderMinDrawDistance.MouseEnter += new System.EventHandler(this.SliderMinDrawDistance_MouseEnter);
             // 
+            // chkbxAutomaticBrushDensity
+            // 
+            resources.ApplyResources(this.chkbxAutomaticBrushDensity, "chkbxAutomaticBrushDensity");
+            this.chkbxAutomaticBrushDensity.Text = "Manage density automatically";
+            this.chkbxAutomaticBrushDensity.Checked = true;
+            this.chkbxAutomaticBrushDensity.Name = "chkbxAutomaticBrushDensity";
+            this.chkbxAutomaticBrushDensity.MouseEnter += new System.EventHandler(this.AutomaticBrushDensity_MouseEnter);
+            this.chkbxAutomaticBrushDensity.CheckedChanged += new System.EventHandler(this.AutomaticBrushDensity_CheckedChanged);
+            // 
             // txtBrushDensity
             // 
             resources.ApplyResources(this.txtBrushDensity, "txtBrushDensity");
@@ -2979,6 +3023,7 @@ namespace BrushFactory
             this.sliderBrushDensity.Name = "sliderBrushDensity";
             this.sliderBrushDensity.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderBrushDensity.Value = 10;
+            this.sliderBrushDensity.Enabled = false;
             this.sliderBrushDensity.ValueChanged += new System.EventHandler(this.SliderBrushDensity_ValueChanged);
             this.sliderBrushDensity.MouseEnter += new System.EventHandler(this.SliderBrushDensity_MouseEnter);
             // 
@@ -4675,7 +4720,7 @@ namespace BrushFactory
         {
             // Whether the delete brush button is enabled or not.
             bttnDeleteBrush.Enabled = currentBrushName != null &&
-                !currentBrushName.Equals(Localization.Strings.CustomBrushesDefaultBrush);
+                !PersistentSettings.defaultBrushes.ContainsKey(currentBrushName);
 
             //Copies GUI values from the settings.
             sliderBrushSize.Value = settings.BrushSize;
@@ -4692,6 +4737,7 @@ namespace BrushFactory
             sliderRandRotLeft.Value = settings.RandRotLeft;
             sliderRandRotRight.Value = settings.RandRotRight;
             sliderRandVertShift.Value = settings.RandVertShift;
+            chkbxAutomaticBrushDensity.Checked = settings.AutomaticBrushDensity;
             chkbxOrientToMouse.Checked = settings.DoRotateWithMouse;
             chkbxColorizeBrush.Checked = settings.DoColorizeBrush;
             chkbxLockAlpha.Checked = settings.DoLockAlpha;
@@ -4785,7 +4831,7 @@ namespace BrushFactory
                 }
                 else
                 {
-                    Utils.ColorImage(bmpBrushEffects, multAlpha);
+                    Utils.ColorImage(bmpBrushEffects, null, multAlpha);
                 }
             }
         }
@@ -5012,7 +5058,7 @@ namespace BrushFactory
                                         //Pads the image to be square if needed, makes fully
                                         //opaque images use intensity for alpha, and draws the
                                         //altered loaded bitmap to the brush image.
-                                        Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
+                                        Utils.OverwriteBits(Utils.MakeBitmapSquare(
                                             Utils.MakeTransparent(scaledBrushImage ?? item.Image)), brushImage);
 
                                         if (scaledBrushImage != null)
@@ -5080,7 +5126,7 @@ namespace BrushFactory
                                 //Pads the image to be square if needed, makes fully
                                 //opaque images use intensity for alpha, and draws the
                                 //altered loaded bitmap to the brush.
-                                Utils.CopyBitmapPure(Utils.MakeBitmapSquare(
+                                Utils.OverwriteBits(Utils.MakeBitmapSquare(
                                     Utils.MakeTransparent(scaledBrush ?? bmp)), brushImage);
 
                                 if (scaledBrush != null)
@@ -5144,7 +5190,7 @@ namespace BrushFactory
                 e.Cancel = true;
             }
 
-            int GetProgressPercentage(double done, double total)
+            static int GetProgressPercentage(double done, double total)
             {
                 return (int)(done / total * 100.0).Clamp(0.0, 100.0);
             }
@@ -5509,7 +5555,7 @@ namespace BrushFactory
                 {
                     using (Bitmap prevStroke = new Bitmap(fileAndPath))
                     {
-                        Utils.CopyBitmapPure(prevStroke, bmpCurrentDrawing, true);
+                        Utils.OverwriteBits(prevStroke, bmpCurrentDrawing, true);
                     }
 
                     displayCanvas.Refresh();
@@ -5850,7 +5896,7 @@ namespace BrushFactory
                 //and draws the saved version.
                 using (Bitmap redoBmp = new Bitmap(fileAndPath))
                 {
-                    Utils.CopyBitmapPure(redoBmp, bmpCurrentDrawing);
+                    Utils.OverwriteBits(redoBmp, bmpCurrentDrawing);
                 }
 
                 displayCanvas.Refresh();
@@ -5899,14 +5945,15 @@ namespace BrushFactory
             {
                 string inputText = dlg.GetSubmittedText();
                 while (
-                    settings.CustomBrushes.ContainsKey(inputText) ||
-                    inputText.Equals(Localization.Strings.CustomBrushesDefaultBrush))
+                    PersistentSettings.defaultBrushes.ContainsKey(inputText) ||
+                    settings.CustomBrushes.ContainsKey(inputText))
                 {
                     inputText += " ";
                 }
 
                 BrushSettings newSettings = new BrushSettings()
                 {
+                    AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked,
                     AlphaChange = sliderShiftAlpha.Value,
                     BrushAlpha = sliderBrushAlpha.Value,
                     BrushColor = bttnBrushColor.BackColor,
@@ -6072,7 +6119,7 @@ namespace BrushFactory
                 //and draws the saved version.
                 using (Bitmap undoBmp = new Bitmap(fileAndPath))
                 {
-                    Utils.CopyBitmapPure(undoBmp, bmpCurrentDrawing);
+                    Utils.OverwriteBits(undoBmp, bmpCurrentDrawing);
                 }
 
                 displayCanvas.Refresh();
@@ -6102,6 +6149,15 @@ namespace BrushFactory
         private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.SymmetryTip);
+        }
+
+        private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Localization.Strings.AutomaticBrushDensityTip);
+        }
+
+        private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e) {
+            sliderBrushDensity.Enabled = !chkbxAutomaticBrushDensity.Checked;
         }
 
         /// <summary>
@@ -6350,30 +6406,38 @@ namespace BrushFactory
             {
                 ListViewItem selection = listviewBrushPicker.SelectedItems[0];
 
-                if (selection?.Text == Localization.Strings.CustomBrushesDefaultBrush)
+                if (selection != null)
                 {
                     currentBrushName = selection.Text;
-                    UpdateBrush(new BrushSettings());
-                }
-                else if (selection != null)
-                {
-                    currentBrushName = selection.Text;
-                    UpdateBrush(settings.CustomBrushes[selection.Text]);
+
+                    if (PersistentSettings.defaultBrushes.ContainsKey(selection.Text))
+                    {
+                        UpdateBrush(PersistentSettings.defaultBrushes[selection.Text]);
+                    } else
+                    {
+                        UpdateBrush(settings.CustomBrushes[selection.Text]);
+                    }
                 }
 
-                // Updates which brush image is active for the newly-selected brush, handling the default brush as a
-                // special case.
+                // Updates which brush image is active for the newly-selected brush
                 if (listviewBrushImagePicker?.Items != null && selection?.Text != null)
                 {
                     int index = loadedBrushImages.FindIndex((entry) =>
                     {
-                        if (string.IsNullOrEmpty(currentBrushName) ||
-                            currentBrushName.Equals(Localization.Strings.CustomBrushesDefaultBrush))
+                        if (!string.IsNullOrEmpty(currentBrushName))
                         {
-                            return entry.Name.Equals(Localization.Strings.DefaultBrushCircle);
+                            if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushName))
+                            {
+                                return entry.Name.Equals(PersistentSettings.defaultBrushes[currentBrushName].BrushImageName);
+                            }
+
+                            if (settings.CustomBrushes.ContainsKey(currentBrushName))
+                            {
+                                return entry.Name.Equals(settings.CustomBrushes[currentBrushName].BrushImageName);
+                            }
                         }
 
-                        return entry.Name.Equals(settings.CustomBrushes[currentBrushName].BrushImageName);
+                        return entry.Name.Equals(Localization.Strings.DefaultBrushCircle);
                     });
 
                     if (index >= 0)

@@ -167,7 +167,25 @@ namespace BrushFactory.Localization {
                 return ResourceManager.GetString("AddBrushImagesTip", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string
+        /// </summary>
+        internal static string AutomaticBrushDensity {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string
+        /// </summary>
+        internal static string AutomaticBrushDensityTip {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensityTip", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Add files.
         /// </summary>

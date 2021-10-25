@@ -1,3 +1,4 @@
+using BrushFactory.Gui;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Serialization;
@@ -16,6 +17,17 @@ namespace BrushFactory
         /// </summary>
         [DataMember(Name = "AlphaChange")]
         public int AlphaChange
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// When true, the brush density is automatically updated according to the final brush
+        /// size, ensuring the brush stroke stays smooth as the size changes.
+        /// </summary>
+        [DataMember(Name = "AutomaticBrushDensity")]
+        public bool AutomaticBrushDensity
         {
             get;
             set;
@@ -485,7 +497,8 @@ namespace BrushFactory
         /// </summary>
         public BrushSettings()
         {
-            BrushSize = 20;
+            AutomaticBrushDensity = true;
+            BrushSize = 2;
             BrushImageName = string.Empty;
             BrushRotation = 0;
             BrushAlpha = 0;
@@ -569,6 +582,7 @@ namespace BrushFactory
         public BrushSettings(BrushSettings other)
             : base(other)
         {
+            AutomaticBrushDensity = other.AutomaticBrushDensity;
             BrushSize = other.BrushSize;
             BrushImageName = other.BrushImageName;
             BrushRotation = other.BrushRotation;

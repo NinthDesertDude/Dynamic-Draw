@@ -54,7 +54,7 @@
             this.txtBrushLocations.Name = "txtBrushLocations";
             this.txtBrushLocations.Size = new System.Drawing.Size(193, 13);
             this.txtBrushLocations.TabIndex = 2;
-            this.txtBrushLocations.Text = "Custom Brush Directories To Auto-Load";
+            this.txtBrushLocations.Text = "Custom Brush Images";
             // 
             // chkbxLoadDefaultBrushes
             // 
@@ -66,7 +66,7 @@
             this.chkbxLoadDefaultBrushes.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
             this.chkbxLoadDefaultBrushes.Size = new System.Drawing.Size(134, 21);
             this.chkbxLoadDefaultBrushes.TabIndex = 3;
-            this.chkbxLoadDefaultBrushes.Text = "Load Default Brushes?";
+            this.chkbxLoadDefaultBrushes.Text = "Load Default Brush Images?";
             this.chkbxLoadDefaultBrushes.UseVisualStyleBackColor = true;
             // 
             // txtbxBrushLocations

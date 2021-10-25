@@ -58,7 +58,7 @@ namespace BrushFactory
         /// </param>
         /// <param name="color">The color to overwrite the image with.</param>
         /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
-        public static unsafe void ColorImage(Bitmap img, Color color, float alpha)
+        public static unsafe void ColorImage(Bitmap img, Color? col, float alpha)
         {
             BitmapData bmpData = img.LockBits(
                 new Rectangle(0, 0,
@@ -68,57 +68,30 @@ namespace BrushFactory
                 img.PixelFormat);
 
             byte* row = (byte*)bmpData.Scan0;
+            Color color = col ?? default;
+            ColorBgra pixel;
 
             for (int y = 0; y < img.Height; y++)
             {
                 for (int x = 0; x < img.Width; x++)
                 {
                     int ptr = y * bmpData.Stride + x * 4;
-                    ColorBgra pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(row[ptr + 3] * alpha)).ConvertToPremultipliedAlpha();
+
+                    if (col != null)
+                    {
+                        pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(row[ptr + 3] * alpha)).ConvertToPremultipliedAlpha();
+                    }
+                    else
+                    {
+                        ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
+                        unmultipliedPixel.A = (byte)(unmultipliedPixel.A * alpha);
+                        pixel = unmultipliedPixel.ConvertToPremultipliedAlpha();
+                    }
 
                     row[ptr + 3] = pixel.A;
                     row[ptr + 2] = pixel.R;
                     row[ptr + 1] = pixel.G;
                     row[ptr] = pixel.B;
-                }
-            }
-
-            img.UnlockBits(bmpData);
-        }
-
-        /// <summary>
-        /// Multiplies alpha by an amount.
-        /// </summary>
-        /// <param name="img">
-        /// The affected image.
-        /// </param>
-        /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
-        public static unsafe void ColorImage(Bitmap img, float alpha)
-        {
-            BitmapData bmpData = img.LockBits(
-                new Rectangle(0, 0,
-                    img.Width,
-                    img.Height),
-                ImageLockMode.ReadOnly,
-                img.PixelFormat);
-
-            byte* row = (byte*)bmpData.Scan0;
-
-            for (int y = 0; y < img.Height; y++)
-            {
-                for (int x = 0; x < img.Width; x++)
-                {
-                    int ptr = y * bmpData.Stride + x * 4;
-                    ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
-
-                    unmultipliedPixel.A = (byte)(unmultipliedPixel.A * alpha);
-
-                    ColorBgra premultiplied = unmultipliedPixel.ConvertToPremultipliedAlpha();
-
-                    row[ptr + 3] = premultiplied.A;
-                    row[ptr + 2] = premultiplied.R;
-                    row[ptr + 1] = premultiplied.G;
-                    row[ptr] = premultiplied.B;
                 }
             }
 
@@ -167,7 +140,7 @@ namespace BrushFactory
         /// <param name="dstImg">
         /// The image to be overwritten.
         /// </param>
-        public static unsafe void CopyBitmapPure(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
+        public static unsafe void OverwriteBits(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
         {
             //Formats and size must be the same.
             if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
@@ -320,6 +293,7 @@ namespace BrushFactory
             byte* destRow = (byte*)destData.Scan0;
             byte* alphaMaskRow = (byte*)alphaMaskData.Scan0;
             byte* srcRow = (byte*)surface.Scan0.Pointer;
+            float alphaFactor;
 
             for (int y = 0; y < adjHeight; y++)
             {
@@ -334,7 +308,11 @@ namespace BrushFactory
                         *srcPtr,
                         alphaMaskPtr->A);
 
-                    destPtr->Bgra = newColor.ConvertToPremultipliedAlpha().Bgra;
+                    alphaFactor = newColor.A / 255f;
+                    destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
+                    destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
+                    destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                    destPtr->A = newColor.A;
 
                     alphaMaskPtr++;
                     destPtr++;

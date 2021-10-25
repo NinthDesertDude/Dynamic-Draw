@@ -1,3 +1,5 @@
+using BrushFactory.Gui;
+using BrushFactory.Localization;
 using BrushFactory.Logic;
 using System.Collections.Generic;
 
@@ -9,6 +11,87 @@ namespace BrushFactory
     /// </summary>
     public class PersistentSettings : PaintDotNet.Effects.EffectConfigToken
     {
+        /// <summary>
+        /// The built-in default keyboard shortcuts.
+        /// </summary>
+        private static readonly HashSet<KeyboardShortcut> defaultShortcuts = new()
+        {
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.Brush}|set",
+                Key = System.Windows.Forms.Keys.B,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.ColorPicker}|set",
+                Key = System.Windows.Forms.Keys.K,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.Eraser}|set",
+                Key = System.Windows.Forms.Keys.E,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = $"{(int)Tool.SetSymmetryOrigin}|set",
+                Key = System.Windows.Forms.Keys.O,
+                Target = ShortcutTarget.SelectedTool
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.Z,
+                Target = ShortcutTarget.UndoAction,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.Y,
+                Target = ShortcutTarget.RedoAction,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.Z,
+                Target = ShortcutTarget.RedoAction,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "100|add",
+                Key = System.Windows.Forms.Keys.Oemplus,
+                Target = ShortcutTarget.CanvasZoom,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "100|sub",
+                Key = System.Windows.Forms.Keys.OemMinus,
+                Target = ShortcutTarget.CanvasZoom,
+                RequireCtrl = true
+            }
+        };
+
+        public static readonly Dictionary<string, BrushSettings> defaultBrushes = new()
+        {
+            {
+                Strings.CustomBrushesDefaultBrush,
+                new BrushSettings()
+                {
+                    BrushImageName = Strings.DefaultBrushCircle,
+                    BrushDensity = 2,
+                    CmbxTabPressureBrushSize = (int)CmbxTabletValueType.ValueHandlingMethod.Add,
+                    TabPressureBrushSize = 10,
+                }
+            }
+        };
+
         #region Fields
         /// <summary>
         /// The last used brush settings the user had.
@@ -36,71 +119,9 @@ namespace BrushFactory
         /// </summary>
         public PersistentSettings()
         {
-            CurrentBrushSettings = new BrushSettings();
+            CurrentBrushSettings = defaultBrushes[Strings.CustomBrushesDefaultBrush];
             CustomBrushLocations = new HashSet<string>();
-            KeyboardShortcuts = new HashSet<KeyboardShortcut>()
-            {
-                new KeyboardShortcut()
-                {
-                    ActionData = $"{(int)Tool.Brush}|set",
-                    Key = System.Windows.Forms.Keys.B,
-                    Target = ShortcutTarget.SelectedTool
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = $"{(int)Tool.ColorPicker}|set",
-                    Key = System.Windows.Forms.Keys.K,
-                    Target = ShortcutTarget.SelectedTool
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = $"{(int)Tool.Eraser}|set",
-                    Key = System.Windows.Forms.Keys.E,
-                    Target = ShortcutTarget.SelectedTool
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = $"{(int)Tool.SetSymmetryOrigin}|set",
-                    Key = System.Windows.Forms.Keys.O,
-                    Target = ShortcutTarget.SelectedTool
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = null,
-                    Key = System.Windows.Forms.Keys.Z,
-                    Target = ShortcutTarget.UndoAction,
-                    RequireCtrl = true
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = null,
-                    Key = System.Windows.Forms.Keys.Y,
-                    Target = ShortcutTarget.RedoAction,
-                    RequireCtrl = true
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = null,
-                    Key = System.Windows.Forms.Keys.Z,
-                    Target = ShortcutTarget.RedoAction,
-                    RequireCtrl = true,
-                    RequireShift = true
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = "100|add",
-                    Key = System.Windows.Forms.Keys.Oemplus,
-                    Target = ShortcutTarget.CanvasZoom,
-                    RequireCtrl = true
-                },
-                new KeyboardShortcut()
-                {
-                    ActionData = "100|sub",
-                    Key = System.Windows.Forms.Keys.OemMinus,
-                    Target = ShortcutTarget.CanvasZoom,
-                    RequireCtrl = true
-                }
-            };
+            KeyboardShortcuts = new HashSet<KeyboardShortcut>(defaultShortcuts);
         }
 
         /// <summary>
