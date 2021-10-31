@@ -437,9 +437,9 @@ namespace BrushFactory
             //Configures items for the smoothing method combobox.
             smoothingMethods = new BindingList<InterpolationItem>
             {
-                new InterpolationItem(Localization.Strings.SmoothingNormal, InterpolationMode.Bilinear),
-                new InterpolationItem(Localization.Strings.SmoothingHigh, InterpolationMode.HighQualityBicubic),
-                new InterpolationItem(Localization.Strings.SmoothingJagged, InterpolationMode.NearestNeighbor)
+                new InterpolationItem(Localization.Strings.SmoothingNormal, CmbxSmoothing.Smoothing.Normal),
+                new InterpolationItem(Localization.Strings.SmoothingHigh, CmbxSmoothing.Smoothing.High),
+                new InterpolationItem(Localization.Strings.SmoothingJagged, CmbxSmoothing.Smoothing.Jagged)
             };
             cmbxBrushSmoothing.DataSource = smoothingMethods;
             cmbxBrushSmoothing.DisplayMember = "Name";
@@ -650,6 +650,7 @@ namespace BrushFactory
             token.CurrentBrushSettings.RandVertShift = sliderRandVertShift.Value;
             token.CurrentBrushSettings.RotChange = sliderShiftRotation.Value;
             token.CurrentBrushSettings.SizeChange = sliderShiftSize.Value;
+            token.CurrentBrushSettings.Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex;
             token.CurrentBrushSettings.Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex;
@@ -1051,27 +1052,6 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Repaints only the visible areas of the drawing region.
-        /// </summary>
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            SolidBrush colorBrush = new SolidBrush(BackColor);
-
-            e.Graphics.FillRectangle(colorBrush,
-                new Rectangle(0, 0, ClientRectangle.Width, displayCanvasBG.Top));
-
-            e.Graphics.FillRectangle(colorBrush,
-                new Rectangle(0, displayCanvasBG.Bottom, ClientRectangle.Width, ClientRectangle.Bottom));
-
-            e.Graphics.FillRectangle(colorBrush,
-                new Rectangle(0, 0, displayCanvasBG.Left, ClientRectangle.Height));
-
-            e.Graphics.FillRectangle(colorBrush,
-                new Rectangle(displayCanvasBG.Right, 0, ClientRectangle.Width - displayCanvasBG.Right,
-                ClientRectangle.Height));
-        }
-
-        /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing" /> event.
         /// </summary>
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -1158,7 +1138,7 @@ namespace BrushFactory
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(PointF loc, int radius)
         {
-            if ((InterpolationMode)cmbxBrushSmoothing.SelectedValue == InterpolationMode.NearestNeighbor)
+            if ((CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged)
             {
                 loc.X = (int)loc.X;
                 loc.Y = (int)loc.Y;
@@ -1350,7 +1330,7 @@ namespace BrushFactory
                 int scaleFactor = (int)(newRadius * rotScaleFactor);
 
                 //Sets the interpolation mode based on preferences.
-                g.InterpolationMode = (InterpolationMode)cmbxBrushSmoothing.SelectedValue;
+                g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[(CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue];
 
                 int finalJitterMaxRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
                     (int)spinTabPressureMaxRedJitter.Value,
@@ -1779,6 +1759,33 @@ namespace BrushFactory
         {
             if (chkbxAutomaticBrushDensity.Checked)
             {
+                bool isJaggedSmoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged;
+
+                // Adjusts smoothing method to be jagged for single-pixel brush size only
+                if (brushSize == 1 && !isJaggedSmoothing)
+                {
+                    for (int i = 0; i < cmbxBrushSmoothing.Items.Count; i++)
+                    {
+                        if (((InterpolationItem)cmbxBrushSmoothing.Items[i]).Method == CmbxSmoothing.Smoothing.Jagged)
+                        {
+                            cmbxBrushSmoothing.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+                else if (brushSize != 1 && isJaggedSmoothing)
+                {
+                    for (int i = 0; i < cmbxBrushSmoothing.Items.Count; i++)
+                    {
+                        if (((InterpolationItem)cmbxBrushSmoothing.Items[i]).Method == CmbxSmoothing.Smoothing.Normal)
+                        {
+                            cmbxBrushSmoothing.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                // Adjusts brush density based on size
                 if (brushSize == 1 || brushSize == 2) { sliderBrushDensity.Value = brushSize; }
                 else if (brushSize > 2 && brushSize < 6) { sliderBrushDensity.Value = 3; }
                 else if (brushSize > 5 && brushSize < 8) { sliderBrushDensity.Value = 4; }
@@ -2661,8 +2668,8 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnToolBrush, "bttnToolBrush");
             this.bttnToolBrush.Name = "bttnToolBrush";
             this.bttnToolBrush.UseVisualStyleBackColor = false;
-            this.bttnToolBrush.Click += new System.EventHandler(this.bttnToolBrush_Click);
-            this.bttnToolBrush.MouseEnter += new System.EventHandler(this.bttnToolBrush_MouseEnter);
+            this.bttnToolBrush.Click += new System.EventHandler(this.BttnToolBrush_Click);
+            this.bttnToolBrush.MouseEnter += new System.EventHandler(this.BttnToolBrush_MouseEnter);
             // 
             // dummyImageList
             // 
@@ -2772,8 +2779,8 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnToolOrigin, "bttnToolOrigin");
             this.bttnToolOrigin.Name = "bttnToolOrigin";
             this.bttnToolOrigin.UseVisualStyleBackColor = true;
-            this.bttnToolOrigin.Click += new System.EventHandler(this.bttnToolOrigin_Click);
-            this.bttnToolOrigin.MouseEnter += new System.EventHandler(this.bttnToolOrigin_MouseEnter);
+            this.bttnToolOrigin.Click += new System.EventHandler(this.BttnToolOrigin_Click);
+            this.bttnToolOrigin.MouseEnter += new System.EventHandler(this.BttnToolOrigin_MouseEnter);
             // 
             // panelSettingsContainer
             // 
@@ -2846,7 +2853,7 @@ namespace BrushFactory
             this.listviewBrushPicker.UseCompatibleStateImageBehavior = false;
             this.listviewBrushPicker.View = System.Windows.Forms.View.List;
             this.listviewBrushPicker.SelectedIndexChanged += new System.EventHandler(this.ListViewBrushPicker_SelectedIndexChanged);
-            this.listviewBrushPicker.MouseEnter += new System.EventHandler(this.listviewBrushPicker_MouseEnter);
+            this.listviewBrushPicker.MouseEnter += new System.EventHandler(this.ListviewBrushPicker_MouseEnter);
             // 
             // listviewBrushImagePicker
             // 
@@ -2978,8 +2985,8 @@ namespace BrushFactory
             this.panelSpecialSettings.Controls.Add(this.chkbxAutomaticBrushDensity);
             this.panelSpecialSettings.Controls.Add(this.txtBrushDensity);
             this.panelSpecialSettings.Controls.Add(this.sliderBrushDensity);
-            this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
             this.panelSpecialSettings.Controls.Add(this.cmbxBrushSmoothing);
+            this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
             this.panelSpecialSettings.Controls.Add(this.chkbxOrientToMouse);
             this.panelSpecialSettings.Controls.Add(this.chkbxLockAlpha);
             this.panelSpecialSettings.Name = "panelSpecialSettings";
@@ -3045,6 +3052,7 @@ namespace BrushFactory
             this.cmbxBrushSmoothing.DropDownHeight = 140;
             this.cmbxBrushSmoothing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbxBrushSmoothing.DropDownWidth = 20;
+            this.cmbxBrushSmoothing.Enabled = false;
             this.cmbxBrushSmoothing.FormattingEnabled = true;
             this.cmbxBrushSmoothing.Name = "cmbxBrushSmoothing";
             this.cmbxBrushSmoothing.MouseEnter += new System.EventHandler(this.BttnBrushSmoothing_MouseEnter);
@@ -3327,8 +3335,8 @@ namespace BrushFactory
             this.sliderJitterMinHue.Maximum = 100;
             this.sliderJitterMinHue.Name = "sliderJitterMinHue";
             this.sliderJitterMinHue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinHue.ValueChanged += new System.EventHandler(this.sliderJitterMinHue_ValueChanged);
-            this.sliderJitterMinHue.MouseEnter += new System.EventHandler(this.sliderJitterMinHue_MouseEnter);
+            this.sliderJitterMinHue.ValueChanged += new System.EventHandler(this.SliderJitterMinHue_ValueChanged);
+            this.sliderJitterMinHue.MouseEnter += new System.EventHandler(this.SliderJitterMinHue_MouseEnter);
             // 
             // sliderJitterMaxHue
             // 
@@ -3337,8 +3345,8 @@ namespace BrushFactory
             this.sliderJitterMaxHue.Maximum = 100;
             this.sliderJitterMaxHue.Name = "sliderJitterMaxHue";
             this.sliderJitterMaxHue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxHue.ValueChanged += new System.EventHandler(this.sliderJitterMaxHue_ValueChanged);
-            this.sliderJitterMaxHue.MouseEnter += new System.EventHandler(this.sliderJitterMaxHue_MouseEnter);
+            this.sliderJitterMaxHue.ValueChanged += new System.EventHandler(this.SliderJitterMaxHue_ValueChanged);
+            this.sliderJitterMaxHue.MouseEnter += new System.EventHandler(this.SliderJitterMaxHue_MouseEnter);
             // 
             // txtJitterSaturation
             // 
@@ -3353,8 +3361,8 @@ namespace BrushFactory
             this.sliderJitterMinSat.Maximum = 100;
             this.sliderJitterMinSat.Name = "sliderJitterMinSat";
             this.sliderJitterMinSat.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinSat.ValueChanged += new System.EventHandler(this.sliderJitterMinSat_ValueChanged);
-            this.sliderJitterMinSat.MouseEnter += new System.EventHandler(this.sliderJitterMinSat_MouseEnter);
+            this.sliderJitterMinSat.ValueChanged += new System.EventHandler(this.SliderJitterMinSat_ValueChanged);
+            this.sliderJitterMinSat.MouseEnter += new System.EventHandler(this.SliderJitterMinSat_MouseEnter);
             // 
             // sliderJitterMaxSat
             // 
@@ -3363,8 +3371,8 @@ namespace BrushFactory
             this.sliderJitterMaxSat.Maximum = 100;
             this.sliderJitterMaxSat.Name = "sliderJitterMaxSat";
             this.sliderJitterMaxSat.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxSat.ValueChanged += new System.EventHandler(this.sliderJitterMaxSat_ValueChanged);
-            this.sliderJitterMaxSat.MouseEnter += new System.EventHandler(this.sliderJitterMaxSat_MouseEnter);
+            this.sliderJitterMaxSat.ValueChanged += new System.EventHandler(this.SliderJitterMaxSat_ValueChanged);
+            this.sliderJitterMaxSat.MouseEnter += new System.EventHandler(this.SliderJitterMaxSat_MouseEnter);
             // 
             // txtJitterValue
             // 
@@ -3379,8 +3387,8 @@ namespace BrushFactory
             this.sliderJitterMinVal.Maximum = 100;
             this.sliderJitterMinVal.Name = "sliderJitterMinVal";
             this.sliderJitterMinVal.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinVal.ValueChanged += new System.EventHandler(this.sliderJitterMinVal_ValueChanged);
-            this.sliderJitterMinVal.MouseEnter += new System.EventHandler(this.sliderJitterMinVal_MouseEnter);
+            this.sliderJitterMinVal.ValueChanged += new System.EventHandler(this.SliderJitterMinVal_ValueChanged);
+            this.sliderJitterMinVal.MouseEnter += new System.EventHandler(this.SliderJitterMinVal_MouseEnter);
             // 
             // sliderJitterMaxVal
             // 
@@ -3389,8 +3397,8 @@ namespace BrushFactory
             this.sliderJitterMaxVal.Maximum = 100;
             this.sliderJitterMaxVal.Name = "sliderJitterMaxVal";
             this.sliderJitterMaxVal.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxVal.ValueChanged += new System.EventHandler(this.sliderJitterMaxVal_ValueChanged);
-            this.sliderJitterMaxVal.MouseEnter += new System.EventHandler(this.sliderJitterMaxVal_MouseEnter);
+            this.sliderJitterMaxVal.ValueChanged += new System.EventHandler(this.SliderJitterMaxVal_ValueChanged);
+            this.sliderJitterMaxVal.MouseEnter += new System.EventHandler(this.SliderJitterMaxVal_MouseEnter);
             // 
             // bttnShiftBasicsControls
             // 
@@ -4405,16 +4413,16 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnDeleteBrush, "bttnDeleteBrush");
             this.bttnDeleteBrush.Name = "bttnDeleteBrush";
             this.bttnDeleteBrush.UseVisualStyleBackColor = true;
-            this.bttnDeleteBrush.Click += new System.EventHandler(this.bttnDeleteBrush_Click);
-            this.bttnDeleteBrush.MouseEnter += new System.EventHandler(this.bttnDeleteBrush_MouseEnter);
+            this.bttnDeleteBrush.Click += new System.EventHandler(this.BttnDeleteBrush_Click);
+            this.bttnDeleteBrush.MouseEnter += new System.EventHandler(this.BttnDeleteBrush_MouseEnter);
             // 
             // bttnSaveBrush
             // 
             resources.ApplyResources(this.bttnSaveBrush, "bttnSaveBrush");
             this.bttnSaveBrush.Name = "bttnSaveBrush";
             this.bttnSaveBrush.UseVisualStyleBackColor = true;
-            this.bttnSaveBrush.Click += new System.EventHandler(this.bttnSaveBrush_Click);
-            this.bttnSaveBrush.MouseEnter += new System.EventHandler(this.bttnSaveBrush_MouseEnter);
+            this.bttnSaveBrush.Click += new System.EventHandler(this.BttnSaveBrush_Click);
+            this.bttnSaveBrush.MouseEnter += new System.EventHandler(this.BttnSaveBrush_MouseEnter);
             // 
             // WinBrushFactory
             // 
@@ -4799,6 +4807,7 @@ namespace BrushFactory
             spinTabPressureRandRotLeft.Value = settings.TabPressureRandRotLeft;
             spinTabPressureRandRotRight.Value = settings.TabPressureRandRotRight;
             spinTabPressureRandVerShift.Value = settings.TabPressureRandVerShift;
+            cmbxBrushSmoothing.SelectedIndex = (int)settings.Smoothing;
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
 
             UpdateBrushColor(settings.BrushColor);
@@ -5568,8 +5577,12 @@ namespace BrushFactory
         /// </summary>
         private void DisplayCanvas_Paint(object sender, PaintEventArgs e)
         {
-            //Draws the whole canvas showing pixels and without smoothing.
-            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            //Draws the whole canvas with smoothing at lower zooms.
+            if (displayCanvasZoom < 0.5f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic; }
+            else if (displayCanvasZoom < 0.75f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBilinear; }
+            else if (displayCanvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
+            else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
+
             e.Graphics.SmoothingMode = SmoothingMode.None;
 
             //Draws the image with an intentionally truncated extra size.
@@ -5804,7 +5817,7 @@ namespace BrushFactory
         /// <summary>
         /// Deletes the current brush without changing the brush settings.
         /// </summary>
-        private void bttnDeleteBrush_Click(object sender, EventArgs e)
+        private void BttnDeleteBrush_Click(object sender, EventArgs e)
         {
             settings.CustomBrushes.Remove(currentBrushName);
             listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
@@ -5813,7 +5826,7 @@ namespace BrushFactory
             bttnDeleteBrush.Enabled = false;
         }
 
-        private void bttnDeleteBrush_MouseEnter(object sender, EventArgs e)
+        private void BttnDeleteBrush_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.DeleteBrushTip);
         }
@@ -5926,7 +5939,7 @@ namespace BrushFactory
         /// <summary>
         /// Saves the current brush settings as a separate brush.
         /// </summary>
-        private void bttnSaveBrush_Click(object sender, EventArgs e)
+        private void BttnSaveBrush_Click(object sender, EventArgs e)
         {
             int index = listviewBrushImagePicker.SelectedIndices.Count > 0
                 ? listviewBrushImagePicker.SelectedIndices[0]
@@ -5986,6 +5999,7 @@ namespace BrushFactory
                     RandVertShift = sliderRandVertShift.Value,
                     RotChange = sliderShiftRotation.Value,
                     SizeChange = sliderShiftSize.Value,
+                    Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
                     Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
                     CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex,
                     CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex,
@@ -6046,17 +6060,17 @@ namespace BrushFactory
             }
         }
 
-        private void bttnSaveBrush_MouseEnter(object sender, EventArgs e)
+        private void BttnSaveBrush_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.SaveNewBrushTip);
         }
 
-        private void bttnToolBrush_Click(object sender, EventArgs e)
+        private void BttnToolBrush_Click(object sender, EventArgs e)
         {
             SwitchTool(Tool.Brush);
         }
 
-        private void bttnToolBrush_MouseEnter(object sender, EventArgs e)
+        private void BttnToolBrush_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.ToolBrushTip);
         }
@@ -6081,12 +6095,12 @@ namespace BrushFactory
             UpdateTooltip(Localization.Strings.ToolEraserTip);
         }
 
-        private void bttnToolOrigin_Click(object sender, EventArgs e)
+        private void BttnToolOrigin_Click(object sender, EventArgs e)
         {
             SwitchTool(Tool.SetSymmetryOrigin);
         }
 
-        private void bttnToolOrigin_MouseEnter(object sender, EventArgs e)
+        private void BttnToolOrigin_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.ToolOriginTip);
         }
@@ -6158,6 +6172,7 @@ namespace BrushFactory
 
         private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e) {
             sliderBrushDensity.Enabled = !chkbxAutomaticBrushDensity.Checked;
+            cmbxBrushSmoothing.Enabled = !chkbxAutomaticBrushDensity.Checked;
         }
 
         /// <summary>
@@ -6392,7 +6407,7 @@ namespace BrushFactory
             }
         }
 
-        private void listviewBrushPicker_MouseEnter(object sender, EventArgs e)
+        private void ListviewBrushPicker_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.BrushSelectorTip);
         }
@@ -6625,7 +6640,7 @@ namespace BrushFactory
                 sliderJitterMaxGreen.Value);
         }
 
-        private void sliderJitterMaxHue_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMaxHue_ValueChanged(object sender, EventArgs e)
         {
             txtJitterHue.Text = String.Format("{0} -{1}%, +{2}%",
                 Localization.Strings.JitterHue,
@@ -6633,12 +6648,12 @@ namespace BrushFactory
                 sliderJitterMaxHue.Value);
         }
 
-        private void sliderJitterMaxHue_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMaxHue_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.JitterHueTip);
         }
 
-        private void sliderJitterMinHue_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMinHue_ValueChanged(object sender, EventArgs e)
         {
             txtJitterHue.Text = String.Format("{0} -{1}%, +{2}%",
                 Localization.Strings.JitterHue,
@@ -6646,7 +6661,7 @@ namespace BrushFactory
                 sliderJitterMaxHue.Value);
         }
 
-        private void sliderJitterMinHue_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMinHue_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.JitterHueTip);
         }
@@ -6664,7 +6679,7 @@ namespace BrushFactory
                 sliderJitterMaxRed.Value);
         }
 
-        private void sliderJitterMaxSat_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMaxSat_ValueChanged(object sender, EventArgs e)
         {
             txtJitterSaturation.Text = String.Format("{0} -{1}%, +{2}%",
                 Localization.Strings.JitterSaturation,
@@ -6672,12 +6687,12 @@ namespace BrushFactory
                 sliderJitterMaxSat.Value);
         }
 
-        private void sliderJitterMaxSat_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMaxSat_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.JitterSaturationTip);
         }
 
-        private void sliderJitterMinSat_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMinSat_ValueChanged(object sender, EventArgs e)
         {
             txtJitterSaturation.Text = String.Format("{0} -{1}%, +{2}%",
                 Localization.Strings.JitterSaturation,
@@ -6685,12 +6700,12 @@ namespace BrushFactory
                 sliderJitterMaxSat.Value);
         }
 
-        private void sliderJitterMinSat_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMinSat_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.JitterSaturationTip);
         }
 
-        private void sliderJitterMaxVal_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMaxVal_ValueChanged(object sender, EventArgs e)
         {
             txtJitterValue.Text = String.Format("{0} -{1}%, +{2}%",
                 Localization.Strings.JitterValue,
@@ -6698,12 +6713,12 @@ namespace BrushFactory
                 sliderJitterMaxVal.Value);
         }
 
-        private void sliderJitterMaxVal_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMaxVal_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.JitterValueTip);
         }
 
-        private void sliderJitterMinVal_ValueChanged(object sender, EventArgs e)
+        private void SliderJitterMinVal_ValueChanged(object sender, EventArgs e)
         {
             txtJitterValue.Text = String.Format("{0} -{1}%, +{2}%",
                 Localization.Strings.JitterValue,
@@ -6711,7 +6726,7 @@ namespace BrushFactory
                 sliderJitterMaxVal.Value);
         }
 
-        private void sliderJitterMinVal_MouseEnter(object sender, EventArgs e)
+        private void SliderJitterMinVal_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Localization.Strings.JitterValueTip);
         }

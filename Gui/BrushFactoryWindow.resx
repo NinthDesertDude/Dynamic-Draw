@@ -5950,7 +5950,7 @@
     <value>9</value>
   </data>
   <data name="bttnClearBrushImages.Text" xml:space="preserve">
-    <value>Clear Custom Brush Images</value>
+    <value>Clear Custom Images</value>
   </data>
   <data name="&gt;&gt;bttnClearBrushImages.Name" xml:space="preserve">
     <value>bttnClearBrushImages</value>

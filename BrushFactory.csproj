@@ -91,12 +91,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <NoWarn>1701;1702;CA1416;IDE0090</NoWarn>
+    <NoWarn>1701;1702;CA1416;IDE0090;IDE0063</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;C:\Program Files\paint.net\Effects\paintdotnet.exe" />
+    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetDir)\BrushFactory.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
   </Target>
 </Project>

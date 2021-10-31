@@ -52,7 +52,7 @@ namespace BrushFactory
                 { ShortcutTarget.SelectedTool, new Setting(Localization.Strings.ShortcutSelectedTool, 0, Enum.GetValues(typeof(Tool)).Length - 1) },
                 { ShortcutTarget.Size, new Setting(Localization.Strings.ShortcutSize, 1, 1000) },
                 { ShortcutTarget.SizeShift, new Setting(Localization.Strings.ShortcutSizeShift, -1000, 1000) },
-                { ShortcutTarget.SmoothingMode, new Setting(Localization.Strings.ShortcutBrushSmoothing, 0, 2) },
+                { ShortcutTarget.SmoothingMode, new Setting(Localization.Strings.ShortcutBrushSmoothing, 0, Enum.GetValues(typeof(CmbxSmoothing.Smoothing)).Length - 1) },
                 { ShortcutTarget.SymmetryMode, new Setting(Localization.Strings.ShortcutSymmetryMode, 0, Enum.GetValues(typeof(SymmetryMode)).Length - 1) },
                 { ShortcutTarget.TabPressureAlpha, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutAlpha), 0, 99) },
                 { ShortcutTarget.TabPressureBrushDensity, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutDensity), -50, 50) },

@@ -355,15 +355,17 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Determines the smoothing applied to drawing.
+        /// </summary>
+        [DataMember(Name = "Smoothing")]
+        public CmbxSmoothing.Smoothing Smoothing { get; set; }
+
+        /// <summary>
         /// Sets whether to draw horizontal, vertical, or radial reflections
         /// of the current image.
         /// </summary>
         [DataMember(Name = "Symmetry")]
-        public SymmetryMode Symmetry
-        {
-            get;
-            set;
-        }
+        public SymmetryMode Symmetry { get; set; }
 
         [DataMember(Name = "TabPressureBrushAlpha")]
         public int TabPressureBrushAlpha { get; set; }
@@ -531,6 +533,7 @@ namespace BrushFactory
             SizeChange = 0;
             RotChange = 0;
             AlphaChange = 0;
+            Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
             CmbxTabPressureBrushAlpha = 0;
             CmbxTabPressureBrushDensity = 0;
@@ -658,6 +661,7 @@ namespace BrushFactory
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;
+            Smoothing = other.Smoothing;
             Symmetry = other.Symmetry;
         }
 

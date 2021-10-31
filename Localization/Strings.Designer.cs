@@ -385,7 +385,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear Custom Brush Images.
+        ///   Looks up a localized string similar to Clear Custom Images.
         /// </summary>
         internal static string ClearBrushImages {
             get {

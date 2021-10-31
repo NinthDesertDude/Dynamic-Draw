@@ -190,7 +190,7 @@
     <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.</value>
   </data>
   <data name="ClearBrushImages" xml:space="preserve">
-    <value>Clear Custom Brush Images</value>
+    <value>Clear Custom Images</value>
   </data>
   <data name="ClearBrushImagesTip" xml:space="preserve">
     <value>Removes search locations for custom brush images you might've set, then unloads all custom brush images.</value>
