@@ -1,4 +1,5 @@
 using BrushFactory.Gui;
+using BrushFactory.Localization;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Serialization;
@@ -501,7 +502,7 @@ namespace BrushFactory
         {
             AutomaticBrushDensity = true;
             BrushSize = 2;
-            BrushImageName = string.Empty;
+            BrushImageName = Strings.DefaultBrushCircle;
             BrushRotation = 0;
             BrushAlpha = 0;
             BrushColor = UserSettings.userPrimaryColor;

@@ -1,6 +1,7 @@
 ﻿using BrushFactory.Abr;
 using BrushFactory.Gui;
 using BrushFactory.Interop;
+using BrushFactory.Localization;
 using BrushFactory.Logic;
 using BrushFactory.Properties;
 using BrushFactory.TabletSupport;
@@ -550,7 +551,7 @@ namespace BrushFactory
             bttnJitterBasicsControls.UpdateAccordion(Localization.Strings.AccordionJitterBasics, true, new Control[] { panelJitterBasics });
             bttnJitterColorControls.UpdateAccordion(Localization.Strings.AccordionJitterColor, true, new Control[] { panelJitterColor });
             bttnShiftBasicsControls.UpdateAccordion(Localization.Strings.AccordionShiftBasics, true, new Control[] { panelShiftBasics });
-            bttnSettings.UpdateAccordion(Localization.Strings.AccordionSettings, true, new Control[] { panelSettings });
+            bttnSettings.UpdateAccordion(Localization.Strings.AccordionSettingsBrush, true, new Control[] { panelSettings });
             bttnTabAssignPressureControls.UpdateAccordion(Localization.Strings.AccordionTabPressureControls, true, new Control[] { panelTabletAssignPressure });
 
             // Instantiates and runs the tablet service.
@@ -622,7 +623,7 @@ namespace BrushFactory
             token.CurrentBrushSettings.BrushColor = bttnBrushColor.BackColor;
             token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
             token.CurrentBrushSettings.AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked;
-            token.CurrentBrushSettings.BrushImageName = index >= 0 ? loadedBrushImages[index].Name : string.Empty;
+            token.CurrentBrushSettings.BrushImageName = index >= 0 ? loadedBrushImages[index].Name : Strings.DefaultBrushCircle;
             token.CurrentBrushSettings.BrushRotation = sliderBrushRotation.Value;
             token.CurrentBrushSettings.BrushSize = sliderBrushSize.Value;
             token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;

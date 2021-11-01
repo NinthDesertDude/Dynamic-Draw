@@ -115,11 +115,11 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Settings.
+        ///   Looks up a localized string similar to Settings - Brush.
         /// </summary>
-        internal static string AccordionSettings {
+        internal static string AccordionSettingsBrush {
             get {
-                return ResourceManager.GetString("AccordionSettings", resourceCulture);
+                return ResourceManager.GetString("AccordionSettingsBrush", resourceCulture);
             }
         }
         
@@ -167,25 +167,7 @@ namespace BrushFactory.Localization {
                 return ResourceManager.GetString("AddBrushImagesTip", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string
-        /// </summary>
-        internal static string AutomaticBrushDensity {
-            get {
-                return ResourceManager.GetString("AutomaticBrushDensity", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string
-        /// </summary>
-        internal static string AutomaticBrushDensityTip {
-            get {
-                return ResourceManager.GetString("AutomaticBrushDensityTip", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Add files.
         /// </summary>
@@ -228,6 +210,24 @@ namespace BrushFactory.Localization {
         internal static string Alpha {
             get {
                 return ResourceManager.GetString("Alpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto manage density.
+        /// </summary>
+        internal static string AutomaticBrushDensity {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If this is toggled on, the density will automatically adjust based on the brush size to ensure a smooth line at any brush size..
+        /// </summary>
+        internal static string AutomaticBrushDensityTip {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensityTip", resourceCulture);
             }
         }
         
@@ -336,6 +336,33 @@ namespace BrushFactory.Localization {
         internal static string BrushSmoothingTip {
             get {
                 return ResourceManager.GetString("BrushSmoothingTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preset - Airbrush.
+        /// </summary>
+        internal static string BuiltInBrushAirbrush {
+            get {
+                return ResourceManager.GetString("BuiltInBrushAirbrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preset - Grass.
+        /// </summary>
+        internal static string BuiltInBrushGrass {
+            get {
+                return ResourceManager.GetString("BuiltInBrushGrass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preset - Pencil.
+        /// </summary>
+        internal static string BuiltInBrushPencil {
+            get {
+                return ResourceManager.GetString("BuiltInBrushPencil", resourceCulture);
             }
         }
         
@@ -480,15 +507,6 @@ namespace BrushFactory.Localization {
         internal static string CustomBrushDialogTitle {
             get {
                 return ResourceManager.GetString("CustomBrushDialogTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Default.
-        /// </summary>
-        internal static string CustomBrushesDefaultBrush {
-            get {
-                return ResourceManager.GetString("CustomBrushesDefaultBrush", resourceCulture);
             }
         }
         
@@ -898,7 +916,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Minimum Draw Distance:.
+        ///   Looks up a localized string similar to Min. Draw Distance.
         /// </summary>
         internal static string MinDrawDistance {
             get {

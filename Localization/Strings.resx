@@ -393,8 +393,8 @@
   <data name="AccordionSpecialSettings" xml:space="preserve">
     <value>Special Settings</value>
   </data>
-  <data name="AccordionSettings" xml:space="preserve">
-    <value>Settings</value>
+  <data name="AccordionSettingsBrush" xml:space="preserve">
+    <value>Settings - Brush</value>
   </data>
   <data name="SmoothingHigh" xml:space="preserve">
     <value>Smoothing: High</value>
@@ -573,9 +573,6 @@
   <data name="CustomBrushDialogTitle" xml:space="preserve">
     <value>Add a custom brush</value>
   </data>
-  <data name="CustomBrushesDefaultBrush" xml:space="preserve">
-    <value>Pencil</value>
-  </data>
   <data name="BrushSelectorTip" xml:space="preserve">
     <value>Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen.</value>
   </data>
@@ -752,5 +749,14 @@
   </data>
   <data name="AutomaticBrushDensityTip" xml:space="preserve">
     <value>If this is toggled on, the density will automatically adjust based on the brush size to ensure a smooth line at any brush size.</value>
+  </data>
+  <data name="BuiltInBrushAirbrush" xml:space="preserve">
+    <value>Preset - Airbrush</value>
+  </data>
+  <data name="BuiltInBrushPencil" xml:space="preserve">
+    <value>Preset - Pencil</value>
+  </data>
+  <data name="BuiltInBrushGrass" xml:space="preserve">
+    <value>Preset - Grass</value>
   </data>
 </root>

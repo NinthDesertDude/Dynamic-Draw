@@ -2,6 +2,7 @@ using BrushFactory.Gui;
 using BrushFactory.Localization;
 using BrushFactory.Logic;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace BrushFactory
 {
@@ -81,13 +82,42 @@ namespace BrushFactory
         public static readonly Dictionary<string, BrushSettings> defaultBrushes = new()
         {
             {
-                Strings.CustomBrushesDefaultBrush,
+                Strings.BuiltInBrushPencil,
                 new BrushSettings()
                 {
                     BrushImageName = Strings.DefaultBrushCircle,
                     BrushDensity = 2,
                     CmbxTabPressureBrushSize = (int)CmbxTabletValueType.ValueHandlingMethod.Add,
                     TabPressureBrushSize = 10,
+                }
+            },
+            {
+                Strings.BuiltInBrushAirbrush,
+                new BrushSettings()
+                {
+                    BrushImageName = Strings.DefaultBrushBigDots,
+                    BrushSize = 9,
+                    RandRotLeft = 180,
+                    RandRotRight = 180,
+                    RandHorzShift = 3,
+                    RandVertShift = 3
+                }
+            },
+            {
+                Strings.BuiltInBrushGrass,
+                new BrushSettings()
+                {
+                    BrushImageName = Strings.DefaultBrushGrass,
+                    BrushColor = Color.FromArgb(255, 20, 192, 20),
+                    BrushSize = 50,
+                    DoRotateWithMouse = true,
+                    RandMinSize = 12,
+                    RandRotLeft = 25,
+                    RandRotRight = 25,
+                    RandVertShift = 3,
+                    RandMinV = 10,
+                    RandMaxH = 4,
+                    RandMinH = 4
                 }
             }
         };
@@ -119,7 +149,7 @@ namespace BrushFactory
         /// </summary>
         public PersistentSettings()
         {
-            CurrentBrushSettings = defaultBrushes[Strings.CustomBrushesDefaultBrush];
+            CurrentBrushSettings = new BrushSettings(defaultBrushes[Strings.BuiltInBrushPencil]);
             CustomBrushLocations = new HashSet<string>();
             KeyboardShortcuts = new HashSet<KeyboardShortcut>(defaultShortcuts);
         }
