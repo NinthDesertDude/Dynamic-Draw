@@ -61,9 +61,19 @@ namespace BrushFactory
         private Cursor cursorColorPicker;
 
         /// <summary>
-        /// Stores the zoom percentage for the drawing region.
+        /// The position and size of the canvas.
         /// </summary>
-        private float displayCanvasZoom = 1;
+        private (int x, int y, int width, int height) canvas;
+
+        /// <summary>
+        /// A multiplier for zoom percent, e.g. 2 = 200% (zoomed in), 0.5 = 50% (zoomed out).
+        /// </summary>
+        private float canvasZoom = 1;
+
+        /// <summary>
+        /// The rotation of the canvas in degrees.
+        /// </summary>
+        private float canvasRotation = 0;
 
         /// <summary>
         /// Whether the brush loading worker should reload brushes after cancelation.
@@ -165,7 +175,7 @@ namespace BrushFactory
         readonly List<PointF> symmetryOrigins;
 
         /// <summary>
-        /// Where to draw around for symmetry.
+        /// The location to draw symmetry on the transformed canvas (transformations are already applied to this point).
         /// </summary>
         PointF symmetryOrigin = PointF.Empty;
 
@@ -225,7 +235,6 @@ namespace BrushFactory
 
         private IContainer components;
         internal PictureBox displayCanvas;
-        private Panel displayCanvasBG;
 
         /// <summary>
         /// Tracks when the user draws out-of-bounds and moves the canvas to
@@ -429,18 +438,21 @@ namespace BrushFactory
         {
             InitializeComponent();
 
+            // Handles the application directory.
             TempDirectory.CleanupPreviousDirectories();
             tempDir = new TempDirectory();
 
             loadedBrushImages = new BrushSelectorItemCollection();
             keyboardShortcuts = new HashSet<KeyboardShortcut>();
 
+            canvas = new(0, 0, 0, 0);
+
             //Configures items for the smoothing method combobox.
             smoothingMethods = new BindingList<InterpolationItem>
             {
-                new InterpolationItem(Localization.Strings.SmoothingNormal, CmbxSmoothing.Smoothing.Normal),
-                new InterpolationItem(Localization.Strings.SmoothingHigh, CmbxSmoothing.Smoothing.High),
-                new InterpolationItem(Localization.Strings.SmoothingJagged, CmbxSmoothing.Smoothing.Jagged)
+                new InterpolationItem(Strings.SmoothingNormal, CmbxSmoothing.Smoothing.Normal),
+                new InterpolationItem(Strings.SmoothingHigh, CmbxSmoothing.Smoothing.High),
+                new InterpolationItem(Strings.SmoothingJagged, CmbxSmoothing.Smoothing.Jagged)
             };
             cmbxBrushSmoothing.DataSource = smoothingMethods;
             cmbxBrushSmoothing.DisplayMember = "Name";
@@ -450,21 +462,21 @@ namespace BrushFactory
             symmetryOrigins = new List<PointF>();
             symmetryOptions = new BindingList<Tuple<string, SymmetryMode>>
             {
-                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryNone, SymmetryMode.None),
-                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryHorizontal, SymmetryMode.Horizontal),
-                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryVertical, SymmetryMode.Vertical),
-                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetryBoth, SymmetryMode.Star2),
-                new Tuple<string, SymmetryMode>(Localization.Strings.SymmetrySetPoints, SymmetryMode.SetPoints),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry3pt, SymmetryMode.Star3),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry4pt, SymmetryMode.Star4),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry5pt, SymmetryMode.Star5),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry6pt, SymmetryMode.Star6),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry7pt, SymmetryMode.Star7),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry8pt, SymmetryMode.Star8),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry9pt, SymmetryMode.Star9),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry10pt, SymmetryMode.Star10),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry11pt, SymmetryMode.Star11),
-                new Tuple<string, SymmetryMode>(Localization.Strings.Symmetry12pt, SymmetryMode.Star12)
+                new Tuple<string, SymmetryMode>(Strings.SymmetryNone, SymmetryMode.None),
+                new Tuple<string, SymmetryMode>(Strings.SymmetryHorizontal, SymmetryMode.Horizontal),
+                new Tuple<string, SymmetryMode>(Strings.SymmetryVertical, SymmetryMode.Vertical),
+                new Tuple<string, SymmetryMode>(Strings.SymmetryBoth, SymmetryMode.Star2),
+                new Tuple<string, SymmetryMode>(Strings.SymmetrySetPoints, SymmetryMode.SetPoints),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry3pt, SymmetryMode.Star3),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry4pt, SymmetryMode.Star4),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry5pt, SymmetryMode.Star5),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry6pt, SymmetryMode.Star6),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry7pt, SymmetryMode.Star7),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry8pt, SymmetryMode.Star8),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry9pt, SymmetryMode.Star9),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry10pt, SymmetryMode.Star10),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry11pt, SymmetryMode.Star11),
+                new Tuple<string, SymmetryMode>(Strings.Symmetry12pt, SymmetryMode.Star12)
             };
             cmbxSymmetry.DataSource = symmetryOptions;
             cmbxSymmetry.DisplayMember = "Item1";
@@ -546,13 +558,13 @@ namespace BrushFactory
             this.spinTabPressureRandVerShift.MouseWheel += IgnoreMouseWheelEvent;
 
             // Binds the accordion buttons containing all the options.
-            bttnBrushControls.UpdateAccordion(Localization.Strings.AccordionBrush, false, new Control[] { panelBrush });
-            bttnSpecialSettings.UpdateAccordion(Localization.Strings.AccordionSpecialSettings, true, new Control[] { panelSpecialSettings });
-            bttnJitterBasicsControls.UpdateAccordion(Localization.Strings.AccordionJitterBasics, true, new Control[] { panelJitterBasics });
-            bttnJitterColorControls.UpdateAccordion(Localization.Strings.AccordionJitterColor, true, new Control[] { panelJitterColor });
-            bttnShiftBasicsControls.UpdateAccordion(Localization.Strings.AccordionShiftBasics, true, new Control[] { panelShiftBasics });
-            bttnSettings.UpdateAccordion(Localization.Strings.AccordionSettingsBrush, true, new Control[] { panelSettings });
-            bttnTabAssignPressureControls.UpdateAccordion(Localization.Strings.AccordionTabPressureControls, true, new Control[] { panelTabletAssignPressure });
+            bttnBrushControls.UpdateAccordion(Strings.AccordionBrush, false, new Control[] { panelBrush });
+            bttnSpecialSettings.UpdateAccordion(Strings.AccordionSpecialSettings, true, new Control[] { panelSpecialSettings });
+            bttnJitterBasicsControls.UpdateAccordion(Strings.AccordionJitterBasics, true, new Control[] { panelJitterBasics });
+            bttnJitterColorControls.UpdateAccordion(Strings.AccordionJitterColor, true, new Control[] { panelJitterColor });
+            bttnShiftBasicsControls.UpdateAccordion(Strings.AccordionShiftBasics, true, new Control[] { panelShiftBasics });
+            bttnSettings.UpdateAccordion(Strings.AccordionSettingsBrush, true, new Control[] { panelSettings });
+            bttnTabAssignPressureControls.UpdateAccordion(Strings.AccordionTabPressureControls, true, new Control[] { panelTabletAssignPressure });
 
             // Instantiates and runs the tablet service.
             tabletService = TabletService.GetTabletService();
@@ -705,15 +717,17 @@ namespace BrushFactory
             base.OnLoad(e);
 
             //Sets the sizes of the canvas and drawing region.
-            displayCanvas.Size = EnvironmentParameters.SourceSurface.Size;
+            canvas.width = EnvironmentParameters.SourceSurface.Size.Width;
+            canvas.height = EnvironmentParameters.SourceSurface.Size.Height;
+
             bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
             symmetryOrigin = new PointF(
                 EnvironmentParameters.SourceSurface.Width / 2f,
                 EnvironmentParameters.SourceSurface.Height / 2f);
 
             //Sets the canvas dimensions.
-            displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
-            displayCanvas.Top = (displayCanvasBG.Height - displayCanvas.Height) / 2;
+            canvas.x = (displayCanvas.Width - canvas.width) / 2;
+            canvas.y = (displayCanvas.Height - canvas.height) / 2;
 
             //Adds versioning information to the window title.
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
@@ -723,106 +737,106 @@ namespace BrushFactory
 
             //Loads globalization texts for regional support.
             txtBrushAlpha.Text = string.Format("{0} {1}",
-                Localization.Strings.Alpha, sliderBrushAlpha.Value);
+                Strings.Alpha, sliderBrushAlpha.Value);
 
             txtBrushDensity.Text = string.Format("{0} {1}",
-                Localization.Strings.BrushDensity, sliderBrushDensity.Value);
+                Strings.BrushDensity, sliderBrushDensity.Value);
 
             txtBrushRotation.Text = string.Format("{0} {1}°",
-                Localization.Strings.Rotation, sliderBrushRotation.Value);
+                Strings.Rotation, sliderBrushRotation.Value);
 
             txtBrushSize.Text = string.Format("{0} {1}",
-                Localization.Strings.Size, sliderBrushSize.Value);
+                Strings.Size, sliderBrushSize.Value);
 
             txtCanvasZoom.Text = string.Format("{0} {1}%",
-                Localization.Strings.CanvasZoom, sliderCanvasZoom.Value);
+                Strings.CanvasZoom, sliderCanvasZoom.Value);
 
             txtMinDrawDistance.Text = string.Format("{0} {1}",
-                Localization.Strings.MinDrawDistance, sliderMinDrawDistance.Value);
+                Strings.MinDrawDistance, sliderMinDrawDistance.Value);
 
             txtRandHorzShift.Text = string.Format("{0} {1}%",
-                Localization.Strings.RandHorzShift, sliderRandHorzShift.Value);
+                Strings.RandHorzShift, sliderRandHorzShift.Value);
 
             txtRandMaxSize.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMaxSize, sliderRandMaxSize.Value);
+                Strings.RandMaxSize, sliderRandMaxSize.Value);
 
             txtRandMinSize.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMinSize, sliderRandMinSize.Value);
+                Strings.RandMinSize, sliderRandMinSize.Value);
 
             txtRandRotLeft.Text = string.Format("{0} {1}°",
-                Localization.Strings.RandRotLeft, sliderRandRotLeft.Value);
+                Strings.RandRotLeft, sliderRandRotLeft.Value);
 
             txtRandRotRight.Text = string.Format("{0} {1}°",
-                Localization.Strings.RandRotRight, sliderRandRotRight.Value);
+                Strings.RandRotRight, sliderRandRotRight.Value);
 
             txtRandMinAlpha.Text = string.Format("{0} {1}",
-                Localization.Strings.RandMinAlpha, sliderRandMinAlpha.Value);
+                Strings.RandMinAlpha, sliderRandMinAlpha.Value);
 
             txtJitterBlue.Text = string.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterBlue, sliderJitterMinBlue.Value, sliderJitterMaxBlue.Value);
+                Strings.JitterBlue, sliderJitterMinBlue.Value, sliderJitterMaxBlue.Value);
 
             txtJitterGreen.Text = string.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterGreen, sliderJitterMinGreen.Value, sliderJitterMaxGreen.Value);
+                Strings.JitterGreen, sliderJitterMinGreen.Value, sliderJitterMaxGreen.Value);
 
             txtJitterRed.Text = string.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterRed, sliderJitterMinRed.Value, sliderJitterMaxRed.Value);
+                Strings.JitterRed, sliderJitterMinRed.Value, sliderJitterMaxRed.Value);
 
             txtJitterHue.Text = string.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterHue, sliderJitterMinHue.Value, sliderJitterMaxHue.Value);
+                Strings.JitterHue, sliderJitterMinHue.Value, sliderJitterMaxHue.Value);
 
             txtJitterSaturation.Text = string.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterSaturation, sliderJitterMinSat.Value, sliderJitterMaxSat.Value);
+                Strings.JitterSaturation, sliderJitterMinSat.Value, sliderJitterMaxSat.Value);
 
             txtJitterValue.Text = string.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterValue, sliderJitterMinVal.Value, sliderJitterMaxVal.Value);
+                Strings.JitterValue, sliderJitterMinVal.Value, sliderJitterMaxVal.Value);
 
             txtRandVertShift.Text = string.Format("{0} {1}%",
-                Localization.Strings.RandVertShift, sliderRandVertShift.Value);
+                Strings.RandVertShift, sliderRandVertShift.Value);
 
             txtShiftAlpha.Text = string.Format("{0} {1}",
-                Localization.Strings.ShiftAlpha, sliderShiftAlpha.Value);
+                Strings.ShiftAlpha, sliderShiftAlpha.Value);
 
             txtShiftRotation.Text = string.Format("{0} {1}°",
-                Localization.Strings.ShiftRotation, sliderShiftRotation.Value);
+                Strings.ShiftRotation, sliderShiftRotation.Value);
 
             txtShiftSize.Text = string.Format("{0} {1}",
-                Localization.Strings.ShiftSize, sliderShiftSize.Value);
+                Strings.ShiftSize, sliderShiftSize.Value);
 
             UpdateTooltip(string.Empty);
 
-            bttnAddBrushImages.Text = Localization.Strings.AddBrushImages;
-            bttnBrushColor.Text = Localization.Strings.BrushColor;
-            bttnCancel.Text = Localization.Strings.Cancel;
-            bttnClearBrushImages.Text = Localization.Strings.ClearBrushImages;
-            bttnClearSettings.Text = Localization.Strings.ClearSettings;
-            bttnCustomBrushImageLocations.Text = Localization.Strings.CustomBrushImageLocations;
-            bttnOk.Text = Localization.Strings.Ok;
-            bttnUndo.Text = Localization.Strings.Undo;
-            bttnRedo.Text = Localization.Strings.Redo;
+            bttnAddBrushImages.Text = Strings.AddBrushImages;
+            bttnBrushColor.Text = Strings.BrushColor;
+            bttnCancel.Text = Strings.Cancel;
+            bttnClearBrushImages.Text = Strings.ClearBrushImages;
+            bttnClearSettings.Text = Strings.ClearSettings;
+            bttnCustomBrushImageLocations.Text = Strings.CustomBrushImageLocations;
+            bttnOk.Text = Strings.Ok;
+            bttnUndo.Text = Strings.Undo;
+            bttnRedo.Text = Strings.Redo;
 
-            chkbxColorizeBrush.Text = Localization.Strings.ColorizeBrush;
-            chkbxLockAlpha.Text = Localization.Strings.LockAlpha;
-            chkbxOrientToMouse.Text = Localization.Strings.OrientToMouse;
-            chkbxAutomaticBrushDensity.Text = Localization.Strings.AutomaticBrushDensity;
+            chkbxColorizeBrush.Text = Strings.ColorizeBrush;
+            chkbxLockAlpha.Text = Strings.LockAlpha;
+            chkbxOrientToMouse.Text = Strings.OrientToMouse;
+            chkbxAutomaticBrushDensity.Text = Strings.AutomaticBrushDensity;
 
-            cmbxTabPressureBlueJitter.Text = Localization.Strings.JitterBlue;
-            cmbxTabPressureBrushAlpha.Text = Localization.Strings.Alpha;
-            cmbxTabPressureBrushDensity.Text = Localization.Strings.BrushDensity;
-            cmbxTabPressureBrushRotation.Text = Localization.Strings.Rotation;
-            cmbxTabPressureBrushSize.Text = Localization.Strings.Size;
-            cmbxTabPressureGreenJitter.Text = Localization.Strings.JitterGreen;
-            cmbxTabPressureHueJitter.Text = Localization.Strings.JitterHue;
-            cmbxTabPressureMinDrawDistance.Text = Localization.Strings.MinDrawDistance;
-            cmbxTabPressureRandHorShift.Text = Localization.Strings.RandHorzShift;
-            cmbxTabPressureRandMaxSize.Text = Localization.Strings.RandMaxSize;
-            cmbxTabPressureRandMinAlpha.Text = Localization.Strings.RandMinAlpha;
-            cmbxTabPressureRandMinSize.Text = Localization.Strings.RandMinSize;
-            cmbxTabPressureRandRotLeft.Text = Localization.Strings.RandRotLeft;
-            cmbxTabPressureRandRotRight.Text = Localization.Strings.RandRotRight;
-            cmbxTabPressureRandVerShift.Text = Localization.Strings.RandVertShift;
+            cmbxTabPressureBlueJitter.Text = Strings.JitterBlue;
+            cmbxTabPressureBrushAlpha.Text = Strings.Alpha;
+            cmbxTabPressureBrushDensity.Text = Strings.BrushDensity;
+            cmbxTabPressureBrushRotation.Text = Strings.Rotation;
+            cmbxTabPressureBrushSize.Text = Strings.Size;
+            cmbxTabPressureGreenJitter.Text = Strings.JitterGreen;
+            cmbxTabPressureHueJitter.Text = Strings.JitterHue;
+            cmbxTabPressureMinDrawDistance.Text = Strings.MinDrawDistance;
+            cmbxTabPressureRandHorShift.Text = Strings.RandHorzShift;
+            cmbxTabPressureRandMaxSize.Text = Strings.RandMaxSize;
+            cmbxTabPressureRandMinAlpha.Text = Strings.RandMinAlpha;
+            cmbxTabPressureRandMinSize.Text = Strings.RandMinSize;
+            cmbxTabPressureRandRotLeft.Text = Strings.RandRotLeft;
+            cmbxTabPressureRandRotRight.Text = Strings.RandRotRight;
+            cmbxTabPressureRandVerShift.Text = Strings.RandVertShift;
 
-            bttnDeleteBrush.Text = Localization.Strings.DeleteBrush;
-            bttnSaveBrush.Text = Localization.Strings.SaveNewBrush;
+            bttnDeleteBrush.Text = Strings.DeleteBrush;
+            bttnSaveBrush.Text = Strings.SaveNewBrush;
 
             //Forces the window to cover the screen without being maximized.
             Rectangle workingArea = Screen.FromControl(this).WorkingArea;
@@ -879,12 +893,12 @@ namespace BrushFactory
             {
                 if (ex is NullReferenceException)
                 {
-                    MessageBox.Show(Localization.Strings.SettingsUnavailableError,
+                    MessageBox.Show(Strings.SettingsUnavailableError,
                         Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else if (ex is IOException || ex is UnauthorizedAccessException)
                 {
-                    MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
+                    MessageBox.Show(Strings.CannotLoadSettingsError,
                         Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
@@ -1036,6 +1050,16 @@ namespace BrushFactory
                     Zoom(e.Delta, true);
                 }
             }
+
+            // Shift + Wheel: Changes the canvas rotation.
+            else if (ModifierKeys == Keys.Shift)
+            {
+                canvasRotation += Math.Sign(e.Delta) * 10;
+                while (canvasRotation >= 360) { canvasRotation -= 360; }
+                while (canvasRotation <= -360) { canvasRotation += 360; }
+
+                displayCanvas.Refresh();
+            }
         }
 
         /// <summary>
@@ -1047,8 +1071,8 @@ namespace BrushFactory
 
             if (displayCanvas != null)
             {
-                displayCanvas.Left = (displayCanvasBG.Width - displayCanvas.Width) / 2;
-                displayCanvas.Top = (displayCanvasBG.Height - displayCanvas.Height) / 2;
+                canvas.x = (displayCanvas.Width - canvas.width) / 2;
+                canvas.y = (displayCanvas.Height - canvas.height) / 2;
             }
         }
 
@@ -1083,7 +1107,7 @@ namespace BrushFactory
                     }
                     else if (ex is IOException || ex is UnauthorizedAccessException)
                     {
-                        MessageBox.Show(Localization.Strings.CannotLoadSettingsError,
+                        MessageBox.Show(Strings.CannotLoadSettingsError,
                             Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     else
@@ -1139,7 +1163,8 @@ namespace BrushFactory
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(PointF loc, int radius)
         {
-            if ((CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged)
+            if ((radius == 1 && chkbxAutomaticBrushDensity.Checked) ||
+                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged)
             {
                 loc.X = (int)loc.X;
                 loc.Y = (int)loc.Y;
@@ -1279,7 +1304,7 @@ namespace BrushFactory
                     + bmpCurrentDrawing.Height * (random.Next(finalRandVertShift) / 100f);
             }
 
-            //This is used to randomly rotate the image by some amount.
+            // Calculates the final brush rotation based on all factors. Counters canvas rotation to remain unaffected.
             int finalBrushRotation = Utils.GetStrengthMappedValue(sliderBrushRotation.Value,
                 (int)spinTabPressureBrushRotation.Value,
                 sliderBrushRotation.Maximum,
@@ -1332,6 +1357,13 @@ namespace BrushFactory
 
                 //Sets the interpolation mode based on preferences.
                 g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[(CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue];
+
+                float drawingOffsetX = (bmpCurrentDrawing.Width * 0.5f);
+                float drawingOffsetY = (bmpCurrentDrawing.Height * 0.5f);
+
+                g.TranslateTransform(drawingOffsetX, drawingOffsetY);
+                g.RotateTransform(-canvasRotation);
+                g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
                 int finalJitterMaxRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
                     (int)spinTabPressureMaxRedJitter.Value,
@@ -1522,15 +1554,19 @@ namespace BrushFactory
                     //Draws the brush with radial reflections.
                     else if (cmbxSymmetry.SelectedIndex > 3)
                     {
+                        // Easier not to compute on a rotated canvas.
+                        g.ResetTransform();
+
                         //Gets the center of the image.
                         PointF origin = new PointF(
-                            symmetryOrigin.X - (newRadius / 2f),
-                            symmetryOrigin.Y - (newRadius / 2f));
+                            symmetryOrigin.X,
+                            symmetryOrigin.Y);
 
                         //Gets the drawn location relative to center.
+                        PointF rotatedLoc = TransformPoint(loc, true, true);
                         PointF locRelativeToOrigin = new PointF(
-                            loc.X - origin.X,
-                            loc.Y - origin.Y);
+                            rotatedLoc.X - origin.X,
+                            rotatedLoc.Y - origin.Y);
 
                         //Gets the distance from the drawing point to center.
                         var dist = Math.Sqrt(
@@ -1549,8 +1585,8 @@ namespace BrushFactory
                         {
                             g.DrawImage(
                                 bmpBrushRot,
-                                origin.X + (float)(dist * Math.Cos(angle)),
-                                origin.Y + (float)(dist * Math.Sin(angle)),
+                                origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle)),
+                                origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)),
                                 scaleFactor,
                                 scaleFactor);
 
@@ -1707,33 +1743,40 @@ namespace BrushFactory
                         //Draws the brush with radial reflections.
                         else if (cmbxSymmetry.SelectedIndex > 3)
                         {
+                            // Easier not to compute on a rotated canvas.
+                            g.ResetTransform();
+
                             //Gets the center of the image.
-                            PointF center = new PointF(
-                                (bmpCurrentDrawing.Width / 2f) - (newRadius / 2f),
-                                (bmpCurrentDrawing.Height / 2f) - (newRadius / 2f));
+                            PointF origin = new PointF(
+                                symmetryOrigin.X,
+                                symmetryOrigin.Y);
 
                             //Gets the drawn location relative to center.
-                            PointF locRelativeToCenter = new PointF(
-                                loc.X - center.X,
-                                loc.Y - center.Y);
+                            PointF rotatedLoc = TransformPoint(loc, true, true);
+                            PointF locRelativeToOrigin = new PointF(
+                                rotatedLoc.X - origin.X,
+                                rotatedLoc.Y - origin.Y);
 
                             //Gets the distance from the drawing point to center.
                             var dist = Math.Sqrt(
-                                Math.Pow(locRelativeToCenter.X, 2) +
-                                Math.Pow(locRelativeToCenter.Y, 2));
+                                Math.Pow(locRelativeToOrigin.X, 2) +
+                                Math.Pow(locRelativeToOrigin.Y, 2));
 
                             //Gets the angle of the drawing point.
                             var angle = Math.Atan2(
-                                locRelativeToCenter.Y,
-                                locRelativeToCenter.X);
+                                locRelativeToOrigin.Y,
+                                locRelativeToOrigin.X);
 
                             //Draws an N-pt radial reflection.
                             int numPoints = cmbxSymmetry.SelectedIndex - 2;
                             double angleIncrease = (2 * Math.PI) / numPoints;
+                            float halfScaleFactor = scaleFactor / 2f;
+                            Rectangle bmpBrushRotBounds = new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height);
+
                             for (int i = 0; i < numPoints; i++)
                             {
-                                float posX = (float)(center.X + dist * Math.Cos(angle));
-                                float posY = (float)(center.Y + dist * Math.Sin(angle));
+                                float posX = (float)(origin.X - halfScaleFactor + dist * Math.Cos(angle));
+                                float posY = (float)(origin.Y - halfScaleFactor + dist * Math.Sin(angle));
 
                                 destination[0] = new PointF(posX, posY);
                                 destination[1] = new PointF(posX + scaleFactor, posY);
@@ -1742,9 +1785,7 @@ namespace BrushFactory
                                 g.DrawImage(
                                     bmpBrushRot,
                                     destination,
-                                    new Rectangle(0, 0,
-                                        bmpBrushRot.Width,
-                                        bmpBrushRot.Height),
+                                    bmpBrushRotBounds,
                                     GraphicsUnit.Pixel,
                                     Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
 
@@ -1756,37 +1797,13 @@ namespace BrushFactory
             }
         }
 
+        /// <summary>
+        /// This adjusts the brush density when it's set to be automatically adjusted based on brush size.
+        /// </summary>
         private void UpdateBrushDensity(int brushSize)
         {
             if (chkbxAutomaticBrushDensity.Checked)
             {
-                bool isJaggedSmoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged;
-
-                // Adjusts smoothing method to be jagged for single-pixel brush size only
-                if (brushSize == 1 && !isJaggedSmoothing)
-                {
-                    for (int i = 0; i < cmbxBrushSmoothing.Items.Count; i++)
-                    {
-                        if (((InterpolationItem)cmbxBrushSmoothing.Items[i]).Method == CmbxSmoothing.Smoothing.Jagged)
-                        {
-                            cmbxBrushSmoothing.SelectedIndex = i;
-                            break;
-                        }
-                    }
-                }
-                else if (brushSize != 1 && isJaggedSmoothing)
-                {
-                    for (int i = 0; i < cmbxBrushSmoothing.Items.Count; i++)
-                    {
-                        if (((InterpolationItem)cmbxBrushSmoothing.Items[i]).Method == CmbxSmoothing.Smoothing.Normal)
-                        {
-                            cmbxBrushSmoothing.SelectedIndex = i;
-                            break;
-                        }
-                    }
-                }
-
-                // Adjusts brush density based on size
                 if (brushSize == 1 || brushSize == 2) { sliderBrushDensity.Value = brushSize; }
                 else if (brushSize > 2 && brushSize < 6) { sliderBrushDensity.Value = 3; }
                 else if (brushSize > 5 && brushSize < 8) { sliderBrushDensity.Value = 4; }
@@ -2016,8 +2033,7 @@ namespace BrushFactory
                         // exactly where the origin will be when they switch back to brush mode.
                         if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
                         {
-                            symmetryOrigin.X = mouseLoc.X / displayCanvasZoom;
-                            symmetryOrigin.Y = mouseLoc.Y / displayCanvasZoom;
+                            symmetryOrigin = TransformPoint(new PointF(mouseLoc.X, mouseLoc.Y), true);
                         }
 
                         // Invalidate to immediately update the symmetry origin guidelines drawn in symmetry mode.
@@ -2068,8 +2084,8 @@ namespace BrushFactory
             string defPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             openFileDialog.InitialDirectory = defPath;
             openFileDialog.Multiselect = true;
-            openFileDialog.Title = Localization.Strings.CustomBrushImagesDirectoryTitle;
-            openFileDialog.Filter = Localization.Strings.CustomBrushImagesDirectoryFilter +
+            openFileDialog.Title = Strings.CustomBrushImagesDirectoryTitle;
+            openFileDialog.Filter = Strings.CustomBrushImagesDirectoryFilter +
                 "|*.png;*.bmp;*.jpg;*.gif;*.tif;*.exif*.jpeg;*.tiff;*.abr;";
 
             //Displays the dialog. Loads the files if it worked.
@@ -2160,30 +2176,30 @@ namespace BrushFactory
 
             if (settings?.UseDefaultBrushes ?? true)
             {
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushLine, Resources.BrLine));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmallDots, Resources.BrDotsTiny));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushBigDots, Resources.BrDotsBig));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpark, Resources.BrSpark));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGravel, Resources.BrGravel));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushRain, Resources.BrRain));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushGrass, Resources.BrGrass));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSmoke, Resources.BrSmoke));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushScales, Resources.BrScales));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushFractalDirt, Resources.BrFractalDirt));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt3, Resources.BrDirt3));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt2, Resources.BrDirt2));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushDirt, Resources.BrDirt));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCracks, Resources.BrCracks));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushSpiral, Resources.BrSpiral));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSegmented, Resources.BrCircleSegmented));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleSketchy, Resources.BrCircleSketchy));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleRough, Resources.BrCircleRough));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleHard, Resources.BrCircleHard));
-                loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircleMed, Resources.BrCircleMedium));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushLine, Resources.BrLine));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushSmallDots, Resources.BrDotsTiny));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushBigDots, Resources.BrDotsBig));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushSpark, Resources.BrSpark));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushGravel, Resources.BrGravel));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushRain, Resources.BrRain));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushGrass, Resources.BrGrass));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushSmoke, Resources.BrSmoke));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushScales, Resources.BrScales));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushFractalDirt, Resources.BrFractalDirt));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushDirt3, Resources.BrDirt3));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushDirt2, Resources.BrDirt2));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushDirt, Resources.BrDirt));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCracks, Resources.BrCracks));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushSpiral, Resources.BrSpiral));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleSegmented, Resources.BrCircleSegmented));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleSketchy, Resources.BrCircleSketchy));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleRough, Resources.BrCircleRough));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleHard, Resources.BrCircleHard));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleMed, Resources.BrCircleMedium));
             }
 
             //Loads stored brush images.
-            loadedBrushImages.Add(new BrushSelectorItem(Localization.Strings.DefaultBrushCircle, Resources.BrCircle));
+            loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircle, Resources.BrCircle));
             listviewBrushImagePicker.VirtualListSize = loadedBrushImages.Count;
 
             //Loads any custom brush images.
@@ -2292,29 +2308,29 @@ namespace BrushFactory
         private Rectangle GetRange()
         {
             //Gets the full region.
-            Rectangle range = displayCanvas.ClientRectangle;
+            Rectangle range = new Rectangle(canvas.x, canvas.y, canvas.width, canvas.height);
 
             //Calculates width.
-            if (displayCanvas.ClientRectangle.Width >= displayCanvasBG.ClientRectangle.Width)
+            if (canvas.width >= displayCanvas.ClientRectangle.Width)
             {
-                range.X = displayCanvasBG.ClientRectangle.Width - displayCanvas.ClientRectangle.Width;
-                range.Width = displayCanvas.ClientRectangle.Width - displayCanvasBG.ClientRectangle.Width;
+                range.X = displayCanvas.ClientRectangle.Width - canvas.width;
+                range.Width = canvas.width - displayCanvas.ClientRectangle.Width;
             }
             else
             {
-                range.X = (displayCanvasBG.ClientRectangle.Width - displayCanvas.ClientRectangle.Width) / 2;
+                range.X = (displayCanvas.ClientRectangle.Width - canvas.width) / 2;
                 range.Width = 0;
             }
 
             //Calculates height.
-            if (displayCanvas.ClientRectangle.Height >= displayCanvasBG.ClientRectangle.Height)
+            if (canvas.height >= displayCanvas.ClientRectangle.Height)
             {
-                range.Y = displayCanvasBG.ClientRectangle.Height - displayCanvas.ClientRectangle.Height;
-                range.Height = displayCanvas.ClientRectangle.Height - displayCanvasBG.ClientRectangle.Height;
+                range.Y = displayCanvas.ClientRectangle.Height - canvas.height;
+                range.Height = canvas.height - displayCanvas.ClientRectangle.Height;
             }
             else
             {
-                range.Y = (displayCanvasBG.ClientRectangle.Height - displayCanvas.ClientRectangle.Height) / 2;
+                range.Y = (displayCanvas.ClientRectangle.Height - canvas.height) / 2;
                 range.Height = 0;
             }
 
@@ -2330,7 +2346,6 @@ namespace BrushFactory
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WinBrushFactory));
             this.timerRepositionUpdate = new System.Windows.Forms.Timer(this.components);
             this.txtTooltip = new System.Windows.Forms.Label();
-            this.displayCanvasBG = new System.Windows.Forms.Panel();
             this.displayCanvas = new System.Windows.Forms.PictureBox();
             this.bttnToolBrush = new System.Windows.Forms.Button();
             this.dummyImageList = new System.Windows.Forms.ImageList(this.components);
@@ -2524,7 +2539,7 @@ namespace BrushFactory
             this.bttnDeleteBrush = new System.Windows.Forms.Button();
             this.bttnSaveBrush = new System.Windows.Forms.Button();
             this.chkbxAutomaticBrushDensity = new System.Windows.Forms.CheckBox();
-            this.displayCanvasBG.SuspendLayout();
+            this.displayCanvas.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.panelUndoRedoOkCancel.SuspendLayout();
             this.panelAllSettingsContainer.SuspendLayout();
@@ -2641,19 +2656,12 @@ namespace BrushFactory
             this.txtTooltip.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.txtTooltip.Name = "txtTooltip";
             // 
-            // displayCanvasBG
-            // 
-            resources.ApplyResources(this.displayCanvasBG, "displayCanvasBG");
-            this.displayCanvasBG.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(207)))), ((int)(((byte)(207)))), ((int)(((byte)(207)))));
-            this.displayCanvasBG.Controls.Add(this.txtTooltip);
-            this.displayCanvasBG.Controls.Add(this.displayCanvas);
-            this.displayCanvasBG.Name = "displayCanvasBG";
-            this.displayCanvasBG.MouseEnter += new System.EventHandler(this.DisplayCanvasBG_MouseEnter);
-            // 
             // displayCanvas
             // 
-            this.displayCanvas.BackgroundImage = global::BrushFactory.Properties.Resources.CheckeredBg;
+            //this.displayCanvas.BackgroundImage = global::BrushFactory.Properties.Resources.CheckeredBg;
+            this.displayCanvas.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(207)))), ((int)(((byte)(207)))), ((int)(((byte)(207)))));
             resources.ApplyResources(this.displayCanvas, "displayCanvas");
+            this.displayCanvas.Controls.Add(this.txtTooltip);
             this.displayCanvas.Name = "displayCanvas";
             this.displayCanvas.TabStop = false;
             this.displayCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.DisplayCanvas_Paint);
@@ -3053,7 +3061,6 @@ namespace BrushFactory
             this.cmbxBrushSmoothing.DropDownHeight = 140;
             this.cmbxBrushSmoothing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbxBrushSmoothing.DropDownWidth = 20;
-            this.cmbxBrushSmoothing.Enabled = false;
             this.cmbxBrushSmoothing.FormattingEnabled = true;
             this.cmbxBrushSmoothing.Name = "cmbxBrushSmoothing";
             this.cmbxBrushSmoothing.MouseEnter += new System.EventHandler(this.BttnBrushSmoothing_MouseEnter);
@@ -4432,13 +4439,13 @@ namespace BrushFactory
             this.BackColor = System.Drawing.SystemColors.ControlLight;
             this.CancelButton = this.bttnCancel;
             this.Controls.Add(this.panelAllSettingsContainer);
-            this.Controls.Add(this.displayCanvasBG);
+            this.Controls.Add(this.displayCanvas);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.MaximizeBox = true;
             this.Name = "WinBrushFactory";
-            this.displayCanvasBG.ResumeLayout(false);
-            this.displayCanvasBG.PerformLayout();
+            this.displayCanvas.ResumeLayout(false);
+            this.displayCanvas.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).EndInit();
             this.panelUndoRedoOkCancel.ResumeLayout(false);
             this.panelAllSettingsContainer.ResumeLayout(false);
@@ -4657,7 +4664,7 @@ namespace BrushFactory
                             }
                             catch
                             {
-                                MessageBox.Show(Localization.Strings.ClipboardErrorUnusable,
+                                MessageBox.Show(Strings.ClipboardErrorUnusable,
                                     Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                             finally
@@ -4722,6 +4729,54 @@ namespace BrushFactory
             activeTool = toolToSwitchTo;
         }
 
+        /// <summary>
+        /// Translates a point on the translated, rotated & scaled canvas into its coordinates relative to the untransformed
+        /// canvas if it was displayed with its top-left corner at {0,0}.
+        /// </summary>
+        private PointF TransformPoint(
+            PointF location,
+            bool isAlreadyTranslated = false,
+            bool isAlreadyZoomed = false,
+            bool doClamp = true)
+        {
+            // Given a point relative to the canvas, such that {0,0} is the top-left corner and
+            // {canvas width, canvas height} is the bottom right, first subtracts canvas x/y translation. This is for
+            // when the mouse is clicked in the center of the canvas, where it's displayed. Subtracting the canvas x,y
+            // repositions the coordinate range to fit {0, 0, canvas width, canvas height}.
+            float locX = isAlreadyTranslated ? location.X : location.X - canvas.x;
+            float locY = isAlreadyTranslated ? location.Y : location.Y - canvas.y;
+
+            // Divides by canvas zoom factor.
+            if (!isAlreadyZoomed)
+            {
+                locX /= canvasZoom;
+                locY /= canvasZoom;
+            }
+
+            // Determines the point's offset from the center of the un-rotated image, then gets its representing vector.
+            // Note that if a rotation origin other than center image is set, change width/2 and height/2 to match it.
+            double deltaX = locX - bmpCurrentDrawing.Width / 2;
+            double deltaY = locY - bmpCurrentDrawing.Height / 2;
+            double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            double angle = Math.Atan2(deltaY, deltaX);
+
+            // subtracts canvas rotation angle to get the coordinates rotated w.r.t. the canvas.
+            angle -= canvasRotation * Math.PI / 180;
+
+            if (doClamp)
+            {
+                return new PointF(
+                    Utils.ClampF((float)(
+                        bmpCurrentDrawing.Width / 2 + Math.Cos(angle) * distance), 0, bmpCurrentDrawing.Width),
+                    Utils.ClampF((float)(
+                        bmpCurrentDrawing.Height / 2 + Math.Sin(angle) * distance), 0, bmpCurrentDrawing.Height));
+            }
+
+            return new PointF(
+                (float)(bmpCurrentDrawing.Width / 2 + Math.Cos(angle) * distance),
+                (float)(bmpCurrentDrawing.Height / 2 + Math.Sin(angle) * distance));
+        }
+ 
         /// <summary>
         /// Updates all settings based on the currently selected brush.
         /// </summary>
@@ -4963,9 +5018,9 @@ namespace BrushFactory
             float newZoomFactor = sliderCanvasZoom.Value / 100f;
 
             //Updates the canvas zoom factor.
-            displayCanvasZoom = newZoomFactor;
+            canvasZoom = newZoomFactor;
             txtCanvasZoom.Text = string.Format(
-                "{0} {1:p0}", Localization.Strings.CanvasZoom, newZoomFactor);
+                "{0} {1:p0}", Strings.CanvasZoom, newZoomFactor);
 
             //Gets the new width and height, adjusted for zooming.
             float zoomWidth = bmpCurrentDrawing.Width * newZoomFactor;
@@ -4974,18 +5029,21 @@ namespace BrushFactory
             PointF zoomingPoint = isWheelZooming
                 ? mouseLoc
                 : new PointF(
-                    displayCanvasBG.ClientSize.Width / 2f - displayCanvas.Location.X,
-                    displayCanvasBG.ClientSize.Height / 2f - displayCanvas.Location.Y);
+                    displayCanvas.ClientSize.Width - canvas.x,
+                    displayCanvas.ClientSize.Height - canvas.y);
 
-            int zoomX = (int)(displayCanvas.Location.X + zoomingPoint.X -
-                zoomingPoint.X * zoomWidth / displayCanvas.Width);
-            int zoomY = (int)(displayCanvas.Location.Y + zoomingPoint.Y -
-                zoomingPoint.Y * zoomHeight / displayCanvas.Height);
+            int zoomX = (int)(canvas.x + zoomingPoint.X -
+                zoomingPoint.X * zoomWidth / canvas.width);
+            int zoomY = (int)(canvas.y + zoomingPoint.Y -
+                zoomingPoint.Y * zoomHeight / canvas.height);
 
             isWheelZooming = false;
 
-            //Sets the new canvas position (center) and size using zoom.
-            displayCanvas.Bounds = new Rectangle(zoomX, zoomY, (int)zoomWidth, (int)zoomHeight);
+            // Adjusts the canvas position after zooming, and the mouse location since it includes canvas position.
+            (int x, int y) canvasOffset = new(canvas.x - zoomX, canvas.y - zoomY);
+            canvas = new(zoomX, zoomY, (int)zoomWidth, (int)zoomHeight);
+            mouseLoc = new PointF(mouseLoc.X + canvasOffset.x, mouseLoc.Y + canvasOffset.y);
+            displayCanvas.Refresh();
         }
         #endregion
 
@@ -5083,7 +5141,7 @@ namespace BrushFactory
                                         {
                                             filename = string.Format(
                                                 System.Globalization.CultureInfo.CurrentCulture,
-                                                Localization.Strings.AbrBrushNameFallbackFormat,
+                                                Strings.AbrBrushNameFallbackFormat,
                                                 i);
                                         }
 
@@ -5266,13 +5324,13 @@ namespace BrushFactory
         private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
         {
             UpdateTooltip(
-                Localization.Strings.ValueInfluenceTip + "\n\n"
-                + Localization.Strings.ValueTypeNothingTip + "\n"
-                + Localization.Strings.ValueTypeAddTip + "\n"
-                + Localization.Strings.ValueTypeAddPercentTip + "\n"
-                + Localization.Strings.ValueTypeAddPercentCurrentTip + "\n"
-                + Localization.Strings.ValueTypeMatchValueTip + "\n"
-                + Localization.Strings.ValueTypeMatchPercentTip);
+                Strings.ValueInfluenceTip + "\n\n"
+                + Strings.ValueTypeNothingTip + "\n"
+                + Strings.ValueTypeAddTip + "\n"
+                + Strings.ValueTypeAddPercentTip + "\n"
+                + Strings.ValueTypeAddPercentCurrentTip + "\n"
+                + Strings.ValueTypeMatchValueTip + "\n"
+                + Strings.ValueTypeMatchPercentTip);
         }
 
         /// <summary>
@@ -5296,10 +5354,10 @@ namespace BrushFactory
                         for (int i = 0; i < symmetryOrigins.Count; i++)
                         {
                             double radius = Math.Sqrt(
-                                Math.Pow(mouseLoc.X / displayCanvasZoom - (symmetryOrigin.X + symmetryOrigins[i].X), 2) +
-                                Math.Pow(mouseLoc.Y / displayCanvasZoom - (symmetryOrigin.Y + symmetryOrigins[i].Y), 2));
+                                Math.Pow(mouseLoc.X / canvasZoom - (symmetryOrigin.X + symmetryOrigins[i].X), 2) +
+                                Math.Pow(mouseLoc.Y / canvasZoom - (symmetryOrigin.Y + symmetryOrigins[i].Y), 2));
 
-                            if (radius <= 15 / displayCanvasZoom)
+                            if (radius <= 15 / canvasZoom)
                             {
                                 symmetryOrigins.RemoveAt(i);
                                 i--;
@@ -5319,12 +5377,12 @@ namespace BrushFactory
                 (e.Button == MouseButtons.Left && KeyShortcutManager.IsKeyDown(Keys.ControlKey)))
             {
                 isUserPanning = true;
-                mouseLocPrev = e.Location;
+                mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
             }
 
             else if (e.Button == MouseButtons.Left)
             {
-                mouseLocPrev = e.Location;
+                mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
 
                 //Draws with the brush.
                 if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
@@ -5359,8 +5417,8 @@ namespace BrushFactory
                             ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
 
                         DrawBrush(new PointF(
-                            mouseLocPrev.X / displayCanvasZoom,
-                            mouseLocPrev.Y / displayCanvasZoom),
+                            mouseLocPrev.X / canvasZoom,
+                            mouseLocPrev.Y / canvasZoom),
                             finalBrushSize);
                     }
                 }
@@ -5368,8 +5426,8 @@ namespace BrushFactory
                 else if (activeTool == Tool.ColorPicker)
                 {
                     GetColorFromCanvas(new Point(
-                        (int)(mouseLocPrev.X / displayCanvasZoom),
-                        (int)(mouseLocPrev.Y / displayCanvasZoom)));
+                        (int)(mouseLocPrev.X / canvasZoom),
+                        (int)(mouseLocPrev.Y / canvasZoom)));
 
                     SwitchTool(lastTool);
                 }
@@ -5378,16 +5436,16 @@ namespace BrushFactory
                 {
                     if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
                     {
-                        symmetryOrigins.Add(new PointF(
-                            e.Location.X / displayCanvasZoom - symmetryOrigin.X,
-                            e.Location.Y / displayCanvasZoom - symmetryOrigin.Y));
+                        PointF newPoint = TransformPoint(new PointF(e.Location.X, e.Location.Y));
+                        newPoint = new PointF(
+                            newPoint.X - symmetryOrigin.X,
+                            newPoint.Y - symmetryOrigin.Y);
+
+                        symmetryOrigins.Add(newPoint);
                     }
                     else
                     {
-                        symmetryOrigin = new PointF(
-                            Utils.ClampF(e.Location.X / displayCanvasZoom, 0, bmpCurrentDrawing.Width),
-                            Utils.ClampF(e.Location.Y / displayCanvasZoom, 0, bmpCurrentDrawing.Height)
-                        );
+                        symmetryOrigin = TransformPoint(new PointF(e.Location.X, e.Location.Y));
                     }
                 }
             }
@@ -5410,26 +5468,29 @@ namespace BrushFactory
         private void DisplayCanvas_MouseMove(object sender, MouseEventArgs e)
         {
             //Updates the new location.
-            mouseLoc = e.Location;
+            mouseLoc = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
 
             //Handles panning the screen.
-            if (isUserPanning && !displayCanvasBG.ClientRectangle.Contains(displayCanvas.ClientRectangle))
+            if (isUserPanning && (
+                displayCanvas.ClientRectangle.X > canvas.x ||
+                displayCanvas.ClientRectangle.Width < canvas.x + canvas.width ||
+                displayCanvas.ClientRectangle.Y > canvas.y ||
+                displayCanvas.ClientRectangle.Height < canvas.y + canvas.height))
             {
                 Rectangle range = GetRange();
 
                 //Moves the drawing region.
-                int locx = displayCanvas.Left + (int)Math.Round(mouseLoc.X - mouseLocPrev.X);
-                int locy = displayCanvas.Top + (int)Math.Round(mouseLoc.Y - mouseLocPrev.Y);
-
-                //Ensures the user cannot pan beyond the image bounds.
-                if (locx <= range.Left) { locx = range.Left; }
-                if (locx >= range.Right) { locx = range.Right; }
-                if (locy <= range.Top) { locy = range.Top; }
-                if (locy >= range.Bottom) { locy = range.Bottom; }
+                double rotMaxSizeFactor = Math.Sqrt(2);
+                double width = range.Right * rotMaxSizeFactor / 2;
+                double height = range.Bottom * rotMaxSizeFactor / 2;
+                int locx = Utils.Clamp(canvas.x + (int)Math.Round(mouseLoc.X - mouseLocPrev.X),
+                    (int)(range.Left - width), (int)(range.Right + width));
+                int locy = Utils.Clamp(canvas.y + (int)Math.Round(mouseLoc.Y - mouseLocPrev.Y),
+                    (int)Math.Ceiling(range.Top - height), (int)Math.Ceiling(range.Bottom + height));
 
                 //Updates the position of the canvas.
-                Point loc = new Point(locx, locy);
-                displayCanvas.Location = loc;
+                canvas.x = locx;
+                canvas.y = locy;
             }
 
             else if (isUserDrawing)
@@ -5450,7 +5511,7 @@ namespace BrushFactory
                         float deltaY = mouseLocBrush.Value.Y - mouseLoc.Y;
 
                         if (Math.Sqrt(deltaX * deltaX + deltaY * deltaY) <
-                            finalMinDrawDistance * displayCanvasZoom)
+                            finalMinDrawDistance * canvasZoom)
                         {
                             displayCanvas.Refresh();
                             return;
@@ -5481,12 +5542,12 @@ namespace BrushFactory
                         if (finalBrushSize > 0)
                         {
                             DrawBrush(new PointF(
-                                mouseLoc.X / displayCanvasZoom,
-                                mouseLoc.Y / displayCanvasZoom),
+                                mouseLoc.X / canvasZoom,
+                                mouseLoc.Y / canvasZoom),
                                 finalBrushSize);
                         }
 
-                        mouseLocPrev = e.Location;
+                        mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
                     }
 
                     // Draws at intervals of brush width between last and current mouse position,
@@ -5504,8 +5565,8 @@ namespace BrushFactory
                             return;
                         }
 
-                        double deltaX = (mouseLoc.X - mouseLocPrev.X) / displayCanvasZoom;
-                        double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / displayCanvasZoom;
+                        double deltaX = (mouseLoc.X - mouseLocPrev.X) / canvasZoom;
+                        double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / canvasZoom;
                         double brushWidthFrac = finalBrushSize / (double)finalBrushDensity;
                         double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
                         double angle = Math.Atan2(deltaY, deltaX);
@@ -5516,8 +5577,8 @@ namespace BrushFactory
                         for (int i = 1; i <= (int)numIntervals; i++)
                         {
                             DrawBrush(new PointF(
-                                (float)(mouseLocPrev.X / displayCanvasZoom + xDist * brushWidthFrac * i),
-                                (float)(mouseLocPrev.Y / displayCanvasZoom + yDist * brushWidthFrac * i)),
+                                (float)(mouseLocPrev.X / canvasZoom + xDist * brushWidthFrac * i),
+                                (float)(mouseLocPrev.Y / canvasZoom + yDist * brushWidthFrac * i)),
                                 finalBrushSize);
                         }
 
@@ -5525,8 +5586,8 @@ namespace BrushFactory
 
                         // Same as mouse position except for remainder.
                         mouseLoc = new PointF(
-                            (float)(e.Location.X - xDist * extraDist * displayCanvasZoom),
-                            (float)(e.Location.Y - yDist * extraDist * displayCanvasZoom));
+                            (float)((e.Location.X - canvas.x) - xDist * extraDist * canvasZoom),
+                            (float)((e.Location.Y - canvas.y) - yDist * extraDist * canvasZoom));
                         mouseLocPrev = mouseLoc;
                     }
                 }
@@ -5535,10 +5596,7 @@ namespace BrushFactory
                 && activeTool == Tool.SetSymmetryOrigin
                 && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.SetPoints)
             {
-                symmetryOrigin = new PointF(
-                    Utils.ClampF(e.Location.X / displayCanvasZoom, 0, bmpCurrentDrawing.Width),
-                    Utils.ClampF(e.Location.Y / displayCanvasZoom, 0, bmpCurrentDrawing.Height)
-                );
+                symmetryOrigin = TransformPoint(new PointF(e.Location.X, e.Location.Y));
             }
 
             displayCanvas.Refresh();
@@ -5579,23 +5637,27 @@ namespace BrushFactory
         private void DisplayCanvas_Paint(object sender, PaintEventArgs e)
         {
             //Draws the whole canvas with smoothing at lower zooms.
-            if (displayCanvasZoom < 0.5f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic; }
-            else if (displayCanvasZoom < 0.75f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBilinear; }
-            else if (displayCanvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
+            if (canvasZoom < 0.5f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic; }
+            else if (canvasZoom < 0.75f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBilinear; }
+            else if (canvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
             else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
 
             e.Graphics.SmoothingMode = SmoothingMode.None;
 
-            //Draws the image with an intentionally truncated extra size.
-            //TODO: Remove the workaround (extra size) and find the cause.
-            e.Graphics.DrawImage(bmpCurrentDrawing, 0, 0,
-                displayCanvas.ClientRectangle.Width + (sliderCanvasZoom.Value / 100),
-                displayCanvas.ClientRectangle.Height + (sliderCanvasZoom.Value / 100));
+            float drawingOffsetX = (bmpCurrentDrawing.Width * 0.5f * canvasZoom);
+            float drawingOffsetY = (bmpCurrentDrawing.Height * 0.5f * canvasZoom);
+
+            e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
+            e.Graphics.RotateTransform(canvasRotation);
+            e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
+
+            //Draws the image.
+            e.Graphics.DrawImage(bmpCurrentDrawing, 0, 0, canvas.width, canvas.height);
 
             //Draws the selection.
             var selection = EnvironmentParameters.GetSelectionAsPdnRegion();
 
-            if (selection != null && selection.GetRegionReadOnly() != null)
+            if (selection?.GetRegionReadOnly() != null)
             {
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
@@ -5604,11 +5666,11 @@ namespace BrushFactory
                         new RectangleF(0, 0,
                         bmpCurrentDrawing.Width,
                         bmpCurrentDrawing.Height),
-                        displayCanvasZoom);
+                        canvasZoom);
                 }
 
                 //Scales to zoom so the drawing region accounts for scale.
-                e.Graphics.ScaleTransform(displayCanvasZoom, displayCanvasZoom);
+                e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
 
                 //Creates the inverted region of the selection.
                 var drawingArea = new Region(new Rectangle
@@ -5626,31 +5688,28 @@ namespace BrushFactory
                         SystemBrushes.Highlight,
                         selectionOutline.GetRegionReadOnly());
                 }
-
-                //Returns to ordinary scaling.
-                e.Graphics.ScaleTransform(
-                    1 / displayCanvasZoom,
-                    1 / displayCanvasZoom);
             }
+
+            e.Graphics.ResetTransform();
 
             if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
             {
                 //Draws the brush as a rectangle when not drawing by mouse.
                 if (!isUserDrawing)
                 {
-                    int radius = (int)(sliderBrushSize.Value * displayCanvasZoom);
+                    int radius = (int)(sliderBrushSize.Value * canvasZoom);
 
                     e.Graphics.DrawRectangle(
                         Pens.Black,
-                        mouseLoc.X - (radius / 2f),
-                        mouseLoc.Y - (radius / 2f),
+                        mouseLoc.X + canvas.x - (radius / 2f),
+                        mouseLoc.Y + canvas.y - (radius / 2f),
                         radius,
                         radius);
 
                     e.Graphics.DrawRectangle(
                         Pens.White,
-                        mouseLoc.X - (radius / 2f) - 1,
-                        mouseLoc.Y - (radius / 2f) - 1,
+                        mouseLoc.X + canvas.x - (radius / 2f) - 1,
+                        mouseLoc.Y + canvas.y - (radius / 2f) - 1,
                         radius + 2,
                         radius + 2);
                 }
@@ -5658,7 +5717,9 @@ namespace BrushFactory
                 // Draws the minimum distance circle if min distance is in use.
                 else if (finalMinDrawDistance > 0)
                 {
-                    int radius = (int)(finalMinDrawDistance * 2 * displayCanvasZoom);
+                    e.Graphics.TranslateTransform(canvas.x, canvas.y);
+
+                    int radius = (int)(finalMinDrawDistance * 2 * canvasZoom);
 
                     e.Graphics.DrawEllipse(
                         Pens.Red,
@@ -5666,8 +5727,14 @@ namespace BrushFactory
                         (mouseLocBrush.HasValue ? mouseLocBrush.Value.Y : mouseLoc.Y) - (radius / 2f) - 1,
                         radius + 2,
                         radius + 2);
+
+                    e.Graphics.TranslateTransform(-canvas.x, -canvas.y);
                 }
             }
+
+            e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
+            e.Graphics.RotateTransform(canvasRotation);
+            e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
             // Draws the symmetry origins for symmetry modes when it's enabled.
             if (activeTool == Tool.SetSymmetryOrigin || cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None)
@@ -5681,54 +5748,71 @@ namespace BrushFactory
                     {
                         e.Graphics.DrawLine(
                             Pens.Red,
-                            new PointF(0, symmetryOrigin.Y * displayCanvasZoom),
-                            new PointF(bmpCurrentDrawing.Width * displayCanvasZoom, symmetryOrigin.Y * displayCanvasZoom));
+                            new PointF(0, symmetryOrigin.Y * canvasZoom),
+                            new PointF(bmpCurrentDrawing.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                         e.Graphics.DrawLine(
                             Pens.Red,
-                            new PointF(symmetryOrigin.X * displayCanvasZoom, 0),
-                            new PointF(symmetryOrigin.X * displayCanvasZoom, bmpCurrentDrawing.Height * displayCanvasZoom));
+                            new PointF(symmetryOrigin.X * canvasZoom, 0),
+                            new PointF(symmetryOrigin.X * canvasZoom, bmpCurrentDrawing.Height * canvasZoom));
                     }
+
+                    e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
 
                     // Draws a rectangle for each origin point, either relative to the symmetry origin (in
                     // SetSymmetryOrigin tool) or the mouse (with the Brush tool)
-                    float pointsDrawnX = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.X : (mouseLoc.X / displayCanvasZoom);
-                    float pointsDrawnY = (activeTool == Tool.SetSymmetryOrigin) ? symmetryOrigin.Y : (mouseLoc.Y / displayCanvasZoom);
-                    float zoomCompensation = (activeTool == Tool.SetSymmetryOrigin) ? displayCanvasZoom : displayCanvasZoom;
-
-                    for (int i = 0; i < symmetryOrigins.Count; i++)
+                    if (!isUserDrawing)
                     {
-                        e.Graphics.DrawRectangle(
-                            Pens.Red,
-                            (pointsDrawnX + symmetryOrigins[i].X) * zoomCompensation - 1,
-                            (pointsDrawnY + symmetryOrigins[i].Y) * zoomCompensation - 1,
-                            2,
-                            2);
+                        float pointsDrawnX, pointsDrawnY;
+
+                        if (activeTool == Tool.SetSymmetryOrigin)
+                        {
+                            pointsDrawnX = symmetryOrigin.X;
+                            pointsDrawnY = symmetryOrigin.Y;
+
+                            for (int i = 0; i < symmetryOrigins.Count; i++)
+                            {
+                                e.Graphics.DrawRectangle(
+                                    Pens.Red,
+                                    (float)(pointsDrawnX + symmetryOrigins[i].X - 1),
+                                    (float)(pointsDrawnY + symmetryOrigins[i].Y - 1),
+                                    2, 2);
+                            }
+                        }
+                        else
+                        {
+                            pointsDrawnX = (mouseLoc.X / canvasZoom - bmpCurrentDrawing.Width / 2);
+                            pointsDrawnY = (mouseLoc.Y / canvasZoom - bmpCurrentDrawing.Height / 2);
+
+                            for (int i = 0; i < symmetryOrigins.Count; i++)
+                            {
+                                float offsetX = pointsDrawnX + symmetryOrigins[i].X;
+                                float offsetY = pointsDrawnY + symmetryOrigins[i].Y;
+                                double dist = Math.Sqrt(offsetX * offsetX + offsetY * offsetY);
+                                double angle = Math.Atan2(offsetY, offsetX);
+                                angle -= canvasRotation * Math.PI / 180;
+                                e.Graphics.DrawRectangle(
+                                    Pens.Red,
+                                    (float)(bmpCurrentDrawing.Width / 2 + dist * Math.Cos(angle) - 1),
+                                    (float)(bmpCurrentDrawing.Height / 2 + dist * Math.Sin(angle) - 1),
+                                    2, 2);
+                            }
+                        }
                     }
                 }
                 else
                 {
                     e.Graphics.DrawLine(
                         Pens.Red,
-                        new PointF(0, symmetryOrigin.Y * displayCanvasZoom),
-                        new PointF(bmpCurrentDrawing.Width * displayCanvasZoom, symmetryOrigin.Y * displayCanvasZoom));
+                        new PointF(0, symmetryOrigin.Y * canvasZoom),
+                        new PointF(bmpCurrentDrawing.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                     e.Graphics.DrawLine(
                         Pens.Red,
-                        new PointF(symmetryOrigin.X * displayCanvasZoom, 0),
-                        new PointF(symmetryOrigin.X * displayCanvasZoom, bmpCurrentDrawing.Height * displayCanvasZoom));
+                        new PointF(symmetryOrigin.X * canvasZoom, 0),
+                        new PointF(symmetryOrigin.X * canvasZoom, bmpCurrentDrawing.Height * canvasZoom));
                 }
             }
-        }
 
-        /// <summary>
-        /// Ensures focusable controls cannot intercept keyboard/mouse input
-        /// while the user is hovered over the display canvas's panel. Sets a
-        /// tooltip.
-        /// </summary>
-        private void DisplayCanvasBG_MouseEnter(object sender, EventArgs e)
-        {
-            displayCanvas.Focus();
-
-            UpdateTooltip(string.Empty);
+            e.Graphics.ResetTransform();
         }
 
         /// <summary>
@@ -5741,7 +5825,7 @@ namespace BrushFactory
 
         private void BttnAddBrushImages_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.AddBrushImagesTip);
+            UpdateTooltip(Strings.AddBrushImagesTip);
         }
 
         /// <summary>
@@ -5765,12 +5849,12 @@ namespace BrushFactory
 
         private void BttnBrushColor_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushColorTip);
+            UpdateTooltip(Strings.BrushColorTip);
         }
 
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushSmoothingTip);
+            UpdateTooltip(Strings.BrushSmoothingTip);
         }
 
         /// <summary>
@@ -5786,7 +5870,7 @@ namespace BrushFactory
 
         private void BttnCancel_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.CancelTip);
+            UpdateTooltip(Strings.CancelTip);
         }
 
         /// <summary>
@@ -5799,7 +5883,7 @@ namespace BrushFactory
 
         private void BttnClearBrushImages_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ClearBrushImagesTip);
+            UpdateTooltip(Strings.ClearBrushImagesTip);
         }
 
         /// <summary>
@@ -5812,7 +5896,7 @@ namespace BrushFactory
 
         private void BttnClearSettings_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ClearSettingsTip);
+            UpdateTooltip(Strings.ClearSettingsTip);
         }
 
         /// <summary>
@@ -5829,7 +5913,7 @@ namespace BrushFactory
 
         private void BttnDeleteBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.DeleteBrushTip);
+            UpdateTooltip(Strings.DeleteBrushTip);
         }
 
         /// <summary>
@@ -5858,7 +5942,7 @@ namespace BrushFactory
 
         private void BttnOk_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.OkTip);
+            UpdateTooltip(Strings.OkTip);
         }
 
         /// <summary>
@@ -5872,14 +5956,14 @@ namespace BrushFactory
             }
             else
             {
-                MessageBox.Show(Localization.Strings.SettingsUnavailableError,
+                MessageBox.Show(Strings.SettingsUnavailableError,
                     Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BttnPreferences_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.CustomBrushImageLocationsTip);
+            UpdateTooltip(Strings.CustomBrushImageLocationsTip);
         }
 
         /// <summary>
@@ -5917,7 +6001,7 @@ namespace BrushFactory
             }
             else
             {
-                MessageBox.Show(Localization.Strings.RedoFileNotFoundError,
+                MessageBox.Show(Strings.RedoFileNotFoundError,
                     Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
@@ -5934,7 +6018,7 @@ namespace BrushFactory
 
         private void BttnRedo_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RedoTip);
+            UpdateTooltip(Strings.RedoTip);
         }
 
         /// <summary>
@@ -5949,10 +6033,10 @@ namespace BrushFactory
             // Opens a textbox dialog to name the custom brush. Brush names must be unique, so the brush will have
             // spaces appended to the end of the name until naming conflicts are resolved.
             TextboxDialog dlg = new TextboxDialog(
-                Localization.Strings.CustomBrushDialogTitle,
-                Localization.Strings.CustomBrushDialogDescription,
-                Localization.Strings.Ok,
-                (txt) => string.IsNullOrWhiteSpace(txt) ? Localization.Strings.CustomBrushDialogErrorName : null);
+                Strings.CustomBrushDialogTitle,
+                Strings.CustomBrushDialogDescription,
+                Strings.Ok,
+                (txt) => string.IsNullOrWhiteSpace(txt) ? Strings.CustomBrushDialogErrorName : null);
 
             DialogResult result = dlg.ShowDialog();
             if (result == DialogResult.OK)
@@ -6063,7 +6147,7 @@ namespace BrushFactory
 
         private void BttnSaveBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.SaveNewBrushTip);
+            UpdateTooltip(Strings.SaveNewBrushTip);
         }
 
         private void BttnToolBrush_Click(object sender, EventArgs e)
@@ -6073,7 +6157,7 @@ namespace BrushFactory
 
         private void BttnToolBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ToolBrushTip);
+            UpdateTooltip(Strings.ToolBrushTip);
         }
 
         private void BttnToolColorPicker_Click(object sender, EventArgs e)
@@ -6083,7 +6167,7 @@ namespace BrushFactory
 
         private void BttnToolColorPicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ColorPickerTip);
+            UpdateTooltip(Strings.ColorPickerTip);
         }
 
         private void BttnToolEraser_Click(object sender, EventArgs e)
@@ -6093,7 +6177,7 @@ namespace BrushFactory
 
         private void BttnToolEraser_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ToolEraserTip);
+            UpdateTooltip(Strings.ToolEraserTip);
         }
 
         private void BttnToolOrigin_Click(object sender, EventArgs e)
@@ -6103,7 +6187,7 @@ namespace BrushFactory
 
         private void BttnToolOrigin_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ToolOriginTip);
+            UpdateTooltip(Strings.ToolOriginTip);
         }
 
         /// <summary>
@@ -6141,7 +6225,7 @@ namespace BrushFactory
             }
             else
             {
-                MessageBox.Show(Localization.Strings.RedoFileNotFoundError,
+                MessageBox.Show(Strings.RedoFileNotFoundError,
                     Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
@@ -6158,22 +6242,21 @@ namespace BrushFactory
 
         private void BttnUndo_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.UndoTip);
+            UpdateTooltip(Strings.UndoTip);
         }
 
         private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.SymmetryTip);
+            UpdateTooltip(Strings.SymmetryTip);
         }
 
         private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.AutomaticBrushDensityTip);
+            UpdateTooltip(Strings.AutomaticBrushDensityTip);
         }
 
         private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e) {
             sliderBrushDensity.Enabled = !chkbxAutomaticBrushDensity.Checked;
-            cmbxBrushSmoothing.Enabled = !chkbxAutomaticBrushDensity.Checked;
         }
 
         /// <summary>
@@ -6187,17 +6270,17 @@ namespace BrushFactory
 
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ColorizeBrushTip);
+            UpdateTooltip(Strings.ColorizeBrushTip);
         }
 
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.LockAlphaTip);
+            UpdateTooltip(Strings.LockAlphaTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.OrientToMouseTip);
+            UpdateTooltip(Strings.OrientToMouseTip);
         }
 
         /// <summary>
@@ -6330,7 +6413,7 @@ namespace BrushFactory
 
         private void ListViewBrushImagePicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushImageSelectorTip);
+            UpdateTooltip(Strings.BrushImageSelectorTip);
         }
 
         /// <summary>
@@ -6410,7 +6493,7 @@ namespace BrushFactory
 
         private void ListviewBrushPicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushSelectorTip);
+            UpdateTooltip(Strings.BrushSelectorTip);
         }
 
         /// <summary>
@@ -6453,7 +6536,7 @@ namespace BrushFactory
                             }
                         }
 
-                        return entry.Name.Equals(Localization.Strings.DefaultBrushCircle);
+                        return entry.Name.Equals(Strings.DefaultBrushCircle);
                     });
 
                     if (index >= 0)
@@ -6467,13 +6550,13 @@ namespace BrushFactory
 
         private void SliderBrushAlpha_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushAlphaTip);
+            UpdateTooltip(Strings.BrushAlphaTip);
         }
 
         private void SliderBrushAlpha_ValueChanged(object sender, EventArgs e)
         {
             txtBrushAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.Alpha,
+                Strings.Alpha,
                 sliderBrushAlpha.Value);
 
             UpdateBrushImage();
@@ -6481,25 +6564,25 @@ namespace BrushFactory
 
         private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushDensityTip);
+            UpdateTooltip(Strings.BrushDensityTip);
         }
 
         private void SliderBrushDensity_ValueChanged(object sender, EventArgs e)
         {
             txtBrushDensity.Text = String.Format("{0} {1}",
-                Localization.Strings.BrushDensity,
+                Strings.BrushDensity,
                 sliderBrushDensity.Value);
         }
 
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushSizeTip);
+            UpdateTooltip(Strings.BrushSizeTip);
         }
 
         private void SliderBrushSize_ValueChanged(object sender, EventArgs e)
         {
             txtBrushSize.Text = String.Format("{0} {1}",
-                Localization.Strings.Size,
+                Strings.Size,
                 sliderBrushSize.Value);
 
             //Updates to show changes in the brush indicator.
@@ -6508,19 +6591,19 @@ namespace BrushFactory
 
         private void SliderBrushRotation_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.BrushRotationTip);
+            UpdateTooltip(Strings.BrushRotationTip);
         }
 
         private void SliderBrushRotation_ValueChanged(object sender, EventArgs e)
         {
             txtBrushRotation.Text = String.Format("{0} {1}°",
-                Localization.Strings.Rotation,
+                Strings.Rotation,
                 sliderBrushRotation.Value);
         }
 
         private void SliderCanvasZoom_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.CanvasZoomTip);
+            UpdateTooltip(Strings.CanvasZoomTip);
         }
 
         private void SliderCanvasZoom_ValueChanged(object sender, EventArgs e)
@@ -6530,113 +6613,113 @@ namespace BrushFactory
 
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.MinDrawDistanceTip);
+            UpdateTooltip(Strings.MinDrawDistanceTip);
         }
 
         private void SliderMinDrawDistance_ValueChanged(object sender, EventArgs e)
         {
             txtMinDrawDistance.Text = String.Format("{0} {1}",
-                Localization.Strings.MinDrawDistance,
+                Strings.MinDrawDistance,
                 sliderMinDrawDistance.Value);
         }
 
         private void SliderRandHorzShift_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RandHorzShiftTip);
+            UpdateTooltip(Strings.RandHorzShiftTip);
         }
 
         private void SliderRandHorzShift_ValueChanged(object sender, EventArgs e)
         {
             txtRandHorzShift.Text = String.Format("{0} {1}%",
-                Localization.Strings.RandHorzShift,
+                Strings.RandHorzShift,
                 sliderRandHorzShift.Value);
         }
 
         private void SliderJitterMaxBlue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterBlueTip);
+            UpdateTooltip(Strings.JitterBlueTip);
         }
 
         private void SliderJitterMaxBlue_ValueChanged(object sender, EventArgs e)
         {
             txtJitterBlue.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterBlue,
+                Strings.JitterBlue,
                 sliderJitterMinBlue.Value,
                 sliderJitterMaxBlue.Value);
         }
 
         private void SliderJitterMaxGreen_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterGreenTip);
+            UpdateTooltip(Strings.JitterGreenTip);
         }
 
         private void SliderJitterMaxGreen_ValueChanged(object sender, EventArgs e)
         {
             txtJitterGreen.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterGreen,
+                Strings.JitterGreen,
                 sliderJitterMinGreen.Value,
                 sliderJitterMaxGreen.Value);
         }
 
         private void SliderJitterMaxRed_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterRedTip);
+            UpdateTooltip(Strings.JitterRedTip);
         }
 
         private void SliderJitterMaxRed_ValueChanged(object sender, EventArgs e)
         {
             txtJitterRed.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterRed,
+                Strings.JitterRed,
                 sliderJitterMinRed.Value,
                 sliderJitterMaxRed.Value);
         }
 
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RandMaxSizeTip);
+            UpdateTooltip(Strings.RandMaxSizeTip);
         }
 
         private void SliderRandMaxSize_ValueChanged(object sender, EventArgs e)
         {
             txtRandMaxSize.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMaxSize,
+                Strings.RandMaxSize,
                 sliderRandMaxSize.Value);
         }
 
         private void SliderRandMinAlpha_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RandMinAlphaTip);
+            UpdateTooltip(Strings.RandMinAlphaTip);
         }
 
         private void SliderRandMinAlpha_ValueChanged(object sender, EventArgs e)
         {
             txtRandMinAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinAlpha,
+                Strings.RandMinAlpha,
                 sliderRandMinAlpha.Value);
         }
 
         private void SliderJitterMinBlue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterBlueTip);
+            UpdateTooltip(Strings.JitterBlueTip);
         }
 
         private void SliderJitterMinBlue_ValueChanged(object sender, EventArgs e)
         {
             txtJitterBlue.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterBlue,
+                Strings.JitterBlue,
                 sliderJitterMinBlue.Value,
                 sliderJitterMaxBlue.Value);
         }
 
         private void SliderJitterMinGreen_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterGreenTip);
+            UpdateTooltip(Strings.JitterGreenTip);
         }
 
         private void SliderJitterMinGreen_ValueChanged(object sender, EventArgs e)
         {
             txtJitterGreen.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterGreen,
+                Strings.JitterGreen,
                 sliderJitterMinGreen.Value,
                 sliderJitterMaxGreen.Value);
         }
@@ -6644,38 +6727,38 @@ namespace BrushFactory
         private void SliderJitterMaxHue_ValueChanged(object sender, EventArgs e)
         {
             txtJitterHue.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterHue,
+                Strings.JitterHue,
                 sliderJitterMinHue.Value,
                 sliderJitterMaxHue.Value);
         }
 
         private void SliderJitterMaxHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterHueTip);
+            UpdateTooltip(Strings.JitterHueTip);
         }
 
         private void SliderJitterMinHue_ValueChanged(object sender, EventArgs e)
         {
             txtJitterHue.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterHue,
+                Strings.JitterHue,
                 sliderJitterMinHue.Value,
                 sliderJitterMaxHue.Value);
         }
 
         private void SliderJitterMinHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterHueTip);
+            UpdateTooltip(Strings.JitterHueTip);
         }
 
         private void SliderJitterMinRed_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterRedTip);
+            UpdateTooltip(Strings.JitterRedTip);
         }
 
         private void SliderJitterMinRed_ValueChanged(object sender, EventArgs e)
         {
             txtJitterRed.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterRed,
+                Strings.JitterRed,
                 sliderJitterMinRed.Value,
                 sliderJitterMaxRed.Value);
         }
@@ -6683,136 +6766,136 @@ namespace BrushFactory
         private void SliderJitterMaxSat_ValueChanged(object sender, EventArgs e)
         {
             txtJitterSaturation.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterSaturation,
+                Strings.JitterSaturation,
                 sliderJitterMinSat.Value,
                 sliderJitterMaxSat.Value);
         }
 
         private void SliderJitterMaxSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterSaturationTip);
+            UpdateTooltip(Strings.JitterSaturationTip);
         }
 
         private void SliderJitterMinSat_ValueChanged(object sender, EventArgs e)
         {
             txtJitterSaturation.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterSaturation,
+                Strings.JitterSaturation,
                 sliderJitterMinSat.Value,
                 sliderJitterMaxSat.Value);
         }
 
         private void SliderJitterMinSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterSaturationTip);
+            UpdateTooltip(Strings.JitterSaturationTip);
         }
 
         private void SliderJitterMaxVal_ValueChanged(object sender, EventArgs e)
         {
             txtJitterValue.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterValue,
+                Strings.JitterValue,
                 sliderJitterMinVal.Value,
                 sliderJitterMaxVal.Value);
         }
 
         private void SliderJitterMaxVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterValueTip);
+            UpdateTooltip(Strings.JitterValueTip);
         }
 
         private void SliderJitterMinVal_ValueChanged(object sender, EventArgs e)
         {
             txtJitterValue.Text = String.Format("{0} -{1}%, +{2}%",
-                Localization.Strings.JitterValue,
+                Strings.JitterValue,
                 sliderJitterMinVal.Value,
                 sliderJitterMaxVal.Value);
         }
 
         private void SliderJitterMinVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.JitterValueTip);
+            UpdateTooltip(Strings.JitterValueTip);
         }
 
         private void SliderRandMinSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RandMinSizeTip);
+            UpdateTooltip(Strings.RandMinSizeTip);
         }
 
         private void SliderRandMinSize_ValueChanged(object sender, EventArgs e)
         {
             txtRandMinSize.Text = String.Format("{0} {1}",
-                Localization.Strings.RandMinSize,
+                Strings.RandMinSize,
                 sliderRandMinSize.Value);
         }
 
         private void SliderRandRotLeft_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RandRotLeftTip);
+            UpdateTooltip(Strings.RandRotLeftTip);
         }
 
         private void SliderRandRotLeft_ValueChanged(object sender, EventArgs e)
         {
             txtRandRotLeft.Text = String.Format("{0} {1}°",
-                Localization.Strings.RandRotLeft,
+                Strings.RandRotLeft,
                 sliderRandRotLeft.Value);
         }
 
         private void SliderRandRotRight_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RandRotRightTip);
+            UpdateTooltip(Strings.RandRotRightTip);
         }
 
         private void SliderRandRotRight_ValueChanged(object sender, EventArgs e)
         {
             txtRandRotRight.Text = String.Format("{0} {1}°",
-                Localization.Strings.RandRotRight,
+                Strings.RandRotRight,
                 sliderRandRotRight.Value);
         }
 
         private void SliderRandVertShift_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.RandVertShiftTip);
+            UpdateTooltip(Strings.RandVertShiftTip);
         }
 
         private void SliderRandVertShift_ValueChanged(object sender, EventArgs e)
         {
             txtRandVertShift.Text = String.Format("{0} {1}%",
-                Localization.Strings.RandVertShift,
+                Strings.RandVertShift,
                 sliderRandVertShift.Value);
         }
 
         private void SliderShiftAlpha_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ShiftAlphaTip);
+            UpdateTooltip(Strings.ShiftAlphaTip);
         }
 
         private void SliderShiftAlpha_ValueChanged(object sender, EventArgs e)
         {
             txtShiftAlpha.Text = String.Format("{0} {1}",
-                Localization.Strings.ShiftAlpha,
+                Strings.ShiftAlpha,
                 sliderShiftAlpha.Value);
         }
 
         private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ShiftRotationTip);
+            UpdateTooltip(Strings.ShiftRotationTip);
         }
 
         private void SliderShiftRotation_ValueChanged(object sender, EventArgs e)
         {
             txtShiftRotation.Text = String.Format("{0} {1}°",
-                Localization.Strings.ShiftRotation,
+                Strings.ShiftRotation,
                 sliderShiftRotation.Value);
         }
 
         private void SliderShiftSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Localization.Strings.ShiftSizeTip);
+            UpdateTooltip(Strings.ShiftSizeTip);
         }
 
         private void SliderShiftSize_ValueChanged(object sender, EventArgs e)
         {
             txtShiftSize.Text = String.Format("{0} {1}",
-                Localization.Strings.ShiftSize,
+                Strings.ShiftSize,
                 sliderShiftSize.Value);
         }
 
@@ -6847,7 +6930,7 @@ namespace BrushFactory
         /// </summary>
         private void RepositionUpdate_Tick(object sender, EventArgs e)
         {
-            if (displayCanvasBG.IsDisposed)
+            if (displayCanvas.IsDisposed)
             {
                 return;
             }
@@ -6855,12 +6938,10 @@ namespace BrushFactory
             // Converts the mouse coordinates on the screen relative to the
             // background such that the top-left corner is (0, 0) up to its
             // width and height.
-            Point mouseLocOnBG = displayCanvasBG.PointToClient(MousePosition);
+            Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
 
             //Exits if the user isn't drawing out of the canvas boundary.
-            if (!isUserDrawing ||
-                displayCanvasBG.ClientRectangle.Contains(mouseLocOnBG) ||
-                displayCanvasBG.ClientRectangle.Contains(displayCanvas.ClientRectangle))
+            if (!isUserDrawing || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
             {
                 return;
             }
@@ -6869,15 +6950,15 @@ namespace BrushFactory
             Rectangle range = GetRange();
 
             //The amount to move the canvas while drawing.
-            int nudge = (int)(displayCanvasZoom * 10);
+            int nudge = (int)(canvasZoom * 10);
             int canvasNewPosX, canvasNewPosY;
 
             //Nudges the screen horizontally when out of bounds and out of
             //the drawing region.
-            if (displayCanvas.ClientRectangle.Width >=
-                displayCanvasBG.ClientRectangle.Width)
+            if (canvas.width >=
+                displayCanvas.ClientRectangle.Width)
             {
-                if (mouseLocOnBG.X > displayCanvasBG.ClientRectangle.Width)
+                if (mouseLocOnBG.X > displayCanvas.ClientRectangle.Width)
                 {
                     canvasNewPosX = -nudge;
                 }
@@ -6898,15 +6979,15 @@ namespace BrushFactory
             //Adds the left corner position to make it relative.
             if (range.Width != 0)
             {
-                canvasNewPosX += displayCanvas.Left;
+                canvasNewPosX += canvas.x;
             }
 
             //Nudges the screen vertically when out of bounds and out of
             //the drawing region.
-            if (displayCanvas.ClientRectangle.Height >=
-                displayCanvasBG.ClientRectangle.Height)
+            if (canvas.height >=
+                displayCanvas.ClientRectangle.Height)
             {
-                if (mouseLocOnBG.Y > displayCanvasBG.ClientRectangle.Height)
+                if (mouseLocOnBG.Y > displayCanvas.ClientRectangle.Height)
                 {
                     canvasNewPosY = -nudge;
                 }
@@ -6927,8 +7008,10 @@ namespace BrushFactory
             //Adds the top corner position to make it relative.
             if (range.Height != 0)
             {
-                canvasNewPosY += displayCanvas.Top;
+                canvasNewPosY += canvas.y;
             }
+
+            PointF minBounds = TransformPoint(new PointF(0, 0));
 
             //Clamps all location values.
             if (canvasNewPosX <= range.Left) { canvasNewPosX = range.Left; }
@@ -6937,7 +7020,8 @@ namespace BrushFactory
             if (canvasNewPosY >= range.Bottom) { canvasNewPosY = range.Bottom; }
 
             //Updates with the new location and redraws the screen.
-            displayCanvas.Location = new Point(canvasNewPosX, canvasNewPosY);
+            canvas.x = canvasNewPosX;
+            canvas.y = canvasNewPosY;
             displayCanvas.Refresh();
         }
         #endregion
