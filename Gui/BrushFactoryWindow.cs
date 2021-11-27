@@ -1361,6 +1361,7 @@ namespace BrushFactory
                 float drawingOffsetX = (bmpCurrentDrawing.Width * 0.5f);
                 float drawingOffsetY = (bmpCurrentDrawing.Height * 0.5f);
 
+                // Moves where the brush stroke is applied to match the user's canvas rotation settings.
                 g.TranslateTransform(drawingOffsetX, drawingOffsetY);
                 g.RotateTransform(-canvasRotation);
                 g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
@@ -1501,39 +1502,47 @@ namespace BrushFactory
                     }
 
                     //Draws the brush horizontally reflected.
-                    if (cmbxSymmetry.SelectedIndex ==
-                        (int)SymmetryMode.Horizontal)
+                    if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal ||
+                        cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical ||
+                        cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Star2)
                     {
-                        g.DrawImage(
-                            bmpBrushRot,
-                            loc.X + scaleFactor / 2f + (symmetryOrigin.X - loc.X) * 2,
-                            loc.Y - (scaleFactor / 2f),
-                            scaleFactor * -1,
-                            scaleFactor);
-                    }
+                        bool symmetryX = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical;
+                        bool symmetryY = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal;
 
-                    //Draws the brush vertically reflected.
-                    else if (cmbxSymmetry.SelectedIndex ==
-                        (int)SymmetryMode.Vertical)
-                    {
-                        g.DrawImage(
-                            bmpBrushRot,
-                            loc.X - (scaleFactor / 2f),
-                            loc.Y + scaleFactor / 2f + (symmetryOrigin.Y - loc.Y) * 2,
-                            scaleFactor,
-                            scaleFactor * -1);
-                    }
+                        // Easier not to compute on a rotated canvas.
+                        g.ResetTransform();
 
-                    //Draws the brush horizontally and vertically reflected.
-                    else if (cmbxSymmetry.SelectedIndex ==
-                        (int)SymmetryMode.Star2)
-                    {
+                        //Gets the symmetry origin.
+                        PointF origin = new PointF(
+                            symmetryOrigin.X,
+                            symmetryOrigin.Y);
+
+                        //Gets the drawn location relative to symmetry origin.
+                        PointF rotatedLoc = TransformPoint(loc, true, true);
+                        PointF locRelativeToOrigin = new PointF(
+                            rotatedLoc.X - origin.X,
+                            rotatedLoc.Y - origin.Y);
+
+                        //Gets the distance from the drawing point to center.
+                        var dist = Math.Sqrt(
+                            Math.Pow(locRelativeToOrigin.X, 2) +
+                            Math.Pow(locRelativeToOrigin.Y, 2));
+
+                        //Gets the angle of the drawing point.
+                        var angle = Math.Atan2(
+                            locRelativeToOrigin.Y,
+                            locRelativeToOrigin.X);
+
+                        float halfScaleFactor = (scaleFactor / 2f);
+                        float xDist = (float)(dist * Math.Cos(angle));
+                        float yDist = (float)(dist * Math.Sin(angle));
+
                         g.DrawImage(
                             bmpBrushRot,
-                            loc.X + scaleFactor / 2f + (symmetryOrigin.X - loc.X) * 2,
-                            loc.Y + scaleFactor / 2f + (symmetryOrigin.Y - loc.Y) * 2,
-                            scaleFactor * -1,
-                            scaleFactor * -1);
+                            origin.X + (symmetryX ? -halfScaleFactor + xDist : halfScaleFactor - xDist),
+                            origin.Y + (symmetryY ? -halfScaleFactor + yDist : halfScaleFactor - yDist),
+                            symmetryX ? scaleFactor : -scaleFactor,
+                            symmetryY ? scaleFactor : -scaleFactor);
                     }
 
                     // Draws at defined offset locations.
@@ -1552,7 +1561,7 @@ namespace BrushFactory
                     }
 
                     //Draws the brush with radial reflections.
-                    else if (cmbxSymmetry.SelectedIndex > 3)
+                    else
                     {
                         // Easier not to compute on a rotated canvas.
                         g.ResetTransform();
@@ -1674,39 +1683,48 @@ namespace BrushFactory
                     if (cmbxSymmetry.SelectedIndex !=
                         (int)SymmetryMode.None)
                     {
-                        //Draws the brush horizontally reflected
-                        if (cmbxSymmetry.SelectedIndex ==
-                            (int)SymmetryMode.Horizontal)
+                        //Draws the brush horizontally reflected.
+                        if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal ||
+                            cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical ||
+                            cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Star2)
                         {
-                            destination[0] = new PointF(bmpCurrentDrawing.Width - xPos, yPos);
-                            destination[1] = new PointF(bmpCurrentDrawing.Width - xPos - scaleFactor, yPos);
-                            destination[2] = new PointF(bmpCurrentDrawing.Width - xPos, yPos + scaleFactor);
-                        }
+                            bool symmetryX = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical;
+                            bool symmetryY = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal;
 
-                        //Draws the brush vertically reflected.
-                        else if (cmbxSymmetry.SelectedIndex ==
-                            (int)SymmetryMode.Vertical)
-                        {
-                            destination[0] = new PointF(xPos, bmpCurrentDrawing.Height - yPos);
-                            destination[1] = new PointF(xPos + scaleFactor, bmpCurrentDrawing.Height - yPos);
-                            destination[2] = new PointF(xPos, bmpCurrentDrawing.Height - yPos - scaleFactor);
-                        }
+                            // Easier not to compute on a rotated canvas.
+                            g.ResetTransform();
 
-                        //Draws the brush horizontally and vertically reflected.
-                        else if (cmbxSymmetry.SelectedIndex ==
-                            (int)SymmetryMode.Star2)
-                        {
-                            destination[0] = new PointF(bmpCurrentDrawing.Width - xPos,
-                                bmpCurrentDrawing.Height - yPos);
-                            destination[1] = new PointF(bmpCurrentDrawing.Width - xPos - scaleFactor,
-                                bmpCurrentDrawing.Height - yPos);
-                            destination[2] = new PointF(bmpCurrentDrawing.Width - xPos,
-                                bmpCurrentDrawing.Height - yPos - scaleFactor);
-                        }
+                            //Gets the symmetry origin.
+                            PointF origin = new PointF(
+                                symmetryOrigin.X,
+                                symmetryOrigin.Y);
 
-                        //Draws the non-radial reflection.
-                        if (cmbxSymmetry.SelectedIndex < 4)
-                        {
+                            //Gets the drawn location relative to symmetry origin.
+                            PointF rotatedLoc = TransformPoint(loc, true, true);
+                            PointF locRelativeToOrigin = new PointF(
+                                rotatedLoc.X - origin.X,
+                                rotatedLoc.Y - origin.Y);
+
+                            //Gets the distance from the drawing point to center.
+                            var dist = Math.Sqrt(
+                                Math.Pow(locRelativeToOrigin.X, 2) +
+                                Math.Pow(locRelativeToOrigin.Y, 2));
+
+                            //Gets the angle of the drawing point.
+                            var angle = Math.Atan2(
+                                locRelativeToOrigin.Y,
+                                locRelativeToOrigin.X);
+
+                            float halfScaleFactor = (scaleFactor / 2f);
+                            float xDist = (float)(dist * Math.Cos(angle));
+                            float yDist = (float)(dist * Math.Sin(angle));
+                            float posX = origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist);
+                            float posY = origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist);
+
+                            destination[0] = new PointF(posX, posY);
+                            destination[1] = new PointF(posX + scaleFactor, posY);
+                            destination[2] = new PointF(posX, posY + scaleFactor);
+
                             //Draws the whole image and applies colorations and alpha.
                             g.DrawImage(
                                 bmpBrushRot,
@@ -1741,7 +1759,7 @@ namespace BrushFactory
                         }
 
                         //Draws the brush with radial reflections.
-                        else if (cmbxSymmetry.SelectedIndex > 3)
+                        else
                         {
                             // Easier not to compute on a rotated canvas.
                             g.ResetTransform();
