@@ -19,7 +19,7 @@ namespace BrushFactory.Localization {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -390,6 +390,33 @@ namespace BrushFactory.Localization {
         internal static string CannotLoadSettingsError {
             get {
                 return ResourceManager.GetString("CannotLoadSettingsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The angle of the canvas. Rotating it can be useful to tablet users who draw better at certain angles..
+        /// </summary>
+        internal static string CanvasRotation {
+            get {
+                return ResourceManager.GetString("CanvasRotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The horizontal position of the canvas. Changing this moves it left and right..
+        /// </summary>
+        internal static string CanvasX {
+            get {
+                return ResourceManager.GetString("CanvasX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The vertical position of the canvas. Changing this moves it up and down..
+        /// </summary>
+        internal static string CanvasY {
+            get {
+                return ResourceManager.GetString("CanvasY", resourceCulture);
             }
         }
         
@@ -1128,6 +1155,15 @@ namespace BrushFactory.Localization {
         internal static string RedoTip {
             get {
                 return ResourceManager.GetString("RedoTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Centers the canvas at 100% zoom, unrotated. (Doesn&apos;t affect the image.).
+        /// </summary>
+        internal static string ResetCanvas {
+            get {
+                return ResourceManager.GetString("ResetCanvas", resourceCulture);
             }
         }
         

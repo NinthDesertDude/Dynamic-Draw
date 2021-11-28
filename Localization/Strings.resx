@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AbrBrushNameFallbackFormat" xml:space="preserve">
     <value>Brush {0}</value>
@@ -758,5 +758,17 @@
   </data>
   <data name="BuiltInBrushGrass" xml:space="preserve">
     <value>Preset - Grass</value>
+  </data>
+  <data name="ResetCanvas" xml:space="preserve">
+    <value>Centers the canvas at 100% zoom, unrotated. (Doesn't affect the image.)</value>
+  </data>
+  <data name="CanvasRotation" xml:space="preserve">
+    <value>The angle of the canvas. Rotating it can be useful to tablet users who draw better at certain angles.</value>
+  </data>
+  <data name="CanvasX" xml:space="preserve">
+    <value>The horizontal position of the canvas. Changing this moves it left and right.</value>
+  </data>
+  <data name="CanvasY" xml:space="preserve">
+    <value>The vertical position of the canvas. Changing this moves it up and down.</value>
   </data>
 </root>

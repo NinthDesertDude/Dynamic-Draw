@@ -65,17 +65,65 @@ namespace BrushFactory
             },
             new KeyboardShortcut()
             {
-                ActionData = "100|add",
+                ActionData = "2|mul",
                 Key = System.Windows.Forms.Keys.Oemplus,
                 Target = ShortcutTarget.CanvasZoom,
                 RequireCtrl = true
             },
             new KeyboardShortcut()
             {
-                ActionData = "100|sub",
+                ActionData = "0.5|mul",
                 Key = System.Windows.Forms.Keys.OemMinus,
                 Target = ShortcutTarget.CanvasZoom,
                 RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.D0,
+                Target = ShortcutTarget.ResetCanvasTransforms
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|sub",
+                Key = System.Windows.Forms.Keys.Left,
+                Target = ShortcutTarget.CanvasX,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|add",
+                Key = System.Windows.Forms.Keys.Right,
+                Target = ShortcutTarget.CanvasX,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|sub",
+                Key = System.Windows.Forms.Keys.Up,
+                Target = ShortcutTarget.CanvasY,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|add",
+                Key = System.Windows.Forms.Keys.Down,
+                Target = ShortcutTarget.CanvasY,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "10|sub",
+                Key = System.Windows.Forms.Keys.Left,
+                Target = ShortcutTarget.CanvasRotation,
+                RequireShift = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "10|add",
+                Key = System.Windows.Forms.Keys.Right,
+                Target = ShortcutTarget.CanvasRotation,
+                RequireShift = true
             }
         };
 

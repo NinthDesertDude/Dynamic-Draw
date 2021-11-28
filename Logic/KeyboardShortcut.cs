@@ -149,7 +149,17 @@ namespace BrushFactory.Logic
 
                 return false;
             }
-            
+
+            if (Setting.AllSettings[Target].ValueType == ShortcutTargetDataType.Float)
+            {
+                if (float.TryParse(ActionData, out float value))
+                {
+                    return Setting.AllSettings[Target].ValidateNumberValue(value);
+                }
+
+                return false;
+            }
+
             if (Setting.AllSettings[Target].ValueType == ShortcutTargetDataType.Bool)
             {
                 return ActionData.Equals("t") || ActionData.Equals("f");
@@ -183,48 +193,71 @@ namespace BrushFactory.Logic
         /// </summary>
         public int GetDataAsInt(int origValue, int minValue, int maxValue)
         {
+            return (int)Math.Round(GetDataAsFloat(origValue, minValue, maxValue));
+        }
+
+        /// <summary>
+        /// Interprets the data as representing an integer that may be positive or negative.
+        /// Assumes the data is already in the proper format. Use <see cref="IsActionValid"/> to ensure.
+        /// </summary>
+        public float GetDataAsFloat(float origValue, float minValue, float maxValue)
+        {
             string[] chunks = ActionData.Split('|');
             if (chunks.Length != 2)
             {
-                throw new Exception("Was expecting integer setting to have two pieces of data.");
+                throw new Exception("Was expecting numeric setting to have two pieces of data.");
             }
 
-            if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Integer)
+            if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Integer ||
+                Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Float)
             {
-                throw new Exception("Was expecting setting to be of the integer data type.");
+                throw new Exception("Was expecting setting to a numeric data type.");
             }
 
-            int value = int.Parse(chunks[0]);
+            float value = float.Parse(chunks[0]);
+
             if (chunks[1].Equals("set"))
             {
-                return Utils.Clamp(value, minValue, maxValue);
+                value = Utils.ClampF(value, minValue, maxValue);
             }
-            if (chunks[1].Equals("add"))
+            else if (chunks[1].Equals("add"))
             {
-                return Utils.Clamp(origValue + value, minValue, maxValue);
+                value = Utils.ClampF(origValue + value, minValue, maxValue);
             }
-            if (chunks[1].Equals("sub"))
+            else if (chunks[1].Equals("sub"))
             {
-                return Utils.Clamp(origValue - value, minValue, maxValue);
+                value = Utils.ClampF(origValue - value, minValue, maxValue);
             }
-            if (chunks[1].Equals("addwrap"))
+            else if (chunks[1].Equals("mul"))
             {
-                int val = origValue + value;
+                value = Utils.ClampF(origValue * value, minValue, maxValue);
+            }
+            else if (chunks[1].Equals("div"))
+            {
+                value = Utils.ClampF(value == 0 ? maxValue : origValue / value, minValue, maxValue);
+            }
+            else if (chunks[1].Equals("add-wrap"))
+            {
+                float val = origValue + value;
                 while (val < minValue) { val += maxValue; }
                 while (val > maxValue) { val -= maxValue; }
 
-                return Utils.Clamp(val, minValue, maxValue);
+                value = Utils.ClampF(val, minValue, maxValue);
             }
-            if (chunks[1].Equals("subwrap"))
+            else if (chunks[1].Equals("sub-wrap"))
             {
-                int val = origValue - value;
+                float val = origValue - value;
                 while (val < minValue) { val += maxValue; }
                 while (val > maxValue) { val -= maxValue; }
 
-                return Utils.Clamp(val, minValue, maxValue);
+                value = Utils.ClampF(val, minValue, maxValue);
+            }
+            else
+            {
+                value = float.Parse(ActionData);
             }
 
-            return int.Parse(ActionData);
+            return value;
         }
 
         /// <summary>

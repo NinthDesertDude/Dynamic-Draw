@@ -103,8 +103,6 @@ namespace BrushFactory
         private bool isUserDrawing = false;
         private bool isUserPanning = false;
 
-        private bool isWheelZooming = false;
-
         /// <summary>
         /// Creates the list of brushes used by the brush selector.
         /// </summary>
@@ -1046,7 +1044,6 @@ namespace BrushFactory
                 //Ctrl + Wheel: Zooms the canvas in/out.
                 else
                 {
-                    isWheelZooming = true;
                     Zoom(e.Delta, true);
                 }
             }
@@ -2082,6 +2079,26 @@ namespace BrushFactory
                     break;
                 case ShortcutTarget.RedoAction:
                     BttnRedo_Click(null, null);
+                    break;
+                case ShortcutTarget.ResetCanvasTransforms:
+                    canvas.width = bmpCurrentDrawing.Width;
+                    canvas.height = bmpCurrentDrawing.Height;
+                    canvas.x = (displayCanvas.Width - canvas.width) / 2;
+                    canvas.y = (displayCanvas.Height - canvas.height) / 2;
+                    canvasRotation = 0;
+                    sliderCanvasZoom.Value = 100;
+                    break;
+                case ShortcutTarget.CanvasX:
+                    canvas.x = shortcut.GetDataAsInt(canvas.x, int.MinValue, int.MaxValue);
+                    displayCanvas.Refresh();
+                    break;
+                case ShortcutTarget.CanvasY:
+                    canvas.y = shortcut.GetDataAsInt(canvas.y, int.MinValue, int.MaxValue);
+                    displayCanvas.Refresh();
+                    break;
+                case ShortcutTarget.CanvasRotation:
+                    canvasRotation = shortcut.GetDataAsFloat(canvasRotation, float.MinValue, float.MaxValue) % 360;
+                    displayCanvas.Refresh();
                     break;
             };
         }
@@ -5044,18 +5061,12 @@ namespace BrushFactory
             float zoomWidth = bmpCurrentDrawing.Width * newZoomFactor;
             float zoomHeight = bmpCurrentDrawing.Height * newZoomFactor;
 
-            PointF zoomingPoint = isWheelZooming
-                ? mouseLoc
-                : new PointF(
-                    displayCanvas.ClientSize.Width - canvas.x,
-                    displayCanvas.ClientSize.Height - canvas.y);
+            PointF zoomingPoint = mouseLoc;
 
             int zoomX = (int)(canvas.x + zoomingPoint.X -
                 zoomingPoint.X * zoomWidth / canvas.width);
             int zoomY = (int)(canvas.y + zoomingPoint.Y -
                 zoomingPoint.Y * zoomHeight / canvas.height);
-
-            isWheelZooming = false;
 
             // Adjusts the canvas position after zooming, and the mouse location since it includes canvas position.
             (int x, int y) canvasOffset = new(canvas.x - zoomX, canvas.y - zoomY);
@@ -5497,14 +5508,15 @@ namespace BrushFactory
             {
                 Rectangle range = GetRange();
 
+                GraphicsPath path = new GraphicsPath();
+                path.AddRectangle(range);
+                Matrix m = new Matrix();
+                m.RotateAt(canvasRotation, new PointF(range.X + range.Width / 2f, range.Y + range.Height / 2f));
+                path.Transform(m);
+
                 //Moves the drawing region.
-                double rotMaxSizeFactor = Math.Sqrt(2);
-                double width = range.Right * rotMaxSizeFactor / 2;
-                double height = range.Bottom * rotMaxSizeFactor / 2;
-                int locx = Utils.Clamp(canvas.x + (int)Math.Round(mouseLoc.X - mouseLocPrev.X),
-                    (int)(range.Left - width), (int)(range.Right + width));
-                int locy = Utils.Clamp(canvas.y + (int)Math.Round(mouseLoc.Y - mouseLocPrev.Y),
-                    (int)Math.Ceiling(range.Top - height), (int)Math.Ceiling(range.Bottom + height));
+                int locx = canvas.x + (int)Math.Round(mouseLoc.X - mouseLocPrev.X);
+                int locy = canvas.y + (int)Math.Round(mouseLoc.Y - mouseLocPrev.Y);
 
                 //Updates the position of the canvas.
                 canvas.x = locx;
@@ -6954,7 +6966,7 @@ namespace BrushFactory
             }
 
             // Converts the mouse coordinates on the screen relative to the
-            // background such that the top-left corner is (0, 0) up to its
+            // canvas such that the top-left corner is (0, 0) up to its
             // width and height.
             Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
 
@@ -7028,8 +7040,6 @@ namespace BrushFactory
             {
                 canvasNewPosY += canvas.y;
             }
-
-            PointF minBounds = TransformPoint(new PointF(0, 0));
 
             //Clamps all location values.
             if (canvasNewPosX <= range.Left) { canvasNewPosX = range.Left; }

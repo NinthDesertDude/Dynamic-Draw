@@ -78,7 +78,11 @@ namespace BrushFactory
                 { ShortcutTarget.TabPressureMinDrawDistance, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.MinDrawDistance), -100, 100) },
                 { ShortcutTarget.TabPressureSize, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutSize), -1000, 1000) },
                 { ShortcutTarget.TabPressureRotation, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutRotation), -180, 180) },
-                { ShortcutTarget.UndoAction, new Setting(Localization.Strings.Undo, ShortcutTargetDataType.Action) }
+                { ShortcutTarget.UndoAction, new Setting(Localization.Strings.Undo, ShortcutTargetDataType.Action) },
+                { ShortcutTarget.ResetCanvasTransforms, new Setting(Localization.Strings.ResetCanvas, ShortcutTargetDataType.Action) },
+                { ShortcutTarget.CanvasX, new Setting(Localization.Strings.CanvasX, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.CanvasY, new Setting(Localization.Strings.CanvasY, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.CanvasRotation, float.MinValue, float.MaxValue) }
             };
         }
 
@@ -88,6 +92,8 @@ namespace BrushFactory
 
         public Tuple<int, int> MinMaxRange { get; set; } = null;
 
+        public Tuple<float, float> MinMaxRangeF { get; set; } = null;
+
         /// <summary>
         /// Defines a setting with an integer data type, including the min/max range allowed (both bounds inclusive).
         /// </summary>
@@ -96,6 +102,16 @@ namespace BrushFactory
             Name = name;
             ValueType = ShortcutTargetDataType.Integer;
             MinMaxRange = new Tuple<int, int>(min, max);
+        }
+
+        /// <summary>
+        /// Defines a setting with a float data type, including the min/max range allowed (both bounds inclusive).
+        /// </summary>
+        public Setting(string name, float min, float max)
+        {
+            Name = name;
+            ValueType = ShortcutTargetDataType.Float;
+            MinMaxRangeF = new Tuple<float, float>(min, max);
         }
 
         /// <summary>
@@ -124,6 +140,21 @@ namespace BrushFactory
         public bool ValidateNumberValue(int input)
         {
             if (ValueType == ShortcutTargetDataType.Integer)
+            {
+                return input >= MinMaxRange.Item1 && input <= MinMaxRange.Item2;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if the setting doesn't make use of numeric min/max ranges, or if the given value falls within
+        /// the setting's min and max ranges.
+        /// </summary>
+        /// <param name="input">A value that may or may not fit within the range allowed by the setting.</param>
+        public bool ValidateNumberValue(float input)
+        {
+            if (ValueType == ShortcutTargetDataType.Float)
             {
                 return input >= MinMaxRange.Item1 && input <= MinMaxRange.Item2;
             }
