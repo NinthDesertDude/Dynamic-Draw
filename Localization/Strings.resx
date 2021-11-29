@@ -771,4 +771,19 @@
   <data name="CanvasY" xml:space="preserve">
     <value>The vertical position of the canvas. Changing this moves it up and down.</value>
   </data>
+  <data name="BackgroundBlack" xml:space="preserve">
+    <value>Use black background</value>
+  </data>
+  <data name="BackgroundImage" xml:space="preserve">
+    <value>Use the clipboard image as background</value>
+  </data>
+  <data name="BackgroundNone" xml:space="preserve">
+    <value>Use no background (a little faster)</value>
+  </data>
+  <data name="BackgroundTransparent" xml:space="preserve">
+    <value>Use transparent background (checkered)</value>
+  </data>
+  <data name="BackgroundWhite" xml:space="preserve">
+    <value>Use white background</value>
+  </data>
 </root>

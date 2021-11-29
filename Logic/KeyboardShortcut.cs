@@ -208,7 +208,7 @@ namespace BrushFactory.Logic
                 throw new Exception("Was expecting numeric setting to have two pieces of data.");
             }
 
-            if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Integer ||
+            if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Integer &&
                 Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Float)
             {
                 throw new Exception("Was expecting setting to a numeric data type.");

@@ -156,7 +156,7 @@ namespace BrushFactory
         {
             if (ValueType == ShortcutTargetDataType.Float)
             {
-                return input >= MinMaxRange.Item1 && input <= MinMaxRange.Item2;
+                return input >= MinMaxRangeF.Item1 && input <= MinMaxRangeF.Item2;
             }
 
             return true;

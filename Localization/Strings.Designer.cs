@@ -232,6 +232,51 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use black background.
+        /// </summary>
+        internal static string BackgroundBlack {
+            get {
+                return ResourceManager.GetString("BackgroundBlack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use the clipboard image as background.
+        /// </summary>
+        internal static string BackgroundImage {
+            get {
+                return ResourceManager.GetString("BackgroundImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use no background (a little faster).
+        /// </summary>
+        internal static string BackgroundNone {
+            get {
+                return ResourceManager.GetString("BackgroundNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use transparent background (checkered).
+        /// </summary>
+        internal static string BackgroundTransparent {
+            get {
+                return ResourceManager.GetString("BackgroundTransparent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use white background.
+        /// </summary>
+        internal static string BackgroundWhite {
+            get {
+                return ResourceManager.GetString("BackgroundWhite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Brush transparency shortcut: Ctrl + A + Mouse Wheel. Sets the brush transparency, so it becomes opaque or see-through..
         /// </summary>
         internal static string BrushAlphaTip {

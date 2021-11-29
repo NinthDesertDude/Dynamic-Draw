@@ -33,6 +33,16 @@ namespace BrushFactory
         private Tool activeTool = Tool.Brush;
 
         /// <summary>
+        /// Determines how to fill the transparent area under the user's image, if any.
+        /// </summary>
+        private BackgroundDisplayMode backgroundDisplayMode = BackgroundDisplayMode.Transparent;
+
+        /// <summary>
+        /// If <see cref="BackgroundDisplayMode.Clipboard"/> is used, this will contain the image drawn.
+        /// </summary>
+        private Bitmap bmpBackgroundClipboard;
+
+        /// <summary>
         /// Contains the current brush (without modifications like alpha).
         /// </summary>
         private Bitmap bmpBrush;
@@ -1141,6 +1151,7 @@ namespace BrushFactory
                 bmpBrush?.Dispose();
                 bmpBrushEffects?.Dispose();
                 bmpCurrentDrawing?.Dispose();
+                bmpBackgroundClipboard?.Dispose();
 
                 //Disposes all cursors.
                 displayCanvas.Cursor = Cursors.Default;
@@ -2377,312 +2388,312 @@ namespace BrushFactory
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WinBrushFactory));
-            this.timerRepositionUpdate = new System.Windows.Forms.Timer(this.components);
-            this.txtTooltip = new System.Windows.Forms.Label();
-            this.displayCanvas = new System.Windows.Forms.PictureBox();
-            this.bttnToolBrush = new System.Windows.Forms.Button();
-            this.dummyImageList = new System.Windows.Forms.ImageList(this.components);
-            this.panelUndoRedoOkCancel = new System.Windows.Forms.FlowLayoutPanel();
-            this.bttnUndo = new System.Windows.Forms.Button();
-            this.bttnRedo = new System.Windows.Forms.Button();
-            this.bttnOk = new System.Windows.Forms.Button();
-            this.bttnCancel = new System.Windows.Forms.Button();
-            this.brushImageLoadingWorker = new System.ComponentModel.BackgroundWorker();
-            this.bttnColorPicker = new System.Windows.Forms.Button();
-            this.panelAllSettingsContainer = new System.Windows.Forms.Panel();
-            this.panelDockSettingsContainer = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.BttnToolEraser = new System.Windows.Forms.Button();
-            this.bttnToolOrigin = new System.Windows.Forms.Button();
-            this.panelSettingsContainer = new System.Windows.Forms.FlowLayoutPanel();
-            this.bttnBrushControls = new BrushFactory.Gui.Accordion();
-            this.panelBrush = new System.Windows.Forms.FlowLayoutPanel();
-            this.txtCanvasZoom = new System.Windows.Forms.Label();
-            this.sliderCanvasZoom = new System.Windows.Forms.TrackBar();
-            this.listviewBrushPicker = new System.Windows.Forms.ListView();
-            this.listviewBrushImagePicker = new BrushFactory.DoubleBufferedListView();
-            this.panelBrushAddPickColor = new System.Windows.Forms.Panel();
-            this.chkbxColorizeBrush = new System.Windows.Forms.CheckBox();
-            this.bttnAddBrushImages = new System.Windows.Forms.Button();
-            this.brushImageLoadProgressBar = new System.Windows.Forms.ProgressBar();
-            this.bttnBrushColor = new System.Windows.Forms.Button();
-            this.txtBrushAlpha = new System.Windows.Forms.Label();
-            this.sliderBrushAlpha = new System.Windows.Forms.TrackBar();
-            this.txtBrushRotation = new System.Windows.Forms.Label();
-            this.sliderBrushRotation = new System.Windows.Forms.TrackBar();
-            this.txtBrushSize = new System.Windows.Forms.Label();
-            this.sliderBrushSize = new System.Windows.Forms.TrackBar();
-            this.bttnSpecialSettings = new BrushFactory.Gui.Accordion();
-            this.panelSpecialSettings = new System.Windows.Forms.FlowLayoutPanel();
-            this.txtMinDrawDistance = new System.Windows.Forms.Label();
-            this.sliderMinDrawDistance = new System.Windows.Forms.TrackBar();
-            this.txtBrushDensity = new System.Windows.Forms.Label();
-            this.sliderBrushDensity = new System.Windows.Forms.TrackBar();
-            this.cmbxSymmetry = new System.Windows.Forms.ComboBox();
-            this.cmbxBrushSmoothing = new System.Windows.Forms.ComboBox();
-            this.chkbxOrientToMouse = new System.Windows.Forms.CheckBox();
-            this.chkbxLockAlpha = new System.Windows.Forms.CheckBox();
-            this.bttnJitterBasicsControls = new BrushFactory.Gui.Accordion();
-            this.panelJitterBasics = new System.Windows.Forms.FlowLayoutPanel();
-            this.txtRandMinSize = new System.Windows.Forms.Label();
-            this.sliderRandMinSize = new System.Windows.Forms.TrackBar();
-            this.txtRandMaxSize = new System.Windows.Forms.Label();
-            this.sliderRandMaxSize = new System.Windows.Forms.TrackBar();
-            this.txtRandRotLeft = new System.Windows.Forms.Label();
-            this.sliderRandRotLeft = new System.Windows.Forms.TrackBar();
-            this.txtRandRotRight = new System.Windows.Forms.Label();
-            this.sliderRandRotRight = new System.Windows.Forms.TrackBar();
-            this.txtRandMinAlpha = new System.Windows.Forms.Label();
-            this.sliderRandMinAlpha = new System.Windows.Forms.TrackBar();
-            this.txtRandHorzShift = new System.Windows.Forms.Label();
-            this.sliderRandHorzShift = new System.Windows.Forms.TrackBar();
-            this.txtRandVertShift = new System.Windows.Forms.Label();
-            this.sliderRandVertShift = new System.Windows.Forms.TrackBar();
-            this.bttnJitterColorControls = new BrushFactory.Gui.Accordion();
-            this.panelJitterColor = new System.Windows.Forms.FlowLayoutPanel();
-            this.txtJitterRed = new System.Windows.Forms.Label();
-            this.sliderJitterMinRed = new System.Windows.Forms.TrackBar();
-            this.sliderJitterMaxRed = new System.Windows.Forms.TrackBar();
-            this.txtJitterGreen = new System.Windows.Forms.Label();
-            this.sliderJitterMinGreen = new System.Windows.Forms.TrackBar();
-            this.sliderJitterMaxGreen = new System.Windows.Forms.TrackBar();
-            this.txtJitterBlue = new System.Windows.Forms.Label();
-            this.sliderJitterMinBlue = new System.Windows.Forms.TrackBar();
-            this.sliderJitterMaxBlue = new System.Windows.Forms.TrackBar();
-            this.txtJitterHue = new System.Windows.Forms.Label();
-            this.sliderJitterMinHue = new System.Windows.Forms.TrackBar();
-            this.sliderJitterMaxHue = new System.Windows.Forms.TrackBar();
-            this.txtJitterSaturation = new System.Windows.Forms.Label();
-            this.sliderJitterMinSat = new System.Windows.Forms.TrackBar();
-            this.sliderJitterMaxSat = new System.Windows.Forms.TrackBar();
-            this.txtJitterValue = new System.Windows.Forms.Label();
-            this.sliderJitterMinVal = new System.Windows.Forms.TrackBar();
-            this.sliderJitterMaxVal = new System.Windows.Forms.TrackBar();
-            this.bttnShiftBasicsControls = new BrushFactory.Gui.Accordion();
-            this.panelShiftBasics = new System.Windows.Forms.FlowLayoutPanel();
-            this.txtShiftSize = new System.Windows.Forms.Label();
-            this.sliderShiftSize = new System.Windows.Forms.TrackBar();
-            this.txtShiftRotation = new System.Windows.Forms.Label();
-            this.sliderShiftRotation = new System.Windows.Forms.TrackBar();
-            this.txtShiftAlpha = new System.Windows.Forms.Label();
-            this.sliderShiftAlpha = new System.Windows.Forms.TrackBar();
-            this.bttnTabAssignPressureControls = new BrushFactory.Gui.Accordion();
-            this.panelTabletAssignPressure = new System.Windows.Forms.FlowLayoutPanel();
-            this.panelTabPressureBrushAlpha = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.txtTabPressureBrushAlpha = new System.Windows.Forms.Label();
-            this.spinTabPressureBrushAlpha = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureBrushAlpha = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureBrushSize = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel8 = new System.Windows.Forms.Panel();
-            this.txtTabPressureBrushSize = new System.Windows.Forms.Label();
-            this.spinTabPressureBrushSize = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureBrushSize = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureBrushRotation = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.txtTabPressureBrushRotation = new System.Windows.Forms.Label();
-            this.spinTabPressureBrushRotation = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureBrushRotation = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureMinDrawDistance = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.lblTabPressureMinDrawDistance = new System.Windows.Forms.Label();
-            this.spinTabPressureMinDrawDistance = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureMinDrawDistance = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureBrushDensity = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.lblTabPressureBrushDensity = new System.Windows.Forms.Label();
-            this.spinTabPressureBrushDensity = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureBrushDensity = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRandMinSize = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.lblTabPressureRandMinSize = new System.Windows.Forms.Label();
-            this.spinTabPressureRandMinSize = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRandMinSize = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRandMaxSize = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel6 = new System.Windows.Forms.Panel();
-            this.lblTabPressureRandMaxSize = new System.Windows.Forms.Label();
-            this.spinTabPressureRandMaxSize = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRandMaxSize = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRandRotLeft = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel7 = new System.Windows.Forms.Panel();
-            this.lblTabPressureRandRotLeft = new System.Windows.Forms.Label();
-            this.spinTabPressureRandRotLeft = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRandRotLeft = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRandRotRight = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel9 = new System.Windows.Forms.Panel();
-            this.lblTabPressureRandRotRight = new System.Windows.Forms.Label();
-            this.spinTabPressureRandRotRight = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRandRotRight = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRandMinAlpha = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel10 = new System.Windows.Forms.Panel();
-            this.lblTabPressureRandMinAlpha = new System.Windows.Forms.Label();
-            this.spinTabPressureRandMinAlpha = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRandMinAlpha = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRandHorShift = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel12 = new System.Windows.Forms.Panel();
-            this.lblTabPressureRandHorShift = new System.Windows.Forms.Label();
-            this.spinTabPressureRandHorShift = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRandHorShift = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRandVerShift = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel11 = new System.Windows.Forms.Panel();
-            this.lblTabPressureRandVerShift = new System.Windows.Forms.Label();
-            this.spinTabPressureRandVerShift = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRandVerShift = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureRedJitter = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel13 = new System.Windows.Forms.Panel();
-            this.spinTabPressureMinRedJitter = new System.Windows.Forms.NumericUpDown();
-            this.lblTabPressureRedJitter = new System.Windows.Forms.Label();
-            this.spinTabPressureMaxRedJitter = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureRedJitter = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureGreenJitter = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel14 = new System.Windows.Forms.Panel();
-            this.spinTabPressureMinGreenJitter = new System.Windows.Forms.NumericUpDown();
-            this.lblTabPressureGreenJitter = new System.Windows.Forms.Label();
-            this.spinTabPressureMaxGreenJitter = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureGreenJitter = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureBlueJitter = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel15 = new System.Windows.Forms.Panel();
-            this.spinTabPressureMinBlueJitter = new System.Windows.Forms.NumericUpDown();
-            this.lblTabPressureBlueJitter = new System.Windows.Forms.Label();
-            this.spinTabPressureMaxBlueJitter = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureBlueJitter = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureHueJitter = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel16 = new System.Windows.Forms.Panel();
-            this.spinTabPressureMinHueJitter = new System.Windows.Forms.NumericUpDown();
-            this.lblTabPressureHueJitter = new System.Windows.Forms.Label();
-            this.spinTabPressureMaxHueJitter = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureHueJitter = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureSatJitter = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel17 = new System.Windows.Forms.Panel();
-            this.spinTabPressureMinSatJitter = new System.Windows.Forms.NumericUpDown();
-            this.lblTabPressureSatJitter = new System.Windows.Forms.Label();
-            this.spinTabPressureMaxSatJitter = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureSatJitter = new BrushFactory.Gui.CmbxTabletValueType();
-            this.panelTabPressureValueJitter = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel18 = new System.Windows.Forms.Panel();
-            this.spinTabPressureMinValueJitter = new System.Windows.Forms.NumericUpDown();
-            this.lblTabPressureValueJitter = new System.Windows.Forms.Label();
-            this.spinTabPressureMaxValueJitter = new System.Windows.Forms.NumericUpDown();
-            this.cmbxTabPressureValueJitter = new BrushFactory.Gui.CmbxTabletValueType();
-            this.bttnSettings = new BrushFactory.Gui.Accordion();
-            this.panelSettings = new System.Windows.Forms.FlowLayoutPanel();
-            this.bttnCustomBrushImageLocations = new System.Windows.Forms.Button();
-            this.bttnClearBrushImages = new System.Windows.Forms.Button();
-            this.bttnClearSettings = new System.Windows.Forms.Button();
-            this.bttnDeleteBrush = new System.Windows.Forms.Button();
-            this.bttnSaveBrush = new System.Windows.Forms.Button();
-            this.chkbxAutomaticBrushDensity = new System.Windows.Forms.CheckBox();
+            this.components = new Container();
+            ComponentResourceManager resources = new ComponentResourceManager(typeof(WinBrushFactory));
+            this.timerRepositionUpdate = new Timer(this.components);
+            this.txtTooltip = new Label();
+            this.displayCanvas = new PictureBox();
+            this.bttnToolBrush = new Button();
+            this.dummyImageList = new ImageList(this.components);
+            this.panelUndoRedoOkCancel = new FlowLayoutPanel();
+            this.bttnUndo = new Button();
+            this.bttnRedo = new Button();
+            this.bttnOk = new Button();
+            this.bttnCancel = new Button();
+            this.brushImageLoadingWorker = new BackgroundWorker();
+            this.bttnColorPicker = new Button();
+            this.panelAllSettingsContainer = new Panel();
+            this.panelDockSettingsContainer = new Panel();
+            this.flowLayoutPanel1 = new FlowLayoutPanel();
+            this.BttnToolEraser = new Button();
+            this.bttnToolOrigin = new Button();
+            this.panelSettingsContainer = new FlowLayoutPanel();
+            this.bttnBrushControls = new Accordion();
+            this.panelBrush = new FlowLayoutPanel();
+            this.txtCanvasZoom = new Label();
+            this.sliderCanvasZoom = new TrackBar();
+            this.listviewBrushPicker = new ListView();
+            this.listviewBrushImagePicker = new DoubleBufferedListView();
+            this.panelBrushAddPickColor = new Panel();
+            this.chkbxColorizeBrush = new CheckBox();
+            this.bttnAddBrushImages = new Button();
+            this.brushImageLoadProgressBar = new ProgressBar();
+            this.bttnBrushColor = new Button();
+            this.txtBrushAlpha = new Label();
+            this.sliderBrushAlpha = new TrackBar();
+            this.txtBrushRotation = new Label();
+            this.sliderBrushRotation = new TrackBar();
+            this.txtBrushSize = new Label();
+            this.sliderBrushSize = new TrackBar();
+            this.bttnSpecialSettings = new Accordion();
+            this.panelSpecialSettings = new FlowLayoutPanel();
+            this.txtMinDrawDistance = new Label();
+            this.sliderMinDrawDistance = new TrackBar();
+            this.txtBrushDensity = new Label();
+            this.sliderBrushDensity = new TrackBar();
+            this.cmbxSymmetry = new ComboBox();
+            this.cmbxBrushSmoothing = new ComboBox();
+            this.chkbxOrientToMouse = new CheckBox();
+            this.chkbxLockAlpha = new CheckBox();
+            this.bttnJitterBasicsControls = new Accordion();
+            this.panelJitterBasics = new FlowLayoutPanel();
+            this.txtRandMinSize = new Label();
+            this.sliderRandMinSize = new TrackBar();
+            this.txtRandMaxSize = new Label();
+            this.sliderRandMaxSize = new TrackBar();
+            this.txtRandRotLeft = new Label();
+            this.sliderRandRotLeft = new TrackBar();
+            this.txtRandRotRight = new Label();
+            this.sliderRandRotRight = new TrackBar();
+            this.txtRandMinAlpha = new Label();
+            this.sliderRandMinAlpha = new TrackBar();
+            this.txtRandHorzShift = new Label();
+            this.sliderRandHorzShift = new TrackBar();
+            this.txtRandVertShift = new Label();
+            this.sliderRandVertShift = new TrackBar();
+            this.bttnJitterColorControls = new Accordion();
+            this.panelJitterColor = new FlowLayoutPanel();
+            this.txtJitterRed = new Label();
+            this.sliderJitterMinRed = new TrackBar();
+            this.sliderJitterMaxRed = new TrackBar();
+            this.txtJitterGreen = new Label();
+            this.sliderJitterMinGreen = new TrackBar();
+            this.sliderJitterMaxGreen = new TrackBar();
+            this.txtJitterBlue = new Label();
+            this.sliderJitterMinBlue = new TrackBar();
+            this.sliderJitterMaxBlue = new TrackBar();
+            this.txtJitterHue = new Label();
+            this.sliderJitterMinHue = new TrackBar();
+            this.sliderJitterMaxHue = new TrackBar();
+            this.txtJitterSaturation = new Label();
+            this.sliderJitterMinSat = new TrackBar();
+            this.sliderJitterMaxSat = new TrackBar();
+            this.txtJitterValue = new Label();
+            this.sliderJitterMinVal = new TrackBar();
+            this.sliderJitterMaxVal = new TrackBar();
+            this.bttnShiftBasicsControls = new Accordion();
+            this.panelShiftBasics = new FlowLayoutPanel();
+            this.txtShiftSize = new Label();
+            this.sliderShiftSize = new TrackBar();
+            this.txtShiftRotation = new Label();
+            this.sliderShiftRotation = new TrackBar();
+            this.txtShiftAlpha = new Label();
+            this.sliderShiftAlpha = new TrackBar();
+            this.bttnTabAssignPressureControls = new Accordion();
+            this.panelTabletAssignPressure = new FlowLayoutPanel();
+            this.panelTabPressureBrushAlpha = new FlowLayoutPanel();
+            this.panel3 = new Panel();
+            this.txtTabPressureBrushAlpha = new Label();
+            this.spinTabPressureBrushAlpha = new NumericUpDown();
+            this.cmbxTabPressureBrushAlpha = new CmbxTabletValueType();
+            this.panelTabPressureBrushSize = new FlowLayoutPanel();
+            this.panel8 = new Panel();
+            this.txtTabPressureBrushSize = new Label();
+            this.spinTabPressureBrushSize = new NumericUpDown();
+            this.cmbxTabPressureBrushSize = new CmbxTabletValueType();
+            this.panelTabPressureBrushRotation = new FlowLayoutPanel();
+            this.panel2 = new Panel();
+            this.txtTabPressureBrushRotation = new Label();
+            this.spinTabPressureBrushRotation = new NumericUpDown();
+            this.cmbxTabPressureBrushRotation = new CmbxTabletValueType();
+            this.panelTabPressureMinDrawDistance = new FlowLayoutPanel();
+            this.panel1 = new Panel();
+            this.lblTabPressureMinDrawDistance = new Label();
+            this.spinTabPressureMinDrawDistance = new NumericUpDown();
+            this.cmbxTabPressureMinDrawDistance = new CmbxTabletValueType();
+            this.panelTabPressureBrushDensity = new FlowLayoutPanel();
+            this.panel4 = new Panel();
+            this.lblTabPressureBrushDensity = new Label();
+            this.spinTabPressureBrushDensity = new NumericUpDown();
+            this.cmbxTabPressureBrushDensity = new CmbxTabletValueType();
+            this.panelTabPressureRandMinSize = new FlowLayoutPanel();
+            this.panel5 = new Panel();
+            this.lblTabPressureRandMinSize = new Label();
+            this.spinTabPressureRandMinSize = new NumericUpDown();
+            this.cmbxTabPressureRandMinSize = new CmbxTabletValueType();
+            this.panelTabPressureRandMaxSize = new FlowLayoutPanel();
+            this.panel6 = new Panel();
+            this.lblTabPressureRandMaxSize = new Label();
+            this.spinTabPressureRandMaxSize = new NumericUpDown();
+            this.cmbxTabPressureRandMaxSize = new CmbxTabletValueType();
+            this.panelTabPressureRandRotLeft = new FlowLayoutPanel();
+            this.panel7 = new Panel();
+            this.lblTabPressureRandRotLeft = new Label();
+            this.spinTabPressureRandRotLeft = new NumericUpDown();
+            this.cmbxTabPressureRandRotLeft = new CmbxTabletValueType();
+            this.panelTabPressureRandRotRight = new FlowLayoutPanel();
+            this.panel9 = new Panel();
+            this.lblTabPressureRandRotRight = new Label();
+            this.spinTabPressureRandRotRight = new NumericUpDown();
+            this.cmbxTabPressureRandRotRight = new CmbxTabletValueType();
+            this.panelTabPressureRandMinAlpha = new FlowLayoutPanel();
+            this.panel10 = new Panel();
+            this.lblTabPressureRandMinAlpha = new Label();
+            this.spinTabPressureRandMinAlpha = new NumericUpDown();
+            this.cmbxTabPressureRandMinAlpha = new CmbxTabletValueType();
+            this.panelTabPressureRandHorShift = new FlowLayoutPanel();
+            this.panel12 = new Panel();
+            this.lblTabPressureRandHorShift = new Label();
+            this.spinTabPressureRandHorShift = new NumericUpDown();
+            this.cmbxTabPressureRandHorShift = new CmbxTabletValueType();
+            this.panelTabPressureRandVerShift = new FlowLayoutPanel();
+            this.panel11 = new Panel();
+            this.lblTabPressureRandVerShift = new Label();
+            this.spinTabPressureRandVerShift = new NumericUpDown();
+            this.cmbxTabPressureRandVerShift = new CmbxTabletValueType();
+            this.panelTabPressureRedJitter = new FlowLayoutPanel();
+            this.panel13 = new Panel();
+            this.spinTabPressureMinRedJitter = new NumericUpDown();
+            this.lblTabPressureRedJitter = new Label();
+            this.spinTabPressureMaxRedJitter = new NumericUpDown();
+            this.cmbxTabPressureRedJitter = new CmbxTabletValueType();
+            this.panelTabPressureGreenJitter = new FlowLayoutPanel();
+            this.panel14 = new Panel();
+            this.spinTabPressureMinGreenJitter = new NumericUpDown();
+            this.lblTabPressureGreenJitter = new Label();
+            this.spinTabPressureMaxGreenJitter = new NumericUpDown();
+            this.cmbxTabPressureGreenJitter = new CmbxTabletValueType();
+            this.panelTabPressureBlueJitter = new FlowLayoutPanel();
+            this.panel15 = new Panel();
+            this.spinTabPressureMinBlueJitter = new NumericUpDown();
+            this.lblTabPressureBlueJitter = new Label();
+            this.spinTabPressureMaxBlueJitter = new NumericUpDown();
+            this.cmbxTabPressureBlueJitter = new CmbxTabletValueType();
+            this.panelTabPressureHueJitter = new FlowLayoutPanel();
+            this.panel16 = new Panel();
+            this.spinTabPressureMinHueJitter = new NumericUpDown();
+            this.lblTabPressureHueJitter = new Label();
+            this.spinTabPressureMaxHueJitter = new NumericUpDown();
+            this.cmbxTabPressureHueJitter = new CmbxTabletValueType();
+            this.panelTabPressureSatJitter = new FlowLayoutPanel();
+            this.panel17 = new Panel();
+            this.spinTabPressureMinSatJitter = new NumericUpDown();
+            this.lblTabPressureSatJitter = new Label();
+            this.spinTabPressureMaxSatJitter = new NumericUpDown();
+            this.cmbxTabPressureSatJitter = new CmbxTabletValueType();
+            this.panelTabPressureValueJitter = new FlowLayoutPanel();
+            this.panel18 = new Panel();
+            this.spinTabPressureMinValueJitter = new NumericUpDown();
+            this.lblTabPressureValueJitter = new Label();
+            this.spinTabPressureMaxValueJitter = new NumericUpDown();
+            this.cmbxTabPressureValueJitter = new CmbxTabletValueType();
+            this.bttnSettings = new Accordion();
+            this.panelSettings = new FlowLayoutPanel();
+            this.bttnCustomBrushImageLocations = new Button();
+            this.bttnClearBrushImages = new Button();
+            this.bttnClearSettings = new Button();
+            this.bttnDeleteBrush = new Button();
+            this.bttnSaveBrush = new Button();
+            this.chkbxAutomaticBrushDensity = new CheckBox();
             this.displayCanvas.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).BeginInit();
+            ((ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.panelUndoRedoOkCancel.SuspendLayout();
             this.panelAllSettingsContainer.SuspendLayout();
             this.panelDockSettingsContainer.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.panelSettingsContainer.SuspendLayout();
             this.panelBrush.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderCanvasZoom)).BeginInit();
+            ((ISupportInitialize)(this.sliderCanvasZoom)).BeginInit();
             this.panelBrushAddPickColor.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushAlpha)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushSize)).BeginInit();
+            ((ISupportInitialize)(this.sliderBrushAlpha)).BeginInit();
+            ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
+            ((ISupportInitialize)(this.sliderBrushSize)).BeginInit();
             this.panelSpecialSettings.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderMinDrawDistance)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
+            ((ISupportInitialize)(this.sliderMinDrawDistance)).BeginInit();
+            ((ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
             this.panelJitterBasics.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinSize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxSize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandRotLeft)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandRotRight)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinAlpha)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandHorzShift)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandVertShift)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandMinSize)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandMaxSize)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandRotLeft)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandRotRight)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandMinAlpha)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandHorzShift)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandVertShift)).BeginInit();
             this.panelJitterColor.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinRed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxRed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinGreen)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxGreen)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinBlue)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxBlue)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinHue)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxHue)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinSat)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxSat)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinVal)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxVal)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMinRed)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMaxRed)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMinGreen)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMaxGreen)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMinBlue)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMaxBlue)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMinHue)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMaxHue)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMinSat)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMaxSat)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMinVal)).BeginInit();
+            ((ISupportInitialize)(this.sliderJitterMaxVal)).BeginInit();
             this.panelShiftBasics.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderShiftSize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderShiftRotation)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).BeginInit();
+            ((ISupportInitialize)(this.sliderShiftSize)).BeginInit();
+            ((ISupportInitialize)(this.sliderShiftRotation)).BeginInit();
+            ((ISupportInitialize)(this.sliderShiftAlpha)).BeginInit();
             this.panelTabletAssignPressure.SuspendLayout();
             this.panelTabPressureBrushAlpha.SuspendLayout();
             this.panel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushAlpha)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushAlpha)).BeginInit();
             this.panelTabPressureBrushSize.SuspendLayout();
             this.panel8.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushSize)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushSize)).BeginInit();
             this.panelTabPressureBrushRotation.SuspendLayout();
             this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushRotation)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushRotation)).BeginInit();
             this.panelTabPressureMinDrawDistance.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinDrawDistance)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMinDrawDistance)).BeginInit();
             this.panelTabPressureBrushDensity.SuspendLayout();
             this.panel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushDensity)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushDensity)).BeginInit();
             this.panelTabPressureRandMinSize.SuspendLayout();
             this.panel5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandMinSize)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandMinSize)).BeginInit();
             this.panelTabPressureRandMaxSize.SuspendLayout();
             this.panel6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandMaxSize)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandMaxSize)).BeginInit();
             this.panelTabPressureRandRotLeft.SuspendLayout();
             this.panel7.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandRotLeft)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandRotLeft)).BeginInit();
             this.panelTabPressureRandRotRight.SuspendLayout();
             this.panel9.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandRotRight)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandRotRight)).BeginInit();
             this.panelTabPressureRandMinAlpha.SuspendLayout();
             this.panel10.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandMinAlpha)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandMinAlpha)).BeginInit();
             this.panelTabPressureRandHorShift.SuspendLayout();
             this.panel12.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandHorShift)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandHorShift)).BeginInit();
             this.panelTabPressureRandVerShift.SuspendLayout();
             this.panel11.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandVerShift)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandVerShift)).BeginInit();
             this.panelTabPressureRedJitter.SuspendLayout();
             this.panel13.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinRedJitter)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxRedJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMinRedJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxRedJitter)).BeginInit();
             this.panelTabPressureGreenJitter.SuspendLayout();
             this.panel14.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinGreenJitter)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxGreenJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMinGreenJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxGreenJitter)).BeginInit();
             this.panelTabPressureBlueJitter.SuspendLayout();
             this.panel15.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinBlueJitter)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxBlueJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMinBlueJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxBlueJitter)).BeginInit();
             this.panelTabPressureHueJitter.SuspendLayout();
             this.panel16.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinHueJitter)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxHueJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMinHueJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxHueJitter)).BeginInit();
             this.panelTabPressureSatJitter.SuspendLayout();
             this.panel17.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinSatJitter)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxSatJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMinSatJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxSatJitter)).BeginInit();
             this.panelTabPressureValueJitter.SuspendLayout();
             this.panel18.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinValueJitter)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxValueJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMinValueJitter)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxValueJitter)).BeginInit();
             this.panelSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // timerRepositionUpdate
             // 
             this.timerRepositionUpdate.Interval = 5;
-            this.timerRepositionUpdate.Tick += new System.EventHandler(this.RepositionUpdate_Tick);
+            this.timerRepositionUpdate.Tick += new EventHandler(this.RepositionUpdate_Tick);
             // 
             // txtTooltip
             // 
@@ -2693,17 +2704,16 @@ namespace BrushFactory
             // 
             // displayCanvas
             // 
-            //this.displayCanvas.BackgroundImage = global::BrushFactory.Properties.Resources.CheckeredBg;
             this.displayCanvas.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(207)))), ((int)(((byte)(207)))), ((int)(((byte)(207)))));
             resources.ApplyResources(this.displayCanvas, "displayCanvas");
             this.displayCanvas.Controls.Add(this.txtTooltip);
             this.displayCanvas.Name = "displayCanvas";
             this.displayCanvas.TabStop = false;
-            this.displayCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.DisplayCanvas_Paint);
-            this.displayCanvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DisplayCanvas_MouseDown);
-            this.displayCanvas.MouseEnter += new System.EventHandler(this.DisplayCanvas_MouseEnter);
-            this.displayCanvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.DisplayCanvas_MouseMove);
-            this.displayCanvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.DisplayCanvas_MouseUp);
+            this.displayCanvas.Paint += new PaintEventHandler(this.DisplayCanvas_Paint);
+            this.displayCanvas.MouseDown += new MouseEventHandler(this.DisplayCanvas_MouseDown);
+            this.displayCanvas.MouseEnter += new EventHandler(this.DisplayCanvas_MouseEnter);
+            this.displayCanvas.MouseMove += new MouseEventHandler(this.DisplayCanvas_MouseMove);
+            this.displayCanvas.MouseUp += new MouseEventHandler(this.DisplayCanvas_MouseUp);
             // 
             // bttnToolBrush
             // 
@@ -2712,8 +2722,8 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnToolBrush, "bttnToolBrush");
             this.bttnToolBrush.Name = "bttnToolBrush";
             this.bttnToolBrush.UseVisualStyleBackColor = false;
-            this.bttnToolBrush.Click += new System.EventHandler(this.BttnToolBrush_Click);
-            this.bttnToolBrush.MouseEnter += new System.EventHandler(this.BttnToolBrush_MouseEnter);
+            this.bttnToolBrush.Click += new EventHandler(this.BttnToolBrush_Click);
+            this.bttnToolBrush.MouseEnter += new EventHandler(this.BttnToolBrush_MouseEnter);
             // 
             // dummyImageList
             // 
@@ -2736,16 +2746,16 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnUndo, "bttnUndo");
             this.bttnUndo.Name = "bttnUndo";
             this.bttnUndo.UseVisualStyleBackColor = true;
-            this.bttnUndo.Click += new System.EventHandler(this.BttnUndo_Click);
-            this.bttnUndo.MouseEnter += new System.EventHandler(this.BttnUndo_MouseEnter);
+            this.bttnUndo.Click += new EventHandler(this.BttnUndo_Click);
+            this.bttnUndo.MouseEnter += new EventHandler(this.BttnUndo_MouseEnter);
             // 
             // bttnRedo
             // 
             resources.ApplyResources(this.bttnRedo, "bttnRedo");
             this.bttnRedo.Name = "bttnRedo";
             this.bttnRedo.UseVisualStyleBackColor = true;
-            this.bttnRedo.Click += new System.EventHandler(this.BttnRedo_Click);
-            this.bttnRedo.MouseEnter += new System.EventHandler(this.BttnRedo_MouseEnter);
+            this.bttnRedo.Click += new EventHandler(this.BttnRedo_Click);
+            this.bttnRedo.MouseEnter += new EventHandler(this.BttnRedo_MouseEnter);
             // 
             // bttnOk
             // 
@@ -2753,8 +2763,8 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnOk, "bttnOk");
             this.bttnOk.Name = "bttnOk";
             this.bttnOk.UseVisualStyleBackColor = false;
-            this.bttnOk.Click += new System.EventHandler(this.BttnOk_Click);
-            this.bttnOk.MouseEnter += new System.EventHandler(this.BttnOk_MouseEnter);
+            this.bttnOk.Click += new EventHandler(this.BttnOk_Click);
+            this.bttnOk.MouseEnter += new EventHandler(this.BttnOk_MouseEnter);
             // 
             // bttnCancel
             // 
@@ -2763,16 +2773,16 @@ namespace BrushFactory
             this.bttnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bttnCancel.Name = "bttnCancel";
             this.bttnCancel.UseVisualStyleBackColor = false;
-            this.bttnCancel.Click += new System.EventHandler(this.BttnCancel_Click);
-            this.bttnCancel.MouseEnter += new System.EventHandler(this.BttnCancel_MouseEnter);
+            this.bttnCancel.Click += new EventHandler(this.BttnCancel_Click);
+            this.bttnCancel.MouseEnter += new EventHandler(this.BttnCancel_MouseEnter);
             // 
             // brushImageLoadingWorker
             // 
             this.brushImageLoadingWorker.WorkerReportsProgress = true;
             this.brushImageLoadingWorker.WorkerSupportsCancellation = true;
-            this.brushImageLoadingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BrushImageLoadingWorker_DoWork);
-            this.brushImageLoadingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BrushImageLoadingWorker_ProgressChanged);
-            this.brushImageLoadingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BrushImageLoadingWorker_RunWorkerCompleted);
+            this.brushImageLoadingWorker.DoWork += new DoWorkEventHandler(this.BrushImageLoadingWorker_DoWork);
+            this.brushImageLoadingWorker.ProgressChanged += new ProgressChangedEventHandler(this.BrushImageLoadingWorker_ProgressChanged);
+            this.brushImageLoadingWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.BrushImageLoadingWorker_RunWorkerCompleted);
             // 
             // bttnColorPicker
             // 
@@ -2780,8 +2790,8 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnColorPicker, "bttnColorPicker");
             this.bttnColorPicker.Name = "bttnColorPicker";
             this.bttnColorPicker.UseVisualStyleBackColor = true;
-            this.bttnColorPicker.Click += new System.EventHandler(this.BttnToolColorPicker_Click);
-            this.bttnColorPicker.MouseEnter += new System.EventHandler(this.BttnToolColorPicker_MouseEnter);
+            this.bttnColorPicker.Click += new EventHandler(this.BttnToolColorPicker_Click);
+            this.bttnColorPicker.MouseEnter += new EventHandler(this.BttnToolColorPicker_MouseEnter);
             // 
             // panelAllSettingsContainer
             // 
@@ -2814,8 +2824,8 @@ namespace BrushFactory
             resources.ApplyResources(this.BttnToolEraser, "BttnToolEraser");
             this.BttnToolEraser.Name = "BttnToolEraser";
             this.BttnToolEraser.UseVisualStyleBackColor = true;
-            this.BttnToolEraser.Click += new System.EventHandler(this.BttnToolEraser_Click);
-            this.BttnToolEraser.MouseEnter += new System.EventHandler(this.BttnToolEraser_MouseEnter);
+            this.BttnToolEraser.Click += new EventHandler(this.BttnToolEraser_Click);
+            this.BttnToolEraser.MouseEnter += new EventHandler(this.BttnToolEraser_MouseEnter);
             // 
             // bttnToolOrigin
             // 
@@ -2823,8 +2833,8 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnToolOrigin, "bttnToolOrigin");
             this.bttnToolOrigin.Name = "bttnToolOrigin";
             this.bttnToolOrigin.UseVisualStyleBackColor = true;
-            this.bttnToolOrigin.Click += new System.EventHandler(this.BttnToolOrigin_Click);
-            this.bttnToolOrigin.MouseEnter += new System.EventHandler(this.BttnToolOrigin_MouseEnter);
+            this.bttnToolOrigin.Click += new EventHandler(this.BttnToolOrigin_Click);
+            this.bttnToolOrigin.MouseEnter += new EventHandler(this.BttnToolOrigin_MouseEnter);
             // 
             // panelSettingsContainer
             // 
@@ -2886,8 +2896,8 @@ namespace BrushFactory
             this.sliderCanvasZoom.Name = "sliderCanvasZoom";
             this.sliderCanvasZoom.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderCanvasZoom.Value = 100;
-            this.sliderCanvasZoom.ValueChanged += new System.EventHandler(this.SliderCanvasZoom_ValueChanged);
-            this.sliderCanvasZoom.MouseEnter += new System.EventHandler(this.SliderCanvasZoom_MouseEnter);
+            this.sliderCanvasZoom.ValueChanged += new EventHandler(this.SliderCanvasZoom_ValueChanged);
+            this.sliderCanvasZoom.MouseEnter += new EventHandler(this.SliderCanvasZoom_MouseEnter);
             // 
             // listviewBrushPicker
             // 
@@ -2896,8 +2906,8 @@ namespace BrushFactory
             this.listviewBrushPicker.Name = "listviewBrushPicker";
             this.listviewBrushPicker.UseCompatibleStateImageBehavior = false;
             this.listviewBrushPicker.View = System.Windows.Forms.View.List;
-            this.listviewBrushPicker.SelectedIndexChanged += new System.EventHandler(this.ListViewBrushPicker_SelectedIndexChanged);
-            this.listviewBrushPicker.MouseEnter += new System.EventHandler(this.ListviewBrushPicker_MouseEnter);
+            this.listviewBrushPicker.SelectedIndexChanged += new EventHandler(this.ListViewBrushPicker_SelectedIndexChanged);
+            this.listviewBrushPicker.MouseEnter += new EventHandler(this.ListviewBrushPicker_MouseEnter);
             // 
             // listviewBrushImagePicker
             // 
@@ -2910,13 +2920,13 @@ namespace BrushFactory
             this.listviewBrushImagePicker.ShowItemToolTips = true;
             this.listviewBrushImagePicker.UseCompatibleStateImageBehavior = false;
             this.listviewBrushImagePicker.VirtualMode = true;
-            this.listviewBrushImagePicker.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.ListViewBrushImagePicker_CacheVirtualItems);
-            this.listviewBrushImagePicker.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.ListViewBrushImagePicker_DrawColumnHeader);
-            this.listviewBrushImagePicker.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.ListViewBrushImagePicker_DrawItem);
-            this.listviewBrushImagePicker.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.ListViewBrushImagePicker_DrawSubItem);
-            this.listviewBrushImagePicker.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.ListViewBrushImagePicker_RetrieveVirtualItem);
-            this.listviewBrushImagePicker.SelectedIndexChanged += new System.EventHandler(this.ListViewBrushImagePicker_SelectedIndexChanged);
-            this.listviewBrushImagePicker.MouseEnter += new System.EventHandler(this.ListViewBrushImagePicker_MouseEnter);
+            this.listviewBrushImagePicker.CacheVirtualItems += new CacheVirtualItemsEventHandler(this.ListViewBrushImagePicker_CacheVirtualItems);
+            this.listviewBrushImagePicker.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(this.ListViewBrushImagePicker_DrawColumnHeader);
+            this.listviewBrushImagePicker.DrawItem += new DrawListViewItemEventHandler(this.ListViewBrushImagePicker_DrawItem);
+            this.listviewBrushImagePicker.DrawSubItem += new DrawListViewSubItemEventHandler(this.ListViewBrushImagePicker_DrawSubItem);
+            this.listviewBrushImagePicker.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(this.ListViewBrushImagePicker_RetrieveVirtualItem);
+            this.listviewBrushImagePicker.SelectedIndexChanged += new EventHandler(this.ListViewBrushImagePicker_SelectedIndexChanged);
+            this.listviewBrushImagePicker.MouseEnter += new EventHandler(this.ListViewBrushImagePicker_MouseEnter);
             // 
             // panelBrushAddPickColor
             // 
@@ -2934,8 +2944,8 @@ namespace BrushFactory
             this.chkbxColorizeBrush.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkbxColorizeBrush.Name = "chkbxColorizeBrush";
             this.chkbxColorizeBrush.UseVisualStyleBackColor = true;
-            this.chkbxColorizeBrush.CheckedChanged += new System.EventHandler(this.ChkbxColorizeBrush_CheckedChanged);
-            this.chkbxColorizeBrush.MouseEnter += new System.EventHandler(this.ChkbxColorizeBrush_MouseEnter);
+            this.chkbxColorizeBrush.CheckedChanged += new EventHandler(this.ChkbxColorizeBrush_CheckedChanged);
+            this.chkbxColorizeBrush.MouseEnter += new EventHandler(this.ChkbxColorizeBrush_MouseEnter);
             // 
             // bttnAddBrushImages
             // 
@@ -2943,8 +2953,8 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnAddBrushImages, "bttnAddBrushImages");
             this.bttnAddBrushImages.Name = "bttnAddBrushImages";
             this.bttnAddBrushImages.UseVisualStyleBackColor = true;
-            this.bttnAddBrushImages.Click += new System.EventHandler(this.BttnAddBrushImages_Click);
-            this.bttnAddBrushImages.MouseEnter += new System.EventHandler(this.BttnAddBrushImages_MouseEnter);
+            this.bttnAddBrushImages.Click += new EventHandler(this.BttnAddBrushImages_Click);
+            this.bttnAddBrushImages.MouseEnter += new EventHandler(this.BttnAddBrushImages_MouseEnter);
             // 
             // brushImageLoadProgressBar
             // 
@@ -2958,8 +2968,8 @@ namespace BrushFactory
             this.bttnBrushColor.ForeColor = System.Drawing.Color.White;
             this.bttnBrushColor.Name = "bttnBrushColor";
             this.bttnBrushColor.UseVisualStyleBackColor = false;
-            this.bttnBrushColor.Click += new System.EventHandler(this.BttnBrushColor_Click);
-            this.bttnBrushColor.MouseEnter += new System.EventHandler(this.BttnBrushColor_MouseEnter);
+            this.bttnBrushColor.Click += new EventHandler(this.BttnBrushColor_Click);
+            this.bttnBrushColor.MouseEnter += new EventHandler(this.BttnBrushColor_MouseEnter);
             // 
             // txtBrushAlpha
             // 
@@ -2974,8 +2984,8 @@ namespace BrushFactory
             this.sliderBrushAlpha.Maximum = 99;
             this.sliderBrushAlpha.Name = "sliderBrushAlpha";
             this.sliderBrushAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushAlpha.ValueChanged += new System.EventHandler(this.SliderBrushAlpha_ValueChanged);
-            this.sliderBrushAlpha.MouseEnter += new System.EventHandler(this.SliderBrushAlpha_MouseEnter);
+            this.sliderBrushAlpha.ValueChanged += new EventHandler(this.SliderBrushAlpha_ValueChanged);
+            this.sliderBrushAlpha.MouseEnter += new EventHandler(this.SliderBrushAlpha_MouseEnter);
             // 
             // txtBrushRotation
             // 
@@ -2991,8 +3001,8 @@ namespace BrushFactory
             this.sliderBrushRotation.Minimum = -180;
             this.sliderBrushRotation.Name = "sliderBrushRotation";
             this.sliderBrushRotation.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushRotation.ValueChanged += new System.EventHandler(this.SliderBrushRotation_ValueChanged);
-            this.sliderBrushRotation.MouseEnter += new System.EventHandler(this.SliderBrushRotation_MouseEnter);
+            this.sliderBrushRotation.ValueChanged += new EventHandler(this.SliderBrushRotation_ValueChanged);
+            this.sliderBrushRotation.MouseEnter += new EventHandler(this.SliderBrushRotation_MouseEnter);
             // 
             // txtBrushSize
             // 
@@ -3009,8 +3019,8 @@ namespace BrushFactory
             this.sliderBrushSize.Name = "sliderBrushSize";
             this.sliderBrushSize.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderBrushSize.Value = 10;
-            this.sliderBrushSize.ValueChanged += new System.EventHandler(this.SliderBrushSize_ValueChanged);
-            this.sliderBrushSize.MouseEnter += new System.EventHandler(this.SliderBrushSize_MouseEnter);
+            this.sliderBrushSize.ValueChanged += new EventHandler(this.SliderBrushSize_ValueChanged);
+            this.sliderBrushSize.MouseEnter += new EventHandler(this.SliderBrushSize_MouseEnter);
             // 
             // bttnSpecialSettings
             // 
@@ -3048,8 +3058,8 @@ namespace BrushFactory
             this.sliderMinDrawDistance.Maximum = 100;
             this.sliderMinDrawDistance.Name = "sliderMinDrawDistance";
             this.sliderMinDrawDistance.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderMinDrawDistance.ValueChanged += new System.EventHandler(this.SliderMinDrawDistance_ValueChanged);
-            this.sliderMinDrawDistance.MouseEnter += new System.EventHandler(this.SliderMinDrawDistance_MouseEnter);
+            this.sliderMinDrawDistance.ValueChanged += new EventHandler(this.SliderMinDrawDistance_ValueChanged);
+            this.sliderMinDrawDistance.MouseEnter += new EventHandler(this.SliderMinDrawDistance_MouseEnter);
             // 
             // chkbxAutomaticBrushDensity
             // 
@@ -3057,8 +3067,8 @@ namespace BrushFactory
             this.chkbxAutomaticBrushDensity.Text = "Manage density automatically";
             this.chkbxAutomaticBrushDensity.Checked = true;
             this.chkbxAutomaticBrushDensity.Name = "chkbxAutomaticBrushDensity";
-            this.chkbxAutomaticBrushDensity.MouseEnter += new System.EventHandler(this.AutomaticBrushDensity_MouseEnter);
-            this.chkbxAutomaticBrushDensity.CheckedChanged += new System.EventHandler(this.AutomaticBrushDensity_CheckedChanged);
+            this.chkbxAutomaticBrushDensity.MouseEnter += new EventHandler(this.AutomaticBrushDensity_MouseEnter);
+            this.chkbxAutomaticBrushDensity.CheckedChanged += new EventHandler(this.AutomaticBrushDensity_CheckedChanged);
             // 
             // txtBrushDensity
             // 
@@ -3075,8 +3085,8 @@ namespace BrushFactory
             this.sliderBrushDensity.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderBrushDensity.Value = 10;
             this.sliderBrushDensity.Enabled = false;
-            this.sliderBrushDensity.ValueChanged += new System.EventHandler(this.SliderBrushDensity_ValueChanged);
-            this.sliderBrushDensity.MouseEnter += new System.EventHandler(this.SliderBrushDensity_MouseEnter);
+            this.sliderBrushDensity.ValueChanged += new EventHandler(this.SliderBrushDensity_ValueChanged);
+            this.sliderBrushDensity.MouseEnter += new EventHandler(this.SliderBrushDensity_MouseEnter);
             // 
             // cmbxSymmetry
             // 
@@ -3087,7 +3097,7 @@ namespace BrushFactory
             this.cmbxSymmetry.DropDownWidth = 20;
             this.cmbxSymmetry.FormattingEnabled = true;
             this.cmbxSymmetry.Name = "cmbxSymmetry";
-            this.cmbxSymmetry.MouseEnter += new System.EventHandler(this.BttnSymmetry_MouseEnter);
+            this.cmbxSymmetry.MouseEnter += new EventHandler(this.BttnSymmetry_MouseEnter);
             // 
             // cmbxBrushSmoothing
             // 
@@ -3098,21 +3108,21 @@ namespace BrushFactory
             this.cmbxBrushSmoothing.DropDownWidth = 20;
             this.cmbxBrushSmoothing.FormattingEnabled = true;
             this.cmbxBrushSmoothing.Name = "cmbxBrushSmoothing";
-            this.cmbxBrushSmoothing.MouseEnter += new System.EventHandler(this.BttnBrushSmoothing_MouseEnter);
+            this.cmbxBrushSmoothing.MouseEnter += new EventHandler(this.BttnBrushSmoothing_MouseEnter);
             // 
             // chkbxOrientToMouse
             // 
             resources.ApplyResources(this.chkbxOrientToMouse, "chkbxOrientToMouse");
             this.chkbxOrientToMouse.Name = "chkbxOrientToMouse";
             this.chkbxOrientToMouse.UseVisualStyleBackColor = true;
-            this.chkbxOrientToMouse.MouseEnter += new System.EventHandler(this.ChkbxOrientToMouse_MouseEnter);
+            this.chkbxOrientToMouse.MouseEnter += new EventHandler(this.ChkbxOrientToMouse_MouseEnter);
             // 
             // chkbxLockAlpha
             // 
             resources.ApplyResources(this.chkbxLockAlpha, "chkbxLockAlpha");
             this.chkbxLockAlpha.Name = "chkbxLockAlpha";
             this.chkbxLockAlpha.UseVisualStyleBackColor = true;
-            this.chkbxLockAlpha.MouseEnter += new System.EventHandler(this.ChkbxLockAlpha_MouseEnter);
+            this.chkbxLockAlpha.MouseEnter += new EventHandler(this.ChkbxLockAlpha_MouseEnter);
             // 
             // bttnJitterBasicsControls
             // 
@@ -3155,8 +3165,8 @@ namespace BrushFactory
             this.sliderRandMinSize.Maximum = 1000;
             this.sliderRandMinSize.Name = "sliderRandMinSize";
             this.sliderRandMinSize.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMinSize.ValueChanged += new System.EventHandler(this.SliderRandMinSize_ValueChanged);
-            this.sliderRandMinSize.MouseEnter += new System.EventHandler(this.SliderRandMinSize_MouseEnter);
+            this.sliderRandMinSize.ValueChanged += new EventHandler(this.SliderRandMinSize_ValueChanged);
+            this.sliderRandMinSize.MouseEnter += new EventHandler(this.SliderRandMinSize_MouseEnter);
             // 
             // txtRandMaxSize
             // 
@@ -3171,8 +3181,8 @@ namespace BrushFactory
             this.sliderRandMaxSize.Maximum = 1000;
             this.sliderRandMaxSize.Name = "sliderRandMaxSize";
             this.sliderRandMaxSize.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMaxSize.ValueChanged += new System.EventHandler(this.SliderRandMaxSize_ValueChanged);
-            this.sliderRandMaxSize.MouseEnter += new System.EventHandler(this.SliderRandMaxSize_MouseEnter);
+            this.sliderRandMaxSize.ValueChanged += new EventHandler(this.SliderRandMaxSize_ValueChanged);
+            this.sliderRandMaxSize.MouseEnter += new EventHandler(this.SliderRandMaxSize_MouseEnter);
             // 
             // txtRandRotLeft
             // 
@@ -3187,8 +3197,8 @@ namespace BrushFactory
             this.sliderRandRotLeft.Maximum = 180;
             this.sliderRandRotLeft.Name = "sliderRandRotLeft";
             this.sliderRandRotLeft.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandRotLeft.ValueChanged += new System.EventHandler(this.SliderRandRotLeft_ValueChanged);
-            this.sliderRandRotLeft.MouseEnter += new System.EventHandler(this.SliderRandRotLeft_MouseEnter);
+            this.sliderRandRotLeft.ValueChanged += new EventHandler(this.SliderRandRotLeft_ValueChanged);
+            this.sliderRandRotLeft.MouseEnter += new EventHandler(this.SliderRandRotLeft_MouseEnter);
             // 
             // txtRandRotRight
             // 
@@ -3203,8 +3213,8 @@ namespace BrushFactory
             this.sliderRandRotRight.Maximum = 180;
             this.sliderRandRotRight.Name = "sliderRandRotRight";
             this.sliderRandRotRight.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandRotRight.ValueChanged += new System.EventHandler(this.SliderRandRotRight_ValueChanged);
-            this.sliderRandRotRight.MouseEnter += new System.EventHandler(this.SliderRandRotRight_MouseEnter);
+            this.sliderRandRotRight.ValueChanged += new EventHandler(this.SliderRandRotRight_ValueChanged);
+            this.sliderRandRotRight.MouseEnter += new EventHandler(this.SliderRandRotRight_MouseEnter);
             // 
             // txtRandMinAlpha
             // 
@@ -3219,8 +3229,8 @@ namespace BrushFactory
             this.sliderRandMinAlpha.Maximum = 100;
             this.sliderRandMinAlpha.Name = "sliderRandMinAlpha";
             this.sliderRandMinAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMinAlpha.ValueChanged += new System.EventHandler(this.SliderRandMinAlpha_ValueChanged);
-            this.sliderRandMinAlpha.MouseEnter += new System.EventHandler(this.SliderRandMinAlpha_MouseEnter);
+            this.sliderRandMinAlpha.ValueChanged += new EventHandler(this.SliderRandMinAlpha_ValueChanged);
+            this.sliderRandMinAlpha.MouseEnter += new EventHandler(this.SliderRandMinAlpha_MouseEnter);
             // 
             // txtRandHorzShift
             // 
@@ -3235,8 +3245,8 @@ namespace BrushFactory
             this.sliderRandHorzShift.Maximum = 100;
             this.sliderRandHorzShift.Name = "sliderRandHorzShift";
             this.sliderRandHorzShift.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandHorzShift.ValueChanged += new System.EventHandler(this.SliderRandHorzShift_ValueChanged);
-            this.sliderRandHorzShift.MouseEnter += new System.EventHandler(this.SliderRandHorzShift_MouseEnter);
+            this.sliderRandHorzShift.ValueChanged += new EventHandler(this.SliderRandHorzShift_ValueChanged);
+            this.sliderRandHorzShift.MouseEnter += new EventHandler(this.SliderRandHorzShift_MouseEnter);
             // 
             // txtRandVertShift
             // 
@@ -3251,8 +3261,8 @@ namespace BrushFactory
             this.sliderRandVertShift.Maximum = 100;
             this.sliderRandVertShift.Name = "sliderRandVertShift";
             this.sliderRandVertShift.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandVertShift.ValueChanged += new System.EventHandler(this.SliderRandVertShift_ValueChanged);
-            this.sliderRandVertShift.MouseEnter += new System.EventHandler(this.SliderRandVertShift_MouseEnter);
+            this.sliderRandVertShift.ValueChanged += new EventHandler(this.SliderRandVertShift_ValueChanged);
+            this.sliderRandVertShift.MouseEnter += new EventHandler(this.SliderRandVertShift_MouseEnter);
             // 
             // bttnJitterColorControls
             // 
@@ -3300,8 +3310,8 @@ namespace BrushFactory
             this.sliderJitterMinRed.Maximum = 100;
             this.sliderJitterMinRed.Name = "sliderJitterMinRed";
             this.sliderJitterMinRed.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinRed.ValueChanged += new System.EventHandler(this.SliderJitterMinRed_ValueChanged);
-            this.sliderJitterMinRed.MouseEnter += new System.EventHandler(this.SliderJitterMinRed_MouseEnter);
+            this.sliderJitterMinRed.ValueChanged += new EventHandler(this.SliderJitterMinRed_ValueChanged);
+            this.sliderJitterMinRed.MouseEnter += new EventHandler(this.SliderJitterMinRed_MouseEnter);
             // 
             // sliderJitterMaxRed
             // 
@@ -3310,8 +3320,8 @@ namespace BrushFactory
             this.sliderJitterMaxRed.Maximum = 100;
             this.sliderJitterMaxRed.Name = "sliderJitterMaxRed";
             this.sliderJitterMaxRed.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxRed.ValueChanged += new System.EventHandler(this.SliderJitterMaxRed_ValueChanged);
-            this.sliderJitterMaxRed.MouseEnter += new System.EventHandler(this.SliderJitterMaxRed_MouseEnter);
+            this.sliderJitterMaxRed.ValueChanged += new EventHandler(this.SliderJitterMaxRed_ValueChanged);
+            this.sliderJitterMaxRed.MouseEnter += new EventHandler(this.SliderJitterMaxRed_MouseEnter);
             // 
             // txtJitterGreen
             // 
@@ -3326,8 +3336,8 @@ namespace BrushFactory
             this.sliderJitterMinGreen.Maximum = 100;
             this.sliderJitterMinGreen.Name = "sliderJitterMinGreen";
             this.sliderJitterMinGreen.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinGreen.ValueChanged += new System.EventHandler(this.SliderJitterMinGreen_ValueChanged);
-            this.sliderJitterMinGreen.MouseEnter += new System.EventHandler(this.SliderJitterMinGreen_MouseEnter);
+            this.sliderJitterMinGreen.ValueChanged += new EventHandler(this.SliderJitterMinGreen_ValueChanged);
+            this.sliderJitterMinGreen.MouseEnter += new EventHandler(this.SliderJitterMinGreen_MouseEnter);
             // 
             // sliderJitterMaxGreen
             // 
@@ -3336,8 +3346,8 @@ namespace BrushFactory
             this.sliderJitterMaxGreen.Maximum = 100;
             this.sliderJitterMaxGreen.Name = "sliderJitterMaxGreen";
             this.sliderJitterMaxGreen.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxGreen.ValueChanged += new System.EventHandler(this.SliderJitterMaxGreen_ValueChanged);
-            this.sliderJitterMaxGreen.MouseEnter += new System.EventHandler(this.SliderJitterMaxGreen_MouseEnter);
+            this.sliderJitterMaxGreen.ValueChanged += new EventHandler(this.SliderJitterMaxGreen_ValueChanged);
+            this.sliderJitterMaxGreen.MouseEnter += new EventHandler(this.SliderJitterMaxGreen_MouseEnter);
             // 
             // txtJitterBlue
             // 
@@ -3352,8 +3362,8 @@ namespace BrushFactory
             this.sliderJitterMinBlue.Maximum = 100;
             this.sliderJitterMinBlue.Name = "sliderJitterMinBlue";
             this.sliderJitterMinBlue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinBlue.ValueChanged += new System.EventHandler(this.SliderJitterMinBlue_ValueChanged);
-            this.sliderJitterMinBlue.MouseEnter += new System.EventHandler(this.SliderJitterMinBlue_MouseEnter);
+            this.sliderJitterMinBlue.ValueChanged += new EventHandler(this.SliderJitterMinBlue_ValueChanged);
+            this.sliderJitterMinBlue.MouseEnter += new EventHandler(this.SliderJitterMinBlue_MouseEnter);
             // 
             // sliderJitterMaxBlue
             // 
@@ -3362,8 +3372,8 @@ namespace BrushFactory
             this.sliderJitterMaxBlue.Maximum = 100;
             this.sliderJitterMaxBlue.Name = "sliderJitterMaxBlue";
             this.sliderJitterMaxBlue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxBlue.ValueChanged += new System.EventHandler(this.SliderJitterMaxBlue_ValueChanged);
-            this.sliderJitterMaxBlue.MouseEnter += new System.EventHandler(this.SliderJitterMaxBlue_MouseEnter);
+            this.sliderJitterMaxBlue.ValueChanged += new EventHandler(this.SliderJitterMaxBlue_ValueChanged);
+            this.sliderJitterMaxBlue.MouseEnter += new EventHandler(this.SliderJitterMaxBlue_MouseEnter);
             // 
             // txtJitterHue
             // 
@@ -3378,8 +3388,8 @@ namespace BrushFactory
             this.sliderJitterMinHue.Maximum = 100;
             this.sliderJitterMinHue.Name = "sliderJitterMinHue";
             this.sliderJitterMinHue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinHue.ValueChanged += new System.EventHandler(this.SliderJitterMinHue_ValueChanged);
-            this.sliderJitterMinHue.MouseEnter += new System.EventHandler(this.SliderJitterMinHue_MouseEnter);
+            this.sliderJitterMinHue.ValueChanged += new EventHandler(this.SliderJitterMinHue_ValueChanged);
+            this.sliderJitterMinHue.MouseEnter += new EventHandler(this.SliderJitterMinHue_MouseEnter);
             // 
             // sliderJitterMaxHue
             // 
@@ -3388,8 +3398,8 @@ namespace BrushFactory
             this.sliderJitterMaxHue.Maximum = 100;
             this.sliderJitterMaxHue.Name = "sliderJitterMaxHue";
             this.sliderJitterMaxHue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxHue.ValueChanged += new System.EventHandler(this.SliderJitterMaxHue_ValueChanged);
-            this.sliderJitterMaxHue.MouseEnter += new System.EventHandler(this.SliderJitterMaxHue_MouseEnter);
+            this.sliderJitterMaxHue.ValueChanged += new EventHandler(this.SliderJitterMaxHue_ValueChanged);
+            this.sliderJitterMaxHue.MouseEnter += new EventHandler(this.SliderJitterMaxHue_MouseEnter);
             // 
             // txtJitterSaturation
             // 
@@ -3404,8 +3414,8 @@ namespace BrushFactory
             this.sliderJitterMinSat.Maximum = 100;
             this.sliderJitterMinSat.Name = "sliderJitterMinSat";
             this.sliderJitterMinSat.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinSat.ValueChanged += new System.EventHandler(this.SliderJitterMinSat_ValueChanged);
-            this.sliderJitterMinSat.MouseEnter += new System.EventHandler(this.SliderJitterMinSat_MouseEnter);
+            this.sliderJitterMinSat.ValueChanged += new EventHandler(this.SliderJitterMinSat_ValueChanged);
+            this.sliderJitterMinSat.MouseEnter += new EventHandler(this.SliderJitterMinSat_MouseEnter);
             // 
             // sliderJitterMaxSat
             // 
@@ -3414,8 +3424,8 @@ namespace BrushFactory
             this.sliderJitterMaxSat.Maximum = 100;
             this.sliderJitterMaxSat.Name = "sliderJitterMaxSat";
             this.sliderJitterMaxSat.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxSat.ValueChanged += new System.EventHandler(this.SliderJitterMaxSat_ValueChanged);
-            this.sliderJitterMaxSat.MouseEnter += new System.EventHandler(this.SliderJitterMaxSat_MouseEnter);
+            this.sliderJitterMaxSat.ValueChanged += new EventHandler(this.SliderJitterMaxSat_ValueChanged);
+            this.sliderJitterMaxSat.MouseEnter += new EventHandler(this.SliderJitterMaxSat_MouseEnter);
             // 
             // txtJitterValue
             // 
@@ -3430,8 +3440,8 @@ namespace BrushFactory
             this.sliderJitterMinVal.Maximum = 100;
             this.sliderJitterMinVal.Name = "sliderJitterMinVal";
             this.sliderJitterMinVal.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinVal.ValueChanged += new System.EventHandler(this.SliderJitterMinVal_ValueChanged);
-            this.sliderJitterMinVal.MouseEnter += new System.EventHandler(this.SliderJitterMinVal_MouseEnter);
+            this.sliderJitterMinVal.ValueChanged += new EventHandler(this.SliderJitterMinVal_ValueChanged);
+            this.sliderJitterMinVal.MouseEnter += new EventHandler(this.SliderJitterMinVal_MouseEnter);
             // 
             // sliderJitterMaxVal
             // 
@@ -3440,8 +3450,8 @@ namespace BrushFactory
             this.sliderJitterMaxVal.Maximum = 100;
             this.sliderJitterMaxVal.Name = "sliderJitterMaxVal";
             this.sliderJitterMaxVal.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxVal.ValueChanged += new System.EventHandler(this.SliderJitterMaxVal_ValueChanged);
-            this.sliderJitterMaxVal.MouseEnter += new System.EventHandler(this.SliderJitterMaxVal_MouseEnter);
+            this.sliderJitterMaxVal.ValueChanged += new EventHandler(this.SliderJitterMaxVal_ValueChanged);
+            this.sliderJitterMaxVal.MouseEnter += new EventHandler(this.SliderJitterMaxVal_MouseEnter);
             // 
             // bttnShiftBasicsControls
             // 
@@ -3477,8 +3487,8 @@ namespace BrushFactory
             this.sliderShiftSize.Minimum = -1000;
             this.sliderShiftSize.Name = "sliderShiftSize";
             this.sliderShiftSize.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderShiftSize.ValueChanged += new System.EventHandler(this.SliderShiftSize_ValueChanged);
-            this.sliderShiftSize.MouseEnter += new System.EventHandler(this.SliderShiftSize_MouseEnter);
+            this.sliderShiftSize.ValueChanged += new EventHandler(this.SliderShiftSize_ValueChanged);
+            this.sliderShiftSize.MouseEnter += new EventHandler(this.SliderShiftSize_MouseEnter);
             // 
             // txtShiftRotation
             // 
@@ -3494,8 +3504,8 @@ namespace BrushFactory
             this.sliderShiftRotation.Minimum = -180;
             this.sliderShiftRotation.Name = "sliderShiftRotation";
             this.sliderShiftRotation.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderShiftRotation.ValueChanged += new System.EventHandler(this.SliderShiftRotation_ValueChanged);
-            this.sliderShiftRotation.MouseEnter += new System.EventHandler(this.SliderShiftRotation_MouseEnter);
+            this.sliderShiftRotation.ValueChanged += new EventHandler(this.SliderShiftRotation_ValueChanged);
+            this.sliderShiftRotation.MouseEnter += new EventHandler(this.SliderShiftRotation_MouseEnter);
             // 
             // txtShiftAlpha
             // 
@@ -3511,8 +3521,8 @@ namespace BrushFactory
             this.sliderShiftAlpha.Minimum = -100;
             this.sliderShiftAlpha.Name = "sliderShiftAlpha";
             this.sliderShiftAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderShiftAlpha.ValueChanged += new System.EventHandler(this.SliderShiftAlpha_ValueChanged);
-            this.sliderShiftAlpha.MouseEnter += new System.EventHandler(this.SliderShiftAlpha_MouseEnter);
+            this.sliderShiftAlpha.ValueChanged += new EventHandler(this.SliderShiftAlpha_ValueChanged);
+            this.sliderShiftAlpha.MouseEnter += new EventHandler(this.SliderShiftAlpha_MouseEnter);
             // 
             // bttnTabAssignPressureControls
             // 
@@ -3591,7 +3601,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushAlpha.FormattingEnabled = true;
             this.cmbxTabPressureBrushAlpha.Name = "cmbxTabPressureBrushAlpha";
             this.cmbxTabPressureBrushAlpha.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushAlpha.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBrushAlpha.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushSize
             // 
@@ -3638,7 +3648,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushSize.FormattingEnabled = true;
             this.cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
             this.cmbxTabPressureBrushSize.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushSize.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBrushSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushRotation
             // 
@@ -3685,7 +3695,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushRotation.FormattingEnabled = true;
             this.cmbxTabPressureBrushRotation.Name = "cmbxTabPressureBrushRotation";
             this.cmbxTabPressureBrushRotation.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushRotation.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBrushRotation.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureMinDrawDistance
             // 
@@ -3727,7 +3737,7 @@ namespace BrushFactory
             this.cmbxTabPressureMinDrawDistance.FormattingEnabled = true;
             this.cmbxTabPressureMinDrawDistance.Name = "cmbxTabPressureMinDrawDistance";
             this.cmbxTabPressureMinDrawDistance.ValueMember = "ValueMember";
-            this.cmbxTabPressureMinDrawDistance.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureMinDrawDistance.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushDensity
             // 
@@ -3774,7 +3784,7 @@ namespace BrushFactory
             this.cmbxTabPressureBrushDensity.FormattingEnabled = true;
             this.cmbxTabPressureBrushDensity.Name = "cmbxTabPressureBrushDensity";
             this.cmbxTabPressureBrushDensity.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushDensity.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBrushDensity.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMinSize
             // 
@@ -3821,7 +3831,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandMinSize.FormattingEnabled = true;
             this.cmbxTabPressureRandMinSize.Name = "cmbxTabPressureRandMinSize";
             this.cmbxTabPressureRandMinSize.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandMinSize.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandMinSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMaxSize
             // 
@@ -3868,7 +3878,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandMaxSize.FormattingEnabled = true;
             this.cmbxTabPressureRandMaxSize.Name = "cmbxTabPressureRandMaxSize";
             this.cmbxTabPressureRandMaxSize.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandMaxSize.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandMaxSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandRotLeft
             // 
@@ -3915,7 +3925,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandRotLeft.FormattingEnabled = true;
             this.cmbxTabPressureRandRotLeft.Name = "cmbxTabPressureRandRotLeft";
             this.cmbxTabPressureRandRotLeft.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandRotLeft.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandRotLeft.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandRotRight
             // 
@@ -3962,7 +3972,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandRotRight.FormattingEnabled = true;
             this.cmbxTabPressureRandRotRight.Name = "cmbxTabPressureRandRotRight";
             this.cmbxTabPressureRandRotRight.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandRotRight.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandRotRight.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMinAlpha
             // 
@@ -4004,7 +4014,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandMinAlpha.FormattingEnabled = true;
             this.cmbxTabPressureRandMinAlpha.Name = "cmbxTabPressureRandMinAlpha";
             this.cmbxTabPressureRandMinAlpha.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandMinAlpha.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandMinAlpha.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandHorShift
             // 
@@ -4046,7 +4056,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandHorShift.FormattingEnabled = true;
             this.cmbxTabPressureRandHorShift.Name = "cmbxTabPressureRandHorShift";
             this.cmbxTabPressureRandHorShift.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandHorShift.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandHorShift.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandVerShift
             // 
@@ -4088,7 +4098,7 @@ namespace BrushFactory
             this.cmbxTabPressureRandVerShift.FormattingEnabled = true;
             this.cmbxTabPressureRandVerShift.Name = "cmbxTabPressureRandVerShift";
             this.cmbxTabPressureRandVerShift.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandVerShift.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandVerShift.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRedJitter
             // 
@@ -4141,7 +4151,7 @@ namespace BrushFactory
             this.cmbxTabPressureRedJitter.FormattingEnabled = true;
             this.cmbxTabPressureRedJitter.Name = "cmbxTabPressureRedJitter";
             this.cmbxTabPressureRedJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureRedJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRedJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureGreenJitter
             // 
@@ -4194,7 +4204,7 @@ namespace BrushFactory
             this.cmbxTabPressureGreenJitter.FormattingEnabled = true;
             this.cmbxTabPressureGreenJitter.Name = "cmbxTabPressureGreenJitter";
             this.cmbxTabPressureGreenJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureGreenJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureGreenJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBlueJitter
             // 
@@ -4247,7 +4257,7 @@ namespace BrushFactory
             this.cmbxTabPressureBlueJitter.FormattingEnabled = true;
             this.cmbxTabPressureBlueJitter.Name = "cmbxTabPressureBlueJitter";
             this.cmbxTabPressureBlueJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureBlueJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBlueJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureHueJitter
             // 
@@ -4300,7 +4310,7 @@ namespace BrushFactory
             this.cmbxTabPressureHueJitter.FormattingEnabled = true;
             this.cmbxTabPressureHueJitter.Name = "cmbxTabPressureHueJitter";
             this.cmbxTabPressureHueJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureHueJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureHueJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureSatJitter
             // 
@@ -4353,7 +4363,7 @@ namespace BrushFactory
             this.cmbxTabPressureSatJitter.FormattingEnabled = true;
             this.cmbxTabPressureSatJitter.Name = "cmbxTabPressureSatJitter";
             this.cmbxTabPressureSatJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureSatJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureSatJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureValueJitter
             // 
@@ -4406,7 +4416,7 @@ namespace BrushFactory
             this.cmbxTabPressureValueJitter.FormattingEnabled = true;
             this.cmbxTabPressureValueJitter.Name = "cmbxTabPressureValueJitter";
             this.cmbxTabPressureValueJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureValueJitter.MouseHover += new System.EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureValueJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // bttnSettings
             // 
@@ -4432,40 +4442,40 @@ namespace BrushFactory
             resources.ApplyResources(this.bttnCustomBrushImageLocations, "bttnCustomBrushImageLocations");
             this.bttnCustomBrushImageLocations.Name = "bttnCustomBrushImageLocations";
             this.bttnCustomBrushImageLocations.UseVisualStyleBackColor = true;
-            this.bttnCustomBrushImageLocations.Click += new System.EventHandler(this.BttnPreferences_Click);
-            this.bttnCustomBrushImageLocations.MouseEnter += new System.EventHandler(this.BttnPreferences_MouseEnter);
+            this.bttnCustomBrushImageLocations.Click += new EventHandler(this.BttnPreferences_Click);
+            this.bttnCustomBrushImageLocations.MouseEnter += new EventHandler(this.BttnPreferences_MouseEnter);
             // 
             // bttnClearBrushImages
             // 
             resources.ApplyResources(this.bttnClearBrushImages, "bttnClearBrushImages");
             this.bttnClearBrushImages.Name = "bttnClearBrushImages";
             this.bttnClearBrushImages.UseVisualStyleBackColor = true;
-            this.bttnClearBrushImages.Click += new System.EventHandler(this.BttnClearBrushImages_Click);
-            this.bttnClearBrushImages.MouseEnter += new System.EventHandler(this.BttnClearBrushImages_MouseEnter);
+            this.bttnClearBrushImages.Click += new EventHandler(this.BttnClearBrushImages_Click);
+            this.bttnClearBrushImages.MouseEnter += new EventHandler(this.BttnClearBrushImages_MouseEnter);
             // 
             // bttnClearSettings
             // 
             resources.ApplyResources(this.bttnClearSettings, "bttnClearSettings");
             this.bttnClearSettings.Name = "bttnClearSettings";
             this.bttnClearSettings.UseVisualStyleBackColor = true;
-            this.bttnClearSettings.Click += new System.EventHandler(this.BttnClearSettings_Click);
-            this.bttnClearSettings.MouseEnter += new System.EventHandler(this.BttnClearSettings_MouseEnter);
+            this.bttnClearSettings.Click += new EventHandler(this.BttnClearSettings_Click);
+            this.bttnClearSettings.MouseEnter += new EventHandler(this.BttnClearSettings_MouseEnter);
             // 
             // bttnDeleteBrush
             // 
             resources.ApplyResources(this.bttnDeleteBrush, "bttnDeleteBrush");
             this.bttnDeleteBrush.Name = "bttnDeleteBrush";
             this.bttnDeleteBrush.UseVisualStyleBackColor = true;
-            this.bttnDeleteBrush.Click += new System.EventHandler(this.BttnDeleteBrush_Click);
-            this.bttnDeleteBrush.MouseEnter += new System.EventHandler(this.BttnDeleteBrush_MouseEnter);
+            this.bttnDeleteBrush.Click += new EventHandler(this.BttnDeleteBrush_Click);
+            this.bttnDeleteBrush.MouseEnter += new EventHandler(this.BttnDeleteBrush_MouseEnter);
             // 
             // bttnSaveBrush
             // 
             resources.ApplyResources(this.bttnSaveBrush, "bttnSaveBrush");
             this.bttnSaveBrush.Name = "bttnSaveBrush";
             this.bttnSaveBrush.UseVisualStyleBackColor = true;
-            this.bttnSaveBrush.Click += new System.EventHandler(this.BttnSaveBrush_Click);
-            this.bttnSaveBrush.MouseEnter += new System.EventHandler(this.BttnSaveBrush_MouseEnter);
+            this.bttnSaveBrush.Click += new EventHandler(this.BttnSaveBrush_Click);
+            this.bttnSaveBrush.MouseEnter += new EventHandler(this.BttnSaveBrush_MouseEnter);
             // 
             // WinBrushFactory
             // 
@@ -4481,7 +4491,7 @@ namespace BrushFactory
             this.Name = "WinBrushFactory";
             this.displayCanvas.ResumeLayout(false);
             this.displayCanvas.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.displayCanvas)).EndInit();
+            ((ISupportInitialize)(this.displayCanvas)).EndInit();
             this.panelUndoRedoOkCancel.ResumeLayout(false);
             this.panelAllSettingsContainer.ResumeLayout(false);
             this.panelDockSettingsContainer.ResumeLayout(false);
@@ -4491,154 +4501,124 @@ namespace BrushFactory
             this.panelSettingsContainer.PerformLayout();
             this.panelBrush.ResumeLayout(false);
             this.panelBrush.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderCanvasZoom)).EndInit();
+            ((ISupportInitialize)(this.sliderCanvasZoom)).EndInit();
             this.panelBrushAddPickColor.ResumeLayout(false);
             this.panelBrushAddPickColor.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushAlpha)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushRotation)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushSize)).EndInit();
+            ((ISupportInitialize)(this.sliderBrushAlpha)).EndInit();
+            ((ISupportInitialize)(this.sliderBrushRotation)).EndInit();
+            ((ISupportInitialize)(this.sliderBrushSize)).EndInit();
             this.panelSpecialSettings.ResumeLayout(false);
             this.panelSpecialSettings.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderMinDrawDistance)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderBrushDensity)).EndInit();
+            ((ISupportInitialize)(this.sliderMinDrawDistance)).EndInit();
+            ((ISupportInitialize)(this.sliderBrushDensity)).EndInit();
             this.panelJitterBasics.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinSize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMaxSize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandRotLeft)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandRotRight)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandMinAlpha)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandHorzShift)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderRandVertShift)).EndInit();
+            ((ISupportInitialize)(this.sliderRandMinSize)).EndInit();
+            ((ISupportInitialize)(this.sliderRandMaxSize)).EndInit();
+            ((ISupportInitialize)(this.sliderRandRotLeft)).EndInit();
+            ((ISupportInitialize)(this.sliderRandRotRight)).EndInit();
+            ((ISupportInitialize)(this.sliderRandMinAlpha)).EndInit();
+            ((ISupportInitialize)(this.sliderRandHorzShift)).EndInit();
+            ((ISupportInitialize)(this.sliderRandVertShift)).EndInit();
             this.panelJitterColor.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinRed)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxRed)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinGreen)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxGreen)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinBlue)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxBlue)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinHue)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxHue)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinSat)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxSat)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMinVal)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderJitterMaxVal)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMinRed)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMaxRed)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMinGreen)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMaxGreen)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMinBlue)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMaxBlue)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMinHue)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMaxHue)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMinSat)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMaxSat)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMinVal)).EndInit();
+            ((ISupportInitialize)(this.sliderJitterMaxVal)).EndInit();
             this.panelShiftBasics.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.sliderShiftSize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderShiftRotation)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderShiftAlpha)).EndInit();
+            ((ISupportInitialize)(this.sliderShiftSize)).EndInit();
+            ((ISupportInitialize)(this.sliderShiftRotation)).EndInit();
+            ((ISupportInitialize)(this.sliderShiftAlpha)).EndInit();
             this.panelTabletAssignPressure.ResumeLayout(false);
             this.panelTabletAssignPressure.PerformLayout();
             this.panelTabPressureBrushAlpha.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushAlpha)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushAlpha)).EndInit();
             this.panelTabPressureBrushSize.ResumeLayout(false);
             this.panel8.ResumeLayout(false);
             this.panel8.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushSize)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushSize)).EndInit();
             this.panelTabPressureBrushRotation.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushRotation)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushRotation)).EndInit();
             this.panelTabPressureMinDrawDistance.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinDrawDistance)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMinDrawDistance)).EndInit();
             this.panelTabPressureBrushDensity.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureBrushDensity)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushDensity)).EndInit();
             this.panelTabPressureRandMinSize.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandMinSize)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandMinSize)).EndInit();
             this.panelTabPressureRandMaxSize.ResumeLayout(false);
             this.panel6.ResumeLayout(false);
             this.panel6.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandMaxSize)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandMaxSize)).EndInit();
             this.panelTabPressureRandRotLeft.ResumeLayout(false);
             this.panel7.ResumeLayout(false);
             this.panel7.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandRotLeft)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandRotLeft)).EndInit();
             this.panelTabPressureRandRotRight.ResumeLayout(false);
             this.panel9.ResumeLayout(false);
             this.panel9.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandRotRight)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandRotRight)).EndInit();
             this.panelTabPressureRandMinAlpha.ResumeLayout(false);
             this.panel10.ResumeLayout(false);
             this.panel10.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandMinAlpha)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandMinAlpha)).EndInit();
             this.panelTabPressureRandHorShift.ResumeLayout(false);
             this.panel12.ResumeLayout(false);
             this.panel12.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandHorShift)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandHorShift)).EndInit();
             this.panelTabPressureRandVerShift.ResumeLayout(false);
             this.panel11.ResumeLayout(false);
             this.panel11.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureRandVerShift)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandVerShift)).EndInit();
             this.panelTabPressureRedJitter.ResumeLayout(false);
             this.panel13.ResumeLayout(false);
             this.panel13.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinRedJitter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxRedJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMinRedJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxRedJitter)).EndInit();
             this.panelTabPressureGreenJitter.ResumeLayout(false);
             this.panel14.ResumeLayout(false);
             this.panel14.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinGreenJitter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxGreenJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMinGreenJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxGreenJitter)).EndInit();
             this.panelTabPressureBlueJitter.ResumeLayout(false);
             this.panel15.ResumeLayout(false);
             this.panel15.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinBlueJitter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxBlueJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMinBlueJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxBlueJitter)).EndInit();
             this.panelTabPressureHueJitter.ResumeLayout(false);
             this.panel16.ResumeLayout(false);
             this.panel16.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinHueJitter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxHueJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMinHueJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxHueJitter)).EndInit();
             this.panelTabPressureSatJitter.ResumeLayout(false);
             this.panel17.ResumeLayout(false);
             this.panel17.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinSatJitter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxSatJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMinSatJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxSatJitter)).EndInit();
             this.panelTabPressureValueJitter.ResumeLayout(false);
             this.panel18.ResumeLayout(false);
             this.panel18.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMinValueJitter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.spinTabPressureMaxValueJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMinValueJitter)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureMaxValueJitter)).EndInit();
             this.panelSettings.ResumeLayout(false);
             this.ResumeLayout(false);
 
-        }
-
-        /// <summary>
-        /// Renders the clipboard image with the checkerboard pattern under the transparent areas.
-        /// </summary>
-        /// <param name="stream">The stream containing the clipboard image.</param>
-        /// <exception cref="ArgumentException">The clipboard image is not a valid format.</exception>
-        /// <returns>The rendered image.</returns>
-        private static Bitmap RenderClipboardImageWithCheckerboard(Stream stream)
-        {
-            Bitmap background = null;
-
-            using (Image clipboardImage = Image.FromStream(stream))
-            {
-                background = new Bitmap(clipboardImage.Width, clipboardImage.Height, PixelFormat.Format32bppPArgb);
-
-                using (Graphics graphics = Graphics.FromImage(background))
-                {
-                    // Fill the entire image with the checkerboard background
-                    // to ensure that transparent areas are displayed correctly.
-                    using (TextureBrush backgroundBrush = new TextureBrush(Resources.CheckeredBg, WrapMode.Tile))
-                    {
-                        graphics.FillRectangle(backgroundBrush, 0, 0, background.Width, background.Height);
-                    }
-
-                    graphics.DrawImage(clipboardImage, 0, 0, background.Width, background.Height);
-                }
-            }
-
-            return background;
         }
 
         /// <summary>
@@ -4654,32 +4634,9 @@ namespace BrushFactory
         {
             ContextMenuStrip contextMenu = new ContextMenuStrip();
 
-            //Options to set the background colors / image.
-            contextMenu.Items.Add(new ToolStripMenuItem("Use transparent background",
-                null,
-                new EventHandler((a, b) =>
-                {
-                    displayCanvas.BackColor = Color.Transparent;
-                    displayCanvas.BackgroundImageLayout = ImageLayout.Tile;
-                    displayCanvas.BackgroundImage = Resources.CheckeredBg;
-                })));
-            contextMenu.Items.Add(new ToolStripMenuItem("Use white background",
-                null,
-                new EventHandler((a, b) =>
-                {
-                    displayCanvas.BackColor = Color.White;
-                    displayCanvas.BackgroundImage = null;
-                })));
-            contextMenu.Items.Add(new ToolStripMenuItem("Use black background",
-                null,
-                new EventHandler((a, b) =>
-                {
-                    displayCanvas.BackColor = Color.Black;
-                    displayCanvas.BackgroundImage = null;
-                })));
             if (Clipboard.ContainsData("PNG"))
             {
-                contextMenu.Items.Add(new ToolStripMenuItem("Use clipboard as background",
+                contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundImage,
                     null,
                     new EventHandler((a, b) =>
                     {
@@ -4692,9 +4649,20 @@ namespace BrushFactory
 
                                 if (stream != null)
                                 {
-                                    displayCanvas.BackgroundImage = RenderClipboardImageWithCheckerboard(stream);
-                                    displayCanvas.BackgroundImageLayout = ImageLayout.Stretch;
-                                    displayCanvas.BackColor = Color.Transparent;
+                                    bmpBackgroundClipboard?.Dispose();
+
+                                    // Sets the clipboard background image.
+                                    using (Image clipboardImage = Image.FromStream(stream))
+                                    {
+                                        bmpBackgroundClipboard = new Bitmap(bmpCurrentDrawing.Width, bmpCurrentDrawing.Height, PixelFormat.Format32bppPArgb);
+                                        using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
+                                        {
+                                            graphics.Clear(Color.Transparent);
+                                            graphics.DrawImage(clipboardImage, 0, 0, bmpBackgroundClipboard.Width, bmpBackgroundClipboard.Height);
+                                        }
+                                    }
+
+                                    backgroundDisplayMode = BackgroundDisplayMode.Clipboard;
                                 }
                             }
                             catch
@@ -4709,6 +4677,36 @@ namespace BrushFactory
                         }
                     })));
             }
+
+            //Options to set the background colors / image.
+            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundTransparent,
+                null,
+                new EventHandler((a, b) =>
+                {
+                    backgroundDisplayMode = BackgroundDisplayMode.Transparent;
+                    bmpBackgroundClipboard?.Dispose();
+                })));
+            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundNone,
+                null,
+                new EventHandler((a, b) =>
+                {
+                    backgroundDisplayMode = BackgroundDisplayMode.Gray;
+                    bmpBackgroundClipboard?.Dispose();
+                })));
+            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundWhite,
+                null,
+                new EventHandler((a, b) =>
+                {
+                    backgroundDisplayMode = BackgroundDisplayMode.White;
+                    bmpBackgroundClipboard?.Dispose();
+                })));
+            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundBlack,
+                null,
+                new EventHandler((a, b) =>
+                {
+                    backgroundDisplayMode = BackgroundDisplayMode.Black;
+                    bmpBackgroundClipboard?.Dispose();
+                })));
 
             contextMenu.Show(sender, location);
         }
@@ -5666,12 +5664,7 @@ namespace BrushFactory
         /// </summary>
         private void DisplayCanvas_Paint(object sender, PaintEventArgs e)
         {
-            //Draws the whole canvas with smoothing at lower zooms.
-            if (canvasZoom < 0.5f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic; }
-            else if (canvasZoom < 0.75f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBilinear; }
-            else if (canvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
-            else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
-
+            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             e.Graphics.SmoothingMode = SmoothingMode.None;
 
             float drawingOffsetX = (bmpCurrentDrawing.Width * 0.5f * canvasZoom);
@@ -5681,8 +5674,79 @@ namespace BrushFactory
             e.Graphics.RotateTransform(canvasRotation);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
-            //Draws the image.
-            e.Graphics.DrawImage(bmpCurrentDrawing, 0, 0, canvas.width, canvas.height);
+            // Computes the visible region of the image. This speed optimization is only used for unrotated canvases
+            // due to complexity in figuring out the math for the rotated canvas at the moment.
+            int leftCutoff = -Math.Min(canvas.x, 0);
+            int topCutoff = -Math.Min(canvas.y, 0);
+            int overshootX = -Math.Min(displayCanvas.Width - (canvas.x + canvas.width), 0);
+            int overshootY = -Math.Min(displayCanvas.Height - (canvas.y + canvas.height), 0);
+            float lCutoffUnzoomed = leftCutoff / canvasZoom;
+            float tCutoffUnzoomed = topCutoff / canvasZoom;
+
+            Rectangle visibleBounds = (canvasRotation == 0)
+                ? new Rectangle(
+                    leftCutoff, topCutoff,
+                    canvas.width - overshootX - leftCutoff,
+                    canvas.height - overshootY - topCutoff)
+                : new Rectangle(0, 0, canvas.width, canvas.height);
+
+            // Draws the background according to the selected background display mode. Note it will
+            // be drawn with nearest neighbor interpolation, for speed.
+            if (backgroundDisplayMode == BackgroundDisplayMode.Transparent ||
+                backgroundDisplayMode == BackgroundDisplayMode.Clipboard)
+            {
+                HatchBrush hatchBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
+                e.Graphics.FillRectangle(hatchBrush, visibleBounds);
+            }
+            if (backgroundDisplayMode == BackgroundDisplayMode.Clipboard)
+            {
+                if (canvasRotation == 0)
+                {
+                    e.Graphics.DrawImage(
+                        bmpBackgroundClipboard,
+                        visibleBounds,
+                        lCutoffUnzoomed,
+                        tCutoffUnzoomed,
+                        bmpCurrentDrawing.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                        bmpCurrentDrawing.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                        GraphicsUnit.Pixel);
+                }
+                else
+                {
+                    e.Graphics.DrawImage(bmpBackgroundClipboard, 0, 0, canvas.width, canvas.height);
+                }
+            }
+            else if (backgroundDisplayMode == BackgroundDisplayMode.White)
+            {
+                e.Graphics.FillRectangle(Brushes.White, visibleBounds);
+            }
+            else if (backgroundDisplayMode == BackgroundDisplayMode.Black)
+            {
+                e.Graphics.FillRectangle(Brushes.Black, visibleBounds);
+            }
+
+            // Sets the smoothing mode based on zoom for the canvas.
+            if (canvasZoom < 0.5f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic; }
+            else if (canvasZoom < 0.75f) { e.Graphics.InterpolationMode = InterpolationMode.HighQualityBilinear; }
+            else if (canvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
+            else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
+
+            //Draws only the visible portion of the image.
+            if (canvasRotation == 0)
+            {
+                e.Graphics.DrawImage(
+                    bmpCurrentDrawing,
+                    visibleBounds,
+                    lCutoffUnzoomed,
+                    tCutoffUnzoomed,
+                    bmpCurrentDrawing.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                    bmpCurrentDrawing.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                    GraphicsUnit.Pixel);
+            }
+            else
+            {
+                e.Graphics.DrawImage(bmpCurrentDrawing, 0, 0, canvas.width, canvas.height);
+            }
 
             //Draws the selection.
             var selection = EnvironmentParameters.GetSelectionAsPdnRegion();
@@ -5982,7 +6046,7 @@ namespace BrushFactory
         {
             if (settings != null)
             {
-                new Gui.BrushFactoryPreferences(settings).ShowDialog();
+                new BrushFactoryPreferences(settings).ShowDialog();
             }
             else
             {
