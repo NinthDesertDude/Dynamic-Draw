@@ -1171,13 +1171,14 @@ namespace BrushFactory
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(PointF loc, int radius)
         {
-            if ((radius == 1 && chkbxAutomaticBrushDensity.Checked) ||
-                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged)
+            // It's possible to try to draw before the plugin has initialized (indicated by not having the bitmap set).
+            if (bmpBrushEffects == null)
             {
-                loc.X = (int)loc.X;
-                loc.Y = (int)loc.Y;
+                return;
             }
 
+            #region apply size jitter
+            // Change the brush size based on settings.
             int finalRandMinSize = Utils.GetStrengthMappedValue(sliderRandMinSize.Value,
                 (int)spinTabPressureRandMinSize.Value,
                 sliderRandMinSize.Maximum,
@@ -1193,18 +1194,26 @@ namespace BrushFactory
             int newRadius = Utils.Clamp(radius
                 - random.Next(finalRandMinSize)
                 + random.Next(finalRandMaxSize), 0, int.MaxValue);
+            #endregion
 
-            UpdateBrushDensity(newRadius);
-
-            if (bmpBrushEffects == null)
+            #region update brush smoothing mode
+            // Jagged smoothing shouldn't draw at interpolated locations because it breaks up single width lines that fall between pixels.
+            if ((radius == 1 && chkbxAutomaticBrushDensity.Checked) ||
+                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged)
             {
-                return;
+                loc.X = (int)loc.X;
+                loc.Y = (int)loc.Y;
             }
+
+            // Update the brush draw rate based on the size.
+            UpdateBrushDensity(newRadius);
+            #endregion
 
             //Sets the new brush location because the brush stroke succeeded.
             mouseLocBrush = mouseLoc;
 
-            //Shifts the size.
+            #region apply size/alpha/rotation shift
+            // Updates the brush size slider (doesn't affect this brush stroke).
             if (sliderShiftSize.Value != 0)
             {
                 int tempSize = sliderBrushSize.Value;
@@ -1231,7 +1240,7 @@ namespace BrushFactory
                     sliderBrushSize.Minimum, sliderBrushSize.Maximum);
             }
 
-            //Shifts the alpha.
+            // Updates the brush alpha (doesn't affect this brush stroke).
             if (sliderShiftAlpha.Value != 0)
             {
                 int tempAlpha = sliderBrushAlpha.Value;
@@ -1283,7 +1292,9 @@ namespace BrushFactory
                 sliderBrushRotation.Value = Utils.Clamp(tempRot,
                     sliderBrushRotation.Minimum, sliderBrushRotation.Maximum);
             }
+            #endregion
 
+            #region apply position jitter
             int finalRandHorzShift = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandHorzShift.Value,
                 (int)spinTabPressureRandHorShift.Value,
                 sliderRandHorzShift.Maximum,
@@ -1311,7 +1322,9 @@ namespace BrushFactory
                     - bmpCurrentDrawing.Height * (finalRandVertShift / 200f)
                     + bmpCurrentDrawing.Height * (random.Next(finalRandVertShift) / 100f);
             }
+            #endregion
 
+            #region apply rotation jitter + rotate with mouse option
             // Calculates the final brush rotation based on all factors. Counters canvas rotation to remain unaffected.
             int finalBrushRotation = Utils.GetStrengthMappedValue(sliderBrushRotation.Value,
                 (int)spinTabPressureBrushRotation.Value,
@@ -1343,37 +1356,22 @@ namespace BrushFactory
                 float deltaY = mouseLoc.Y - mouseLocPrev.Y;
                 rotation += (int)(Math.Atan2(deltaY, deltaX) * 180 / Math.PI);
             }
+            #endregion
 
+            #region apply alpha jitter
             int finalRandMinAlpha = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandMinAlpha.Value,
                 (int)spinTabPressureRandMinAlpha.Value,
                 sliderRandMinAlpha.Maximum,
                 tabletPressureRatio,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandMinAlpha.SelectedItem).ValueMember),
                 0, 100);
+            #endregion
 
-            //Creates a brush from a rotation of the current brush, then
-            //draws it (adjusting to the center).
-            using (Graphics g = Graphics.FromImage(bmpCurrentDrawing))
+            #region apply color jitter
+            ImageAttributes recolorMatrix = null;
+
+            if (chkbxColorizeBrush.Checked)
             {
-                Bitmap bmpBrushRot = Utils.RotateImage(bmpBrushEffects, rotation);
-
-                //Rotating the brush increases image bounds, so brush space
-                //must increase to avoid making it visually shrink.
-                double radAngle = (Math.Abs(rotation) % 90) * Math.PI / 180;
-                float rotScaleFactor = (float)(Math.Cos(radAngle) + Math.Sin(radAngle));
-                int scaleFactor = (int)(newRadius * rotScaleFactor);
-
-                //Sets the interpolation mode based on preferences.
-                g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[(CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue];
-
-                float drawingOffsetX = (bmpCurrentDrawing.Width * 0.5f);
-                float drawingOffsetY = (bmpCurrentDrawing.Height * 0.5f);
-
-                // Moves where the brush stroke is applied to match the user's canvas rotation settings.
-                g.TranslateTransform(drawingOffsetX, drawingOffsetY);
-                g.RotateTransform(-canvasRotation);
-                g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
-
                 int finalJitterMaxRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
                     (int)spinTabPressureMaxRedJitter.Value,
                     sliderJitterMaxRed.Maximum,
@@ -1458,7 +1456,6 @@ namespace BrushFactory
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureValueJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                //Draws the brush normally if color/alpha aren't randomized.
                 bool jitterRgb =
                     finalJitterMaxRed != 0 ||
                     finalJitterMinRed != 0 ||
@@ -1475,151 +1472,13 @@ namespace BrushFactory
                     finalJitterMaxVal != 0 ||
                     finalJitterMinVal != 0;
 
-                if ((finalRandMinAlpha == 0 && !jitterRgb && !jitterHsv) ||
-                    !chkbxColorizeBrush.Checked)
+                if (finalRandMinAlpha != 0 || jitterRgb || jitterHsv)
                 {
-                    // Can't draw 0 dimension images.
-                    if (scaleFactor == 0)
-                    {
-                        return;
-                    }
-
-                    //Draws the brush for normal and non-radial symmetry.
-                    if (cmbxSymmetry.SelectedIndex < 5)
-                    {
-                        if (activeTool == Tool.Eraser)
-                        {
-                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
-                            {
-                                Utils.CopyErase(
-                                    this.EnvironmentParameters.SourceSurface,
-                                    bmpCurrentDrawing,
-                                    bmpBrushRotScaled,
-                                    new Point((int)(loc.X - (scaleFactor / 2f)), (int)(loc.Y - (scaleFactor / 2f))));
-                            }
-                        }
-                        else
-                        {
-                            g.DrawImage(
-                                bmpBrushRot,
-                                loc.X - (scaleFactor / 2f),
-                                loc.Y - (scaleFactor / 2f),
-                                scaleFactor,
-                                scaleFactor);
-                        }
-                    }
-
-                    //Draws the brush horizontally reflected.
-                    if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal ||
-                        cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical ||
-                        cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Star2)
-                    {
-                        bool symmetryX = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical;
-                        bool symmetryY = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal;
-
-                        // Easier not to compute on a rotated canvas.
-                        g.ResetTransform();
-
-                        //Gets the symmetry origin.
-                        PointF origin = new PointF(
-                            symmetryOrigin.X,
-                            symmetryOrigin.Y);
-
-                        //Gets the drawn location relative to symmetry origin.
-                        PointF rotatedLoc = TransformPoint(loc, true, true);
-                        PointF locRelativeToOrigin = new PointF(
-                            rotatedLoc.X - origin.X,
-                            rotatedLoc.Y - origin.Y);
-
-                        //Gets the distance from the drawing point to center.
-                        var dist = Math.Sqrt(
-                            Math.Pow(locRelativeToOrigin.X, 2) +
-                            Math.Pow(locRelativeToOrigin.Y, 2));
-
-                        //Gets the angle of the drawing point.
-                        var angle = Math.Atan2(
-                            locRelativeToOrigin.Y,
-                            locRelativeToOrigin.X);
-
-                        float halfScaleFactor = (scaleFactor / 2f);
-                        float xDist = (float)(dist * Math.Cos(angle));
-                        float yDist = (float)(dist * Math.Sin(angle));
-
-                        g.DrawImage(
-                            bmpBrushRot,
-                            origin.X + (symmetryX ? -halfScaleFactor + xDist : halfScaleFactor - xDist),
-                            origin.Y + (symmetryY ? -halfScaleFactor + yDist : halfScaleFactor - yDist),
-                            symmetryX ? scaleFactor : -scaleFactor,
-                            symmetryY ? scaleFactor : -scaleFactor);
-                    }
-
-                    // Draws at defined offset locations.
-                    else if (cmbxSymmetry.SelectedIndex ==
-                        (int)SymmetryMode.SetPoints)
-                    {
-                        for (int i = 0; i < symmetryOrigins.Count; i++)
-                        {
-                            g.DrawImage(
-                                bmpBrushRot,
-                                loc.X + scaleFactor / 2f + symmetryOrigins[i].X,
-                                loc.Y + scaleFactor / 2f + symmetryOrigins[i].Y,
-                                scaleFactor * -1,
-                                scaleFactor * -1);
-                        }
-                    }
-
-                    //Draws the brush with radial reflections.
-                    else
-                    {
-                        // Easier not to compute on a rotated canvas.
-                        g.ResetTransform();
-
-                        //Gets the center of the image.
-                        PointF origin = new PointF(
-                            symmetryOrigin.X,
-                            symmetryOrigin.Y);
-
-                        //Gets the drawn location relative to center.
-                        PointF rotatedLoc = TransformPoint(loc, true, true);
-                        PointF locRelativeToOrigin = new PointF(
-                            rotatedLoc.X - origin.X,
-                            rotatedLoc.Y - origin.Y);
-
-                        //Gets the distance from the drawing point to center.
-                        var dist = Math.Sqrt(
-                            Math.Pow(locRelativeToOrigin.X, 2) +
-                            Math.Pow(locRelativeToOrigin.Y, 2));
-
-                        //Gets the angle of the drawing point.
-                        var angle = Math.Atan2(
-                            locRelativeToOrigin.Y,
-                            locRelativeToOrigin.X);
-
-                        //Draws an N-pt radial reflection.
-                        int numPoints = cmbxSymmetry.SelectedIndex - 2;
-                        double angleIncrease = (2 * Math.PI) / numPoints;
-                        for (int i = 0; i < numPoints; i++)
-                        {
-                            g.DrawImage(
-                                bmpBrushRot,
-                                origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle)),
-                                origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)),
-                                scaleFactor,
-                                scaleFactor);
-
-                            angle += angleIncrease;
-                        }
-                    }
-                }
-                else
-                {
-                    // Sets random transparency jitter.
                     float newAlpha = Utils.ClampF((100 - random.Next(finalRandMinAlpha)) / 100f, 0, 1);
                     float newRed = bttnBrushColor.BackColor.R / 255f;
                     float newGreen = bttnBrushColor.BackColor.G / 255f;
                     float newBlue = bttnBrushColor.BackColor.B / 255f;
-
-                    RgbColor colorRgb = new RgbColor(bttnBrushColor.BackColor.R, bttnBrushColor.BackColor.G, bttnBrushColor.BackColor.B);
+                    RgbColor colorRgb = new RgbColor(0, 0, 0);
 
                     //Sets RGB color jitter.
                     if (jitterRgb)
@@ -1658,7 +1517,7 @@ namespace BrushFactory
                         int newVal = (int)Utils.ClampF(colorHsv.Value
                             - random.Next(finalJitterMinVal)
                             + random.Next(finalJitterMaxVal), 0, 100);
-                        
+
                         Color finalColor = new HsvColor(newHue, newSat, newVal).ToColor();
 
                         newRed = finalColor.R / 255f;
@@ -1666,6 +1525,264 @@ namespace BrushFactory
                         newBlue = finalColor.B / 255f;
                     }
 
+                    recolorMatrix = Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha);
+                }
+            }
+            #endregion
+
+            // Draws the brush.
+            using (Graphics g = Graphics.FromImage(bmpCurrentDrawing))
+            {
+                #region create intermediate rotated brush (as needed)
+                // Manually rotates to account for canvas angle (lockbits doesn't use matrices).
+                if (activeTool == Tool.Eraser && canvasRotation != 0)
+                {
+                    rotation -= (int)Math.Round(canvasRotation);
+                }
+
+                Bitmap bmpBrushRot = Utils.RotateImage(bmpBrushEffects, rotation);
+
+                //Rotating the brush increases image bounds, so brush space
+                //must increase to avoid making it visually shrink.
+                double radAngle = (Math.Abs(rotation) % 90) * Math.PI / 180;
+                float rotScaleFactor = (float)(Math.Cos(radAngle) + Math.Sin(radAngle));
+                #endregion
+
+                // The final computed brush radius.
+                int scaleFactor = (int)(newRadius * rotScaleFactor);
+
+                // Sets the interpolation mode based on preferences.
+                g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[(CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue];
+
+                // Compensate for brush origin being top-left corner instead of center.
+                float drawingOffsetX = bmpCurrentDrawing.Width * 0.5f;
+                float drawingOffsetY = bmpCurrentDrawing.Height * 0.5f;
+
+                // Moves where the brush stroke is applied to match the user's canvas rotation settings.
+                if (activeTool != Tool.Eraser)
+                {
+                    g.TranslateTransform(drawingOffsetX, drawingOffsetY);
+                    g.RotateTransform(-canvasRotation);
+                    g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
+                }
+
+                #region Draw the brush without color/alpha changes (unless in eraser mode), considering symmetry
+                if (recolorMatrix == null || activeTool == Tool.Eraser)
+                {
+                    // Can't draw 0 dimension images.
+                    if (scaleFactor == 0)
+                    {
+                        return;
+                    }
+
+                    //Draws the brush for normal and non-radial symmetry.
+                    if (cmbxSymmetry.SelectedIndex < 5)
+                    {
+                        if (activeTool == Tool.Eraser)
+                        {
+                            PointF rotatedLoc = loc;
+                            if (canvasRotation != 0)
+                            {
+                                rotatedLoc = TransformPoint(loc, true, true, false);
+                            }
+
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor), false, false, recolorMatrix))
+                            {
+                                Utils.CopyErase(
+                                    this.EnvironmentParameters.SourceSurface,
+                                    bmpCurrentDrawing,
+                                    bmpBrushRotScaled,
+                                    new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))));
+                            }
+                        }
+                        else
+                        {
+                            g.DrawImage(
+                                bmpBrushRot,
+                                loc.X - (scaleFactor / 2f),
+                                loc.Y - (scaleFactor / 2f),
+                                scaleFactor,
+                                scaleFactor);
+                        }
+                    }
+
+                    //Draws the brush horizontally reflected.
+                    if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal ||
+                        cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical ||
+                        cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Star2)
+                    {
+                        bool symmetryX = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Vertical;
+                        bool symmetryY = cmbxSymmetry.SelectedIndex == (int)SymmetryMode.Horizontal;
+
+                        // Easier not to compute on a rotated canvas.
+                        g.ResetTransform();
+
+                        //Gets the symmetry origin.
+                        PointF origin = new PointF(
+                            symmetryOrigin.X,
+                            symmetryOrigin.Y);
+
+                        //Gets the drawn location relative to symmetry origin.
+                        PointF rotatedLoc = TransformPoint(loc, true, true, false);
+                        PointF locRelativeToOrigin = new PointF(
+                            rotatedLoc.X - origin.X,
+                            rotatedLoc.Y - origin.Y);
+
+                        //Gets the distance from the drawing point to center.
+                        var dist = Math.Sqrt(
+                            Math.Pow(locRelativeToOrigin.X, 2) +
+                            Math.Pow(locRelativeToOrigin.Y, 2));
+
+                        //Gets the angle of the drawing point.
+                        var angle = Math.Atan2(
+                            locRelativeToOrigin.Y,
+                            locRelativeToOrigin.X);
+
+                        float halfScaleFactor = (scaleFactor / 2f);
+                        float xDist = (float)(dist * Math.Cos(angle));
+                        float yDist = (float)(dist * Math.Sin(angle));
+
+                        if (activeTool == Tool.Eraser)
+                        {
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(
+                                bmpBrushRot, new Size(scaleFactor, scaleFactor), !symmetryX, !symmetryY))
+                            {
+                                Utils.CopyErase(
+                                    this.EnvironmentParameters.SourceSurface,
+                                    bmpCurrentDrawing,
+                                    bmpBrushRotScaled,
+                                    new Point(
+                                        (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
+                                        (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))));
+                            }
+                        }
+                        else
+                        {
+                            g.DrawImage(
+                                bmpBrushRot,
+                                origin.X + (symmetryX ? -halfScaleFactor + xDist : halfScaleFactor - xDist),
+                                origin.Y + (symmetryY ? -halfScaleFactor + yDist : halfScaleFactor - yDist),
+                                symmetryX ? scaleFactor : -scaleFactor,
+                                symmetryY ? scaleFactor : -scaleFactor);
+                        }
+                    }
+
+                    // Draws at defined offset locations.
+                    else if (cmbxSymmetry.SelectedIndex ==
+                        (int)SymmetryMode.SetPoints)
+                    {
+                        if (activeTool == Tool.Eraser)
+                        {
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                            {
+                                float halfScaleFactor = scaleFactor / 2f;
+
+                                for (int i = 0; i < symmetryOrigins.Count; i++)
+                                {
+                                    PointF transformedPoint = new PointF(
+                                        loc.X + symmetryOrigins[i].X,
+                                        loc.Y + symmetryOrigins[i].Y);
+
+                                    if (canvasRotation != 0)
+                                    {
+                                        transformedPoint = TransformPoint(transformedPoint, true, true, false);
+                                    }
+
+                                    Utils.CopyErase(
+                                        this.EnvironmentParameters.SourceSurface,
+                                        bmpCurrentDrawing,
+                                        bmpBrushRotScaled,
+                                        new Point(
+                                            (int)(transformedPoint.X - halfScaleFactor),
+                                            (int)(transformedPoint.Y - halfScaleFactor)));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < symmetryOrigins.Count; i++)
+                            {
+                                g.DrawImage(
+                                    bmpBrushRot,
+                                    loc.X - scaleFactor / 2f + symmetryOrigins[i].X,
+                                    loc.Y - scaleFactor / 2f + symmetryOrigins[i].Y,
+                                    scaleFactor,
+                                    scaleFactor);
+                            }
+                        }
+                    }
+
+                    //Draws the brush with radial reflections.
+                    else
+                    {
+                        // Easier not to compute on a rotated canvas.
+                        g.ResetTransform();
+
+                        //Gets the center of the image.
+                        PointF origin = new PointF(
+                            symmetryOrigin.X,
+                            symmetryOrigin.Y);
+
+                        //Gets the drawn location relative to center.
+                        PointF rotatedLoc = TransformPoint(loc, true, true, false);
+                        PointF locRelativeToOrigin = new PointF(
+                            rotatedLoc.X - origin.X,
+                            rotatedLoc.Y - origin.Y);
+
+                        //Gets the distance from the drawing point to center.
+                        var dist = Math.Sqrt(
+                            Math.Pow(locRelativeToOrigin.X, 2) +
+                            Math.Pow(locRelativeToOrigin.Y, 2));
+
+                        //Gets the angle of the drawing point.
+                        var angle = Math.Atan2(
+                            locRelativeToOrigin.Y,
+                            locRelativeToOrigin.X);
+
+                        //Draws an N-pt radial reflection.
+                        int numPoints = cmbxSymmetry.SelectedIndex - 2;
+                        double angleIncrease = (2 * Math.PI) / numPoints;
+
+                        if (activeTool == Tool.Eraser)
+                        {
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(
+                                bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                            {
+                                for (int i = 0; i < numPoints; i++)
+                                {
+                                    Utils.CopyErase(
+                                    this.EnvironmentParameters.SourceSurface,
+                                    bmpCurrentDrawing,
+                                    bmpBrushRotScaled,
+                                    new Point(
+                                        (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                        (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))));
+
+                                    angle += angleIncrease;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < numPoints; i++)
+                            {
+                                g.DrawImage(
+                                    bmpBrushRot,
+                                    origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle)),
+                                    origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)),
+                                    scaleFactor,
+                                    scaleFactor);
+
+                                angle += angleIncrease;
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region Draw the brush with color/alpha changes, considering symmetry
+                else
+                {
                     //Determines the positions to draw the brush at.
                     PointF[] destination = new PointF[3];
                     float xPos = loc.X - (scaleFactor / 2f);
@@ -1684,7 +1801,7 @@ namespace BrushFactory
                             destination,
                             new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
                             GraphicsUnit.Pixel,
-                            Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
+                            recolorMatrix);
                     }
 
                     //Handles drawing reflections.
@@ -1708,7 +1825,7 @@ namespace BrushFactory
                                 symmetryOrigin.Y);
 
                             //Gets the drawn location relative to symmetry origin.
-                            PointF rotatedLoc = TransformPoint(loc, true, true);
+                            PointF rotatedLoc = TransformPoint(loc, true, true, false);
                             PointF locRelativeToOrigin = new PointF(
                                 rotatedLoc.X - origin.X,
                                 rotatedLoc.Y - origin.Y);
@@ -1739,7 +1856,7 @@ namespace BrushFactory
                                 destination,
                                 new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
                                 GraphicsUnit.Pixel,
-                                Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
+                                recolorMatrix);
                         }
 
                         // Draws at defined offset locations.
@@ -1747,7 +1864,6 @@ namespace BrushFactory
                             (int)SymmetryMode.SetPoints)
                         {
                             Rectangle bmpSizeRect = new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height);
-                            ImageAttributes attr = Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha);
 
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
@@ -1762,7 +1878,7 @@ namespace BrushFactory
                                     destination,
                                     bmpSizeRect,
                                     GraphicsUnit.Pixel,
-                                    attr);
+                                    recolorMatrix);
                             }
                         }
 
@@ -1778,7 +1894,7 @@ namespace BrushFactory
                                 symmetryOrigin.Y);
 
                             //Gets the drawn location relative to center.
-                            PointF rotatedLoc = TransformPoint(loc, true, true);
+                            PointF rotatedLoc = TransformPoint(loc, true, true, false);
                             PointF locRelativeToOrigin = new PointF(
                                 rotatedLoc.X - origin.X,
                                 rotatedLoc.Y - origin.Y);
@@ -1813,13 +1929,14 @@ namespace BrushFactory
                                     destination,
                                     bmpBrushRotBounds,
                                     GraphicsUnit.Pixel,
-                                    Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha));
+                                    recolorMatrix);
 
                                 angle += angleIncrease;
                             }
                         }
                     }
                 }
+                #endregion
             }
         }
 

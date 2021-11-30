@@ -542,15 +542,14 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Returns a copy of the image scaled to the given size.
+        /// Returns a copy of the image scaled to the given size, optionally flipped and with color information applied.
         /// </summary>
-        /// <param name="origBmp">
-        /// The image to clone and scale.
-        /// </param>
-        /// <param name="newSize">
-        /// The new width and height of the image.
-        /// </param>
-        public static Bitmap ScaleImage(Bitmap origBmp, Size newSize)
+        /// <param name="origBmp">The image to clone and scale.</param>
+        /// <param name="newSize">The new width and height of the image.</param>
+        /// <param name="flipX">Whether to flip the image horizontally.</param>
+        /// <param name="flipY">Whether to flip the image vertically.</param>
+        /// <param name="attr">If supplied, the recolor matrix will also be applied.</param>
+        public static Bitmap ScaleImage(Bitmap origBmp, Size newSize, bool flipX = false, bool flipY = false, ImageAttributes attr = null)
         {
             //Creates the new image and a graphic canvas to draw the rotation.
             Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
@@ -558,7 +557,27 @@ namespace BrushFactory
             {
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-                g.DrawImage(origBmp, 0, 0, newSize.Width, newSize.Height);
+                if (attr != null)
+                {
+                    g.DrawImage(
+                        origBmp,
+                        new Rectangle(
+                        flipX ? newSize.Width : 0,
+                        flipY ? newSize.Height : 0,
+                        flipX ? -newSize.Width : newSize.Width,
+                        flipY ? -newSize.Height : newSize.Height),
+                        0, 0, origBmp.Width, origBmp.Height, GraphicsUnit.Pixel, attr);
+                }
+                else
+                {
+                    g.DrawImage(
+                        origBmp,
+                        flipX ? newSize.Width : 0,
+                        flipY ? newSize.Height : 0,
+                        flipX ? -newSize.Width : newSize.Width,
+                        flipY ? -newSize.Height : newSize.Height);
+                }
+
                 return newBmp;
             }
         }
