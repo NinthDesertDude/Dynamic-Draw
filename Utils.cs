@@ -251,11 +251,13 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Returns an aliased bitmap from a portion of the given surface, or null if the srcRect X,Y is negative.
+        /// Replaces a portion of the destination bitmap with the surface bitmap using a brush as an alpha mask.
         /// </summary>
-        /// <param name="surface">The surface to copy a portion of.</param>
-        /// <param name="srcRect">A rectangle describing the region to copy.</param>
-        public static unsafe void CopyErase(Surface surface, Bitmap dest, Bitmap alphaMask, Point location)
+        /// <param name="surface">The surface contains the source bitmap. It will be drawn to dest.</param>
+        /// <param name="dest">The bitmap to edit.</param>
+        /// <param name="alphaMask">The brush used to draw.</param>
+        /// <param name="location">The location to draw the brush at.</param>
+        public static unsafe void OverwriteMasked(Surface surface, Bitmap dest, Bitmap alphaMask, Point location)
         {
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -322,6 +324,99 @@ namespace BrushFactory
 
             dest.UnlockBits(destData);
             alphaMask.UnlockBits(alphaMaskData);
+        }
+
+        /// <summary>
+        /// Draws the brush image at a defined point on a destination bitmap using custom blending.
+        /// </summary>
+        /// <param name="dest">The bitmap to edit.</param>
+        /// <param name="brush">The brush image that will be drawn to the destination using custom blending.</param>
+        /// <param name="location">The location to draw the brush at.</param>
+        /// <param name="blendMode">Determines the algorithm uesd to draw the brush on dest.</param>
+        public static unsafe void DrawMasked(Bitmap dest, Bitmap brush, Point location, ColorBgra userColor, BlendMode blendMode)
+        {
+            // Calculates the brush regions outside the bounding area of the surface.
+            int negativeX = location.X < 0 ? -location.X : 0;
+            int negativeY = location.Y < 0 ? -location.Y : 0;
+            int extraX = Math.Max(location.X + brush.Width - dest.Width, 0);
+            int extraY = Math.Max(location.Y + brush.Height - dest.Height, 0);
+
+            int adjWidth = brush.Width - negativeX - extraX;
+            int adjHeight = brush.Height - negativeY - extraY;
+
+            if (adjWidth < 1 || adjHeight < 1)
+            {
+                return;
+            }
+
+            Rectangle adjBounds = new Rectangle(
+                location.X < 0 ? 0 : location.X,
+                location.Y < 0 ? 0 : location.Y,
+                adjWidth,
+                adjHeight);
+
+            BitmapData destData = dest.LockBits(
+                adjBounds,
+                ImageLockMode.ReadWrite,
+                dest.PixelFormat);
+
+            BitmapData brushData = brush.LockBits(
+                new Rectangle(0, 0,
+                brush.Width,
+                brush.Height),
+                ImageLockMode.ReadOnly,
+                brush.PixelFormat);
+
+            byte* destRow = (byte*)destData.Scan0;
+            byte* brushRow = (byte*)brushData.Scan0;
+            float alphaFactor;
+            ColorBgra userColorUnpremultiplied = userColor.ConvertFromPremultipliedAlpha();
+            ColorBgra newColor, destCol;
+
+            for (int y = 0; y < adjHeight; y++)
+            {
+                ColorBgra* brushPtr = (ColorBgra*)(brushRow + negativeX * 4 + ((negativeY + y) * brushData.Stride));
+                ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
+
+                for (int x = 0; x < adjWidth; x++)
+                {
+                    if (blendMode == BlendMode.Normal)
+                    {
+                        newColor = ColorBgra.Blend(
+                            destPtr->ConvertFromPremultipliedAlpha(),
+                            userColorUnpremultiplied,
+                            brushPtr->A
+                        );
+
+                        alphaFactor = newColor.A / 255f;
+                        destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
+                        destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
+                        destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                        destPtr->A = newColor.A;
+                    }
+                    else if (blendMode == BlendMode.Overwrite)
+                    {
+                        destCol = destPtr->ConvertFromPremultipliedAlpha();
+                        newColor = ColorBgra.Blend(
+                            destCol,
+                            userColorUnpremultiplied,
+                            brushPtr->A
+                        );
+
+                        alphaFactor = (destCol.A + brushPtr->A / 255f * (userColorUnpremultiplied.A - destCol.A)) / 255f;
+                        destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
+                        destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
+                        destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                        destPtr->A = (byte)Math.Ceiling(alphaFactor * 255);
+                    }
+
+                    brushPtr++;
+                    destPtr++;
+                }
+            }
+
+            dest.UnlockBits(destData);
+            brush.UnlockBits(brushData);
         }
 
         /// <summary>

@@ -33,6 +33,11 @@ namespace BrushFactory
         private Tool activeTool = Tool.Brush;
 
         /// <summary>
+        /// The operation to perform, e.g. draw or erase.
+        /// </summary>
+        private BlendMode drawMode = BlendMode.Normal;
+
+        /// <summary>
         /// Determines how to fill the transparent area under the user's image, if any.
         /// </summary>
         private BackgroundDisplayMode backgroundDisplayMode = BackgroundDisplayMode.Transparent;
@@ -1364,11 +1369,13 @@ namespace BrushFactory
                 sliderRandMinAlpha.Maximum,
                 tabletPressureRatio,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandMinAlpha.SelectedItem).ValueMember),
-                0, 100);
+                0, 255);
             #endregion
 
             #region apply color jitter
             ImageAttributes recolorMatrix = null;
+            ColorBgra adjustedColor = bttnBrushColor.BackColor;
+            adjustedColor.A = (byte)Math.Round(255 - Utils.ClampF(sliderBrushAlpha.Value + random.Next(finalRandMinAlpha), 0, 255));
 
             if (chkbxColorizeBrush.Checked)
             {
@@ -1474,11 +1481,11 @@ namespace BrushFactory
 
                 if (finalRandMinAlpha != 0 || jitterRgb || jitterHsv)
                 {
-                    float newAlpha = Utils.ClampF((100 - random.Next(finalRandMinAlpha)) / 100f, 0, 1);
+                    float newAlpha = Utils.ClampF((255 - random.Next(finalRandMinAlpha)) / 255f, 0, 1);
                     float newRed = bttnBrushColor.BackColor.R / 255f;
                     float newGreen = bttnBrushColor.BackColor.G / 255f;
                     float newBlue = bttnBrushColor.BackColor.B / 255f;
-                    RgbColor colorRgb = new RgbColor(0, 0, 0);
+                    RgbColor colorRgb = new RgbColor(bttnBrushColor.BackColor.R, bttnBrushColor.BackColor.G, bttnBrushColor.BackColor.B);
 
                     //Sets RGB color jitter.
                     if (jitterRgb)
@@ -1526,6 +1533,11 @@ namespace BrushFactory
                     }
 
                     recolorMatrix = Utils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha);
+                    adjustedColor = ColorBgra.FromBgra(
+                        (byte)Math.Round(newBlue * 255),
+                        (byte)Math.Round(newGreen * 255),
+                        (byte)Math.Round(newRed * 255),
+                        (byte)Math.Round(newAlpha * 255));
                 }
             }
             #endregion
@@ -1533,9 +1545,19 @@ namespace BrushFactory
             // Draws the brush.
             using (Graphics g = Graphics.FromImage(bmpCurrentDrawing))
             {
+                // GDI+ unfortunately has no native blend modes, only compositing modes, so all blend modes (including
+                // the eraser tool) are performed manually.
+                bool useLockbitsDrawing = activeTool == Tool.Eraser || drawMode != BlendMode.Normal;
+
+                // Overwrite blend mode doesn't use the recolor matrix.
+                if (useLockbitsDrawing && activeTool != Tool.Eraser && drawMode == BlendMode.Overwrite)
+                {
+                    recolorMatrix = null;
+                }
+
                 #region create intermediate rotated brush (as needed)
                 // Manually rotates to account for canvas angle (lockbits doesn't use matrices).
-                if (activeTool == Tool.Eraser && canvasRotation != 0)
+                if (useLockbitsDrawing && canvasRotation != 0)
                 {
                     rotation -= (int)Math.Round(canvasRotation);
                 }
@@ -1559,15 +1581,15 @@ namespace BrushFactory
                 float drawingOffsetY = bmpCurrentDrawing.Height * 0.5f;
 
                 // Moves where the brush stroke is applied to match the user's canvas rotation settings.
-                if (activeTool != Tool.Eraser)
+                if (!useLockbitsDrawing)
                 {
                     g.TranslateTransform(drawingOffsetX, drawingOffsetY);
                     g.RotateTransform(-canvasRotation);
                     g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
                 }
 
-                #region Draw the brush without color/alpha changes (unless in eraser mode), considering symmetry
-                if (recolorMatrix == null || activeTool == Tool.Eraser)
+                #region Draw the brush with blend modes or without a recolor matrix, considering symmetry
+                if (recolorMatrix == null || useLockbitsDrawing)
                 {
                     // Can't draw 0 dimension images.
                     if (scaleFactor == 0)
@@ -1578,7 +1600,7 @@ namespace BrushFactory
                     //Draws the brush for normal and non-radial symmetry.
                     if (cmbxSymmetry.SelectedIndex < 5)
                     {
-                        if (activeTool == Tool.Eraser)
+                        if (useLockbitsDrawing)
                         {
                             PointF rotatedLoc = loc;
                             if (canvasRotation != 0)
@@ -1588,11 +1610,23 @@ namespace BrushFactory
 
                             using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor), false, false, recolorMatrix))
                             {
-                                Utils.CopyErase(
-                                    this.EnvironmentParameters.SourceSurface,
-                                    bmpCurrentDrawing,
-                                    bmpBrushRotScaled,
-                                    new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))));
+                                if (activeTool == Tool.Eraser)
+                                {
+                                    Utils.OverwriteMasked(
+                                        this.EnvironmentParameters.SourceSurface,
+                                        bmpCurrentDrawing,
+                                        bmpBrushRotScaled,
+                                        new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))));
+                                }
+                                else
+                                {
+                                    Utils.DrawMasked(
+                                        bmpCurrentDrawing,
+                                        bmpBrushRotScaled,
+                                        new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))),
+                                        adjustedColor,
+                                        drawMode);
+                                }
                             }
                         }
                         else
@@ -1642,18 +1676,33 @@ namespace BrushFactory
                         float xDist = (float)(dist * Math.Cos(angle));
                         float yDist = (float)(dist * Math.Sin(angle));
 
-                        if (activeTool == Tool.Eraser)
+                        if (useLockbitsDrawing)
                         {
                             using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(
                                 bmpBrushRot, new Size(scaleFactor, scaleFactor), !symmetryX, !symmetryY))
                             {
-                                Utils.CopyErase(
-                                    this.EnvironmentParameters.SourceSurface,
-                                    bmpCurrentDrawing,
-                                    bmpBrushRotScaled,
-                                    new Point(
-                                        (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
-                                        (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))));
+                                if (activeTool == Tool.Eraser)
+                                {
+                                    Utils.OverwriteMasked(
+                                        this.EnvironmentParameters.SourceSurface,
+                                        bmpCurrentDrawing,
+                                        bmpBrushRotScaled,
+                                        new Point(
+                                            (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
+                                            (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))));
+
+                                }
+                                else
+                                {
+                                    Utils.DrawMasked(
+                                        bmpCurrentDrawing,
+                                        bmpBrushRotScaled,
+                                        new Point(
+                                            (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
+                                            (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
+                                        adjustedColor,
+                                        drawMode);
+                                }
                             }
                         }
                         else
@@ -1671,7 +1720,7 @@ namespace BrushFactory
                     else if (cmbxSymmetry.SelectedIndex ==
                         (int)SymmetryMode.SetPoints)
                     {
-                        if (activeTool == Tool.Eraser)
+                        if (useLockbitsDrawing)
                         {
                             using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
                             {
@@ -1688,13 +1737,27 @@ namespace BrushFactory
                                         transformedPoint = TransformPoint(transformedPoint, true, true, false);
                                     }
 
-                                    Utils.CopyErase(
-                                        this.EnvironmentParameters.SourceSurface,
-                                        bmpCurrentDrawing,
-                                        bmpBrushRotScaled,
-                                        new Point(
-                                            (int)(transformedPoint.X - halfScaleFactor),
-                                            (int)(transformedPoint.Y - halfScaleFactor)));
+                                    if (activeTool == Tool.Eraser)
+                                    {
+                                        Utils.OverwriteMasked(
+                                            this.EnvironmentParameters.SourceSurface,
+                                            bmpCurrentDrawing,
+                                            bmpBrushRotScaled,
+                                            new Point(
+                                                (int)(transformedPoint.X - halfScaleFactor),
+                                                (int)(transformedPoint.Y - halfScaleFactor)));
+                                    }
+                                    else
+                                    {
+                                        Utils.DrawMasked(
+                                            bmpCurrentDrawing,
+                                            bmpBrushRotScaled,
+                                            new Point(
+                                                (int)(transformedPoint.X - halfScaleFactor),
+                                                (int)(transformedPoint.Y - halfScaleFactor)),
+                                            adjustedColor,
+                                            drawMode);
+                                    }
                                 }
                             }
                         }
@@ -1743,20 +1806,34 @@ namespace BrushFactory
                         int numPoints = cmbxSymmetry.SelectedIndex - 2;
                         double angleIncrease = (2 * Math.PI) / numPoints;
 
-                        if (activeTool == Tool.Eraser)
+                        if (useLockbitsDrawing)
                         {
                             using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(
                                 bmpBrushRot, new Size(scaleFactor, scaleFactor)))
                             {
                                 for (int i = 0; i < numPoints; i++)
                                 {
-                                    Utils.CopyErase(
-                                    this.EnvironmentParameters.SourceSurface,
-                                    bmpCurrentDrawing,
-                                    bmpBrushRotScaled,
-                                    new Point(
-                                        (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                        (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))));
+                                    if (activeTool == Tool.Eraser)
+                                    {
+                                        Utils.OverwriteMasked(
+                                        this.EnvironmentParameters.SourceSurface,
+                                        bmpCurrentDrawing,
+                                        bmpBrushRotScaled,
+                                        new Point(
+                                            (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                            (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))));
+                                    }
+                                    else
+                                    {
+                                        Utils.DrawMasked(
+                                        bmpCurrentDrawing,
+                                        bmpBrushRotScaled,
+                                        new Point(
+                                            (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                            (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                        adjustedColor,
+                                        drawMode);
+                                    }
 
                                     angle += angleIncrease;
                                 }
@@ -1780,7 +1857,7 @@ namespace BrushFactory
                 }
                 #endregion
 
-                #region Draw the brush with color/alpha changes, considering symmetry
+                #region Draw the brush without blend modes but with a recolor matrix, considering symmetry
                 else
                 {
                     //Determines the positions to draw the brush at.
@@ -1965,7 +2042,8 @@ namespace BrushFactory
         /// <param name="loc">The point to get the color from.</param>
         private void GetColorFromCanvas(Point loc)
         {
-            UpdateBrushColor(bmpCurrentDrawing.GetPixel(loc.X, loc.Y));
+            PointF rotatedLoc = TransformPoint(loc, true, true, false);
+            UpdateBrushColor(bmpCurrentDrawing.GetPixel((int)rotatedLoc.X, (int)rotatedLoc.Y));
         }
 
         /// <summary>
@@ -3098,7 +3176,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderBrushAlpha, "sliderBrushAlpha");
             this.sliderBrushAlpha.LargeChange = 1;
-            this.sliderBrushAlpha.Maximum = 99;
+            this.sliderBrushAlpha.Maximum = 255;
             this.sliderBrushAlpha.Name = "sliderBrushAlpha";
             this.sliderBrushAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderBrushAlpha.ValueChanged += new EventHandler(this.SliderBrushAlpha_ValueChanged);
@@ -3343,7 +3421,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderRandMinAlpha, "sliderRandMinAlpha");
             this.sliderRandMinAlpha.LargeChange = 1;
-            this.sliderRandMinAlpha.Maximum = 100;
+            this.sliderRandMinAlpha.Maximum = 255;
             this.sliderRandMinAlpha.Name = "sliderRandMinAlpha";
             this.sliderRandMinAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderRandMinAlpha.ValueChanged += new EventHandler(this.SliderRandMinAlpha_ValueChanged);
@@ -3634,8 +3712,8 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderShiftAlpha, "sliderShiftAlpha");
             this.sliderShiftAlpha.LargeChange = 1;
-            this.sliderShiftAlpha.Maximum = 100;
-            this.sliderShiftAlpha.Minimum = -100;
+            this.sliderShiftAlpha.Maximum = 255;
+            this.sliderShiftAlpha.Minimum = -255;
             this.sliderShiftAlpha.Name = "sliderShiftAlpha";
             this.sliderShiftAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderShiftAlpha.ValueChanged += new EventHandler(this.SliderShiftAlpha_ValueChanged);
@@ -3696,12 +3774,12 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.spinTabPressureBrushAlpha, "spinTabPressureBrushAlpha");
             this.spinTabPressureBrushAlpha.Maximum = new decimal(new int[] {
-            99,
+            255,
             0,
             0,
             0});
             this.spinTabPressureBrushAlpha.Minimum = new decimal(new int[] {
-            99,
+            255,
             0,
             0,
             -2147483648});
@@ -4114,7 +4192,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.spinTabPressureRandMinAlpha, "spinTabPressureRandMinAlpha");
             this.spinTabPressureRandMinAlpha.Minimum = new decimal(new int[] {
-            100,
+            255,
             0,
             0,
             -2147483648});
@@ -5028,11 +5106,11 @@ namespace BrushFactory
                 (int)spinTabPressureBrushAlpha.Value,
                 sliderBrushAlpha.Maximum,
                 tabletPressureRatio,
-                ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushAlpha.SelectedItem).ValueMember), 0, 100);
+                ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushAlpha.SelectedItem).ValueMember), 0, 255);
 
             //Sets the color and alpha.
             Color setColor = bttnBrushColor.BackColor;
-            float multAlpha = 1 - (finalBrushAlpha / 100f);
+            float multAlpha = drawMode == BlendMode.Normal ? 1 - (finalBrushAlpha / 255f) : 1;
 
             if (bmpBrush != null)
             {
@@ -5867,17 +5945,21 @@ namespace BrushFactory
 
             //Draws the selection.
             var selection = EnvironmentParameters.GetSelectionAsPdnRegion();
+            long area = selection.GetArea64();
 
             if (selection?.GetRegionReadOnly() != null)
             {
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
                 {
-                    selectionOutline = selection.ConstructOutline(
-                        new RectangleF(0, 0,
-                        bmpCurrentDrawing.Width,
-                        bmpCurrentDrawing.Height),
-                        canvasZoom);
+                    if (area != bmpCurrentDrawing.Width * bmpCurrentDrawing.Height)
+                    {
+                        selectionOutline = selection.ConstructOutline(
+                            new RectangleF(0, 0,
+                            bmpCurrentDrawing.Width,
+                            bmpCurrentDrawing.Height),
+                            canvasZoom);
+                    }
                 }
 
                 //Scales to zoom so the drawing region accounts for scale.
@@ -6476,6 +6558,19 @@ namespace BrushFactory
         /// </summary>
         private void ChkbxColorizeBrush_CheckedChanged(object sender, EventArgs e)
         {
+            bool colorize = chkbxColorizeBrush.Checked;
+            bttnJitterColorControls.ToggleCollapsed(true);
+            bttnJitterColorControls.Visible = chkbxColorizeBrush.Checked;
+            bttnBrushColor.Visible = colorize;
+            sliderRandMinAlpha.Enabled = colorize;
+            panelTabPressureRedJitter.Enabled = colorize;
+            panelTabPressureBlueJitter.Enabled = colorize;
+            panelTabPressureGreenJitter.Enabled = colorize;
+            panelTabPressureHueJitter.Enabled = colorize;
+            panelTabPressureSatJitter.Enabled = colorize;
+            panelTabPressureValueJitter.Enabled = colorize;
+            panelTabPressureRandMinAlpha.Enabled = colorize;
+
             UpdateBrushImage();
         }
 
