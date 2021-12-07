@@ -277,6 +277,35 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blending: Normal.
+        /// </summary>
+        internal static string BlendModeNormal {
+            get {
+                return ResourceManager.GetString("BlendModeNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Overwrite.
+        /// </summary>
+        internal static string BlendModeOverwrite {
+            get {
+                return ResourceManager.GetString("BlendModeOverwrite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blend modes describe how pixels should be edited by the brush stroke.
+        ///Normal: brushing draws over the image as usual, never making an image more transparent.
+        ///Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set..
+        /// </summary>
+        internal static string BlendModeTip {
+            get {
+                return ResourceManager.GetString("BlendModeTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Brush transparency shortcut: Ctrl + A + Mouse Wheel. Sets the brush transparency, so it becomes opaque or see-through..
         /// </summary>
         internal static string BrushAlphaTip {
@@ -1344,6 +1373,15 @@ namespace BrushFactory.Localization {
         internal static string ShortcutAlphaShift {
             get {
                 return ResourceManager.GetString("ShortcutAlphaShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blend Mode.
+        /// </summary>
+        internal static string ShortcutBlendMode {
+            get {
+                return ResourceManager.GetString("ShortcutBlendMode", resourceCulture);
             }
         }
         

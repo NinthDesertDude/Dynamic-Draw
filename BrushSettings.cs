@@ -35,6 +35,16 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// The brush's blend mode.
+        /// </summary>
+        [DataMember(Name = "BlendMode")]
+        public BlendMode BlendMode
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// The brush's transparency.
         /// </summary>
         [DataMember(Name = "BrushAlpha")]
@@ -501,6 +511,7 @@ namespace BrushFactory
         public BrushSettings()
         {
             AutomaticBrushDensity = true;
+            BlendMode = BlendMode.Normal;
             BrushSize = 2;
             BrushImageName = Strings.DefaultBrushCircle;
             BrushRotation = 0;
@@ -587,6 +598,7 @@ namespace BrushFactory
             : base(other)
         {
             AutomaticBrushDensity = other.AutomaticBrushDensity;
+            BlendMode = other.BlendMode;
             BrushSize = other.BrushSize;
             BrushImageName = other.BrushImageName;
             BrushRotation = other.BrushRotation;

@@ -82,7 +82,8 @@ namespace BrushFactory
                 { ShortcutTarget.ResetCanvasTransforms, new Setting(Localization.Strings.ResetCanvas, ShortcutTargetDataType.Action) },
                 { ShortcutTarget.CanvasX, new Setting(Localization.Strings.CanvasX, int.MinValue, int.MaxValue) },
                 { ShortcutTarget.CanvasY, new Setting(Localization.Strings.CanvasY, int.MinValue, int.MaxValue) },
-                { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.CanvasRotation, float.MinValue, float.MaxValue) }
+                { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.CanvasRotation, float.MinValue, float.MaxValue) },
+                { ShortcutTarget.BlendMode, new Setting(Localization.Strings.ShortcutBlendMode, 0, Enum.GetValues(typeof(BlendMode)).Length - 1) }
             };
         }
 

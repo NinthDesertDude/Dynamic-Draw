@@ -256,6 +256,11 @@
         /// <summary>
         /// The canvas's orientation in degrees.
         /// </summary>
-        CanvasRotation = 67
+        CanvasRotation = 67,
+
+        /// <summary>
+        /// The blending mode used when drawing with the brush.
+        /// </summary>
+        BlendMode = 68
     }
 }

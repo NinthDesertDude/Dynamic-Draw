@@ -33,17 +33,18 @@ namespace BrushFactory
         private Tool activeTool = Tool.Brush;
 
         /// <summary>
-        /// The operation to perform, e.g. draw or erase.
-        /// </summary>
-        private BlendMode drawMode = BlendMode.Normal;
-
-        /// <summary>
         /// Determines how to fill the transparent area under the user's image, if any.
         /// </summary>
         private BackgroundDisplayMode backgroundDisplayMode = BackgroundDisplayMode.Transparent;
 
         /// <summary>
-        /// If <see cref="BackgroundDisplayMode.Clipboard"/> is used, this will contain the image drawn.
+        /// Contains the list of all blend mode options for brush strokes.
+        /// </summary>
+        readonly BindingList<Tuple<string, BlendMode>> blendModeOptions;
+
+        /// <summary>
+        /// If <see cref="BackgroundDisplayMode.Clipboard"/> is used, this will contain the image that was copied to
+        /// the clipboard.
         /// </summary>
         private Bitmap bmpBackgroundClipboard;
 
@@ -273,6 +274,7 @@ namespace BrushFactory
         private Button bttnAddBrushImages;
         private ProgressBar brushImageLoadProgressBar;
         private Button bttnBrushColor;
+        private ComboBox cmbxBlendMode;
         private Label txtBrushAlpha;
         private TrackBar sliderBrushAlpha;
         private Label txtBrushRotation;
@@ -495,6 +497,16 @@ namespace BrushFactory
             cmbxSymmetry.DisplayMember = "Item1";
             cmbxSymmetry.ValueMember = "Item2";
 
+            // Configures items the blend mode options combobox.
+            blendModeOptions = new BindingList<Tuple<string, BlendMode>>
+            {
+                new Tuple<string, BlendMode>(Strings.BlendModeNormal, BlendMode.Normal),
+                new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite)
+            };
+            cmbxBlendMode.DataSource = blendModeOptions;
+            cmbxBlendMode.DisplayMember = "Item1";
+            cmbxBlendMode.ValueMember = "Item2";
+
             // Prevents sliders and comboboxes from handling mouse wheel, so the user can scroll up/down normally.
             // Winforms designer doesn't recognize this event, so it immediately strips it if placed with autogen code.
             this.cmbxTabPressureBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
@@ -516,6 +528,7 @@ namespace BrushFactory
             this.cmbxTabPressureSatJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureValueJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderCanvasZoom.MouseWheel += IgnoreMouseWheelEvent;
+            this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushAlpha.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushSize.MouseWheel += IgnoreMouseWheelEvent;
@@ -644,6 +657,7 @@ namespace BrushFactory
 
             token.CustomBrushLocations = loadedBrushImagePaths;
             token.CurrentBrushSettings.AlphaChange = sliderShiftAlpha.Value;
+            token.CurrentBrushSettings.BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex;
             token.CurrentBrushSettings.BrushAlpha = sliderBrushAlpha.Value;
             token.CurrentBrushSettings.BrushColor = bttnBrushColor.BackColor;
             token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
@@ -1377,7 +1391,7 @@ namespace BrushFactory
             ColorBgra adjustedColor = bttnBrushColor.BackColor;
             adjustedColor.A = (byte)Math.Round(255 - Utils.ClampF(sliderBrushAlpha.Value + random.Next(finalRandMinAlpha), 0, 255));
 
-            if (chkbxColorizeBrush.Checked)
+            if (chkbxColorizeBrush.Enabled && chkbxColorizeBrush.Checked || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
             {
                 int finalJitterMaxRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
                     (int)spinTabPressureMaxRedJitter.Value,
@@ -1481,11 +1495,17 @@ namespace BrushFactory
 
                 if (finalRandMinAlpha != 0 || jitterRgb || jitterHsv)
                 {
-                    float newAlpha = Utils.ClampF((255 - random.Next(finalRandMinAlpha)) / 255f, 0, 1);
+                    // the brush image is already alpha multiplied for speed when the user sets brush transparency, so
+                    // newAlpha just mixes the remainder from jitter, which is why it does 255 minus the jitter.
+                    // Non-standard blend modes need to use the brush as an alpha mask, so they don't multiply brush
+                    // transparency into the brush early on.
+                    float newAlpha = (cmbxBlendMode.SelectedIndex == (int)BlendMode.Normal || activeTool == Tool.Eraser)
+                        ? Utils.ClampF((255 - random.Next(finalRandMinAlpha)) / 255f, 0, 1)
+                        : adjustedColor.A / 255f;
+
                     float newRed = bttnBrushColor.BackColor.R / 255f;
                     float newGreen = bttnBrushColor.BackColor.G / 255f;
                     float newBlue = bttnBrushColor.BackColor.B / 255f;
-                    RgbColor colorRgb = new RgbColor(bttnBrushColor.BackColor.R, bttnBrushColor.BackColor.G, bttnBrushColor.BackColor.B);
 
                     //Sets RGB color jitter.
                     if (jitterRgb)
@@ -1501,17 +1521,13 @@ namespace BrushFactory
                         newRed = Utils.ClampF((bttnBrushColor.BackColor.R / 2.55f
                             - random.Next(finalJitterMinRed)
                             + random.Next(finalJitterMaxRed)) / 100f, 0, 1);
-
-                        if (jitterHsv)
-                        {
-                            colorRgb = new RgbColor((int)(newRed * 255), (int)(newGreen * 255), (int)(newBlue * 255));
-                        }
                     }
 
                     // Sets HSV color jitter.
                     if (jitterHsv)
                     {
-                        HsvColor colorHsv = colorRgb.ToHsv();
+                        HsvColor colorHsv = new RgbColor((int)(newRed * 255f), (int)(newGreen * 255f), (int)(newBlue * 255f))
+                            .ToHsv();
 
                         int newHue = (int)Utils.ClampF(colorHsv.Hue
                             - random.Next((int)(finalJitterMinHue * 3.6f))
@@ -1547,10 +1563,10 @@ namespace BrushFactory
             {
                 // GDI+ unfortunately has no native blend modes, only compositing modes, so all blend modes (including
                 // the eraser tool) are performed manually.
-                bool useLockbitsDrawing = activeTool == Tool.Eraser || drawMode != BlendMode.Normal;
+                bool useLockbitsDrawing = activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal;
 
                 // Overwrite blend mode doesn't use the recolor matrix.
-                if (useLockbitsDrawing && activeTool != Tool.Eraser && drawMode == BlendMode.Overwrite)
+                if (useLockbitsDrawing && activeTool != Tool.Eraser && cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
                 {
                     recolorMatrix = null;
                 }
@@ -1625,7 +1641,7 @@ namespace BrushFactory
                                         bmpBrushRotScaled,
                                         new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))),
                                         adjustedColor,
-                                        drawMode);
+                                        (BlendMode)cmbxBlendMode.SelectedIndex);
                                 }
                             }
                         }
@@ -1701,7 +1717,7 @@ namespace BrushFactory
                                             (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
                                             (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
                                         adjustedColor,
-                                        drawMode);
+                                        (BlendMode)cmbxBlendMode.SelectedIndex);
                                 }
                             }
                         }
@@ -1756,7 +1772,7 @@ namespace BrushFactory
                                                 (int)(transformedPoint.X - halfScaleFactor),
                                                 (int)(transformedPoint.Y - halfScaleFactor)),
                                             adjustedColor,
-                                            drawMode);
+                                            (BlendMode)cmbxBlendMode.SelectedIndex);
                                     }
                                 }
                             }
@@ -1832,7 +1848,7 @@ namespace BrushFactory
                                             (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
                                             (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
                                         adjustedColor,
-                                        drawMode);
+                                        (BlendMode)cmbxBlendMode.SelectedIndex);
                                     }
 
                                     angle += angleIncrease;
@@ -2014,25 +2030,6 @@ namespace BrushFactory
                     }
                 }
                 #endregion
-            }
-        }
-
-        /// <summary>
-        /// This adjusts the brush density when it's set to be automatically adjusted based on brush size.
-        /// </summary>
-        private void UpdateBrushDensity(int brushSize)
-        {
-            if (chkbxAutomaticBrushDensity.Checked)
-            {
-                if (brushSize == 1 || brushSize == 2) { sliderBrushDensity.Value = brushSize; }
-                else if (brushSize > 2 && brushSize < 6) { sliderBrushDensity.Value = 3; }
-                else if (brushSize > 5 && brushSize < 8) { sliderBrushDensity.Value = 4; }
-                else if (brushSize > 7 && brushSize < 21) { sliderBrushDensity.Value = 5; }
-                else if (brushSize > 20 && brushSize < 26) { sliderBrushDensity.Value = 6; }
-                else if (brushSize > 25 && brushSize < 46) { sliderBrushDensity.Value = 7; }
-                else if (brushSize > 45 && brushSize < 81) { sliderBrushDensity.Value = 8; }
-                else if (brushSize > 80 && brushSize < 251) { sliderBrushDensity.Value = 9; }
-                else { sliderBrushDensity.Value = 10; }
             }
         }
 
@@ -2305,6 +2302,10 @@ namespace BrushFactory
                 case ShortcutTarget.CanvasRotation:
                     canvasRotation = shortcut.GetDataAsFloat(canvasRotation, float.MinValue, float.MaxValue) % 360;
                     displayCanvas.Refresh();
+                    break;
+                case ShortcutTarget.BlendMode:
+                    cmbxBlendMode.SelectedIndex =
+                        shortcut.GetDataAsInt((int)cmbxBlendMode.SelectedIndex, 0, cmbxBlendMode.Items.Count);
                     break;
             };
         }
@@ -2614,6 +2615,7 @@ namespace BrushFactory
             this.bttnAddBrushImages = new Button();
             this.brushImageLoadProgressBar = new ProgressBar();
             this.bttnBrushColor = new Button();
+            this.cmbxBlendMode = new ComboBox();
             this.txtBrushAlpha = new Label();
             this.sliderBrushAlpha = new TrackBar();
             this.txtBrushRotation = new Label();
@@ -3068,6 +3070,7 @@ namespace BrushFactory
             this.panelBrush.Controls.Add(this.listviewBrushPicker);
             this.panelBrush.Controls.Add(this.listviewBrushImagePicker);
             this.panelBrush.Controls.Add(this.panelBrushAddPickColor);
+            this.panelBrush.Controls.Add(this.cmbxBlendMode);
             this.panelBrush.Controls.Add(this.txtBrushAlpha);
             this.panelBrush.Controls.Add(this.sliderBrushAlpha);
             this.panelBrush.Controls.Add(this.txtBrushRotation);
@@ -3165,6 +3168,18 @@ namespace BrushFactory
             this.bttnBrushColor.UseVisualStyleBackColor = false;
             this.bttnBrushColor.Click += new EventHandler(this.BttnBrushColor_Click);
             this.bttnBrushColor.MouseEnter += new EventHandler(this.BttnBrushColor_MouseEnter);
+            // 
+            // cmbxBlendMode
+            // 
+            resources.ApplyResources(this.cmbxBlendMode, "cmbxBlendMode");
+            this.cmbxBlendMode.BackColor = System.Drawing.Color.White;
+            this.cmbxBlendMode.DropDownHeight = 140;
+            this.cmbxBlendMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbxBlendMode.DropDownWidth = 20;
+            this.cmbxBlendMode.FormattingEnabled = true;
+            this.cmbxBlendMode.Name = "cmbxBlendMode";
+            this.cmbxBlendMode.SelectedIndexChanged += new EventHandler(this.BttnBlendMode_SelectedIndexChanged);
+            this.cmbxBlendMode.MouseEnter += new EventHandler(this.BttnBlendMode_MouseEnter);
             // 
             // txtBrushAlpha
             // 
@@ -4955,6 +4970,8 @@ namespace BrushFactory
             }
 
             activeTool = toolToSwitchTo;
+
+            UpdateEnabledControls();
         }
 
         /// <summary>
@@ -5091,10 +5108,49 @@ namespace BrushFactory
             spinTabPressureRandRotLeft.Value = settings.TabPressureRandRotLeft;
             spinTabPressureRandRotRight.Value = settings.TabPressureRandRotRight;
             spinTabPressureRandVerShift.Value = settings.TabPressureRandVerShift;
+            cmbxBlendMode.SelectedIndex = (int)settings.BlendMode;
             cmbxBrushSmoothing.SelectedIndex = (int)settings.Smoothing;
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
 
+            UpdateEnabledControls();
             UpdateBrushColor(settings.BrushColor);
+        }
+
+        /// <summary>
+        /// Updates the current brush color to the desired color.
+        /// </summary>
+        /// <param name="newColor">The new color to set the brush to.</param>
+        private void UpdateBrushColor(Color newColor)
+        {
+            //Makes the text that says 'colors' almost always legible.
+            Color oppositeColor = Color.FromArgb(
+            (byte)(255 - newColor.R),
+            (byte)(255 - newColor.G),
+            (byte)(255 - newColor.B));
+            bttnBrushColor.ForeColor = oppositeColor;
+
+            //Sets the back color and updates the brushes.
+            bttnBrushColor.BackColor = newColor;
+            UpdateBrushImage();
+        }
+
+        /// <summary>
+        /// This adjusts the brush density when it's set to be automatically adjusted based on brush size.
+        /// </summary>
+        private void UpdateBrushDensity(int brushSize)
+        {
+            if (chkbxAutomaticBrushDensity.Checked)
+            {
+                if (brushSize == 1 || brushSize == 2) { sliderBrushDensity.Value = brushSize; }
+                else if (brushSize > 2 && brushSize < 6) { sliderBrushDensity.Value = 3; }
+                else if (brushSize > 5 && brushSize < 8) { sliderBrushDensity.Value = 4; }
+                else if (brushSize > 7 && brushSize < 21) { sliderBrushDensity.Value = 5; }
+                else if (brushSize > 20 && brushSize < 26) { sliderBrushDensity.Value = 6; }
+                else if (brushSize > 25 && brushSize < 46) { sliderBrushDensity.Value = 7; }
+                else if (brushSize > 45 && brushSize < 81) { sliderBrushDensity.Value = 8; }
+                else if (brushSize > 80 && brushSize < 251) { sliderBrushDensity.Value = 9; }
+                else { sliderBrushDensity.Value = 10; }
+            }
         }
 
         /// <summary>
@@ -5110,7 +5166,9 @@ namespace BrushFactory
 
             //Sets the color and alpha.
             Color setColor = bttnBrushColor.BackColor;
-            float multAlpha = drawMode == BlendMode.Normal ? 1 - (finalBrushAlpha / 255f) : 1;
+            float multAlpha = (activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex == BlendMode.Normal)
+                ? 1 - (finalBrushAlpha / 255f)
+                : 1;
 
             if (bmpBrush != null)
             {
@@ -5130,21 +5188,37 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// Updates the current brush color to the desired color.
+        /// Updates which controls are enabled or not based on current settings.
         /// </summary>
-        /// <param name="newColor">The new color to set the brush to.</param>
-        private void UpdateBrushColor(Color newColor)
+        private void UpdateEnabledControls()
         {
-            //Makes the text that says 'colors' almost always legible.
-            Color oppositeColor = Color.FromArgb(
-            (byte)(255 - newColor.R),
-            (byte)(255 - newColor.G),
-            (byte)(255 - newColor.B));
-            bttnBrushColor.ForeColor = oppositeColor;
+            bool enableAlphaJitter = chkbxColorizeBrush.Checked || activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Normal;
+            bool enableColorJitter = activeTool != Tool.Eraser && chkbxColorizeBrush.Checked;
 
-            //Sets the back color and updates the brushes.
-            bttnBrushColor.BackColor = newColor;
-            UpdateBrushImage();
+            // overwrite mode: keep everything else on, but disable colorize brush
+            // erase mode: keep alpha and alpha jitter on, but disable colorize brush, color, color jitters
+            chkbxColorizeBrush.Enabled = (BlendMode)cmbxBlendMode.SelectedIndex == BlendMode.Normal && activeTool != Tool.Eraser;
+
+            // Hide dynamic coloring options if colorize brush is off.
+            if (!chkbxColorizeBrush.Checked || activeTool == Tool.Eraser)
+            {
+                bttnJitterColorControls.ToggleCollapsed(true);
+                bttnJitterColorControls.Visible = false;
+            }
+
+            bttnJitterColorControls.Visible = chkbxColorizeBrush.Checked && activeTool != Tool.Eraser;
+            bttnBrushColor.Visible = (chkbxColorizeBrush.Checked || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal)
+                && activeTool != Tool.Eraser;
+
+            panelTabPressureRedJitter.Enabled = enableColorJitter;
+            panelTabPressureBlueJitter.Enabled = enableColorJitter;
+            panelTabPressureGreenJitter.Enabled = enableColorJitter;
+            panelTabPressureHueJitter.Enabled = enableColorJitter;
+            panelTabPressureSatJitter.Enabled = enableColorJitter;
+            panelTabPressureValueJitter.Enabled = enableColorJitter;
+
+            sliderRandMinAlpha.Enabled = enableAlphaJitter;
+            panelTabPressureRandMinAlpha.Enabled = enableAlphaJitter;
         }
 
         /// <summary>
@@ -6121,6 +6195,16 @@ namespace BrushFactory
             UpdateTooltip(Strings.AddBrushImagesTip);
         }
 
+        private void BttnBlendMode_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.BlendModeTip);
+        }
+
+        private void BttnBlendMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateEnabledControls();
+        }
+
         /// <summary>
         /// Sets the new color of the brush.
         /// </summary>
@@ -6346,6 +6430,7 @@ namespace BrushFactory
                 {
                     AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked,
                     AlphaChange = sliderShiftAlpha.Value,
+                    BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex,
                     BrushAlpha = sliderBrushAlpha.Value,
                     BrushColor = bttnBrushColor.BackColor,
                     BrushDensity = sliderBrushDensity.Value,
@@ -6443,6 +6528,11 @@ namespace BrushFactory
             UpdateTooltip(Strings.SaveNewBrushTip);
         }
 
+        private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.SymmetryTip);
+        }
+
         private void BttnToolBrush_Click(object sender, EventArgs e)
         {
             SwitchTool(Tool.Brush);
@@ -6538,11 +6628,6 @@ namespace BrushFactory
             UpdateTooltip(Strings.UndoTip);
         }
 
-        private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.SymmetryTip);
-        }
-
         private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.AutomaticBrushDensityTip);
@@ -6558,19 +6643,7 @@ namespace BrushFactory
         /// </summary>
         private void ChkbxColorizeBrush_CheckedChanged(object sender, EventArgs e)
         {
-            bool colorize = chkbxColorizeBrush.Checked;
-            bttnJitterColorControls.ToggleCollapsed(true);
-            bttnJitterColorControls.Visible = chkbxColorizeBrush.Checked;
-            bttnBrushColor.Visible = colorize;
-            sliderRandMinAlpha.Enabled = colorize;
-            panelTabPressureRedJitter.Enabled = colorize;
-            panelTabPressureBlueJitter.Enabled = colorize;
-            panelTabPressureGreenJitter.Enabled = colorize;
-            panelTabPressureHueJitter.Enabled = colorize;
-            panelTabPressureSatJitter.Enabled = colorize;
-            panelTabPressureValueJitter.Enabled = colorize;
-            panelTabPressureRandMinAlpha.Enabled = colorize;
-
+            UpdateEnabledControls();
             UpdateBrushImage();
         }
 

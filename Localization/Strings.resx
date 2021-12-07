@@ -786,4 +786,18 @@
   <data name="BackgroundWhite" xml:space="preserve">
     <value>Use white background</value>
   </data>
+  <data name="BlendModeNormal" xml:space="preserve">
+    <value>Blending: Normal</value>
+  </data>
+  <data name="BlendModeOverwrite" xml:space="preserve">
+    <value>Blending: Overwrite</value>
+  </data>
+  <data name="BlendModeTip" xml:space="preserve">
+    <value>Blend modes describe how pixels should be edited by the brush stroke.
+Normal: brushing draws over the image as usual, never making an image more transparent.
+Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set.</value>
+  </data>
+  <data name="ShortcutBlendMode" xml:space="preserve">
+    <value>Blend Mode</value>
+  </data>
 </root>

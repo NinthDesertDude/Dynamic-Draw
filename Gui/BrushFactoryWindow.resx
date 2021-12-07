@@ -852,6 +852,45 @@
   <data name="&gt;&gt;panelBrushAddPickColor.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
+  <data name="cmbxBlendMode.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="cmbxBlendMode.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="cmbxBlendMode.IntegralHeight" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="cmbxBlendMode.ItemHeight" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="cmbxBlendMode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 402</value>
+  </data>
+  <data name="cmbxBlendMode.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="cmbxBlendMode.MaxDropDownItems" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="cmbxBlendMode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>153, 21</value>
+  </data>
+  <data name="cmbxBlendMode.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;cmbxBlendMode.Name" xml:space="preserve">
+    <value>cmbxBlendMode</value>
+  </data>
+  <data name="&gt;&gt;cmbxBlendMode.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;cmbxBlendMode.Parent" xml:space="preserve">
+    <value>panelBrush</value>
+  </data>
+  <data name="&gt;&gt;cmbxBlendMode.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
   <data name="txtBrushAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
@@ -859,7 +898,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 402</value>
+    <value>7, 447</value>
   </data>
   <data name="txtBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -898,7 +937,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 422</value>
+    <value>6, 467</value>
   </data>
   <data name="sliderBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -928,7 +967,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 450</value>
+    <value>7, 495</value>
   </data>
   <data name="txtBrushRotation.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -967,7 +1006,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 470</value>
+    <value>6, 515</value>
   </data>
   <data name="sliderBrushRotation.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -997,7 +1036,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 498</value>
+    <value>7, 543</value>
   </data>
   <data name="txtBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -1036,7 +1075,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 518</value>
+    <value>6, 563</value>
   </data>
   <data name="sliderBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
