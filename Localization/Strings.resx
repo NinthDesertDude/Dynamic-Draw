@@ -187,7 +187,9 @@
     <value>Canvas Zoom:</value>
   </data>
   <data name="CanvasZoomTip" xml:space="preserve">
-    <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.</value>
+    <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
+
+Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="ClearBrushImages" xml:space="preserve">
     <value>Clear Custom Images</value>
@@ -799,5 +801,22 @@ Overwrite: brushing draws over the image as usual, except it also replaces trans
   </data>
   <data name="ShortcutBlendMode" xml:space="preserve">
     <value>Blend Mode</value>
+  </data>
+  <data name="CanvasAngle" xml:space="preserve">
+    <value>Canvas Angle:</value>
+  </data>
+  <data name="CanvasAngleTip" xml:space="preserve">
+    <value>Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
+
+Press Zero to reset the canvas position, zoom and angle.</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="ConfirmCancel" xml:space="preserve">
+    <value>Cancel changes and return to Paint.Net?</value>
+  </data>
+  <data name="ConfirmChanges" xml:space="preserve">
+    <value>Apply changes and return to Paint.Net?</value>
   </data>
 </root>

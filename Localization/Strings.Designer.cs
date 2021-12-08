@@ -468,6 +468,26 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Canvas Angle:.
+        /// </summary>
+        internal static string CanvasAngle {
+            get {
+                return ResourceManager.GetString("CanvasAngle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
+        ///
+        ///Press Zero to reset the canvas position, zoom and angle..
+        /// </summary>
+        internal static string CanvasAngleTip {
+            get {
+                return ResourceManager.GetString("CanvasAngleTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The angle of the canvas. Rotating it can be useful to tablet users who draw better at certain angles..
         /// </summary>
         internal static string CanvasRotation {
@@ -504,7 +524,9 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier..
+        ///   Looks up a localized string similar to Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
+        ///
+        ///Press Zero to reset the canvas position, zoom and angle..
         /// </summary>
         internal static string CanvasZoomTip {
             get {
@@ -581,6 +603,33 @@ namespace BrushFactory.Localization {
         internal static string ColorPickerTip {
             get {
                 return ResourceManager.GetString("ColorPickerTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm.
+        /// </summary>
+        internal static string Confirm {
+            get {
+                return ResourceManager.GetString("Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel changes and return to Paint.Net?.
+        /// </summary>
+        internal static string ConfirmCancel {
+            get {
+                return ResourceManager.GetString("ConfirmCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply changes and return to Paint.Net?.
+        /// </summary>
+        internal static string ConfirmChanges {
+            get {
+                return ResourceManager.GetString("ConfirmChanges", resourceCulture);
             }
         }
         

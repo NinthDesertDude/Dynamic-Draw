@@ -87,11 +87,6 @@ namespace BrushFactory
         private float canvasZoom = 1;
 
         /// <summary>
-        /// The rotation of the canvas in degrees.
-        /// </summary>
-        private float canvasRotation = 0;
-
-        /// <summary>
         /// Whether the brush loading worker should reload brushes after cancelation.
         /// </summary>
         private bool doReinitializeBrushImages;
@@ -268,6 +263,8 @@ namespace BrushFactory
         private FlowLayoutPanel panelBrush;
         private Label txtCanvasZoom;
         private TrackBar sliderCanvasZoom;
+        private Label txtCanvasAngle;
+        private TrackBar sliderCanvasAngle;
         private DoubleBufferedListView listviewBrushImagePicker;
         private Panel panelBrushAddPickColor;
         private CheckBox chkbxColorizeBrush;
@@ -528,6 +525,7 @@ namespace BrushFactory
             this.cmbxTabPressureSatJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureValueJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderCanvasZoom.MouseWheel += IgnoreMouseWheelEvent;
+            this.sliderCanvasAngle.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushAlpha.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
@@ -777,6 +775,9 @@ namespace BrushFactory
 
             txtCanvasZoom.Text = string.Format("{0} {1}%",
                 Strings.CanvasZoom, sliderCanvasZoom.Value);
+
+            txtCanvasAngle.Text = string.Format("{0} {1}°",
+                Strings.CanvasAngle, sliderCanvasAngle.Value);
 
             txtMinDrawDistance.Text = string.Format("{0} {1}",
                 Strings.MinDrawDistance, sliderMinDrawDistance.Value);
@@ -1080,9 +1081,9 @@ namespace BrushFactory
             // Shift + Wheel: Changes the canvas rotation.
             else if (ModifierKeys == Keys.Shift)
             {
-                canvasRotation += Math.Sign(e.Delta) * 10;
-                while (canvasRotation >= 360) { canvasRotation -= 360; }
-                while (canvasRotation <= -360) { canvasRotation += 360; }
+                sliderCanvasAngle.Value += Math.Sign(e.Delta) * 10;
+                while (sliderCanvasAngle.Value >= 360) { sliderCanvasAngle.Value -= 360; }
+                while (sliderCanvasAngle.Value <= -360) { sliderCanvasAngle.Value += 360; }
 
                 displayCanvas.Refresh();
             }
@@ -1107,6 +1108,11 @@ namespace BrushFactory
         /// </summary>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            if (DialogResult == DialogResult.None)
+            {
+                e.Cancel = true;
+            }
+
             base.OnFormClosing(e);
 
             if (brushImageLoadingWorker.IsBusy)
@@ -1573,9 +1579,9 @@ namespace BrushFactory
 
                 #region create intermediate rotated brush (as needed)
                 // Manually rotates to account for canvas angle (lockbits doesn't use matrices).
-                if (useLockbitsDrawing && canvasRotation != 0)
+                if (useLockbitsDrawing && sliderCanvasAngle.Value != 0)
                 {
-                    rotation -= (int)Math.Round(canvasRotation);
+                    rotation -= sliderCanvasAngle.Value;
                 }
 
                 Bitmap bmpBrushRot = Utils.RotateImage(bmpBrushEffects, rotation);
@@ -1600,7 +1606,7 @@ namespace BrushFactory
                 if (!useLockbitsDrawing)
                 {
                     g.TranslateTransform(drawingOffsetX, drawingOffsetY);
-                    g.RotateTransform(-canvasRotation);
+                    g.RotateTransform(-sliderCanvasAngle.Value);
                     g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
                 }
 
@@ -1619,7 +1625,7 @@ namespace BrushFactory
                         if (useLockbitsDrawing)
                         {
                             PointF rotatedLoc = loc;
-                            if (canvasRotation != 0)
+                            if (sliderCanvasAngle.Value != 0)
                             {
                                 rotatedLoc = TransformPoint(loc, true, true, false);
                             }
@@ -1748,7 +1754,7 @@ namespace BrushFactory
                                         loc.X + symmetryOrigins[i].X,
                                         loc.Y + symmetryOrigins[i].Y);
 
-                                    if (canvasRotation != 0)
+                                    if (sliderCanvasAngle.Value != 0)
                                     {
                                         transformedPoint = TransformPoint(transformedPoint, true, true, false);
                                     }
@@ -2288,7 +2294,7 @@ namespace BrushFactory
                     canvas.height = bmpCurrentDrawing.Height;
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
                     canvas.y = (displayCanvas.Height - canvas.height) / 2;
-                    canvasRotation = 0;
+                    sliderCanvasAngle.Value = 0;
                     sliderCanvasZoom.Value = 100;
                     break;
                 case ShortcutTarget.CanvasX:
@@ -2300,8 +2306,7 @@ namespace BrushFactory
                     displayCanvas.Refresh();
                     break;
                 case ShortcutTarget.CanvasRotation:
-                    canvasRotation = shortcut.GetDataAsFloat(canvasRotation, float.MinValue, float.MaxValue) % 360;
-                    displayCanvas.Refresh();
+                    sliderCanvasAngle.Value = shortcut.GetDataAsInt(sliderCanvasAngle.Value, int.MinValue, int.MaxValue) % 360;
                     break;
                 case ShortcutTarget.BlendMode:
                     cmbxBlendMode.SelectedIndex =
@@ -2608,6 +2613,8 @@ namespace BrushFactory
             this.panelBrush = new FlowLayoutPanel();
             this.txtCanvasZoom = new Label();
             this.sliderCanvasZoom = new TrackBar();
+            this.txtCanvasAngle = new Label();
+            this.sliderCanvasAngle = new TrackBar();
             this.listviewBrushPicker = new ListView();
             this.listviewBrushImagePicker = new DoubleBufferedListView();
             this.panelBrushAddPickColor = new Panel();
@@ -2791,6 +2798,7 @@ namespace BrushFactory
             this.panelSettingsContainer.SuspendLayout();
             this.panelBrush.SuspendLayout();
             ((ISupportInitialize)(this.sliderCanvasZoom)).BeginInit();
+            ((ISupportInitialize)(this.sliderCanvasAngle)).BeginInit();
             this.panelBrushAddPickColor.SuspendLayout();
             ((ISupportInitialize)(this.sliderBrushAlpha)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
@@ -3067,6 +3075,8 @@ namespace BrushFactory
             this.panelBrush.BackColor = System.Drawing.SystemColors.Control;
             this.panelBrush.Controls.Add(this.txtCanvasZoom);
             this.panelBrush.Controls.Add(this.sliderCanvasZoom);
+            this.panelBrush.Controls.Add(this.txtCanvasAngle);
+            this.panelBrush.Controls.Add(this.sliderCanvasAngle);
             this.panelBrush.Controls.Add(this.listviewBrushPicker);
             this.panelBrush.Controls.Add(this.listviewBrushImagePicker);
             this.panelBrush.Controls.Add(this.panelBrushAddPickColor);
@@ -3096,6 +3106,24 @@ namespace BrushFactory
             this.sliderCanvasZoom.Value = 100;
             this.sliderCanvasZoom.ValueChanged += new EventHandler(this.SliderCanvasZoom_ValueChanged);
             this.sliderCanvasZoom.MouseEnter += new EventHandler(this.SliderCanvasZoom_MouseEnter);
+            // 
+            // txtCanvasAngle
+            // 
+            resources.ApplyResources(this.txtCanvasAngle, "txtCanvasAngle");
+            this.txtCanvasAngle.BackColor = System.Drawing.Color.Transparent;
+            this.txtCanvasAngle.Name = "txtCanvasAngle";
+            // 
+            // sliderCanvasAngle
+            // 
+            resources.ApplyResources(this.sliderCanvasAngle, "sliderCanvasAngle");
+            this.sliderCanvasAngle.LargeChange = 1;
+            this.sliderCanvasAngle.Maximum = 360;
+            this.sliderCanvasAngle.Minimum = 0;
+            this.sliderCanvasAngle.Name = "sliderCanvasAngle";
+            this.sliderCanvasAngle.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderCanvasAngle.Value = 0;
+            this.sliderCanvasAngle.ValueChanged += new EventHandler(this.SliderCanvasAngle_ValueChanged);
+            this.sliderCanvasAngle.MouseEnter += new EventHandler(this.SliderCanvasAngle_MouseEnter);
             // 
             // listviewBrushPicker
             // 
@@ -3279,6 +3307,7 @@ namespace BrushFactory
             this.chkbxAutomaticBrushDensity.Name = "chkbxAutomaticBrushDensity";
             this.chkbxAutomaticBrushDensity.MouseEnter += new EventHandler(this.AutomaticBrushDensity_MouseEnter);
             this.chkbxAutomaticBrushDensity.CheckedChanged += new EventHandler(this.AutomaticBrushDensity_CheckedChanged);
+            this.chkbxAutomaticBrushDensity.TabIndex = 20;
             // 
             // txtBrushDensity
             // 
@@ -4712,6 +4741,7 @@ namespace BrushFactory
             this.panelBrush.ResumeLayout(false);
             this.panelBrush.PerformLayout();
             ((ISupportInitialize)(this.sliderCanvasZoom)).EndInit();
+            ((ISupportInitialize)(this.sliderCanvasAngle)).EndInit();
             this.panelBrushAddPickColor.ResumeLayout(false);
             this.panelBrushAddPickColor.PerformLayout();
             ((ISupportInitialize)(this.sliderBrushAlpha)).EndInit();
@@ -5006,7 +5036,7 @@ namespace BrushFactory
             double angle = Math.Atan2(deltaY, deltaX);
 
             // subtracts canvas rotation angle to get the coordinates rotated w.r.t. the canvas.
-            angle -= canvasRotation * Math.PI / 180;
+            angle -= sliderCanvasAngle.Value * Math.PI / 180;
 
             if (doClamp)
             {
@@ -5778,7 +5808,7 @@ namespace BrushFactory
                 GraphicsPath path = new GraphicsPath();
                 path.AddRectangle(range);
                 Matrix m = new Matrix();
-                m.RotateAt(canvasRotation, new PointF(range.X + range.Width / 2f, range.Y + range.Height / 2f));
+                m.RotateAt(sliderCanvasAngle.Value, new PointF(range.X + range.Width / 2f, range.Y + range.Height / 2f));
                 path.Transform(m);
 
                 //Moves the drawing region.
@@ -5940,7 +5970,7 @@ namespace BrushFactory
             float drawingOffsetY = (bmpCurrentDrawing.Height * 0.5f * canvasZoom);
 
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
-            e.Graphics.RotateTransform(canvasRotation);
+            e.Graphics.RotateTransform(sliderCanvasAngle.Value);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
             // Computes the visible region of the image. This speed optimization is only used for unrotated canvases
@@ -5952,7 +5982,7 @@ namespace BrushFactory
             float lCutoffUnzoomed = leftCutoff / canvasZoom;
             float tCutoffUnzoomed = topCutoff / canvasZoom;
 
-            Rectangle visibleBounds = (canvasRotation == 0)
+            Rectangle visibleBounds = (sliderCanvasAngle.Value == 0)
                 ? new Rectangle(
                     leftCutoff, topCutoff,
                     canvas.width - overshootX - leftCutoff,
@@ -5969,7 +5999,7 @@ namespace BrushFactory
             }
             if (backgroundDisplayMode == BackgroundDisplayMode.Clipboard)
             {
-                if (canvasRotation == 0)
+                if (sliderCanvasAngle.Value == 0)
                 {
                     e.Graphics.DrawImage(
                         bmpBackgroundClipboard,
@@ -6001,7 +6031,7 @@ namespace BrushFactory
             else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
 
             //Draws only the visible portion of the image.
-            if (canvasRotation == 0)
+            if (sliderCanvasAngle.Value == 0)
             {
                 e.Graphics.DrawImage(
                     bmpCurrentDrawing,
@@ -6100,7 +6130,7 @@ namespace BrushFactory
             }
 
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
-            e.Graphics.RotateTransform(canvasRotation);
+            e.Graphics.RotateTransform(sliderCanvasAngle.Value);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
             // Draws the symmetry origins for symmetry modes when it's enabled.
@@ -6156,7 +6186,7 @@ namespace BrushFactory
                                 float offsetY = pointsDrawnY + symmetryOrigins[i].Y;
                                 double dist = Math.Sqrt(offsetX * offsetX + offsetY * offsetY);
                                 double angle = Math.Atan2(offsetY, offsetX);
-                                angle -= canvasRotation * Math.PI / 180;
+                                angle -= sliderCanvasAngle.Value * Math.PI / 180;
                                 e.Graphics.DrawRectangle(
                                     Pens.Red,
                                     (float)(bmpCurrentDrawing.Width / 2 + dist * Math.Cos(angle) - 1),
@@ -6239,6 +6269,17 @@ namespace BrushFactory
         /// </summary>
         private void BttnCancel_Click(object sender, EventArgs e)
         {
+            DialogResult = DialogResult.Cancel;
+
+            // It's easy to hit the escape key on accident, especially when toggling other controls.
+            // If any changes were made and the OK button was indirectly invoked, ask for confirmation first.
+            if (undoHistory.Count > 0 && !bttnCancel.Focused &&
+                MessageBox.Show(Strings.ConfirmCancel, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
+            {
+                DialogResult = DialogResult.None;
+                return;
+            }
+
             //Disables the button so it can't accidentally be called twice.
             bttnCancel.Enabled = false;
 
@@ -6299,6 +6340,15 @@ namespace BrushFactory
         private void BttnOk_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
+
+            // It's easy to hit the enter key on accident, especially when toggling other controls.
+            // If any changes were made and the OK button was indirectly invoked, ask for confirmation first.
+            if (undoHistory.Count > 0 && !bttnOk.Focused &&
+                MessageBox.Show(Strings.ConfirmChanges, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
+            {
+                DialogResult = DialogResult.None;
+                return;
+            }
 
             //Disables the button so it can't accidentally be called twice.
             //Ensures settings will be saved.
@@ -6988,6 +7038,20 @@ namespace BrushFactory
         private void SliderCanvasZoom_ValueChanged(object sender, EventArgs e)
         {
             Zoom(0, false);
+        }
+
+        private void SliderCanvasAngle_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.CanvasAngleTip);
+        }
+
+        private void SliderCanvasAngle_ValueChanged(object sender, EventArgs e)
+        {
+            txtCanvasAngle.Text = String.Format("{0} {1}°",
+                Strings.CanvasAngle,
+                sliderCanvasAngle.Value);
+
+            displayCanvas.Refresh();
         }
 
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
