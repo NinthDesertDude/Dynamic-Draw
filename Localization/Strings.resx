@@ -130,7 +130,7 @@
     <value>Add Brush Images</value>
   </data>
   <data name="AddBrushImagesTip" xml:space="preserve">
-    <value>Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings).</value>
+    <value>Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings).</value>
   </data>
   <data name="AddFolder" xml:space="preserve">
     <value>Add folder</value>

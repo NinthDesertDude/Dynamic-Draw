@@ -80,7 +80,7 @@ namespace BrushFactory.Gui
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 //Appends the chosen directory to the textbox of directories.
-                if (txtbxBrushLocations.Text != string.Empty)
+                if (txtbxBrushLocations.Text != string.Empty && !txtbxBrushLocations.Text.EndsWith(Environment.NewLine))
                 {
                     txtbxBrushLocations.AppendText(Environment.NewLine);
                 }

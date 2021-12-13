@@ -160,7 +160,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings)..
+        ///   Looks up a localized string similar to Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings)..
         /// </summary>
         internal static string AddBrushImagesTip {
             get {

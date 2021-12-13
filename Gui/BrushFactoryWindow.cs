@@ -1081,9 +1081,10 @@ namespace BrushFactory
             // Shift + Wheel: Changes the canvas rotation.
             else if (ModifierKeys == Keys.Shift)
             {
-                sliderCanvasAngle.Value += Math.Sign(e.Delta) * 10;
-                while (sliderCanvasAngle.Value >= 360) { sliderCanvasAngle.Value -= 360; }
-                while (sliderCanvasAngle.Value <= -360) { sliderCanvasAngle.Value += 360; }
+                int newValue = sliderCanvasAngle.Value + Math.Sign(e.Delta) * 10;
+                while (newValue < 0) { newValue += 360; }
+                while (newValue >= 360) { newValue -= 360; }
+                sliderCanvasAngle.Value = newValue;
 
                 displayCanvas.Refresh();
             }
@@ -2221,7 +2222,6 @@ namespace BrushFactory
                     int selectedBrushIndex = -1;
                     for (int i = 0; i < loadedBrushImages.Count; i++)
                     {
-                        //
                         if (shortcut.ActionData.Equals(loadedBrushImages[i].Name, StringComparison.CurrentCultureIgnoreCase))
                         {
                             selectedBrushIndex = i;
@@ -2306,7 +2306,10 @@ namespace BrushFactory
                     displayCanvas.Refresh();
                     break;
                 case ShortcutTarget.CanvasRotation:
-                    sliderCanvasAngle.Value = shortcut.GetDataAsInt(sliderCanvasAngle.Value, int.MinValue, int.MaxValue) % 360;
+                    var newValue = shortcut.GetDataAsInt(sliderCanvasAngle.Value, int.MinValue, int.MaxValue);
+                    while (newValue < 0) { newValue += 360; }
+                    while (newValue >= 360) { newValue -= 360; }
+                    sliderCanvasAngle.Value = newValue;
                     break;
                 case ShortcutTarget.BlendMode:
                     cmbxBlendMode.SelectedIndex =
@@ -2339,6 +2342,20 @@ namespace BrushFactory
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 ImportBrushImagesFromFiles(openFileDialog.FileNames, doAddToSettings, true);
+
+                // Permanently adds brushes.
+                if (settings != null)
+                {
+                    foreach (string filename in openFileDialog.FileNames)
+                    {
+                        if (!settings.CustomBrushImageDirectories.Contains(filename))
+                        {
+                            settings.CustomBrushImageDirectories.Add(filename);
+                        }
+                    }
+
+                    settings.Save(true);
+                }
             }
         }
 
@@ -2477,29 +2494,52 @@ namespace BrushFactory
         /// or non-directory path is ignored.
         /// </summary>
         /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
-        private static IReadOnlyCollection<string> FilesInDirectory(IEnumerable<string> dirs, BackgroundWorker backgroundWorker)
+        private static IReadOnlyCollection<string> FilesInDirectory(IEnumerable<string> localUris, BackgroundWorker backgroundWorker)
         {
             List<string> pathsToReturn = new List<string>();
 
-            foreach (string directory in dirs)
+            foreach (string pathFromUser in localUris)
             {
                 try
                 {
-                    //Excludes all non-image files.
-                    foreach (string str in Directory.EnumerateFiles(directory))
-                    {
-                        if (backgroundWorker.CancellationPending)
-                        {
-                            throw new OperationCanceledException();
-                        }
+                    // Gets and verifies the file uri is valid.
+                    string localUri = Path.GetFullPath(new Uri(pathFromUser).LocalPath)
+                       ?.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       ?.ToLower();
 
-                        if (str.EndsWith("png", StringComparison.OrdinalIgnoreCase) || str.EndsWith("bmp", StringComparison.OrdinalIgnoreCase) ||
-                            str.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
-                            str.EndsWith("tif", StringComparison.OrdinalIgnoreCase) || str.EndsWith("exif", StringComparison.OrdinalIgnoreCase) ||
-                            str.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) || str.EndsWith("tiff", StringComparison.OrdinalIgnoreCase) ||
-                            str.EndsWith(".abr", StringComparison.OrdinalIgnoreCase))
+                    bool isDirectory = Directory.Exists(localUri);
+                    bool isFile = File.Exists(localUri);
+
+                    if (isFile)
+                    {
+                        if (localUri.EndsWith("png") || localUri.EndsWith("bmp") || localUri.EndsWith("jpg") ||
+                            localUri.EndsWith("gif") || localUri.EndsWith("tif") || localUri.EndsWith("exif") ||
+                            localUri.EndsWith("jpeg") || localUri.EndsWith("tiff") || localUri.EndsWith(".abr"))
                         {
-                            pathsToReturn.Add(str);
+                            if (!pathsToReturn.Contains(localUri))
+                            {
+                                pathsToReturn.Add(localUri);
+                            }
+                        }
+                    }
+                    else if (isDirectory)
+                    {
+                        foreach (string str in Directory.GetFiles(localUri))
+                        {
+                            if (backgroundWorker.CancellationPending)
+                            {
+                                throw new OperationCanceledException();
+                            }
+
+                            if (str.EndsWith("png") || str.EndsWith("bmp") || str.EndsWith("jpg") ||
+                                str.EndsWith("gif") || str.EndsWith("tif") || str.EndsWith("exif") ||
+                                str.EndsWith("jpeg") || str.EndsWith("tiff") || str.EndsWith(".abr"))
+                            {
+                                if (!pathsToReturn.Contains(str))
+                                {
+                                    pathsToReturn.Add(str);
+                                }
+                            }
                         }
                     }
                 }
@@ -6742,6 +6782,7 @@ namespace BrushFactory
             }
 
             visibleBrushImagesIndex = e.StartIndex;
+
             // The indexes are inclusive.
             int length = e.EndIndex - e.StartIndex + 1;
             visibleBrushImages = new ListViewItem[length];
@@ -6753,15 +6794,11 @@ namespace BrushFactory
 
                 BrushSelectorItem brushImage = loadedBrushImages[itemIndex];
                 string name = brushImage.Name;
-                string tooltipText;
+                string tooltipText = name + Environment.NewLine + brushImage.BrushWidth + "x" + brushImage.BrushHeight;
 
                 if (!string.IsNullOrEmpty(brushImage.Location))
                 {
-                    tooltipText = name + "\n" + brushImage.Location;
-                }
-                else
-                {
-                    tooltipText = name;
+                    tooltipText += Environment.NewLine + brushImage.Location;
                 }
 
                 visibleBrushImages[i] = new ListViewItem
