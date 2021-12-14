@@ -414,6 +414,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Built in.
+        /// </summary>
+        internal static string BuiltIn {
+            get {
+                return ResourceManager.GetString("BuiltIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Preset - Airbrush.
         /// </summary>
         internal static string BuiltInBrushAirbrush {
@@ -706,7 +715,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Circle Light 256px.
+        ///   Looks up a localized string similar to Circle Light.
         /// </summary>
         internal static string DefaultBrushCircle {
             get {
@@ -715,7 +724,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Circle Hard 256px.
+        ///   Looks up a localized string similar to Circle Hard.
         /// </summary>
         internal static string DefaultBrushCircleHard {
             get {
@@ -724,7 +733,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Circle Med 256px.
+        ///   Looks up a localized string similar to Circle Med.
         /// </summary>
         internal static string DefaultBrushCircleMed {
             get {

@@ -133,7 +133,7 @@ namespace BrushFactory
                 Strings.BuiltInBrushPencil,
                 new BrushSettings()
                 {
-                    BrushImageName = Strings.DefaultBrushCircle,
+                    BrushImagePath = Strings.DefaultBrushCircle,
                     BrushDensity = 2,
                     CmbxTabPressureBrushSize = (int)CmbxTabletValueType.ValueHandlingMethod.Add,
                     TabPressureBrushSize = 10,
@@ -143,7 +143,7 @@ namespace BrushFactory
                 Strings.BuiltInBrushAirbrush,
                 new BrushSettings()
                 {
-                    BrushImageName = Strings.DefaultBrushBigDots,
+                    BrushImagePath = Strings.DefaultBrushBigDots,
                     BrushSize = 9,
                     RandRotLeft = 180,
                     RandRotRight = 180,
@@ -155,7 +155,7 @@ namespace BrushFactory
                 Strings.BuiltInBrushGrass,
                 new BrushSettings()
                 {
-                    BrushImageName = Strings.DefaultBrushGrass,
+                    BrushImagePath = Strings.DefaultBrushGrass,
                     BrushColor = Color.FromArgb(255, 20, 192, 20),
                     BrushSize = 50,
                     DoRotateWithMouse = true,

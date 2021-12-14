@@ -477,13 +477,13 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Big Dots</value>
   </data>
   <data name="DefaultBrushCircle" xml:space="preserve">
-    <value>Circle Light 256px</value>
+    <value>Circle Light</value>
   </data>
   <data name="DefaultBrushCircleHard" xml:space="preserve">
-    <value>Circle Hard 256px</value>
+    <value>Circle Hard</value>
   </data>
   <data name="DefaultBrushCircleMed" xml:space="preserve">
-    <value>Circle Med 256px</value>
+    <value>Circle Med</value>
   </data>
   <data name="DefaultBrushCircleRough" xml:space="preserve">
     <value>Rough</value>
@@ -818,5 +818,8 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="ConfirmChanges" xml:space="preserve">
     <value>Apply changes and return to Paint.Net?</value>
+  </data>
+  <data name="BuiltIn" xml:space="preserve">
+    <value>Built in</value>
   </data>
 </root>

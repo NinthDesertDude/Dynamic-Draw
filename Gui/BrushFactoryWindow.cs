@@ -132,9 +132,9 @@ namespace BrushFactory
         private readonly HashSet<KeyboardShortcut> keyboardShortcuts;
 
         /// <summary>
-        /// The name identifying the currently loaded brush, or null if no saved brush is currently active.
+        /// The file path identifying the currently loaded brush, or name for built-in brushes, or null if no saved brush is currently active.
         /// </summary>
-        private string currentBrushName = null;
+        private string currentBrushPath = null;
 
         /// <summary>
         /// The calculated minimum draw distance including factors such as pressure sensitivity.
@@ -204,9 +204,9 @@ namespace BrushFactory
         private TempDirectory tempDir;
 
         /// <summary>
-        /// The selected brush name from the effect token.
+        /// The selected brush image path from the effect token.
         /// </summary>
-        private string tokenSelectedBrushImageName;
+        private string tokenSelectedBrushImagePath;
 
         private readonly Random random = new Random();
 
@@ -616,9 +616,8 @@ namespace BrushFactory
             //Copies GUI values from the settings.
             PersistentSettings token = (PersistentSettings)effectToken;
 
-            //Loads custom brush images if possible, but skips duplicates. This
-            //method is called twice by Paint.NET for some reason, so this
-            //ensures there are no duplicates. Brush names are unique.
+            // Loads custom brush images if possible, but skips duplicates. This method is called twice by Paint.NET,
+            // so this ensures there are no duplicates.
             if (token.CustomBrushLocations.Count > 0 && !token.CustomBrushLocations.SetEquals(loadedBrushImagePaths))
             {
                 loadedBrushImagePaths.UnionWith(token.CustomBrushLocations);
@@ -660,7 +659,9 @@ namespace BrushFactory
             token.CurrentBrushSettings.BrushColor = bttnBrushColor.BackColor;
             token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
             token.CurrentBrushSettings.AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked;
-            token.CurrentBrushSettings.BrushImageName = index >= 0 ? loadedBrushImages[index].Name : Strings.DefaultBrushCircle;
+            token.CurrentBrushSettings.BrushImagePath = index >= 0
+                ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name
+                : Strings.DefaultBrushCircle;
             token.CurrentBrushSettings.BrushRotation = sliderBrushRotation.Value;
             token.CurrentBrushSettings.BrushSize = sliderBrushSize.Value;
             token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
@@ -2222,7 +2223,7 @@ namespace BrushFactory
                     int selectedBrushIndex = -1;
                     for (int i = 0; i < loadedBrushImages.Count; i++)
                     {
-                        if (shortcut.ActionData.Equals(loadedBrushImages[i].Name, StringComparison.CurrentCultureIgnoreCase))
+                        if (shortcut.ActionData.Equals(loadedBrushImages[i].Location, StringComparison.CurrentCultureIgnoreCase))
                         {
                             selectedBrushIndex = i;
                             break;
@@ -2233,7 +2234,7 @@ namespace BrushFactory
                     {
                         for (int i = 0; i < loadedBrushImages.Count; i++)
                         {
-                            if (shortcut.ActionData.Equals(loadedBrushImages[i].Location, StringComparison.CurrentCultureIgnoreCase))
+                            if (shortcut.ActionData.Equals(loadedBrushImages[i].Name, StringComparison.CurrentCultureIgnoreCase))
                             {
                                 selectedBrushIndex = i;
                                 break;
@@ -5098,12 +5099,12 @@ namespace BrushFactory
         private void UpdateBrush(BrushSettings settings)
         {
             // Whether the delete brush button is enabled or not.
-            bttnDeleteBrush.Enabled = currentBrushName != null &&
-                !PersistentSettings.defaultBrushes.ContainsKey(currentBrushName);
+            bttnDeleteBrush.Enabled = currentBrushPath != null &&
+                !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath);
 
             //Copies GUI values from the settings.
             sliderBrushSize.Value = settings.BrushSize;
-            tokenSelectedBrushImageName = settings.BrushImageName;
+            tokenSelectedBrushImagePath = settings.BrushImagePath;
 
             //Sets all other fields.
             sliderBrushAlpha.Value = settings.BrushAlpha;
@@ -5501,27 +5502,25 @@ namespace BrushFactory
                                             scaledBrushImage = null;
                                         }
 
-                                        string filename = item.Name;
+                                        string brushName = item.Name;
 
-                                        if (string.IsNullOrEmpty(filename))
+                                        if (string.IsNullOrEmpty(brushName))
                                         {
-                                            filename = string.Format(
+                                            brushName = string.Format(
                                                 System.Globalization.CultureInfo.CurrentCulture,
                                                 Strings.AbrBrushNameFallbackFormat,
                                                 i);
                                         }
 
-                                        //Appends invisible spaces to files with the same name
-                                        //until they're unique.
-                                        while (loadedBrushImages.Any(brush => brush.Name.Equals(filename, StringComparison.Ordinal)))
+                                        // Brush images with the same location need unique names. Append spaces until unique.
+                                        while (brushImages.Any(brush => brush.Name.Equals(brushName, StringComparison.Ordinal)))
                                         {
-                                            filename += " ";
+                                            brushName += " ";
                                         }
 
                                         // Add the brush image to the list and generate the ListView thumbnail.
-
                                         loadedBrushImages.Add(
-                                            new BrushSelectorItem(filename, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
+                                            new BrushSelectorItem(brushName, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
 
                                         if ((i % 2) == 0)
                                         {
@@ -5542,7 +5541,7 @@ namespace BrushFactory
 
                             using (Bitmap bmp = (Bitmap)Image.FromFile(file))
                             {
-                                //Creates the brush space.
+                                //Creates the brush image space.
                                 int size = Math.Max(bmp.Width, bmp.Height);
 
                                 Bitmap scaledBrush = null;
@@ -5572,27 +5571,23 @@ namespace BrushFactory
 
                             //Gets the last word in the filename without the path.
                             Regex getOnlyFilename = new Regex(@"[\w-]+\.");
-                            string filename = getOnlyFilename.Match(file).Value;
+                            string brushName = getOnlyFilename.Match(file).Value;
 
                             //Removes the file extension dot.
-                            if (filename.EndsWith("."))
+                            if (brushName.EndsWith("."))
                             {
-                                filename = filename.Remove(filename.Length - 1);
+                                brushName = brushName.Remove(brushName.Length - 1);
                             }
 
-                            //Appends invisible spaces to files with the same name
-                            //until they're unique.
-                            while (loadedBrushImages.Any(a =>
-                            { return (a.Name.Equals(filename)); }))
+                            // Brush images with the same location need unique names. Append spaces until unique.
+                            if (loadedBrushImages.Any(a => a.Location != null && a.Location.Equals(file) && a.Name != null && a.Name.Equals(brushName)))
                             {
-                                filename += " ";
+                                brushName += " ";
                             }
 
-                            string location = Path.GetDirectoryName(file);
-
-                            //Adds the brush without the period at the end.
+                            //Adds the brush image.
                             loadedBrushImages.Add(
-                                new BrushSelectorItem(filename, location, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
+                                new BrushSelectorItem(brushName, file, brushImage, tempDir.GetRandomFileName(), maxThumbnailHeight));
 
                             if ((brushImagesLoadedCount % 2) == 0)
                             {
@@ -5665,10 +5660,14 @@ namespace BrushFactory
                         // Select the user's previous brush if it is present, otherwise select the last added brush.
                         int selectedItemIndex = loadedBrushImages.Count - 1;
 
-                        if (!string.IsNullOrEmpty(tokenSelectedBrushImageName))
+                        if (!string.IsNullOrEmpty(tokenSelectedBrushImagePath))
                         {
-                            int index = loadedBrushImages.FindIndex(brush => brush.Name.Equals(tokenSelectedBrushImageName));
+                            int index = loadedBrushImages.FindIndex(brush => brush.Location?.Equals(tokenSelectedBrushImagePath) ?? false);
 
+                            if (index == -1)
+                            {
+                                index = loadedBrushImages.FindIndex(brush => brush.Name?.Equals(tokenSelectedBrushImagePath) ?? false);
+                            }
                             if (index >= 0)
                             {
                                 selectedItemIndex = index;
@@ -6362,10 +6361,10 @@ namespace BrushFactory
         /// </summary>
         private void BttnDeleteBrush_Click(object sender, EventArgs e)
         {
-            settings.CustomBrushes.Remove(currentBrushName);
+            settings.CustomBrushes.Remove(currentBrushPath);
             listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
             settings.MarkSettingsChanged();
-            currentBrushName = null;
+            currentBrushPath = null;
             bttnDeleteBrush.Enabled = false;
         }
 
@@ -6524,7 +6523,7 @@ namespace BrushFactory
                     BrushAlpha = sliderBrushAlpha.Value,
                     BrushColor = bttnBrushColor.BackColor,
                     BrushDensity = sliderBrushDensity.Value,
-                    BrushImageName = index >= 0 ? loadedBrushImages[index].Name : string.Empty,
+                    BrushImagePath = index >= 0 ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name : string.Empty,
                     BrushRotation = sliderBrushRotation.Value,
                     BrushSize = sliderBrushSize.Value,
                     DoColorizeBrush = chkbxColorizeBrush.Checked,
@@ -6608,7 +6607,7 @@ namespace BrushFactory
                 }
 
                 listviewBrushPicker.Items.Add(new ListViewItem(inputText) { Selected = true });
-                currentBrushName = inputText;
+                currentBrushPath = inputText;
                 bttnDeleteBrush.Enabled = true;
             }
         }
@@ -6794,12 +6793,11 @@ namespace BrushFactory
 
                 BrushSelectorItem brushImage = loadedBrushImages[itemIndex];
                 string name = brushImage.Name;
-                string tooltipText = name + Environment.NewLine + brushImage.BrushWidth + "x" + brushImage.BrushHeight;
+                string tooltipText = name + Environment.NewLine + brushImage.BrushWidth + "x" + brushImage.BrushHeight + Environment.NewLine;
 
-                if (!string.IsNullOrEmpty(brushImage.Location))
-                {
-                    tooltipText += Environment.NewLine + brushImage.Location;
-                }
+                tooltipText += !string.IsNullOrEmpty(brushImage.Location)
+                    ? brushImage.Location
+                    : Strings.BuiltIn;
 
                 visibleBrushImages[i] = new ListViewItem
                 {
@@ -6899,11 +6897,11 @@ namespace BrushFactory
 
                 if (!string.IsNullOrEmpty(brush.Location))
                 {
-                    tooltipText = name + "\n" + brush.Location;
+                    tooltipText = name + Environment.NewLine + brush.Location;
                 }
                 else
                 {
-                    tooltipText = name;
+                    tooltipText = name + Environment.NewLine + Strings.BuiltIn;
                 }
 
                 e.Item = new ListViewItem
@@ -6973,7 +6971,7 @@ namespace BrushFactory
 
                 if (selection != null)
                 {
-                    currentBrushName = selection.Text;
+                    currentBrushPath = selection.Text;
 
                     if (PersistentSettings.defaultBrushes.ContainsKey(selection.Text))
                     {
@@ -6987,23 +6985,47 @@ namespace BrushFactory
                 // Updates which brush image is active for the newly-selected brush
                 if (listviewBrushImagePicker?.Items != null && selection?.Text != null)
                 {
-                    int index = loadedBrushImages.FindIndex((entry) =>
+                    int index = -1;
+
+                    if (!string.IsNullOrEmpty(currentBrushPath))
                     {
-                        if (!string.IsNullOrEmpty(currentBrushName))
+                        index = loadedBrushImages.FindIndex((entry) =>
                         {
-                            if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushName))
+                            if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
                             {
-                                return entry.Name.Equals(PersistentSettings.defaultBrushes[currentBrushName].BrushImageName);
+                                return entry.Location != null && entry.Location.Equals(PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePath);
                             }
 
-                            if (settings.CustomBrushes.ContainsKey(currentBrushName))
+                            if (settings.CustomBrushes.ContainsKey(currentBrushPath))
                             {
-                                return entry.Name.Equals(settings.CustomBrushes[currentBrushName].BrushImageName);
+                                return entry.Location != null && entry.Location.Equals(settings.CustomBrushes[currentBrushPath].BrushImagePath);
                             }
+
+                            return false;
+                        });
+
+                        if (index == -1)
+                        {
+                            index = loadedBrushImages.FindIndex((entry) =>
+                            {
+                                if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
+                                {
+                                    return entry.Name.Equals(PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePath);
+                                }
+
+                                if (settings.CustomBrushes.ContainsKey(currentBrushPath))
+                                {
+                                    return entry.Name.Equals(settings.CustomBrushes[currentBrushPath].BrushImagePath);
+                                }
+
+                                return false;
+                            });
                         }
-
-                        return entry.Name.Equals(Strings.DefaultBrushCircle);
-                    });
+                    }
+                    else
+                    {
+                        index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(Strings.DefaultBrushCircle));
+                    }
 
                     if (index >= 0)
                     {

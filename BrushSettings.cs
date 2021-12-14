@@ -75,10 +75,10 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// The active brush index, as chosen from built-in brushes.
+        /// The file path of the active brush. Built-in brushes use their name here instead.
         /// </summary>
-        [DataMember(Name = "BrushImageName")]
-        public string BrushImageName
+        [DataMember(Name = "BrushImagePath")]
+        public string BrushImagePath
         {
             get;
             set;
@@ -513,7 +513,7 @@ namespace BrushFactory
             AutomaticBrushDensity = true;
             BlendMode = BlendMode.Normal;
             BrushSize = 2;
-            BrushImageName = Strings.DefaultBrushCircle;
+            BrushImagePath = Strings.DefaultBrushCircle;
             BrushRotation = 0;
             BrushAlpha = 0;
             BrushColor = UserSettings.userPrimaryColor;
@@ -600,7 +600,7 @@ namespace BrushFactory
             AutomaticBrushDensity = other.AutomaticBrushDensity;
             BlendMode = other.BlendMode;
             BrushSize = other.BrushSize;
-            BrushImageName = other.BrushImageName;
+            BrushImagePath = other.BrushImagePath;
             BrushRotation = other.BrushRotation;
             BrushAlpha = other.BrushAlpha;
             BrushColor = other.BrushColor;
