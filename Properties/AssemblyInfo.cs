@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Brush Factory")]
-[assembly: AssemblyDescription("Dynamic brush support for paint.net")]
-[assembly: AssemblyConfiguration("brush|factory|dynamic|draw")]
-[assembly: AssemblyCompany("Joshua Lamusga")]
-[assembly: AssemblyProduct("Brush Factory")]
-[assembly: AssemblyCopyright("Copyright © 2016 Joshua Lamusga")]
+[assembly: AssemblyTitle("Dynamic Draw")]
+[assembly: AssemblyDescription("Dynamic brush drawing in paint.net")]
+[assembly: AssemblyConfiguration("dynamic|draw|brush|factory")]
+[assembly: AssemblyCompany("NinthDesertDude")]
+[assembly: AssemblyProduct("Dynamic Draw")]
+[assembly: AssemblyCopyright("Copyright © 2016 NinthDesertDude")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

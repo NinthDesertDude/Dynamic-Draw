@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace BrushFactory.Abr
+namespace DynamicDraw.Abr
 {
     /// <summary>
     /// A collection of AbrBrushes.

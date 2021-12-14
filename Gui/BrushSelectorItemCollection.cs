@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// The collection of current brushes

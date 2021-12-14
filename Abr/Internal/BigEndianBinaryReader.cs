@@ -31,7 +31,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 
-namespace BrushFactory.Abr.Internal
+namespace DynamicDraw.Abr.Internal
 {
     // Adapted from 'Problem and Solution: The Terrible Inefficiency of FileStream and BinaryReader'
     // https://jacksondunstan.com/articles/3568

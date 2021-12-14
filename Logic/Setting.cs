@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Associates characteristics about settings for use in other areas, e.g. keyboard shortcuts.

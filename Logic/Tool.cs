@@ -1,4 +1,4 @@
-﻿namespace BrushFactory
+﻿namespace DynamicDraw
 {
     /// <summary>
     /// The list of available tools.

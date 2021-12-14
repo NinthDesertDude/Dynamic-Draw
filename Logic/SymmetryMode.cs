@@ -1,4 +1,4 @@
-﻿namespace BrushFactory
+﻿namespace DynamicDraw
 {
     /// <summary>
     /// Represents the type of symmetry in use.

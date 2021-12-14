@@ -1,6 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Represents a smoothing method to be used by the interpolation combobox.

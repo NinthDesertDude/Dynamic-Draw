@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace BrushFactory.Logic
+namespace DynamicDraw.Logic
 {
     /// <summary>
     /// Represents a keyboard shortcut.

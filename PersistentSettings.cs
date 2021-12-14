@@ -1,10 +1,10 @@
-using BrushFactory.Gui;
-using BrushFactory.Localization;
-using BrushFactory.Logic;
+using DynamicDraw.Gui;
+using DynamicDraw.Localization;
+using DynamicDraw.Logic;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Represents the settings used in the dialog so they can be stored and

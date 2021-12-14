@@ -1,10 +1,10 @@
-﻿using BrushFactory.Abr;
-using BrushFactory.Gui;
-using BrushFactory.Interop;
-using BrushFactory.Localization;
-using BrushFactory.Logic;
-using BrushFactory.Properties;
-using BrushFactory.TabletSupport;
+﻿using DynamicDraw.Abr;
+using DynamicDraw.Gui;
+using DynamicDraw.Interop;
+using DynamicDraw.Localization;
+using DynamicDraw.Logic;
+using DynamicDraw.Properties;
+using DynamicDraw.TabletSupport;
 using PaintDotNet;
 using PaintDotNet.AppModel;
 using PaintDotNet.Effects;
@@ -21,12 +21,12 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// The dialog used for working with the effect.
     /// </summary>
-    public class WinBrushFactory : EffectConfigDialog
+    public class WinDynamicDraw : EffectConfigDialog
     {
         #region Fields (Non Gui)
         private Tool lastTool = Tool.Brush;
@@ -157,7 +157,7 @@ namespace BrushFactory
         /// All user settings including custom brushes / brush image locations and the previous brush settings from
         /// the last time the effect was ran.
         /// </summary>
-        private BrushFactorySettings settings;
+        private DynamicDrawSettings settings;
 
         /// <summary>
         /// The outline of the user's selection.
@@ -439,7 +439,7 @@ namespace BrushFactory
         /// <summary>
         /// Initializes components and brushes.
         /// </summary>
-        public WinBrushFactory()
+        public WinDynamicDraw()
         {
             InitializeComponent();
 
@@ -747,6 +747,9 @@ namespace BrushFactory
             canvas.x = (displayCanvas.Width - canvas.width) / 2;
             canvas.y = (displayCanvas.Height - canvas.height) / 2;
 
+            // Sets the tooltip's maximum allowed dimensions.
+            txtTooltip.MaximumSize = new Size(displayCanvas.Width, displayCanvas.Height);
+
             //Adds versioning information to the window title.
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
             Text = EffectPlugin.StaticName + " (version " +
@@ -857,14 +860,6 @@ namespace BrushFactory
 
             bttnDeleteBrush.Text = Strings.DeleteBrush;
             bttnSaveBrush.Text = Strings.SaveNewBrush;
-
-            //Forces the window to cover the screen without being maximized.
-            Rectangle workingArea = Screen.FromControl(this).WorkingArea;
-
-            Left = workingArea.Left;
-            Top = workingArea.Top;
-            Width = workingArea.Width;
-            Height = workingArea.Height;
         }
 
         /// <summary>
@@ -883,9 +878,9 @@ namespace BrushFactory
                 string basePath = userFilesService.UserFilesPath ??
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files");
 
-                string path = Path.Combine(basePath, "BrushFactorySettings.xml");
+                string path = Path.Combine(basePath, "DynamicDraw.xml");
 
-                settings = new BrushFactorySettings(path);
+                settings = new DynamicDrawSettings(path);
 
                 if (!File.Exists(path))
                 {
@@ -2622,7 +2617,7 @@ namespace BrushFactory
         private void InitializeComponent()
         {
             this.components = new Container();
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(WinBrushFactory));
+            ComponentResourceManager resources = new ComponentResourceManager(typeof(WinDynamicDraw));
             this.timerRepositionUpdate = new Timer(this.components);
             this.txtTooltip = new Label();
             this.displayCanvas = new PictureBox();
@@ -2954,7 +2949,7 @@ namespace BrushFactory
             // bttnToolBrush
             // 
             this.bttnToolBrush.BackColor = System.Drawing.SystemColors.ButtonShadow;
-            this.bttnToolBrush.Image = global::BrushFactory.Properties.Resources.ToolBrush;
+            this.bttnToolBrush.Image = global::DynamicDraw.Properties.Resources.ToolBrush;
             resources.ApplyResources(this.bttnToolBrush, "bttnToolBrush");
             this.bttnToolBrush.Name = "bttnToolBrush";
             this.bttnToolBrush.UseVisualStyleBackColor = false;
@@ -3022,7 +3017,7 @@ namespace BrushFactory
             // 
             // bttnColorPicker
             // 
-            this.bttnColorPicker.Image = global::BrushFactory.Properties.Resources.ColorPickerIcon;
+            this.bttnColorPicker.Image = global::DynamicDraw.Properties.Resources.ColorPickerIcon;
             resources.ApplyResources(this.bttnColorPicker, "bttnColorPicker");
             this.bttnColorPicker.Name = "bttnColorPicker";
             this.bttnColorPicker.UseVisualStyleBackColor = true;
@@ -3056,7 +3051,7 @@ namespace BrushFactory
             // 
             // BttnToolEraser
             // 
-            this.BttnToolEraser.Image = global::BrushFactory.Properties.Resources.ToolEraser;
+            this.BttnToolEraser.Image = global::DynamicDraw.Properties.Resources.ToolEraser;
             resources.ApplyResources(this.BttnToolEraser, "BttnToolEraser");
             this.BttnToolEraser.Name = "BttnToolEraser";
             this.BttnToolEraser.UseVisualStyleBackColor = true;
@@ -3065,7 +3060,7 @@ namespace BrushFactory
             // 
             // bttnToolOrigin
             // 
-            this.bttnToolOrigin.Image = global::BrushFactory.Properties.Resources.ToolOrigin;
+            this.bttnToolOrigin.Image = global::DynamicDraw.Properties.Resources.ToolOrigin;
             resources.ApplyResources(this.bttnToolOrigin, "bttnToolOrigin");
             this.bttnToolOrigin.Name = "bttnToolOrigin";
             this.bttnToolOrigin.UseVisualStyleBackColor = true;
@@ -3206,7 +3201,7 @@ namespace BrushFactory
             // 
             // bttnAddBrushImages
             // 
-            this.bttnAddBrushImages.Image = global::BrushFactory.Properties.Resources.AddBrushIcon;
+            this.bttnAddBrushImages.Image = global::DynamicDraw.Properties.Resources.AddBrushIcon;
             resources.ApplyResources(this.bttnAddBrushImages, "bttnAddBrushImages");
             this.bttnAddBrushImages.Name = "bttnAddBrushImages";
             this.bttnAddBrushImages.UseVisualStyleBackColor = true;
@@ -4738,7 +4733,7 @@ namespace BrushFactory
             this.bttnSaveBrush.Click += new EventHandler(this.BttnSaveBrush_Click);
             this.bttnSaveBrush.MouseEnter += new EventHandler(this.BttnSaveBrush_MouseEnter);
             // 
-            // WinBrushFactory
+            // WinDynamicDraw
             // 
             this.AcceptButton = this.bttnOk;
             resources.ApplyResources(this, "$this");
@@ -4748,8 +4743,13 @@ namespace BrushFactory
             this.Controls.Add(this.displayCanvas);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
+            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.Load += new System.EventHandler(this.DynamicDrawWindow_Load);
             this.MaximizeBox = true;
-            this.Name = "WinBrushFactory";
+            this.MinimizeBox = true;
+            this.Name = "WinDynamicDraw";
+            this.Resize += WinDynamicDraw_Resize;
+            this.SizeGripStyle = SizeGripStyle.Auto;
             this.displayCanvas.ResumeLayout(false);
             this.displayCanvas.PerformLayout();
             ((ISupportInitialize)(this.displayCanvas)).EndInit();
@@ -4881,6 +4881,25 @@ namespace BrushFactory
             this.panelSettings.ResumeLayout(false);
             this.ResumeLayout(false);
 
+        }
+
+        /// <summary>
+        /// Positions the window according to the paint.net window.
+        /// </summary>
+        private void DynamicDrawWindow_Load(object sender, EventArgs e)
+        {
+            this.DesktopLocation = Owner.PointToScreen(new Point(0, 30));
+            this.Size = new Size(Owner.ClientSize.Width, Owner.ClientSize.Height - 30);
+            this.WindowState = Owner.WindowState;
+        }
+
+        /// <summary>
+        /// Handles manual resizing of any element that requires it.
+        /// </summary>
+        private void WinDynamicDraw_Resize(object sender, EventArgs e)
+        {
+            this.txtTooltip.MaximumSize = new Size(displayCanvas.Width, displayCanvas.Height);
+            displayCanvas.Refresh();
         }
 
         /// <summary>
@@ -6371,7 +6390,7 @@ namespace BrushFactory
         {
             if (settings != null)
             {
-                if (new BrushFactoryPreferences(settings).ShowDialog() == DialogResult.OK)
+                if (new DynamicDrawPreferences(settings).ShowDialog() == DialogResult.OK)
                 {
                     InitBrushes();
                 }

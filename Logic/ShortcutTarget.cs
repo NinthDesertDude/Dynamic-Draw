@@ -1,4 +1,4 @@
-﻿namespace BrushFactory
+﻿namespace DynamicDraw
 {
     /// <summary>
     /// The settings or actions to be taken. This identifies either actions such as Undo/Redo that have no associated

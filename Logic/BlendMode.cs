@@ -1,4 +1,4 @@
-﻿namespace BrushFactory
+﻿namespace DynamicDraw
 {
     /// <summary>
     /// Describes the drawing operation to perform per-pixel to combine one image with another.

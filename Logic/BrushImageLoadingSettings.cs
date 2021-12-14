@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BrushFactory.Logic
+namespace DynamicDraw.Logic
 {
     /// <summary>
     /// A collection of settings read when loading user-defined brush images from files and directories.

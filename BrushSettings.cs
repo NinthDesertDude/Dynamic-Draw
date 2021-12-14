@@ -1,10 +1,10 @@
-using BrushFactory.Gui;
-using BrushFactory.Localization;
+using DynamicDraw.Gui;
+using DynamicDraw.Localization;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Serialization;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Represents a set of settings that a brush may have.

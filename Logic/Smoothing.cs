@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     public static class CmbxSmoothing
     {

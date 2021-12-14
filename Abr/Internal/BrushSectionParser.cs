@@ -13,7 +13,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace BrushFactory.Abr.Internal
+namespace DynamicDraw.Abr.Internal
 {
     /// <summary>
     /// Parser for the 8BIM sections used by ABR version 6 and later.

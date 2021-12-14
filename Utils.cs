@@ -1,4 +1,4 @@
-﻿using BrushFactory.Gui;
+﻿using DynamicDraw.Gui;
 using PaintDotNet;
 using System;
 using System.Drawing;
@@ -6,7 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Provides common functionality shared across multiple classes.

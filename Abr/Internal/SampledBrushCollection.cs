@@ -13,7 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace BrushFactory.Abr.Internal
+namespace DynamicDraw.Abr.Internal
 {
     internal sealed class SampledBrushCollection : Collection<SampledBrush>
     {

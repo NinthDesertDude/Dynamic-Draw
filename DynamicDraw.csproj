@@ -108,6 +108,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetDir)\BrushFactory.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
+    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\DynamicDraw.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
   </Target>
 </Project>

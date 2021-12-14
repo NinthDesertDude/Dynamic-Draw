@@ -1,18 +1,18 @@
-﻿using BrushFactory.Logic;
+﻿using DynamicDraw.Logic;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Implements the loading and saving of the settings.
     /// </summary>
-    /// <seealso cref="IBrushFactorySettings" />
-    [DataContract(Name = "BrushFactorySettings", Namespace = "")]
-    internal sealed class BrushFactorySettings : IBrushFactorySettings
+    /// <seealso cref="IDynamicDrawSettings" />
+    [DataContract(Name = "DynamicDrawSettings", Namespace = "")]
+    internal sealed class DynamicDrawSettings : IDynamicDrawSettings
     {
         private readonly string settingsPath;
         private bool changed;
@@ -26,10 +26,10 @@ namespace BrushFactory
         private bool useDefaultBrushes;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BrushFactorySettings"/> class.
+        /// Initializes a new instance of the <see cref="DynamicDrawSettings"/> class.
         /// </summary>
         /// <param name="path">The setting file path.</param>
-        public BrushFactorySettings(string path)
+        public DynamicDrawSettings(string path)
         {
             settingsPath = path;
             changed = false;
@@ -139,8 +139,8 @@ namespace BrushFactory
                 {
                     using (FileStream stream = new FileStream(settingsPath, FileMode.Open, FileAccess.Read))
                     {
-                        DataContractSerializer serializer = new DataContractSerializer(typeof(BrushFactorySettings));
-                        BrushFactorySettings savedSettings = (BrushFactorySettings)serializer.ReadObject(stream);
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(DynamicDrawSettings));
+                        DynamicDrawSettings savedSettings = (DynamicDrawSettings)serializer.ReadObject(stream);
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
                         customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
@@ -266,7 +266,7 @@ namespace BrushFactory
 
             using (FileStream stream = new FileStream(settingsPath, FileMode.Create, FileAccess.Write))
             {
-                DataContractSerializer serializer = new DataContractSerializer(typeof(BrushFactorySettings));
+                DataContractSerializer serializer = new DataContractSerializer(typeof(DynamicDrawSettings));
                 serializer.WriteObject(stream, this);
             }
         }

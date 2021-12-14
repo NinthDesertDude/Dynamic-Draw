@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using BrushFactory.Properties;
+using DynamicDraw.Properties;
 
-namespace BrushFactory.Gui
+namespace DynamicDraw.Gui
 {
-    internal partial class BrushFactoryPreferences : Form
+    internal partial class DynamicDrawPreferences : Form
     {
-        private readonly IBrushFactorySettings settings;
+        private readonly IDynamicDrawSettings settings;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BrushFactoryPreferences" /> class.
+        /// Initializes a new instance of the <see cref="DynamicDrawPreferences" /> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <exception cref="ArgumentNullException"><paramref name="settings"/> is null.</exception>
-        public BrushFactoryPreferences(IBrushFactorySettings settings)
+        public DynamicDrawPreferences(IDynamicDrawSettings settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             InitializeComponent();

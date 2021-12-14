@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BrushFactory.Localization {
+namespace DynamicDraw.Localization {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace BrushFactory.Localization {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BrushFactory.Localization.Strings", typeof(Strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DynamicDraw.Localization.Strings", typeof(Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -178,7 +178,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Brush Factory starts..
+        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Dynamic Draw starts..
         /// </summary>
         internal static string AddFilesTip {
             get {
@@ -196,7 +196,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Brush Factory starts. Images in sub-folders will not..
+        ///   Looks up a localized string similar to Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not..
         /// </summary>
         internal static string AddFoldersTip {
             get {
@@ -360,7 +360,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush image directories and files to load when Brush Factory starts.
+        ///   Looks up a localized string similar to Brush image directories and files to load when Dynamic Draw starts.
         /// </summary>
         internal static string BrushLocations {
             get {
@@ -540,24 +540,6 @@ namespace BrushFactory.Localization {
         internal static string CanvasZoomTip {
             get {
                 return ResourceManager.GetString("CanvasZoomTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Clear Custom Images.
-        /// </summary>
-        internal static string ClearBrushImages {
-            get {
-                return ResourceManager.GetString("ClearBrushImages", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Removes search locations for custom brush images you might&apos;ve set, then unloads all custom brush images..
-        /// </summary>
-        internal static string ClearBrushImagesTip {
-            get {
-                return ResourceManager.GetString("ClearBrushImagesTip", resourceCulture);
             }
         }
         
@@ -1993,7 +1975,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush Factory.
+        ///   Looks up a localized string similar to Dynamic Draw.
         /// </summary>
         internal static string Title {
             get {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// A ListView that is double buffered.
