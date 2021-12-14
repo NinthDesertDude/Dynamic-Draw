@@ -1,7 +1,7 @@
 ﻿using System;
 using WintabDN;
 
-namespace BrushFactory.TabletSupport
+namespace DynamicDraw.TabletSupport
 {
     /// <summary>
     /// Handles connecting to a tablet device and fetching/exposing useful data e.g. position and pressure.
@@ -48,7 +48,7 @@ namespace BrushFactory.TabletSupport
                 return false;
             }
 
-            winTabContext.Name = "BrushFactory Tablet Event Data Context";
+            winTabContext.Name = "DynamicDraw Tablet Event Data Context";
 
             WintabAxis tabletX = CWintabInfo.GetTabletAxis(EAxisDimension.AXIS_X);
             WintabAxis tabletY = CWintabInfo.GetTabletAxis(EAxisDimension.AXIS_Y);

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <StartupObject></StartupObject>
     <PublishUrl>publish\</PublishUrl>
@@ -60,6 +60,11 @@
     <Compile Update="Gui\DoubleBufferedListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Localization\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -87,16 +92,22 @@
     <Content Include="TabletSupport\WintabDN.dll" />
     <Content Include="Resources\icon.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <NoWarn>1701;1702;CA1416;IDE0090</NoWarn>
+    <NoWarn>1701;1702;CA1416;IDE0090;IDE0063</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\BrushFactory&quot;&#xD;&#xA;C:\Program Files\paint.net\Effects\paintdotnet.exe" />
+    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\DynamicDraw.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
   </Target>
 </Project>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Associates characteristics about settings for use in other areas, e.g. keyboard shortcuts.
@@ -16,8 +16,8 @@ namespace BrushFactory
         {
             AllSettings = new Dictionary<ShortcutTarget, Setting>()
             {
-                { ShortcutTarget.Alpha, new Setting(Localization.Strings.ShortcutAlpha, 0, 99) },
-                { ShortcutTarget.AlphaShift, new Setting(Localization.Strings.ShortcutAlphaShift, -100, 100) },
+                { ShortcutTarget.Alpha, new Setting(Localization.Strings.ShortcutAlpha, 0, 255) },
+                { ShortcutTarget.AlphaShift, new Setting(Localization.Strings.ShortcutAlphaShift, -255, 255) },
                 { ShortcutTarget.BrushStrokeDensity, new Setting(Localization.Strings.ShortcutDensity, 0, 50) },
                 { ShortcutTarget.CanvasZoom, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 1600) },
                 { ShortcutTarget.Color, new Setting(Localization.Strings.BrushColor, ShortcutTargetDataType.Color) },
@@ -29,7 +29,7 @@ namespace BrushFactory
                 { ShortcutTarget.JitterHorSpray, new Setting(Localization.Strings.ShortcutJitterHorSpray, 0, 100) },
                 { ShortcutTarget.JitterHueMax, new Setting(Localization.Strings.ShortcutJitterHueMax, 0, 100) },
                 { ShortcutTarget.JitterHueMin, new Setting(Localization.Strings.ShortcutJitterHueMin, 0, 100) },
-                { ShortcutTarget.JitterMinAlpha, new Setting(Localization.Strings.ShortcutJitterMinAlpha, 0, 100) },
+                { ShortcutTarget.JitterMinAlpha, new Setting(Localization.Strings.ShortcutJitterMinAlpha, 0, 255) },
                 { ShortcutTarget.JitterMaxSize, new Setting(Localization.Strings.ShortcutJitterMaxSize, 0, 1000) },
                 { ShortcutTarget.JitterMinSize, new Setting(Localization.Strings.ShortcutJitterMinSize, 0, 1000) },
                 { ShortcutTarget.JitterRedMax, new Setting(Localization.Strings.ShortcutJitterRedMax, 0, 100) },
@@ -52,9 +52,9 @@ namespace BrushFactory
                 { ShortcutTarget.SelectedTool, new Setting(Localization.Strings.ShortcutSelectedTool, 0, Enum.GetValues(typeof(Tool)).Length - 1) },
                 { ShortcutTarget.Size, new Setting(Localization.Strings.ShortcutSize, 1, 1000) },
                 { ShortcutTarget.SizeShift, new Setting(Localization.Strings.ShortcutSizeShift, -1000, 1000) },
-                { ShortcutTarget.SmoothingMode, new Setting(Localization.Strings.ShortcutBrushSmoothing, 0, 2) },
+                { ShortcutTarget.SmoothingMode, new Setting(Localization.Strings.ShortcutBrushSmoothing, 0, Enum.GetValues(typeof(CmbxSmoothing.Smoothing)).Length - 1) },
                 { ShortcutTarget.SymmetryMode, new Setting(Localization.Strings.ShortcutSymmetryMode, 0, Enum.GetValues(typeof(SymmetryMode)).Length - 1) },
-                { ShortcutTarget.TabPressureAlpha, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutAlpha), 0, 99) },
+                { ShortcutTarget.TabPressureAlpha, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutAlpha), 0, 255) },
                 { ShortcutTarget.TabPressureBrushDensity, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutDensity), -50, 50) },
                 { ShortcutTarget.TabPressureJitterBlueMax, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterBlueMax), -100, 100) },
                 { ShortcutTarget.TabPressureJitterBlueMin, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterBlueMin), -100, 100) },
@@ -64,7 +64,7 @@ namespace BrushFactory
                 { ShortcutTarget.TabPressureJitterHueMax, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterHueMax), -100, 100) },
                 { ShortcutTarget.TabPressureJitterHueMin, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterHueMin), -100, 100) },
                 { ShortcutTarget.TabPressureJitterMaxSize, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterMaxSize), -1000, 1000) },
-                { ShortcutTarget.TabPressureJitterMinAlpha, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterMinAlpha), -100, 100) },
+                { ShortcutTarget.TabPressureJitterMinAlpha, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterMinAlpha), -255, 255) },
                 { ShortcutTarget.TabPressureJitterMinSize, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterMinSize), -1000, 1000) },
                 { ShortcutTarget.TabPressureJitterRedMax, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterRedMax), -100, 100) },
                 { ShortcutTarget.TabPressureJitterRedMin, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutJitterRedMin), -100, 100) },
@@ -78,7 +78,12 @@ namespace BrushFactory
                 { ShortcutTarget.TabPressureMinDrawDistance, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.MinDrawDistance), -100, 100) },
                 { ShortcutTarget.TabPressureSize, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutSize), -1000, 1000) },
                 { ShortcutTarget.TabPressureRotation, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutRotation), -180, 180) },
-                { ShortcutTarget.UndoAction, new Setting(Localization.Strings.Undo, ShortcutTargetDataType.Action) }
+                { ShortcutTarget.UndoAction, new Setting(Localization.Strings.Undo, ShortcutTargetDataType.Action) },
+                { ShortcutTarget.ResetCanvasTransforms, new Setting(Localization.Strings.ResetCanvas, ShortcutTargetDataType.Action) },
+                { ShortcutTarget.CanvasX, new Setting(Localization.Strings.CanvasX, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.CanvasY, new Setting(Localization.Strings.CanvasY, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.CanvasRotation, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.BlendMode, new Setting(Localization.Strings.ShortcutBlendMode, 0, Enum.GetValues(typeof(BlendMode)).Length - 1) }
             };
         }
 
@@ -88,6 +93,8 @@ namespace BrushFactory
 
         public Tuple<int, int> MinMaxRange { get; set; } = null;
 
+        public Tuple<float, float> MinMaxRangeF { get; set; } = null;
+
         /// <summary>
         /// Defines a setting with an integer data type, including the min/max range allowed (both bounds inclusive).
         /// </summary>
@@ -96,6 +103,16 @@ namespace BrushFactory
             Name = name;
             ValueType = ShortcutTargetDataType.Integer;
             MinMaxRange = new Tuple<int, int>(min, max);
+        }
+
+        /// <summary>
+        /// Defines a setting with a float data type, including the min/max range allowed (both bounds inclusive).
+        /// </summary>
+        public Setting(string name, float min, float max)
+        {
+            Name = name;
+            ValueType = ShortcutTargetDataType.Float;
+            MinMaxRangeF = new Tuple<float, float>(min, max);
         }
 
         /// <summary>
@@ -126,6 +143,21 @@ namespace BrushFactory
             if (ValueType == ShortcutTargetDataType.Integer)
             {
                 return input >= MinMaxRange.Item1 && input <= MinMaxRange.Item2;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if the setting doesn't make use of numeric min/max ranges, or if the given value falls within
+        /// the setting's min and max ranges.
+        /// </summary>
+        /// <param name="input">A value that may or may not fit within the range allowed by the setting.</param>
+        public bool ValidateNumberValue(float input)
+        {
+            if (ValueType == ShortcutTargetDataType.Float)
+            {
+                return input >= MinMaxRangeF.Item1 && input <= MinMaxRangeF.Item2;
             }
 
             return true;

@@ -26,7 +26,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace BrushFactory.Abr.Internal
+namespace DynamicDraw.Abr.Internal
 {
     internal static class RLEHelper
     {

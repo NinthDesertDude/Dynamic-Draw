@@ -1,4 +1,4 @@
-﻿namespace BrushFactory
+﻿namespace DynamicDraw
 {
     /// <summary>
     /// The possible types of values a shortcut's target action could be.
@@ -17,18 +17,24 @@
         Integer = 1,
 
         /// <summary>
+        /// Indicates the setting value is a numeric type with floating point numbers (positive or negative). Settings
+        /// that affect values used in sensitive math, e.g. canvas rotation angle should use this type.
+        /// </summary>
+        Float = 2,
+
+        /// <summary>
         /// Indicates the setting value is a string.
         /// </summary>
-        String = 2,
+        String = 3,
 
         /// <summary>
         /// Indicates the setting value is an ARGB color, serialized as a uint.
         /// </summary>
-        Color = 3,
+        Color = 4,
 
         /// <summary>
         /// No data associated with the setting.
         /// </summary>
-        Action = 4
+        Action = 5
     }
 }

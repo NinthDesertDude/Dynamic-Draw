@@ -1,6 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Represents a smoothing method to be used by the interpolation combobox.
@@ -20,7 +20,7 @@ namespace BrushFactory
         /// <summary>
         /// Returns the associated interpolation method.
         /// </summary>
-        public InterpolationMode Method
+        public CmbxSmoothing.Smoothing Method
         {
             get;
             set;
@@ -31,7 +31,7 @@ namespace BrushFactory
         /// <summary>
         /// Sets the name to be displayed in the combobox and its method.
         /// </summary>
-        public InterpolationItem(string name, InterpolationMode method)
+        public InterpolationItem(string name, CmbxSmoothing.Smoothing method)
         {
             Name = name;
             Method = method;

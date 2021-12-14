@@ -9,7 +9,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-using BrushFactory.Abr.Internal;
+using DynamicDraw.Abr.Internal;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,7 +18,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace BrushFactory.Abr
+namespace DynamicDraw.Abr
 {
     /// <summary>
     /// Reads the Abr file type to construct bitmaps.

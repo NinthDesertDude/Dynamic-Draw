@@ -9,7 +9,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace BrushFactory.Abr.Internal
+namespace DynamicDraw.Abr.Internal
 {
     internal sealed class SampledBrush
     {

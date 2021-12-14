@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace BrushFactory.Abr
+namespace DynamicDraw.Abr
 {
     /// <summary>
     /// Contains data associated with a brush constructed from an ABR file.

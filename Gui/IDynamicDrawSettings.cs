@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// An interface that defines the available settings.
     /// </summary>
-    internal interface IBrushFactorySettings
+    internal interface IDynamicDrawSettings
     {
         /// <summary>
         /// Gets or sets the custom brush directories.

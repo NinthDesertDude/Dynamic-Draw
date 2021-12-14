@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BrushFactory.Localization {
+namespace DynamicDraw.Localization {
     using System;
     
     
@@ -19,7 +19,7 @@ namespace BrushFactory.Localization {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -39,7 +39,7 @@ namespace BrushFactory.Localization {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BrushFactory.Localization.Strings", typeof(Strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DynamicDraw.Localization.Strings", typeof(Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -115,11 +115,11 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Settings.
+        ///   Looks up a localized string similar to Settings - Brush.
         /// </summary>
-        internal static string AccordionSettings {
+        internal static string AccordionSettingsBrush {
             get {
-                return ResourceManager.GetString("AccordionSettings", resourceCulture);
+                return ResourceManager.GetString("AccordionSettingsBrush", resourceCulture);
             }
         }
         
@@ -160,32 +160,14 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings)..
+        ///   Looks up a localized string similar to Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings)..
         /// </summary>
         internal static string AddBrushImagesTip {
             get {
                 return ResourceManager.GetString("AddBrushImagesTip", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string
-        /// </summary>
-        internal static string AutomaticBrushDensity {
-            get {
-                return ResourceManager.GetString("AutomaticBrushDensity", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string
-        /// </summary>
-        internal static string AutomaticBrushDensityTip {
-            get {
-                return ResourceManager.GetString("AutomaticBrushDensityTip", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Add files.
         /// </summary>
@@ -196,7 +178,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Brush Factory starts..
+        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Dynamic Draw starts..
         /// </summary>
         internal static string AddFilesTip {
             get {
@@ -214,7 +196,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Brush Factory starts. Images in sub-folders will not..
+        ///   Looks up a localized string similar to Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not..
         /// </summary>
         internal static string AddFoldersTip {
             get {
@@ -228,6 +210,98 @@ namespace BrushFactory.Localization {
         internal static string Alpha {
             get {
                 return ResourceManager.GetString("Alpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto manage density.
+        /// </summary>
+        internal static string AutomaticBrushDensity {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If this is toggled on, the density will automatically adjust based on the brush size to ensure a smooth line at any brush size..
+        /// </summary>
+        internal static string AutomaticBrushDensityTip {
+            get {
+                return ResourceManager.GetString("AutomaticBrushDensityTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use black background.
+        /// </summary>
+        internal static string BackgroundBlack {
+            get {
+                return ResourceManager.GetString("BackgroundBlack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use the clipboard image as background.
+        /// </summary>
+        internal static string BackgroundImage {
+            get {
+                return ResourceManager.GetString("BackgroundImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use no background (a little faster).
+        /// </summary>
+        internal static string BackgroundNone {
+            get {
+                return ResourceManager.GetString("BackgroundNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use transparent background (checkered).
+        /// </summary>
+        internal static string BackgroundTransparent {
+            get {
+                return ResourceManager.GetString("BackgroundTransparent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use white background.
+        /// </summary>
+        internal static string BackgroundWhite {
+            get {
+                return ResourceManager.GetString("BackgroundWhite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Normal.
+        /// </summary>
+        internal static string BlendModeNormal {
+            get {
+                return ResourceManager.GetString("BlendModeNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Overwrite.
+        /// </summary>
+        internal static string BlendModeOverwrite {
+            get {
+                return ResourceManager.GetString("BlendModeOverwrite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blend modes describe how pixels should be edited by the brush stroke.
+        ///Normal: brushing draws over the image as usual, never making an image more transparent.
+        ///Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set..
+        /// </summary>
+        internal static string BlendModeTip {
+            get {
+                return ResourceManager.GetString("BlendModeTip", resourceCulture);
             }
         }
         
@@ -286,7 +360,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush image directories and files to load when Brush Factory starts.
+        ///   Looks up a localized string similar to Brush image directories and files to load when Dynamic Draw starts.
         /// </summary>
         internal static string BrushLocations {
             get {
@@ -340,6 +414,42 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Built in.
+        /// </summary>
+        internal static string BuiltIn {
+            get {
+                return ResourceManager.GetString("BuiltIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preset - Airbrush.
+        /// </summary>
+        internal static string BuiltInBrushAirbrush {
+            get {
+                return ResourceManager.GetString("BuiltInBrushAirbrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preset - Grass.
+        /// </summary>
+        internal static string BuiltInBrushGrass {
+            get {
+                return ResourceManager.GetString("BuiltInBrushGrass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preset - Pencil.
+        /// </summary>
+        internal static string BuiltInBrushPencil {
+            get {
+                return ResourceManager.GetString("BuiltInBrushPencil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string Cancel {
@@ -367,6 +477,53 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Canvas Angle:.
+        /// </summary>
+        internal static string CanvasAngle {
+            get {
+                return ResourceManager.GetString("CanvasAngle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
+        ///
+        ///Press Zero to reset the canvas position, zoom and angle..
+        /// </summary>
+        internal static string CanvasAngleTip {
+            get {
+                return ResourceManager.GetString("CanvasAngleTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The angle of the canvas. Rotating it can be useful to tablet users who draw better at certain angles..
+        /// </summary>
+        internal static string CanvasRotation {
+            get {
+                return ResourceManager.GetString("CanvasRotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The horizontal position of the canvas. Changing this moves it left and right..
+        /// </summary>
+        internal static string CanvasX {
+            get {
+                return ResourceManager.GetString("CanvasX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The vertical position of the canvas. Changing this moves it up and down..
+        /// </summary>
+        internal static string CanvasY {
+            get {
+                return ResourceManager.GetString("CanvasY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Canvas Zoom:.
         /// </summary>
         internal static string CanvasZoom {
@@ -376,29 +533,13 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier..
+        ///   Looks up a localized string similar to Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
+        ///
+        ///Press Zero to reset the canvas position, zoom and angle..
         /// </summary>
         internal static string CanvasZoomTip {
             get {
                 return ResourceManager.GetString("CanvasZoomTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Clear Custom Brush Images.
-        /// </summary>
-        internal static string ClearBrushImages {
-            get {
-                return ResourceManager.GetString("ClearBrushImages", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Removes search locations for custom brush images you might&apos;ve set, then unloads all custom brush images..
-        /// </summary>
-        internal static string ClearBrushImagesTip {
-            get {
-                return ResourceManager.GetString("ClearBrushImagesTip", resourceCulture);
             }
         }
         
@@ -457,6 +598,33 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Confirm.
+        /// </summary>
+        internal static string Confirm {
+            get {
+                return ResourceManager.GetString("Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel changes and return to Paint.Net?.
+        /// </summary>
+        internal static string ConfirmCancel {
+            get {
+                return ResourceManager.GetString("ConfirmCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply changes and return to Paint.Net?.
+        /// </summary>
+        internal static string ConfirmChanges {
+            get {
+                return ResourceManager.GetString("ConfirmChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved)..
         /// </summary>
         internal static string CustomBrushDialogDescription {
@@ -480,15 +648,6 @@ namespace BrushFactory.Localization {
         internal static string CustomBrushDialogTitle {
             get {
                 return ResourceManager.GetString("CustomBrushDialogTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Default.
-        /// </summary>
-        internal static string CustomBrushesDefaultBrush {
-            get {
-                return ResourceManager.GetString("CustomBrushesDefaultBrush", resourceCulture);
             }
         }
         
@@ -538,7 +697,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Circle Light 256px.
+        ///   Looks up a localized string similar to Circle Light.
         /// </summary>
         internal static string DefaultBrushCircle {
             get {
@@ -547,7 +706,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Circle Hard 256px.
+        ///   Looks up a localized string similar to Circle Hard.
         /// </summary>
         internal static string DefaultBrushCircleHard {
             get {
@@ -556,7 +715,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Circle Med 256px.
+        ///   Looks up a localized string similar to Circle Med.
         /// </summary>
         internal static string DefaultBrushCircleMed {
             get {
@@ -898,7 +1057,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Minimum Draw Distance:.
+        ///   Looks up a localized string similar to Min. Draw Distance.
         /// </summary>
         internal static string MinDrawDistance {
             get {
@@ -1114,6 +1273,15 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Centers the canvas at 100% zoom, unrotated. (Doesn&apos;t affect the image.).
+        /// </summary>
+        internal static string ResetCanvas {
+            get {
+                return ResourceManager.GetString("ResetCanvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Brush Rotation:.
         /// </summary>
         internal static string Rotation {
@@ -1245,6 +1413,15 @@ namespace BrushFactory.Localization {
         internal static string ShortcutAlphaShift {
             get {
                 return ResourceManager.GetString("ShortcutAlphaShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blend Mode.
+        /// </summary>
+        internal static string ShortcutBlendMode {
+            get {
+                return ResourceManager.GetString("ShortcutBlendMode", resourceCulture);
             }
         }
         
@@ -1798,7 +1975,7 @@ namespace BrushFactory.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush Factory.
+        ///   Looks up a localized string similar to Dynamic Draw.
         /// </summary>
         internal static string Title {
             get {

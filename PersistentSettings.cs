@@ -1,9 +1,10 @@
-using BrushFactory.Gui;
-using BrushFactory.Localization;
-using BrushFactory.Logic;
+using DynamicDraw.Gui;
+using DynamicDraw.Localization;
+using DynamicDraw.Logic;
 using System.Collections.Generic;
+using System.Drawing;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Represents the settings used in the dialog so they can be stored and
@@ -64,30 +65,107 @@ namespace BrushFactory
             },
             new KeyboardShortcut()
             {
-                ActionData = "100|add",
+                ActionData = "2|mul",
                 Key = System.Windows.Forms.Keys.Oemplus,
                 Target = ShortcutTarget.CanvasZoom,
                 RequireCtrl = true
             },
             new KeyboardShortcut()
             {
-                ActionData = "100|sub",
+                ActionData = "0.5|mul",
                 Key = System.Windows.Forms.Keys.OemMinus,
                 Target = ShortcutTarget.CanvasZoom,
                 RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.D0,
+                Target = ShortcutTarget.ResetCanvasTransforms
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|sub",
+                Key = System.Windows.Forms.Keys.Left,
+                Target = ShortcutTarget.CanvasX,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|add",
+                Key = System.Windows.Forms.Keys.Right,
+                Target = ShortcutTarget.CanvasX,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|sub",
+                Key = System.Windows.Forms.Keys.Up,
+                Target = ShortcutTarget.CanvasY,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "5|add",
+                Key = System.Windows.Forms.Keys.Down,
+                Target = ShortcutTarget.CanvasY,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "10|sub",
+                Key = System.Windows.Forms.Keys.Left,
+                Target = ShortcutTarget.CanvasRotation,
+                RequireShift = true
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = "10|add",
+                Key = System.Windows.Forms.Keys.Right,
+                Target = ShortcutTarget.CanvasRotation,
+                RequireShift = true
             }
         };
 
         public static readonly Dictionary<string, BrushSettings> defaultBrushes = new()
         {
             {
-                Strings.CustomBrushesDefaultBrush,
+                Strings.BuiltInBrushPencil,
                 new BrushSettings()
                 {
-                    BrushImageName = Strings.DefaultBrushCircle,
+                    BrushImagePath = Strings.DefaultBrushCircle,
                     BrushDensity = 2,
                     CmbxTabPressureBrushSize = (int)CmbxTabletValueType.ValueHandlingMethod.Add,
                     TabPressureBrushSize = 10,
+                }
+            },
+            {
+                Strings.BuiltInBrushAirbrush,
+                new BrushSettings()
+                {
+                    BrushImagePath = Strings.DefaultBrushBigDots,
+                    BrushSize = 9,
+                    RandRotLeft = 180,
+                    RandRotRight = 180,
+                    RandHorzShift = 3,
+                    RandVertShift = 3
+                }
+            },
+            {
+                Strings.BuiltInBrushGrass,
+                new BrushSettings()
+                {
+                    BrushImagePath = Strings.DefaultBrushGrass,
+                    BrushColor = Color.FromArgb(255, 20, 192, 20),
+                    BrushSize = 50,
+                    DoRotateWithMouse = true,
+                    RandMinSize = 12,
+                    RandRotLeft = 25,
+                    RandRotRight = 25,
+                    RandVertShift = 3,
+                    RandMinV = 10,
+                    RandMaxH = 4,
+                    RandMinH = 4
                 }
             }
         };
@@ -119,7 +197,7 @@ namespace BrushFactory
         /// </summary>
         public PersistentSettings()
         {
-            CurrentBrushSettings = defaultBrushes[Strings.CustomBrushesDefaultBrush];
+            CurrentBrushSettings = new BrushSettings(defaultBrushes[Strings.BuiltInBrushPencil]);
             CustomBrushLocations = new HashSet<string>();
             KeyboardShortcuts = new HashSet<KeyboardShortcut>(defaultShortcuts);
         }

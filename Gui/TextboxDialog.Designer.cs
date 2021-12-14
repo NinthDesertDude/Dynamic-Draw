@@ -1,5 +1,5 @@
 ﻿
-namespace BrushFactory.Gui
+namespace DynamicDraw.Gui
 {
     partial class TextboxDialog
     {

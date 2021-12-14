@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace BrushFactory.Gui
+namespace DynamicDraw.Gui
 {
     /// <summary>
     /// A button that hides/shows associated controls when toggled.

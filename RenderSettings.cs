@@ -1,6 +1,6 @@
 ﻿using PaintDotNet;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Contains information to be passed from the dialog for rendering.

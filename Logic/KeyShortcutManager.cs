@@ -1,8 +1,8 @@
-﻿using BrushFactory.Interop;
+﻿using DynamicDraw.Interop;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace BrushFactory.Logic
+namespace DynamicDraw.Logic
 {
     /// <summary>
     /// Handles keyboard shortcut assignments.

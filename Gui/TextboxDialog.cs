@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace BrushFactory.Gui
+namespace DynamicDraw.Gui
 {
     public partial class TextboxDialog : Form
     {

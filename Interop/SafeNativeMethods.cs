@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Security;
 
-namespace BrushFactory.Interop
+namespace DynamicDraw.Interop
 {
     [SuppressUnmanagedCodeSecurity]
     internal static class SafeNativeMethods

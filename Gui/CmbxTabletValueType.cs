@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace BrushFactory.Gui
+namespace DynamicDraw.Gui
 {
     /// <summary>
     /// Determines how a value is applied in conjunction with an input, e.g. pressure sensitivity.

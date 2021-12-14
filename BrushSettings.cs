@@ -1,9 +1,10 @@
-using BrushFactory.Gui;
+using DynamicDraw.Gui;
+using DynamicDraw.Localization;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Serialization;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Represents a set of settings that a brush may have.
@@ -28,6 +29,16 @@ namespace BrushFactory
         /// </summary>
         [DataMember(Name = "AutomaticBrushDensity")]
         public bool AutomaticBrushDensity
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The brush's blend mode.
+        /// </summary>
+        [DataMember(Name = "BlendMode")]
+        public BlendMode BlendMode
         {
             get;
             set;
@@ -64,10 +75,10 @@ namespace BrushFactory
         }
 
         /// <summary>
-        /// The active brush index, as chosen from built-in brushes.
+        /// The file path of the active brush. Built-in brushes use their name here instead.
         /// </summary>
-        [DataMember(Name = "BrushImageName")]
-        public string BrushImageName
+        [DataMember(Name = "BrushImagePath")]
+        public string BrushImagePath
         {
             get;
             set;
@@ -355,15 +366,17 @@ namespace BrushFactory
         }
 
         /// <summary>
+        /// Determines the smoothing applied to drawing.
+        /// </summary>
+        [DataMember(Name = "Smoothing")]
+        public CmbxSmoothing.Smoothing Smoothing { get; set; }
+
+        /// <summary>
         /// Sets whether to draw horizontal, vertical, or radial reflections
         /// of the current image.
         /// </summary>
         [DataMember(Name = "Symmetry")]
-        public SymmetryMode Symmetry
-        {
-            get;
-            set;
-        }
+        public SymmetryMode Symmetry { get; set; }
 
         [DataMember(Name = "TabPressureBrushAlpha")]
         public int TabPressureBrushAlpha { get; set; }
@@ -498,8 +511,9 @@ namespace BrushFactory
         public BrushSettings()
         {
             AutomaticBrushDensity = true;
+            BlendMode = BlendMode.Normal;
             BrushSize = 2;
-            BrushImageName = string.Empty;
+            BrushImagePath = Strings.DefaultBrushCircle;
             BrushRotation = 0;
             BrushAlpha = 0;
             BrushColor = UserSettings.userPrimaryColor;
@@ -531,6 +545,7 @@ namespace BrushFactory
             SizeChange = 0;
             RotChange = 0;
             AlphaChange = 0;
+            Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
             CmbxTabPressureBrushAlpha = 0;
             CmbxTabPressureBrushDensity = 0;
@@ -583,8 +598,9 @@ namespace BrushFactory
             : base(other)
         {
             AutomaticBrushDensity = other.AutomaticBrushDensity;
+            BlendMode = other.BlendMode;
             BrushSize = other.BrushSize;
-            BrushImageName = other.BrushImageName;
+            BrushImagePath = other.BrushImagePath;
             BrushRotation = other.BrushRotation;
             BrushAlpha = other.BrushAlpha;
             BrushColor = other.BrushColor;
@@ -658,6 +674,7 @@ namespace BrushFactory
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;
+            Smoothing = other.Smoothing;
             Symmetry = other.Symmetry;
         }
 

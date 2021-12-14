@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using BrushFactory.Properties;
+using DynamicDraw.Properties;
 
-namespace BrushFactory.Gui
+namespace DynamicDraw.Gui
 {
-    internal partial class BrushFactoryPreferences : Form
+    internal partial class DynamicDrawPreferences : Form
     {
-        private readonly IBrushFactorySettings settings;
+        private readonly IDynamicDrawSettings settings;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BrushFactoryPreferences" /> class.
+        /// Initializes a new instance of the <see cref="DynamicDrawPreferences" /> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <exception cref="ArgumentNullException"><paramref name="settings"/> is null.</exception>
-        public BrushFactoryPreferences(IBrushFactorySettings settings)
+        public DynamicDrawPreferences(IDynamicDrawSettings settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             InitializeComponent();
@@ -54,7 +54,7 @@ namespace BrushFactory.Gui
 
         #region Methods (not event handlers)
         /// <summary>
-        /// Saves values to the registry from the gui.
+        /// Saves values to the preferences file.
         /// </summary>
         public void SaveSettings()
         {
@@ -80,7 +80,7 @@ namespace BrushFactory.Gui
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 //Appends the chosen directory to the textbox of directories.
-                if (txtbxBrushLocations.Text != string.Empty)
+                if (txtbxBrushLocations.Text != string.Empty && !txtbxBrushLocations.Text.EndsWith(Environment.NewLine))
                 {
                     txtbxBrushLocations.AppendText(Environment.NewLine);
                 }
@@ -117,6 +117,7 @@ namespace BrushFactory.Gui
             //Disables the button so it can't accidentally be called twice.
             bttnCancel.Enabled = false;
 
+            DialogResult = DialogResult.Cancel;
             Close();
         }
 

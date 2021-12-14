@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AbrBrushNameFallbackFormat" xml:space="preserve">
     <value>Brush {0}</value>
@@ -130,13 +130,13 @@
     <value>Add Brush Images</value>
   </data>
   <data name="AddBrushImagesTip" xml:space="preserve">
-    <value>Select additional brush images to temporarily add. To permanently add brush images, add custom brush locations (under Special Settings).</value>
+    <value>Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings).</value>
   </data>
   <data name="AddFolder" xml:space="preserve">
     <value>Add folder</value>
   </data>
   <data name="AddFoldersTip" xml:space="preserve">
-    <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Brush Factory starts. Images in sub-folders will not.</value>
+    <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not.</value>
   </data>
   <data name="Alpha" xml:space="preserve">
     <value>Brush Transparency:</value>
@@ -157,7 +157,7 @@
     <value>Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines.</value>
   </data>
   <data name="BrushLocations" xml:space="preserve">
-    <value>Brush image directories and files to load when Brush Factory starts</value>
+    <value>Brush image directories and files to load when Dynamic Draw starts</value>
   </data>
   <data name="BrushLocationsTextboxTip" xml:space="preserve">
     <value>Places to look for brush images appear here. Type a new address or use 'add folder' to add your own.</value>
@@ -187,13 +187,9 @@
     <value>Canvas Zoom:</value>
   </data>
   <data name="CanvasZoomTip" xml:space="preserve">
-    <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.</value>
-  </data>
-  <data name="ClearBrushImages" xml:space="preserve">
-    <value>Clear Custom Brush Images</value>
-  </data>
-  <data name="ClearBrushImagesTip" xml:space="preserve">
-    <value>Removes search locations for custom brush images you might've set, then unloads all custom brush images.</value>
+    <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
+
+Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="ClearSettings" xml:space="preserve">
     <value>Clear Current Brush Settings</value>
@@ -367,7 +363,7 @@
     <value>While drawing, the brush can be mirrored horizontally and/or vertically.</value>
   </data>
   <data name="Title" xml:space="preserve">
-    <value>Brush Factory</value>
+    <value>Dynamic Draw</value>
   </data>
   <data name="Undo" xml:space="preserve">
     <value>Undo</value>
@@ -393,8 +389,8 @@
   <data name="AccordionSpecialSettings" xml:space="preserve">
     <value>Special Settings</value>
   </data>
-  <data name="AccordionSettings" xml:space="preserve">
-    <value>Settings</value>
+  <data name="AccordionSettingsBrush" xml:space="preserve">
+    <value>Settings - Brush</value>
   </data>
   <data name="SmoothingHigh" xml:space="preserve">
     <value>Smoothing: High</value>
@@ -475,13 +471,13 @@
     <value>Big Dots</value>
   </data>
   <data name="DefaultBrushCircle" xml:space="preserve">
-    <value>Circle Light 256px</value>
+    <value>Circle Light</value>
   </data>
   <data name="DefaultBrushCircleHard" xml:space="preserve">
-    <value>Circle Hard 256px</value>
+    <value>Circle Hard</value>
   </data>
   <data name="DefaultBrushCircleMed" xml:space="preserve">
-    <value>Circle Med 256px</value>
+    <value>Circle Med</value>
   </data>
   <data name="DefaultBrushCircleRough" xml:space="preserve">
     <value>Rough</value>
@@ -573,9 +569,6 @@
   <data name="CustomBrushDialogTitle" xml:space="preserve">
     <value>Add a custom brush</value>
   </data>
-  <data name="CustomBrushesDefaultBrush" xml:space="preserve">
-    <value>Pencil</value>
-  </data>
   <data name="BrushSelectorTip" xml:space="preserve">
     <value>Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen.</value>
   </data>
@@ -583,7 +576,7 @@
     <value>Add files</value>
   </data>
   <data name="AddFilesTip" xml:space="preserve">
-    <value>Browse for files to load as custom brush images when Brush Factory starts.</value>
+    <value>Browse for files to load as custom brush images when Dynamic Draw starts.</value>
   </data>
   <data name="ClipboardErrorUnusable" xml:space="preserve">
     <value>Could not use clipboard image.</value>
@@ -752,5 +745,75 @@
   </data>
   <data name="AutomaticBrushDensityTip" xml:space="preserve">
     <value>If this is toggled on, the density will automatically adjust based on the brush size to ensure a smooth line at any brush size.</value>
+  </data>
+  <data name="BuiltInBrushAirbrush" xml:space="preserve">
+    <value>Preset - Airbrush</value>
+  </data>
+  <data name="BuiltInBrushPencil" xml:space="preserve">
+    <value>Preset - Pencil</value>
+  </data>
+  <data name="BuiltInBrushGrass" xml:space="preserve">
+    <value>Preset - Grass</value>
+  </data>
+  <data name="ResetCanvas" xml:space="preserve">
+    <value>Centers the canvas at 100% zoom, unrotated. (Doesn't affect the image.)</value>
+  </data>
+  <data name="CanvasRotation" xml:space="preserve">
+    <value>The angle of the canvas. Rotating it can be useful to tablet users who draw better at certain angles.</value>
+  </data>
+  <data name="CanvasX" xml:space="preserve">
+    <value>The horizontal position of the canvas. Changing this moves it left and right.</value>
+  </data>
+  <data name="CanvasY" xml:space="preserve">
+    <value>The vertical position of the canvas. Changing this moves it up and down.</value>
+  </data>
+  <data name="BackgroundBlack" xml:space="preserve">
+    <value>Use black background</value>
+  </data>
+  <data name="BackgroundImage" xml:space="preserve">
+    <value>Use the clipboard image as background</value>
+  </data>
+  <data name="BackgroundNone" xml:space="preserve">
+    <value>Use no background (a little faster)</value>
+  </data>
+  <data name="BackgroundTransparent" xml:space="preserve">
+    <value>Use transparent background (checkered)</value>
+  </data>
+  <data name="BackgroundWhite" xml:space="preserve">
+    <value>Use white background</value>
+  </data>
+  <data name="BlendModeNormal" xml:space="preserve">
+    <value>Blending: Normal</value>
+  </data>
+  <data name="BlendModeOverwrite" xml:space="preserve">
+    <value>Blending: Overwrite</value>
+  </data>
+  <data name="BlendModeTip" xml:space="preserve">
+    <value>Blend modes describe how pixels should be edited by the brush stroke.
+Normal: brushing draws over the image as usual, never making an image more transparent.
+Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set.</value>
+  </data>
+  <data name="ShortcutBlendMode" xml:space="preserve">
+    <value>Blend Mode</value>
+  </data>
+  <data name="CanvasAngle" xml:space="preserve">
+    <value>Canvas Angle:</value>
+  </data>
+  <data name="CanvasAngleTip" xml:space="preserve">
+    <value>Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
+
+Press Zero to reset the canvas position, zoom and angle.</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="ConfirmCancel" xml:space="preserve">
+    <value>Cancel changes and return to Paint.Net?</value>
+  </data>
+  <data name="ConfirmChanges" xml:space="preserve">
+    <value>Apply changes and return to Paint.Net?</value>
+  </data>
+  <data name="BuiltIn" xml:space="preserve">
+    <value>Built in</value>
   </data>
 </root>

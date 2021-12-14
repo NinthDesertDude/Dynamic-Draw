@@ -1,7 +1,7 @@
 ﻿using PaintDotNet;
 using System.Drawing;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Stores copies of any number of relevant environment parameters to be

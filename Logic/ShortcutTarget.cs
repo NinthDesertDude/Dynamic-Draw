@@ -1,4 +1,4 @@
-﻿namespace BrushFactory
+﻿namespace DynamicDraw
 {
     /// <summary>
     /// The settings or actions to be taken. This identifies either actions such as Undo/Redo that have no associated
@@ -236,6 +236,31 @@
         /// <summary>
         /// The action to redo a change.
         /// </summary>
-        RedoAction = 63
+        RedoAction = 63,
+
+        /// <summary>
+        /// Resets the canvas position, zoom, and rotation.
+        /// </summary>
+        ResetCanvasTransforms = 64,
+
+        /// <summary>
+        /// The canvas's horizontal position.
+        /// </summary>
+        CanvasX = 65,
+
+        /// <summary>
+        /// The canvas's vertical position.
+        /// </summary>
+        CanvasY = 66,
+
+        /// <summary>
+        /// The canvas's orientation in degrees.
+        /// </summary>
+        CanvasRotation = 67,
+
+        /// <summary>
+        /// The blending mode used when drawing with the brush.
+        /// </summary>
+        BlendMode = 68
     }
 }

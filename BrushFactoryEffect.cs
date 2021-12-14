@@ -4,9 +4,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
-using BrushFactory.Properties;
+using DynamicDraw.Properties;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// Contains assembly information, accessible through variables.
@@ -81,7 +81,7 @@ namespace BrushFactory
     /// intermediate class called RenderSettings, which is then accessed to
     /// draw the final result in Render.
     /// </summary>
-    [PluginSupportInfo(typeof(PluginSupportInfo), DisplayName = "Brush Factory")]
+    [PluginSupportInfo(typeof(PluginSupportInfo), DisplayName = "Dynamic Draw")]
     public class EffectPlugin : Effect
     {
         #region Properties
@@ -147,7 +147,7 @@ namespace BrushFactory
             RenderSettings.Clear();
 
             //Creates and returns a new dialog.
-            return new WinBrushFactory();
+            return new WinDynamicDraw();
         }
 
         /// <summary>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace BrushFactory
+namespace DynamicDraw
 {
     /// <summary>
     /// A temporary directory that auto-deletes when disposed
@@ -28,7 +28,7 @@ namespace BrushFactory
         {
             try
             {
-                string rootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BrushFactory");
+                string rootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DynamicDraw");
 
                 if (Directory.Exists(rootPath))
                 {
@@ -86,7 +86,7 @@ namespace BrushFactory
         /// <returns>The path of the created directory.</returns>
         private static string CreateTempDirectory()
         {
-            string rootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BrushFactory");
+            string rootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DynamicDraw");
 
             DirectoryInfo directoryInfo = new DirectoryInfo(rootPath);
             if (!directoryInfo.Exists)
