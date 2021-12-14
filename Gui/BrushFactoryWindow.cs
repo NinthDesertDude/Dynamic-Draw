@@ -1564,7 +1564,7 @@ namespace BrushFactory
             {
                 // GDI+ unfortunately has no native blend modes, only compositing modes, so all blend modes (including
                 // the eraser tool) are performed manually.
-                bool useLockbitsDrawing = activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal;
+                bool useLockbitsDrawing = activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal || chkbxLockAlpha.Checked;
 
                 // Overwrite blend mode doesn't use the recolor matrix.
                 if (useLockbitsDrawing && activeTool != Tool.Eraser && cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
@@ -1642,7 +1642,8 @@ namespace BrushFactory
                                         bmpBrushRotScaled,
                                         new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))),
                                         adjustedColor,
-                                        (BlendMode)cmbxBlendMode.SelectedIndex);
+                                        (BlendMode)cmbxBlendMode.SelectedIndex,
+                                        chkbxLockAlpha.Checked);
                                 }
                             }
                         }
@@ -1718,7 +1719,8 @@ namespace BrushFactory
                                             (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
                                             (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
                                         adjustedColor,
-                                        (BlendMode)cmbxBlendMode.SelectedIndex);
+                                        (BlendMode)cmbxBlendMode.SelectedIndex,
+                                        chkbxLockAlpha.Checked);
                                 }
                             }
                         }
@@ -1773,7 +1775,8 @@ namespace BrushFactory
                                                 (int)(transformedPoint.X - halfScaleFactor),
                                                 (int)(transformedPoint.Y - halfScaleFactor)),
                                             adjustedColor,
-                                            (BlendMode)cmbxBlendMode.SelectedIndex);
+                                            (BlendMode)cmbxBlendMode.SelectedIndex,
+                                            chkbxLockAlpha.Checked);
                                     }
                                 }
                             }
@@ -1849,7 +1852,8 @@ namespace BrushFactory
                                             (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
                                             (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
                                         adjustedColor,
-                                        (BlendMode)cmbxBlendMode.SelectedIndex);
+                                        (BlendMode)cmbxBlendMode.SelectedIndex,
+                                        chkbxLockAlpha.Checked);
                                     }
 
                                     angle += angleIncrease;
@@ -5959,22 +5963,6 @@ namespace BrushFactory
 
             //Lets the user click anywhere to draw again.
             mouseLocBrush = null;
-
-            //Overwrites this brush stroke when done with the previous alpha.
-            if (chkbxLockAlpha.Checked && undoHistory.Count != 0)
-            {
-                //Uses the undo bitmap to copy over current alpha values.
-                string fileAndPath = undoHistory.Peek();
-                if (File.Exists(fileAndPath))
-                {
-                    using (Bitmap prevStroke = new Bitmap(fileAndPath))
-                    {
-                        Utils.OverwriteBits(prevStroke, bmpCurrentDrawing, true);
-                    }
-
-                    displayCanvas.Refresh();
-                }
-            }
         }
 
         /// <summary>

@@ -333,7 +333,7 @@ namespace BrushFactory
         /// <param name="brush">The brush image that will be drawn to the destination using custom blending.</param>
         /// <param name="location">The location to draw the brush at.</param>
         /// <param name="blendMode">Determines the algorithm uesd to draw the brush on dest.</param>
-        public static unsafe void DrawMasked(Bitmap dest, Bitmap brush, Point location, ColorBgra userColor, BlendMode blendMode)
+        public static unsafe void DrawMasked(Bitmap dest, Bitmap brush, Point location, ColorBgra userColor, BlendMode blendMode, bool lockAlpha)
         {
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -388,11 +388,14 @@ namespace BrushFactory
                             brushPtr->A
                         );
 
-                        alphaFactor = newColor.A / 255f;
+                        alphaFactor = (!lockAlpha)
+                            ? newColor.A / 255f
+                            : destPtr->A / 255f;
+
                         destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
                         destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
                         destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                        destPtr->A = newColor.A;
+                        if (!lockAlpha) { destPtr->A = newColor.A; }
                     }
                     else if (blendMode == BlendMode.Overwrite)
                     {
@@ -403,11 +406,14 @@ namespace BrushFactory
                             brushPtr->A
                         );
 
-                        alphaFactor = (destCol.A + brushPtr->A / 255f * (userColorUnpremultiplied.A - destCol.A)) / 255f;
+                        alphaFactor = (!lockAlpha)
+                            ? (destCol.A + brushPtr->A / 255f * (userColorUnpremultiplied.A - destCol.A)) / 255f
+                            : destCol.A / 255f;
+
                         destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
                         destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
                         destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                        destPtr->A = (byte)Math.Ceiling(alphaFactor * 255);
+                        if (!lockAlpha) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
                     }
 
                     brushPtr++;
