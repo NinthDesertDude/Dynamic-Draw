@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("dynamic|draw|brush|factory")]
 [assembly: AssemblyCompany("NinthDesertDude")]
 [assembly: AssemblyProduct("Dynamic Draw")]
-[assembly: AssemblyCopyright("Copyright © 2016 NinthDesertDude")]
+[assembly: AssemblyCopyright("Copyright 2021 NinthDesertDude")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

@@ -878,13 +878,28 @@ namespace DynamicDraw
                 string basePath = userFilesService.UserFilesPath ??
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files");
 
-                string path = Path.Combine(basePath, "DynamicDraw.xml");
-
+                string path = Path.Combine(basePath, "DynamicDrawSettings.xml");
                 settings = new DynamicDrawSettings(path);
 
                 if (!File.Exists(path))
                 {
+                    // Migrate settings from the old settings filepath.
+                    string legacyPath = Path.Combine(basePath, "BrushFactorySettings.xml");
+                    if (File.Exists(legacyPath))
+                    {
+                        var legacySettings = new DynamicDrawSettings(legacyPath);
+                        legacySettings.LoadSavedSettings();
+                        settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
+                        settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
+                    }
+
                     settings.Save(true);
+
+                    // Delete the old settings file if present, after migration.
+                    if (File.Exists(legacyPath))
+                    {
+                        File.Delete(legacyPath);
+                    }
                 }
 
                 // Loading the settings is split into a separate method to allow the defaults

@@ -139,7 +139,8 @@ namespace DynamicDraw
                 {
                     using (FileStream stream = new FileStream(settingsPath, FileMode.Open, FileAccess.Read))
                     {
-                        DataContractSerializer serializer = new DataContractSerializer(typeof(DynamicDrawSettings));
+                        string rootPath = Path.GetFileNameWithoutExtension(settingsPath);
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(DynamicDrawSettings), rootPath, "");
                         DynamicDrawSettings savedSettings = (DynamicDrawSettings)serializer.ReadObject(stream);
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
