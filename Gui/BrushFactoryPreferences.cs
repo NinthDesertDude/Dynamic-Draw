@@ -54,7 +54,7 @@ namespace BrushFactory.Gui
 
         #region Methods (not event handlers)
         /// <summary>
-        /// Saves values to the registry from the gui.
+        /// Saves values to the preferences file.
         /// </summary>
         public void SaveSettings()
         {
@@ -117,6 +117,7 @@ namespace BrushFactory.Gui
             //Disables the button so it can't accidentally be called twice.
             bttnCancel.Enabled = false;
 
+            DialogResult = DialogResult.Cancel;
             Close();
         }
 

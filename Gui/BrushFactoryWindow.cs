@@ -91,12 +91,6 @@ namespace BrushFactory
         /// </summary>
         private bool doReinitializeBrushImages;
 
-        /// <summary>
-        /// Indicates whether the brushes need to be imported from the
-        /// collection of loaded brush paths stored in the effect token.
-        /// </summary>
-        private bool importBrushesFromToken;
-
         private bool isFormClosing;
 
         /// <summary>
@@ -621,7 +615,6 @@ namespace BrushFactory
             if (token.CustomBrushLocations.Count > 0 && !token.CustomBrushLocations.SetEquals(loadedBrushImagePaths))
             {
                 loadedBrushImagePaths.UnionWith(token.CustomBrushLocations);
-                importBrushesFromToken = true;
             }
 
             keyboardShortcuts.Clear(); // Prevents duplicate shortcut handling.
@@ -2327,7 +2320,7 @@ namespace BrushFactory
         /// <param name="doAddToSettings">
         /// If true, the brush image will be added to the settings.
         /// </param>
-        private void ImportBrushImages(bool doAddToSettings)
+        private void ImportBrushImages()
         {
             //Configures a dialog to get the brush image(s) path(s).
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -2342,7 +2335,7 @@ namespace BrushFactory
             //Displays the dialog. Loads the files if it worked.
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                ImportBrushImagesFromFiles(openFileDialog.FileNames, doAddToSettings, true);
+                ImportBrushImagesFromFiles(openFileDialog.FileNames, true);
 
                 // Permanently adds brushes.
                 if (settings != null)
@@ -2368,23 +2361,17 @@ namespace BrushFactory
         /// If empty, the user will be presented with a dialog to select
         /// files.
         /// </param>
-        /// <param name="doAddToSettings">
-        /// If true, the brush image will be added to the settings.
-        /// </param>
         /// <param name="displayError">
         /// Errors should only be displayed if it's a user-initiated action.
         /// </param>
-        private void ImportBrushImagesFromFiles(
-            IReadOnlyCollection<string> filePaths,
-            bool doAddToSettings,
-            bool doDisplayErrors)
+        private void ImportBrushImagesFromFiles(IReadOnlyCollection<string> filePaths, bool doDisplayErrors)
         {
             if (!brushImageLoadingWorker.IsBusy)
             {
                 int listViewItemHeight = GetListViewItemHeight();
                 int maxBrushSize = sliderBrushSize.Maximum;
 
-                BrushImageLoadingSettings workerArgs = new BrushImageLoadingSettings(filePaths, doAddToSettings, doDisplayErrors, listViewItemHeight, maxBrushSize);
+                BrushImageLoadingSettings workerArgs = new BrushImageLoadingSettings(filePaths, true, doDisplayErrors, listViewItemHeight, maxBrushSize);
                 bttnAddBrushImages.Visible = false;
                 brushImageLoadProgressBar.Visible = true;
 
@@ -2468,16 +2455,7 @@ namespace BrushFactory
             listviewBrushImagePicker.VirtualListSize = loadedBrushImages.Count;
 
             //Loads any custom brush images.
-            if (importBrushesFromToken)
-            {
-                importBrushesFromToken = false;
-
-                ImportBrushImagesFromFiles(loadedBrushImagePaths, false, false);
-            }
-            else
-            {
-                ImportBrushImagesFromDirectories(settings?.CustomBrushImageDirectories ?? new HashSet<string>());
-            }
+            ImportBrushImagesFromDirectories(settings?.CustomBrushImageDirectories ?? new HashSet<string>());
         }
 
         /// <summary>
@@ -5650,6 +5628,8 @@ namespace BrushFactory
                 if (e.Error != null && workerArgs.DisplayErrors)
                 {
                     MessageBox.Show(this, e.Error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    brushImageLoadProgressBar.Visible = false;
+                    bttnAddBrushImages.Visible = true;
                 }
                 else
                 {
@@ -6256,7 +6236,7 @@ namespace BrushFactory
         /// </summary>
         private void BttnAddBrushImages_Click(object sender, EventArgs e)
         {
-            ImportBrushImages(true);
+            ImportBrushImages();
         }
 
         private void BttnAddBrushImages_MouseEnter(object sender, EventArgs e)
@@ -6418,7 +6398,10 @@ namespace BrushFactory
         {
             if (settings != null)
             {
-                new BrushFactoryPreferences(settings).ShowDialog();
+                if (new BrushFactoryPreferences(settings).ShowDialog() == DialogResult.OK)
+                {
+                    InitBrushes();
+                }
             }
             else
             {
