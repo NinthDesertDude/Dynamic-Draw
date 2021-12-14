@@ -428,7 +428,6 @@ namespace BrushFactory
         private Accordion bttnSettings;
         private FlowLayoutPanel panelSettings;
         private Button bttnCustomBrushImageLocations;
-        private Button bttnClearBrushImages;
         private Button bttnClearSettings;
         private ListView listviewBrushPicker;
         private Button bttnSaveBrush;
@@ -829,7 +828,6 @@ namespace BrushFactory
             bttnAddBrushImages.Text = Strings.AddBrushImages;
             bttnBrushColor.Text = Strings.BrushColor;
             bttnCancel.Text = Strings.Cancel;
-            bttnClearBrushImages.Text = Strings.ClearBrushImages;
             bttnClearSettings.Text = Strings.ClearSettings;
             bttnCustomBrushImageLocations.Text = Strings.CustomBrushImageLocations;
             bttnOk.Text = Strings.Ok;
@@ -2818,7 +2816,6 @@ namespace BrushFactory
             this.bttnSettings = new Accordion();
             this.panelSettings = new FlowLayoutPanel();
             this.bttnCustomBrushImageLocations = new Button();
-            this.bttnClearBrushImages = new Button();
             this.bttnClearSettings = new Button();
             this.bttnDeleteBrush = new Button();
             this.bttnSaveBrush = new Button();
@@ -4704,7 +4701,6 @@ namespace BrushFactory
             resources.ApplyResources(this.panelSettings, "panelSettings");
             this.panelSettings.BackColor = System.Drawing.SystemColors.Control;
             this.panelSettings.Controls.Add(this.bttnCustomBrushImageLocations);
-            this.panelSettings.Controls.Add(this.bttnClearBrushImages);
             this.panelSettings.Controls.Add(this.bttnClearSettings);
             this.panelSettings.Controls.Add(this.bttnDeleteBrush);
             this.panelSettings.Controls.Add(this.bttnSaveBrush);
@@ -4717,14 +4713,6 @@ namespace BrushFactory
             this.bttnCustomBrushImageLocations.UseVisualStyleBackColor = true;
             this.bttnCustomBrushImageLocations.Click += new EventHandler(this.BttnPreferences_Click);
             this.bttnCustomBrushImageLocations.MouseEnter += new EventHandler(this.BttnPreferences_MouseEnter);
-            // 
-            // bttnClearBrushImages
-            // 
-            resources.ApplyResources(this.bttnClearBrushImages, "bttnClearBrushImages");
-            this.bttnClearBrushImages.Name = "bttnClearBrushImages";
-            this.bttnClearBrushImages.UseVisualStyleBackColor = true;
-            this.bttnClearBrushImages.Click += new EventHandler(this.BttnClearBrushImages_Click);
-            this.bttnClearBrushImages.MouseEnter += new EventHandler(this.BttnClearBrushImages_MouseEnter);
             // 
             // bttnClearSettings
             // 
@@ -6306,19 +6294,6 @@ namespace BrushFactory
         private void BttnCancel_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.CancelTip);
-        }
-
-        /// <summary>
-        /// Removes all brush images added by the user.
-        /// </summary>
-        private void BttnClearBrushImages_Click(object sender, EventArgs e)
-        {
-            InitBrushes();
-        }
-
-        private void BttnClearBrushImages_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.ClearBrushImagesTip);
         }
 
         /// <summary>

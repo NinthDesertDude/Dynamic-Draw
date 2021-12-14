@@ -6012,45 +6012,6 @@
   <data name="&gt;&gt;bttnCustomBrushImageLocations.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="bttnClearBrushImages.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
-  </data>
-  <data name="bttnClearBrushImages.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Center</value>
-  </data>
-  <data name="bttnClearBrushImages.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="bttnClearBrushImages.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 32</value>
-  </data>
-  <data name="bttnClearBrushImages.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 3, 0, 3</value>
-  </data>
-  <data name="bttnClearBrushImages.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>No</value>
-  </data>
-  <data name="bttnClearBrushImages.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 23</value>
-  </data>
-  <data name="bttnClearBrushImages.TabIndex" type="System.Int32, mscorlib">
-    <value>133</value>
-  </data>
-  <data name="bttnClearBrushImages.Text" xml:space="preserve">
-    <value>Clear Custom Images</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushImages.Name" xml:space="preserve">
-    <value>bttnClearBrushImages</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushImages.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushImages.Parent" xml:space="preserve">
-    <value>panelSettings</value>
-  </data>
-  <data name="&gt;&gt;bttnClearBrushImages.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
   <data name="bttnClearSettings.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
