@@ -1625,7 +1625,8 @@ namespace BrushFactory
                                 rotatedLoc = TransformPoint(loc, true, true, false);
                             }
 
-                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor), false, false, recolorMatrix))
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor), false, false, recolorMatrix,
+                                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex))
                             {
                                 if (activeTool == Tool.Eraser)
                                 {
@@ -1633,15 +1634,20 @@ namespace BrushFactory
                                         this.EnvironmentParameters.SourceSurface,
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
-                                        new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))));
+                                        new Point(
+                                            (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
+                                            (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))));
                                 }
                                 else
                                 {
                                     Utils.DrawMasked(
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
-                                        new Point((int)(rotatedLoc.X - (scaleFactor / 2f)), (int)(rotatedLoc.Y - (scaleFactor / 2f))),
+                                        new Point(
+                                            (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
+                                            (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))),
                                         adjustedColor,
+                                        chkbxColorizeBrush.Checked,
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
                                         chkbxLockAlpha.Checked);
                                 }
@@ -1697,7 +1703,7 @@ namespace BrushFactory
                         if (useLockbitsDrawing)
                         {
                             using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(
-                                bmpBrushRot, new Size(scaleFactor, scaleFactor), !symmetryX, !symmetryY))
+                                bmpBrushRot, new Size(scaleFactor, scaleFactor), !symmetryX, !symmetryY, null, (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex))
                             {
                                 if (activeTool == Tool.Eraser)
                                 {
@@ -1706,8 +1712,8 @@ namespace BrushFactory
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
                                         new Point(
-                                            (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
-                                            (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))));
+                                            (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
+                                            (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))));
 
                                 }
                                 else
@@ -1716,9 +1722,10 @@ namespace BrushFactory
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
                                         new Point(
-                                            (int)(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
-                                            (int)(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
+                                            (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
+                                            (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
                                         adjustedColor,
+                                        chkbxColorizeBrush.Checked,
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
                                         chkbxLockAlpha.Checked);
                                 }
@@ -1741,7 +1748,8 @@ namespace BrushFactory
                     {
                         if (useLockbitsDrawing)
                         {
-                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                            using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor), false, false, null,
+                                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex))
                             {
                                 float halfScaleFactor = scaleFactor / 2f;
 
@@ -1763,8 +1771,8 @@ namespace BrushFactory
                                             bmpCurrentDrawing,
                                             bmpBrushRotScaled,
                                             new Point(
-                                                (int)(transformedPoint.X - halfScaleFactor),
-                                                (int)(transformedPoint.Y - halfScaleFactor)));
+                                                (int)Math.Round(transformedPoint.X - halfScaleFactor),
+                                                (int)Math.Round(transformedPoint.Y - halfScaleFactor)));
                                     }
                                     else
                                     {
@@ -1772,9 +1780,10 @@ namespace BrushFactory
                                             bmpCurrentDrawing,
                                             bmpBrushRotScaled,
                                             new Point(
-                                                (int)(transformedPoint.X - halfScaleFactor),
-                                                (int)(transformedPoint.Y - halfScaleFactor)),
+                                                (int)Math.Round(transformedPoint.X - halfScaleFactor),
+                                                (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
                                             adjustedColor,
+                                            chkbxColorizeBrush.Checked,
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
                                             chkbxLockAlpha.Checked);
                                     }
@@ -1829,7 +1838,8 @@ namespace BrushFactory
                         if (useLockbitsDrawing)
                         {
                             using (Bitmap bmpBrushRotScaled = Utils.ScaleImage(
-                                bmpBrushRot, new Size(scaleFactor, scaleFactor)))
+                                bmpBrushRot, new Size(scaleFactor, scaleFactor), false, false, null,
+                                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex))
                             {
                                 for (int i = 0; i < numPoints; i++)
                                 {
@@ -1840,8 +1850,8 @@ namespace BrushFactory
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
                                         new Point(
-                                            (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                            (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))));
+                                            (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))));
                                     }
                                     else
                                     {
@@ -1849,9 +1859,10 @@ namespace BrushFactory
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
                                         new Point(
-                                            (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                            (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                            (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
                                         adjustedColor,
+                                        chkbxColorizeBrush.Checked,
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
                                         chkbxLockAlpha.Checked);
                                     }
@@ -2296,11 +2307,11 @@ namespace BrushFactory
                     sliderCanvasZoom.Value = 100;
                     break;
                 case ShortcutTarget.CanvasX:
-                    canvas.x = shortcut.GetDataAsInt(canvas.x, int.MinValue, int.MaxValue);
+                    canvas.x -= (int)((shortcut.GetDataAsInt(canvas.x, int.MinValue, int.MaxValue) - canvas.x) * canvasZoom);
                     displayCanvas.Refresh();
                     break;
                 case ShortcutTarget.CanvasY:
-                    canvas.y = shortcut.GetDataAsInt(canvas.y, int.MinValue, int.MaxValue);
+                    canvas.y -= (int)((shortcut.GetDataAsInt(canvas.y, int.MinValue, int.MaxValue) - canvas.y) * canvasZoom);
                     displayCanvas.Refresh();
                     break;
                 case ShortcutTarget.CanvasRotation:
@@ -3122,7 +3133,7 @@ namespace BrushFactory
             // 
             resources.ApplyResources(this.sliderCanvasZoom, "sliderCanvasZoom");
             this.sliderCanvasZoom.LargeChange = 1;
-            this.sliderCanvasZoom.Maximum = 1600;
+            this.sliderCanvasZoom.Maximum = 6400;
             this.sliderCanvasZoom.Minimum = 1;
             this.sliderCanvasZoom.Name = "sliderCanvasZoom";
             this.sliderCanvasZoom.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -5244,13 +5255,12 @@ namespace BrushFactory
         /// Updates which controls are enabled or not based on current settings.
         /// </summary>
         private void UpdateEnabledControls()
-        {
+        {            
             bool enableAlphaJitter = chkbxColorizeBrush.Checked || activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Normal;
             bool enableColorJitter = activeTool != Tool.Eraser && chkbxColorizeBrush.Checked;
 
-            // overwrite mode: keep everything else on, but disable colorize brush
-            // erase mode: keep alpha and alpha jitter on, but disable colorize brush, color, color jitters
-            chkbxColorizeBrush.Enabled = (BlendMode)cmbxBlendMode.SelectedIndex == BlendMode.Normal && activeTool != Tool.Eraser;
+            chkbxColorizeBrush.Enabled = activeTool != Tool.Eraser;
+            chkbxLockAlpha.Enabled = activeTool != Tool.Eraser;
 
             // Hide dynamic coloring options if colorize brush is off.
             if (!chkbxColorizeBrush.Checked || activeTool == Tool.Eraser)

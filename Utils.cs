@@ -333,7 +333,14 @@ namespace BrushFactory
         /// <param name="brush">The brush image that will be drawn to the destination using custom blending.</param>
         /// <param name="location">The location to draw the brush at.</param>
         /// <param name="blendMode">Determines the algorithm uesd to draw the brush on dest.</param>
-        public static unsafe void DrawMasked(Bitmap dest, Bitmap brush, Point location, ColorBgra userColor, BlendMode blendMode, bool lockAlpha)
+        public static unsafe void DrawMasked(
+            Bitmap dest,
+            Bitmap brush,
+            Point location,
+            ColorBgra userColor,
+            bool colorize,
+            BlendMode blendMode,
+            bool lockAlpha)
         {
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -384,7 +391,7 @@ namespace BrushFactory
                     {
                         newColor = ColorBgra.Blend(
                             destPtr->ConvertFromPremultipliedAlpha(),
-                            userColorUnpremultiplied,
+                            colorize ? userColorUnpremultiplied : brushPtr->ConvertFromPremultipliedAlpha(),
                             brushPtr->A
                         );
 
@@ -402,7 +409,7 @@ namespace BrushFactory
                         destCol = destPtr->ConvertFromPremultipliedAlpha();
                         newColor = ColorBgra.Blend(
                             destCol,
-                            userColorUnpremultiplied,
+                            colorize ? userColorUnpremultiplied : brushPtr->ConvertFromPremultipliedAlpha(),
                             brushPtr->A
                         );
 
@@ -650,13 +657,30 @@ namespace BrushFactory
         /// <param name="flipX">Whether to flip the image horizontally.</param>
         /// <param name="flipY">Whether to flip the image vertically.</param>
         /// <param name="attr">If supplied, the recolor matrix will also be applied.</param>
-        public static Bitmap ScaleImage(Bitmap origBmp, Size newSize, bool flipX = false, bool flipY = false, ImageAttributes attr = null)
+        public static Bitmap ScaleImage(
+            Bitmap origBmp,
+            Size newSize,
+            bool flipX = false,
+            bool flipY = false,
+            ImageAttributes attr = null,
+            CmbxSmoothing.Smoothing smoothing = CmbxSmoothing.Smoothing.Normal)
         {
             //Creates the new image and a graphic canvas to draw the rotation.
             Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                switch (smoothing)
+                {
+                    case CmbxSmoothing.Smoothing.Jagged:
+                        g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                        break;
+                    case CmbxSmoothing.Smoothing.Normal:
+                        g.InterpolationMode = InterpolationMode.Bilinear;
+                        break;
+                    case CmbxSmoothing.Smoothing.High:
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        break;
+                }
 
                 if (attr != null)
                 {
