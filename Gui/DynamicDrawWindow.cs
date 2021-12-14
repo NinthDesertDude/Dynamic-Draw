@@ -5719,9 +5719,10 @@ namespace DynamicDraw
                     {
                         for (int i = 0; i < symmetryOrigins.Count; i++)
                         {
+                            var rotatedPoint = TransformPoint(mouseLoc, true);
                             double radius = Math.Sqrt(
-                                Math.Pow(mouseLoc.X / canvasZoom - (symmetryOrigin.X + symmetryOrigins[i].X), 2) +
-                                Math.Pow(mouseLoc.Y / canvasZoom - (symmetryOrigin.Y + symmetryOrigins[i].Y), 2));
+                                Math.Pow(rotatedPoint.X - (symmetryOrigin.X + symmetryOrigins[i].X), 2) +
+                                Math.Pow(rotatedPoint.Y - (symmetryOrigin.Y + symmetryOrigins[i].Y), 2));
 
                             if (radius <= 15 / canvasZoom)
                             {
@@ -5990,8 +5991,8 @@ namespace DynamicDraw
             e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             e.Graphics.SmoothingMode = SmoothingMode.None;
 
-            float drawingOffsetX = (bmpCurrentDrawing.Width * 0.5f * canvasZoom);
-            float drawingOffsetY = (bmpCurrentDrawing.Height * 0.5f * canvasZoom);
+            float drawingOffsetX = (EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom);
+            float drawingOffsetY = (EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom);
 
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
             e.Graphics.RotateTransform(sliderCanvasAngle.Value);
@@ -6030,8 +6031,8 @@ namespace DynamicDraw
                         visibleBounds,
                         lCutoffUnzoomed,
                         tCutoffUnzoomed,
-                        bmpCurrentDrawing.Width - overshootX / canvasZoom - lCutoffUnzoomed,
-                        bmpCurrentDrawing.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                        EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                        EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
                         GraphicsUnit.Pixel);
                 }
                 else
@@ -6062,8 +6063,8 @@ namespace DynamicDraw
                     visibleBounds,
                     lCutoffUnzoomed,
                     tCutoffUnzoomed,
-                    bmpCurrentDrawing.Width - overshootX / canvasZoom - lCutoffUnzoomed,
-                    bmpCurrentDrawing.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                    EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                    EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
                     GraphicsUnit.Pixel);
             }
             else
@@ -6080,12 +6081,12 @@ namespace DynamicDraw
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
                 {
-                    if (area != bmpCurrentDrawing.Width * bmpCurrentDrawing.Height)
+                    if (area != EnvironmentParameters.SourceSurface.Width * EnvironmentParameters.SourceSurface.Height)
                     {
                         selectionOutline = selection.ConstructOutline(
                             new RectangleF(0, 0,
-                            bmpCurrentDrawing.Width,
-                            bmpCurrentDrawing.Height),
+                            EnvironmentParameters.SourceSurface.Width,
+                            EnvironmentParameters.SourceSurface.Height),
                             canvasZoom);
                     }
                 }
@@ -6095,7 +6096,7 @@ namespace DynamicDraw
 
                 //Creates the inverted region of the selection.
                 var drawingArea = new Region(new Rectangle
-                    (0, 0, bmpCurrentDrawing.Width, bmpCurrentDrawing.Height));
+                    (0, 0, EnvironmentParameters.SourceSurface.Width, EnvironmentParameters.SourceSurface.Height));
                 drawingArea.Exclude(selection.GetRegionReadOnly());
 
                 //Draws the region as a darkening over unselected pixels.
@@ -6170,11 +6171,11 @@ namespace DynamicDraw
                         e.Graphics.DrawLine(
                             Pens.Red,
                             new PointF(0, symmetryOrigin.Y * canvasZoom),
-                            new PointF(bmpCurrentDrawing.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
+                            new PointF(EnvironmentParameters.SourceSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                         e.Graphics.DrawLine(
                             Pens.Red,
                             new PointF(symmetryOrigin.X * canvasZoom, 0),
-                            new PointF(symmetryOrigin.X * canvasZoom, bmpCurrentDrawing.Height * canvasZoom));
+                            new PointF(symmetryOrigin.X * canvasZoom, EnvironmentParameters.SourceSurface.Height * canvasZoom));
                     }
 
                     e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
@@ -6201,8 +6202,8 @@ namespace DynamicDraw
                         }
                         else
                         {
-                            pointsDrawnX = (mouseLoc.X / canvasZoom - bmpCurrentDrawing.Width / 2);
-                            pointsDrawnY = (mouseLoc.Y / canvasZoom - bmpCurrentDrawing.Height / 2);
+                            pointsDrawnX = (mouseLoc.X / canvasZoom - EnvironmentParameters.SourceSurface.Width / 2);
+                            pointsDrawnY = (mouseLoc.Y / canvasZoom - EnvironmentParameters.SourceSurface.Height / 2);
 
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
@@ -6213,8 +6214,8 @@ namespace DynamicDraw
                                 angle -= sliderCanvasAngle.Value * Math.PI / 180;
                                 e.Graphics.DrawRectangle(
                                     Pens.Red,
-                                    (float)(bmpCurrentDrawing.Width / 2 + dist * Math.Cos(angle) - 1),
-                                    (float)(bmpCurrentDrawing.Height / 2 + dist * Math.Sin(angle) - 1),
+                                    (float)(EnvironmentParameters.SourceSurface.Width / 2 + dist * Math.Cos(angle) - 1),
+                                    (float)(EnvironmentParameters.SourceSurface.Height / 2 + dist * Math.Sin(angle) - 1),
                                     2, 2);
                             }
                         }
@@ -6225,11 +6226,11 @@ namespace DynamicDraw
                     e.Graphics.DrawLine(
                         Pens.Red,
                         new PointF(0, symmetryOrigin.Y * canvasZoom),
-                        new PointF(bmpCurrentDrawing.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
+                        new PointF(EnvironmentParameters.SourceSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                     e.Graphics.DrawLine(
                         Pens.Red,
                         new PointF(symmetryOrigin.X * canvasZoom, 0),
-                        new PointF(symmetryOrigin.X * canvasZoom, bmpCurrentDrawing.Height * canvasZoom));
+                        new PointF(symmetryOrigin.X * canvasZoom, EnvironmentParameters.SourceSurface.Height * canvasZoom));
                 }
             }
 
