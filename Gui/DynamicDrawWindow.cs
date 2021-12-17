@@ -108,6 +108,8 @@ namespace DynamicDraw
         private bool isUserDrawing = false;
         private bool isUserPanning = false;
 
+        private bool isWheelZooming = false;
+
         /// <summary>
         /// Creates the list of brushes used by the brush selector.
         /// </summary>
@@ -629,7 +631,7 @@ namespace DynamicDraw
             }
 
             // Updates brush settings and the current image.
-            token.CurrentBrushSettings.BrushAlpha = token.CurrentBrushSettings.BrushColor.A;
+            token.CurrentBrushSettings.BrushAlpha = 255 - token.CurrentBrushSettings.BrushColor.A;
             UpdateBrush(token.CurrentBrushSettings);
             UpdateBrushImage();
         }
@@ -1080,6 +1082,7 @@ namespace DynamicDraw
                 //Ctrl + Wheel: Zooms the canvas in/out.
                 else
                 {
+                    isWheelZooming = true;
                     Zoom(e.Delta, true);
                 }
             }
@@ -5433,16 +5436,38 @@ namespace DynamicDraw
             txtCanvasZoom.Text = string.Format(
                 "{0} {1:p0}", Strings.CanvasZoom, newZoomFactor);
 
+            // Prevent losing the canvas due to nudging off-screen prior to zoom.
+            if (canvas.x + canvas.width < 0 || canvas.x > displayCanvas.Width)
+            {
+                isWheelZooming = false;
+                canvas.x = (displayCanvas.Width - canvas.width) / 2;
+            }
+            if (canvas.y + canvas.height < 0 || canvas.y > displayCanvas.Height)
+            {
+                isWheelZooming = false;
+                canvas.y = (displayCanvas.Height - canvas.height) / 2;
+            }
+
             //Gets the new width and height, adjusted for zooming.
             float zoomWidth = bmpCurrentDrawing.Width * newZoomFactor;
             float zoomHeight = bmpCurrentDrawing.Height * newZoomFactor;
 
-            PointF zoomingPoint = mouseLoc;
+            PointF zoomingPoint = isWheelZooming
+                ? mouseLoc
+                : new PointF(
+                    displayCanvas.ClientSize.Width / 2f - canvas.x,
+                    displayCanvas.ClientSize.Height / 2f - canvas.y);
+
+            // Clamp the zooming point at the edges of the canvas.
+            zoomingPoint.X = Utils.ClampF(zoomingPoint.X, 0, canvas.width);
+            zoomingPoint.Y = Utils.ClampF(zoomingPoint.Y, 0, canvas.height);
 
             int zoomX = (int)(canvas.x + zoomingPoint.X -
                 zoomingPoint.X * zoomWidth / canvas.width);
             int zoomY = (int)(canvas.y + zoomingPoint.Y -
                 zoomingPoint.Y * zoomHeight / canvas.height);
+
+            isWheelZooming = false;
 
             // Adjusts the canvas position after zooming, and the mouse location since it includes canvas position.
             (int x, int y) canvasOffset = new(canvas.x - zoomX, canvas.y - zoomY);
