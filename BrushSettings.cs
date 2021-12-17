@@ -366,6 +366,17 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Whether the areas of the brush that clip at the canvas edge should be wrapped around and drawn on the
+        /// opposite sides.
+        /// </summary>
+        [DataMember(Name = "SeamlessDrawing")]
+        public bool SeamlessDrawing
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Determines the smoothing applied to drawing.
         /// </summary>
         [DataMember(Name = "Smoothing")]
@@ -542,6 +553,7 @@ namespace DynamicDraw
             RandMinH = 0;
             RandMinS = 0;
             RandMinV = 0;
+            SeamlessDrawing = false;
             SizeChange = 0;
             RotChange = 0;
             AlphaChange = 0;
@@ -671,6 +683,7 @@ namespace DynamicDraw
             TabPressureRandRotLeft = other.TabPressureRandRotLeft;
             TabPressureRandRotRight = other.TabPressureRandRotRight;
             TabPressureRandVerShift = other.TabPressureRandVerShift;
+            SeamlessDrawing = other.SeamlessDrawing;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;
@@ -680,6 +693,7 @@ namespace DynamicDraw
 
         /// <summary>
         /// Copies all settings to another brush settings object.
+        /// Called by Paint.NET to restore settings when the effect runs.
         /// </summary>
         public override object Clone()
         {

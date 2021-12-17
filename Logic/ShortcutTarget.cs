@@ -261,6 +261,11 @@
         /// <summary>
         /// The blending mode used when drawing with the brush.
         /// </summary>
-        BlendMode = 68
+        BlendMode = 68,
+
+        /// <summary>
+        /// Whether to wrap around to the other side of the canvas where brush stamps would clip.
+        /// </summary>
+        SeamlessDrawing = 69
     }
 }

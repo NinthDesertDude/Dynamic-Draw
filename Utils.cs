@@ -4,7 +4,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
 namespace DynamicDraw
 {
@@ -340,7 +339,8 @@ namespace DynamicDraw
             ColorBgra userColor,
             bool colorize,
             BlendMode blendMode,
-            bool lockAlpha)
+            bool lockAlpha,
+            bool wrapAround)
         {
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -363,14 +363,12 @@ namespace DynamicDraw
                 adjHeight);
 
             BitmapData destData = dest.LockBits(
-                adjBounds,
+                new Rectangle(0, 0, dest.Width, dest.Height),
                 ImageLockMode.ReadWrite,
                 dest.PixelFormat);
 
             BitmapData brushData = brush.LockBits(
-                new Rectangle(0, 0,
-                brush.Width,
-                brush.Height),
+                new Rectangle(0, 0, brush.Width, brush.Height),
                 ImageLockMode.ReadOnly,
                 brush.PixelFormat);
 
@@ -380,52 +378,73 @@ namespace DynamicDraw
             ColorBgra userColorUnpremultiplied = userColor.ConvertFromPremultipliedAlpha();
             ColorBgra newColor, destCol;
 
-            for (int y = 0; y < adjHeight; y++)
+            void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
-                ColorBgra* brushPtr = (ColorBgra*)(brushRow + negativeX * 4 + ((negativeY + y) * brushData.Stride));
-                ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
-
-                for (int x = 0; x < adjWidth; x++)
+                for (int y = 0; y < destHeight; y++)
                 {
-                    if (blendMode == BlendMode.Normal)
+                    ColorBgra* brushPtr = (ColorBgra*)(brushRow + brushXOffset * 4 + ((brushYOffset + y) * brushData.Stride));
+                    ColorBgra* destPtr = (ColorBgra*)(destRow + destXOffset * 4 + ((y + destYOffset) * destData.Stride));
+
+                    for (int x = 0; x < destWidth; x++)
                     {
-                        newColor = ColorBgra.Blend(
-                            destPtr->ConvertFromPremultipliedAlpha(),
-                            colorize ? userColorUnpremultiplied : brushPtr->ConvertFromPremultipliedAlpha(),
-                            brushPtr->A
-                        );
+                        if (blendMode == BlendMode.Normal)
+                        {
+                            newColor = ColorBgra.Blend(
+                                destPtr->ConvertFromPremultipliedAlpha(),
+                                colorize
+                                    ? userColorUnpremultiplied.NewAlpha((byte)Math.Clamp(userColorUnpremultiplied.A + destPtr->A, 0, 255))
+                                    : brushPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
+                                brushPtr->A
+                            );
 
-                        alphaFactor = (!lockAlpha)
-                            ? newColor.A / 255f
-                            : destPtr->A / 255f;
+                            alphaFactor = (!lockAlpha)
+                                ? newColor.A / 255f
+                                : destPtr->A / 255f;
 
-                        destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                        destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                        destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                        if (!lockAlpha) { destPtr->A = newColor.A; }
+                            destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
+                            destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
+                            destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                            if (!lockAlpha) { destPtr->A = newColor.A; }
+                        }
+                        else if (blendMode == BlendMode.Overwrite)
+                        {
+                            destCol = destPtr->ConvertFromPremultipliedAlpha();
+                            newColor = ColorBgra.Blend(
+                                destCol,
+                                colorize ? userColorUnpremultiplied : brushPtr->ConvertFromPremultipliedAlpha(),
+                                brushPtr->A
+                            );
+
+                            alphaFactor = (!lockAlpha)
+                                ? (destCol.A + brushPtr->A / 255f * (userColorUnpremultiplied.A - destCol.A)) / 255f
+                                : destCol.A / 255f;
+
+                            destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
+                            destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
+                            destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                            if (!lockAlpha) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
+                        }
+
+                        brushPtr++;
+                        destPtr++;
                     }
-                    else if (blendMode == BlendMode.Overwrite)
-                    {
-                        destCol = destPtr->ConvertFromPremultipliedAlpha();
-                        newColor = ColorBgra.Blend(
-                            destCol,
-                            colorize ? userColorUnpremultiplied : brushPtr->ConvertFromPremultipliedAlpha(),
-                            brushPtr->A
-                        );
-
-                        alphaFactor = (!lockAlpha)
-                            ? (destCol.A + brushPtr->A / 255f * (userColorUnpremultiplied.A - destCol.A)) / 255f
-                            : destCol.A / 255f;
-
-                        destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                        destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                        destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                        if (!lockAlpha) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
-                    }
-
-                    brushPtr++;
-                    destPtr++;
                 }
+            }
+
+            // Draw within normal bounds
+            draw(negativeX, negativeY, adjBounds.X, adjBounds.Y, adjBounds.Width, adjBounds.Height);
+
+            // Draw brush cutoffs on the opposite side of the canvas (wrap-around / seamless texture)
+            if (wrapAround)
+            {
+                draw(0, negativeY, dest.Width - negativeX, adjBounds.Y, negativeX, adjBounds.Height); // left
+                draw(negativeX, 0, adjBounds.X, dest.Height - negativeY, adjBounds.Width, negativeY); // top
+                draw(negativeX + brush.Width - extraX, negativeY, 0, adjBounds.Y, extraX, adjBounds.Height); // right
+                draw(negativeX, negativeY + brush.Height - extraY, adjBounds.X, 0, adjBounds.Width, extraY); // bottom
+                draw(0, 0, dest.Width - negativeX, dest.Height - negativeY, negativeX, negativeY); // top left
+                draw(brush.Width - extraX, 0, 0, dest.Height - negativeY, extraX, negativeY); // top right
+                draw(0, brush.Height - extraY, dest.Width - negativeX, 0, negativeX, extraY); // bottom left
+                draw(negativeX + brush.Width - extraX, negativeY + brush.Height - extraY, 0, 0, extraX, extraY); // bottom right
             }
 
             dest.UnlockBits(destData);

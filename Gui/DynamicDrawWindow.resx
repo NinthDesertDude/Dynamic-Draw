@@ -253,7 +253,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnUndo.TabIndex" type="System.Int32, mscorlib">
-    <value>140</value>
+    <value>141</value>
   </data>
   <data name="bttnUndo.Text" xml:space="preserve">
     <value>Undo</value>
@@ -292,7 +292,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnRedo.TabIndex" type="System.Int32, mscorlib">
-    <value>141</value>
+    <value>142</value>
   </data>
   <data name="bttnRedo.Text" xml:space="preserve">
     <value>Redo</value>
@@ -322,7 +322,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnOk.TabIndex" type="System.Int32, mscorlib">
-    <value>142</value>
+    <value>143</value>
   </data>
   <data name="bttnOk.Text" xml:space="preserve">
     <value>Ok</value>
@@ -355,7 +355,7 @@
     <value>77, 23</value>
   </data>
   <data name="bttnCancel.TabIndex" type="System.Int32, mscorlib">
-    <value>143</value>
+    <value>144</value>
   </data>
   <data name="bttnCancel.Text" xml:space="preserve">
     <value>Cancel</value>
@@ -385,7 +385,7 @@
     <value>173, 57</value>
   </data>
   <data name="panelUndoRedoOkCancel.TabIndex" type="System.Int32, mscorlib">
-    <value>144</value>
+    <value>145</value>
   </data>
   <data name="&gt;&gt;panelUndoRedoOkCancel.Name" xml:space="preserve">
     <value>panelUndoRedoOkCancel</value>
@@ -508,7 +508,7 @@
     <value>155, 38</value>
   </data>
   <data name="flowLayoutPanel1.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
+    <value>30</value>
   </data>
   <data name="&gt;&gt;flowLayoutPanel1.Name" xml:space="preserve">
     <value>flowLayoutPanel1</value>
@@ -1413,6 +1413,36 @@
   <data name="&gt;&gt;cmbxBrushSmoothing.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
+  <data name="chkbxSeamlessDrawing.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chkbxSeamlessDrawing.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbxSeamlessDrawing.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 153</value>
+  </data>
+  <data name="chkbxSeamlessDrawing.Size" type="System.Drawing.Size, System.Drawing">
+    <value>118, 17</value>
+  </data>
+  <data name="chkbxSeamlessDrawing.TabIndex" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="chkbxSeamlessDrawing.Text" xml:space="preserve">
+    <value>Seamless Drawing</value>
+  </data>
+  <data name="&gt;&gt;chkbxSeamlessDrawing.Name" xml:space="preserve">
+    <value>chkbxSeamlessDrawing</value>
+  </data>
+  <data name="&gt;&gt;chkbxSeamlessDrawing.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkbxSeamlessDrawing.Parent" xml:space="preserve">
+    <value>panelSpecialSettings</value>
+  </data>
+  <data name="&gt;&gt;chkbxSeamlessDrawing.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
   <data name="chkbxOrientToMouse.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -1420,13 +1450,13 @@
     <value>NoControl</value>
   </data>
   <data name="chkbxOrientToMouse.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 153</value>
+    <value>3, 176</value>
   </data>
   <data name="chkbxOrientToMouse.Size" type="System.Drawing.Size, System.Drawing">
     <value>118, 17</value>
   </data>
   <data name="chkbxOrientToMouse.TabIndex" type="System.Int32, mscorlib">
-    <value>24</value>
+    <value>25</value>
   </data>
   <data name="chkbxOrientToMouse.Text" xml:space="preserve">
     <value>Rotate With Mouse</value>
@@ -1450,13 +1480,13 @@
     <value>NoControl</value>
   </data>
   <data name="chkbxLockAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 176</value>
+    <value>3, 199</value>
   </data>
   <data name="chkbxLockAlpha.Size" type="System.Drawing.Size, System.Drawing">
     <value>80, 17</value>
   </data>
   <data name="chkbxLockAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>25</value>
+    <value>26</value>
   </data>
   <data name="chkbxLockAlpha.Text" xml:space="preserve">
     <value>Lock Alpha</value>
@@ -1513,7 +1543,7 @@
     <value>155, 23</value>
   </data>
   <data name="bttnJitterBasicsControls.TabIndex" type="System.Int32, mscorlib">
-    <value>26</value>
+    <value>27</value>
   </data>
   <data name="bttnJitterBasicsControls.Text" xml:space="preserve">
     <value>▼ Jitter - Basics</value>
@@ -1585,7 +1615,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMinSize.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
+    <value>29</value>
   </data>
   <data name="&gt;&gt;sliderRandMinSize.Name" xml:space="preserve">
     <value>sliderRandMinSize</value>
@@ -1645,7 +1675,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMaxSize.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
+    <value>30</value>
   </data>
   <data name="&gt;&gt;sliderRandMaxSize.Name" xml:space="preserve">
     <value>sliderRandMaxSize</value>
@@ -1708,7 +1738,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandRotLeft.TabIndex" type="System.Int32, mscorlib">
-    <value>30</value>
+    <value>31</value>
   </data>
   <data name="&gt;&gt;sliderRandRotLeft.Name" xml:space="preserve">
     <value>sliderRandRotLeft</value>
@@ -1771,7 +1801,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandRotRight.TabIndex" type="System.Int32, mscorlib">
-    <value>31</value>
+    <value>32</value>
   </data>
   <data name="&gt;&gt;sliderRandRotRight.Name" xml:space="preserve">
     <value>sliderRandRotRight</value>
@@ -1834,7 +1864,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
+    <value>33</value>
   </data>
   <data name="&gt;&gt;sliderRandMinAlpha.Name" xml:space="preserve">
     <value>sliderRandMinAlpha</value>
@@ -1894,7 +1924,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandHorzShift.TabIndex" type="System.Int32, mscorlib">
-    <value>33</value>
+    <value>34</value>
   </data>
   <data name="&gt;&gt;sliderRandHorzShift.Name" xml:space="preserve">
     <value>sliderRandHorzShift</value>
@@ -1954,7 +1984,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderRandVertShift.TabIndex" type="System.Int32, mscorlib">
-    <value>34</value>
+    <value>35</value>
   </data>
   <data name="&gt;&gt;sliderRandVertShift.Name" xml:space="preserve">
     <value>sliderRandVertShift</value>
@@ -1981,7 +2011,7 @@
     <value>156, 336</value>
   </data>
   <data name="panelJitterBasics.TabIndex" type="System.Int32, mscorlib">
-    <value>27</value>
+    <value>28</value>
   </data>
   <data name="&gt;&gt;panelJitterBasics.Name" xml:space="preserve">
     <value>panelJitterBasics</value>
@@ -2008,7 +2038,7 @@
     <value>155, 23</value>
   </data>
   <data name="bttnJitterColorControls.TabIndex" type="System.Int32, mscorlib">
-    <value>35</value>
+    <value>36</value>
   </data>
   <data name="bttnJitterColorControls.Text" xml:space="preserve">
     <value>▼ Jitter - Color</value>
@@ -2080,7 +2110,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMinRed.TabIndex" type="System.Int32, mscorlib">
-    <value>37</value>
+    <value>38</value>
   </data>
   <data name="&gt;&gt;sliderJitterMinRed.Name" xml:space="preserve">
     <value>sliderJitterMinRed</value>
@@ -2110,7 +2140,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMaxRed.TabIndex" type="System.Int32, mscorlib">
-    <value>38</value>
+    <value>39</value>
   </data>
   <data name="&gt;&gt;sliderJitterMaxRed.Name" xml:space="preserve">
     <value>sliderJitterMaxRed</value>
@@ -2170,7 +2200,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMinGreen.TabIndex" type="System.Int32, mscorlib">
-    <value>39</value>
+    <value>40</value>
   </data>
   <data name="&gt;&gt;sliderJitterMinGreen.Name" xml:space="preserve">
     <value>sliderJitterMinGreen</value>
@@ -2200,7 +2230,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMaxGreen.TabIndex" type="System.Int32, mscorlib">
-    <value>40</value>
+    <value>41</value>
   </data>
   <data name="&gt;&gt;sliderJitterMaxGreen.Name" xml:space="preserve">
     <value>sliderJitterMaxGreen</value>
@@ -2260,7 +2290,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMinBlue.TabIndex" type="System.Int32, mscorlib">
-    <value>41</value>
+    <value>42</value>
   </data>
   <data name="&gt;&gt;sliderJitterMinBlue.Name" xml:space="preserve">
     <value>sliderJitterMinBlue</value>
@@ -2290,7 +2320,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMaxBlue.TabIndex" type="System.Int32, mscorlib">
-    <value>42</value>
+    <value>43</value>
   </data>
   <data name="&gt;&gt;sliderJitterMaxBlue.Name" xml:space="preserve">
     <value>sliderJitterMaxBlue</value>
@@ -2350,7 +2380,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMinHue.TabIndex" type="System.Int32, mscorlib">
-    <value>43</value>
+    <value>44</value>
   </data>
   <data name="&gt;&gt;sliderJitterMinHue.Name" xml:space="preserve">
     <value>sliderJitterMinHue</value>
@@ -2380,7 +2410,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMaxHue.TabIndex" type="System.Int32, mscorlib">
-    <value>44</value>
+    <value>45</value>
   </data>
   <data name="&gt;&gt;sliderJitterMaxHue.Name" xml:space="preserve">
     <value>sliderJitterMaxHue</value>
@@ -2440,7 +2470,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMinSat.TabIndex" type="System.Int32, mscorlib">
-    <value>45</value>
+    <value>46</value>
   </data>
   <data name="&gt;&gt;sliderJitterMinSat.Name" xml:space="preserve">
     <value>sliderJitterMinSat</value>
@@ -2470,7 +2500,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMaxSat.TabIndex" type="System.Int32, mscorlib">
-    <value>46</value>
+    <value>47</value>
   </data>
   <data name="&gt;&gt;sliderJitterMaxSat.Name" xml:space="preserve">
     <value>sliderJitterMaxSat</value>
@@ -2530,7 +2560,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMinVal.TabIndex" type="System.Int32, mscorlib">
-    <value>47</value>
+    <value>48</value>
   </data>
   <data name="&gt;&gt;sliderJitterMinVal.Name" xml:space="preserve">
     <value>sliderJitterMinVal</value>
@@ -2560,7 +2590,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderJitterMaxVal.TabIndex" type="System.Int32, mscorlib">
-    <value>48</value>
+    <value>49</value>
   </data>
   <data name="&gt;&gt;sliderJitterMaxVal.Name" xml:space="preserve">
     <value>sliderJitterMaxVal</value>
@@ -2587,7 +2617,7 @@
     <value>156, 474</value>
   </data>
   <data name="panelJitterColor.TabIndex" type="System.Int32, mscorlib">
-    <value>36</value>
+    <value>37</value>
   </data>
   <data name="&gt;&gt;panelJitterColor.Name" xml:space="preserve">
     <value>panelJitterColor</value>
@@ -2614,7 +2644,7 @@
     <value>155, 23</value>
   </data>
   <data name="bttnShiftBasicsControls.TabIndex" type="System.Int32, mscorlib">
-    <value>49</value>
+    <value>50</value>
   </data>
   <data name="bttnShiftBasicsControls.Text" xml:space="preserve">
     <value>▼ Shift - Basics</value>
@@ -2686,7 +2716,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderShiftSize.TabIndex" type="System.Int32, mscorlib">
-    <value>51</value>
+    <value>52</value>
   </data>
   <data name="&gt;&gt;sliderShiftSize.Name" xml:space="preserve">
     <value>sliderShiftSize</value>
@@ -2746,7 +2776,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderShiftRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>52</value>
+    <value>53</value>
   </data>
   <data name="&gt;&gt;sliderShiftRotation.Name" xml:space="preserve">
     <value>sliderShiftRotation</value>
@@ -2806,7 +2836,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderShiftAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>53</value>
+    <value>54</value>
   </data>
   <data name="&gt;&gt;sliderShiftAlpha.Name" xml:space="preserve">
     <value>sliderShiftAlpha</value>
@@ -2833,7 +2863,7 @@
     <value>156, 144</value>
   </data>
   <data name="panelShiftBasics.TabIndex" type="System.Int32, mscorlib">
-    <value>50</value>
+    <value>51</value>
   </data>
   <data name="&gt;&gt;panelShiftBasics.Name" xml:space="preserve">
     <value>panelShiftBasics</value>
@@ -2860,7 +2890,7 @@
     <value>155, 23</value>
   </data>
   <data name="bttnTabAssignPressureControls.TabIndex" type="System.Int32, mscorlib">
-    <value>54</value>
+    <value>55</value>
   </data>
   <data name="bttnTabAssignPressureControls.Text" xml:space="preserve">
     <value>▼ Tablet - Assign Pressure</value>
@@ -2944,7 +2974,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureBrushAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>57</value>
+    <value>58</value>
   </data>
   <data name="&gt;&gt;spinTabPressureBrushAlpha.Name" xml:space="preserve">
     <value>spinTabPressureBrushAlpha</value>
@@ -2968,7 +2998,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel3.TabIndex" type="System.Int32, mscorlib">
-    <value>56</value>
+    <value>57</value>
   </data>
   <data name="&gt;&gt;panel3.Name" xml:space="preserve">
     <value>panel3</value>
@@ -3004,7 +3034,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureBrushAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>58</value>
+    <value>59</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Name" xml:space="preserve">
     <value>cmbxTabPressureBrushAlpha</value>
@@ -3031,7 +3061,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureBrushAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>59</value>
+    <value>60</value>
   </data>
   <data name="&gt;&gt;panelTabPressureBrushAlpha.Name" xml:space="preserve">
     <value>panelTabPressureBrushAlpha</value>
@@ -3103,7 +3133,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureBrushSize.TabIndex" type="System.Int32, mscorlib">
-    <value>61</value>
+    <value>62</value>
   </data>
   <data name="&gt;&gt;spinTabPressureBrushSize.Name" xml:space="preserve">
     <value>spinTabPressureBrushSize</value>
@@ -3127,7 +3157,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel8.TabIndex" type="System.Int32, mscorlib">
-    <value>60</value>
+    <value>61</value>
   </data>
   <data name="&gt;&gt;panel8.Name" xml:space="preserve">
     <value>panel8</value>
@@ -3163,7 +3193,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureBrushSize.TabIndex" type="System.Int32, mscorlib">
-    <value>62</value>
+    <value>63</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushSize.Name" xml:space="preserve">
     <value>cmbxTabPressureBrushSize</value>
@@ -3190,7 +3220,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureBrushSize.TabIndex" type="System.Int32, mscorlib">
-    <value>61</value>
+    <value>62</value>
   </data>
   <data name="&gt;&gt;panelTabPressureBrushSize.Name" xml:space="preserve">
     <value>panelTabPressureBrushSize</value>
@@ -3262,7 +3292,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureBrushRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>65</value>
+    <value>66</value>
   </data>
   <data name="&gt;&gt;spinTabPressureBrushRotation.Name" xml:space="preserve">
     <value>spinTabPressureBrushRotation</value>
@@ -3286,7 +3316,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel2.TabIndex" type="System.Int32, mscorlib">
-    <value>64</value>
+    <value>65</value>
   </data>
   <data name="&gt;&gt;panel2.Name" xml:space="preserve">
     <value>panel2</value>
@@ -3322,7 +3352,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureBrushRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>67</value>
+    <value>68</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushRotation.Name" xml:space="preserve">
     <value>cmbxTabPressureBrushRotation</value>
@@ -3349,7 +3379,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureBrushRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>66</value>
+    <value>67</value>
   </data>
   <data name="&gt;&gt;panelTabPressureBrushRotation.Name" xml:space="preserve">
     <value>panelTabPressureBrushRotation</value>
@@ -3421,7 +3451,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureMinDrawDistance.TabIndex" type="System.Int32, mscorlib">
-    <value>68</value>
+    <value>69</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMinDrawDistance.Name" xml:space="preserve">
     <value>spinTabPressureMinDrawDistance</value>
@@ -3445,7 +3475,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel1.TabIndex" type="System.Int32, mscorlib">
-    <value>69</value>
+    <value>70</value>
   </data>
   <data name="&gt;&gt;panel1.Name" xml:space="preserve">
     <value>panel1</value>
@@ -3481,7 +3511,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureMinDrawDistance.TabIndex" type="System.Int32, mscorlib">
-    <value>71</value>
+    <value>72</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureMinDrawDistance.Name" xml:space="preserve">
     <value>cmbxTabPressureMinDrawDistance</value>
@@ -3508,7 +3538,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureMinDrawDistance.TabIndex" type="System.Int32, mscorlib">
-    <value>70</value>
+    <value>71</value>
   </data>
   <data name="&gt;&gt;panelTabPressureMinDrawDistance.Name" xml:space="preserve">
     <value>panelTabPressureMinDrawDistance</value>
@@ -3580,7 +3610,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureBrushDensity.TabIndex" type="System.Int32, mscorlib">
-    <value>73</value>
+    <value>74</value>
   </data>
   <data name="&gt;&gt;spinTabPressureBrushDensity.Name" xml:space="preserve">
     <value>spinTabPressureBrushDensity</value>
@@ -3604,7 +3634,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel4.TabIndex" type="System.Int32, mscorlib">
-    <value>72</value>
+    <value>73</value>
   </data>
   <data name="&gt;&gt;panel4.Name" xml:space="preserve">
     <value>panel4</value>
@@ -3640,7 +3670,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureBrushDensity.TabIndex" type="System.Int32, mscorlib">
-    <value>75</value>
+    <value>76</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBrushDensity.Name" xml:space="preserve">
     <value>cmbxTabPressureBrushDensity</value>
@@ -3667,7 +3697,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureBrushDensity.TabIndex" type="System.Int32, mscorlib">
-    <value>74</value>
+    <value>75</value>
   </data>
   <data name="&gt;&gt;panelTabPressureBrushDensity.Name" xml:space="preserve">
     <value>panelTabPressureBrushDensity</value>
@@ -3739,7 +3769,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureRandMinSize.TabIndex" type="System.Int32, mscorlib">
-    <value>77</value>
+    <value>78</value>
   </data>
   <data name="&gt;&gt;spinTabPressureRandMinSize.Name" xml:space="preserve">
     <value>spinTabPressureRandMinSize</value>
@@ -3763,7 +3793,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel5.TabIndex" type="System.Int32, mscorlib">
-    <value>76</value>
+    <value>77</value>
   </data>
   <data name="&gt;&gt;panel5.Name" xml:space="preserve">
     <value>panel5</value>
@@ -3799,7 +3829,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRandMinSize.TabIndex" type="System.Int32, mscorlib">
-    <value>79</value>
+    <value>80</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinSize.Name" xml:space="preserve">
     <value>cmbxTabPressureRandMinSize</value>
@@ -3826,7 +3856,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRandMinSize.TabIndex" type="System.Int32, mscorlib">
-    <value>78</value>
+    <value>79</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRandMinSize.Name" xml:space="preserve">
     <value>panelTabPressureRandMinSize</value>
@@ -3898,7 +3928,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureRandMaxSize.TabIndex" type="System.Int32, mscorlib">
-    <value>81</value>
+    <value>82</value>
   </data>
   <data name="&gt;&gt;spinTabPressureRandMaxSize.Name" xml:space="preserve">
     <value>spinTabPressureRandMaxSize</value>
@@ -3922,7 +3952,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel6.TabIndex" type="System.Int32, mscorlib">
-    <value>80</value>
+    <value>81</value>
   </data>
   <data name="&gt;&gt;panel6.Name" xml:space="preserve">
     <value>panel6</value>
@@ -3958,7 +3988,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRandMaxSize.TabIndex" type="System.Int32, mscorlib">
-    <value>83</value>
+    <value>84</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMaxSize.Name" xml:space="preserve">
     <value>cmbxTabPressureRandMaxSize</value>
@@ -3985,7 +4015,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRandMaxSize.TabIndex" type="System.Int32, mscorlib">
-    <value>82</value>
+    <value>83</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRandMaxSize.Name" xml:space="preserve">
     <value>panelTabPressureRandMaxSize</value>
@@ -4057,7 +4087,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureRandRotLeft.TabIndex" type="System.Int32, mscorlib">
-    <value>84</value>
+    <value>85</value>
   </data>
   <data name="&gt;&gt;spinTabPressureRandRotLeft.Name" xml:space="preserve">
     <value>spinTabPressureRandRotLeft</value>
@@ -4081,7 +4111,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel7.TabIndex" type="System.Int32, mscorlib">
-    <value>83</value>
+    <value>84</value>
   </data>
   <data name="&gt;&gt;panel7.Name" xml:space="preserve">
     <value>panel7</value>
@@ -4117,7 +4147,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRandRotLeft.TabIndex" type="System.Int32, mscorlib">
-    <value>86</value>
+    <value>87</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotLeft.Name" xml:space="preserve">
     <value>cmbxTabPressureRandRotLeft</value>
@@ -4144,7 +4174,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRandRotLeft.TabIndex" type="System.Int32, mscorlib">
-    <value>85</value>
+    <value>86</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRandRotLeft.Name" xml:space="preserve">
     <value>panelTabPressureRandRotLeft</value>
@@ -4216,7 +4246,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureRandRotRight.TabIndex" type="System.Int32, mscorlib">
-    <value>88</value>
+    <value>89</value>
   </data>
   <data name="&gt;&gt;spinTabPressureRandRotRight.Name" xml:space="preserve">
     <value>spinTabPressureRandRotRight</value>
@@ -4240,7 +4270,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel9.TabIndex" type="System.Int32, mscorlib">
-    <value>87</value>
+    <value>88</value>
   </data>
   <data name="&gt;&gt;panel9.Name" xml:space="preserve">
     <value>panel9</value>
@@ -4276,7 +4306,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRandRotRight.TabIndex" type="System.Int32, mscorlib">
-    <value>90</value>
+    <value>91</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandRotRight.Name" xml:space="preserve">
     <value>cmbxTabPressureRandRotRight</value>
@@ -4303,7 +4333,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRandRotRight.TabIndex" type="System.Int32, mscorlib">
-    <value>89</value>
+    <value>90</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRandRotRight.Name" xml:space="preserve">
     <value>panelTabPressureRandRotRight</value>
@@ -4375,7 +4405,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>92</value>
+    <value>93</value>
   </data>
   <data name="&gt;&gt;spinTabPressureRandMinAlpha.Name" xml:space="preserve">
     <value>spinTabPressureRandMinAlpha</value>
@@ -4399,7 +4429,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel10.TabIndex" type="System.Int32, mscorlib">
-    <value>91</value>
+    <value>92</value>
   </data>
   <data name="&gt;&gt;panel10.Name" xml:space="preserve">
     <value>panel10</value>
@@ -4435,7 +4465,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>94</value>
+    <value>95</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Name" xml:space="preserve">
     <value>cmbxTabPressureRandMinAlpha</value>
@@ -4462,7 +4492,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>93</value>
+    <value>94</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRandMinAlpha.Name" xml:space="preserve">
     <value>panelTabPressureRandMinAlpha</value>
@@ -4534,7 +4564,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureRandHorShift.TabIndex" type="System.Int32, mscorlib">
-    <value>96</value>
+    <value>97</value>
   </data>
   <data name="&gt;&gt;spinTabPressureRandHorShift.Name" xml:space="preserve">
     <value>spinTabPressureRandHorShift</value>
@@ -4558,7 +4588,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel12.TabIndex" type="System.Int32, mscorlib">
-    <value>95</value>
+    <value>96</value>
   </data>
   <data name="&gt;&gt;panel12.Name" xml:space="preserve">
     <value>panel12</value>
@@ -4594,7 +4624,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRandHorShift.TabIndex" type="System.Int32, mscorlib">
-    <value>98</value>
+    <value>99</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandHorShift.Name" xml:space="preserve">
     <value>cmbxTabPressureRandHorShift</value>
@@ -4621,7 +4651,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRandHorShift.TabIndex" type="System.Int32, mscorlib">
-    <value>97</value>
+    <value>98</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRandHorShift.Name" xml:space="preserve">
     <value>panelTabPressureRandHorShift</value>
@@ -4662,7 +4692,7 @@
   <data name="lblTabPressureRandVerShift.Size" type="System.Drawing.Size, System.Drawing">
     <value>96, 13</value>
   </data>
-  <data name="lblTabPressureRandVerShift.TabIndex" type="System.Int32, mscorlib">
+  <data name="lblTabPressureRandVerShift8" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
   <data name="lblTabPressureRandVerShift.Text" xml:space="preserve">
@@ -4693,7 +4723,7 @@
     <value>51, 20</value>
   </data>
   <data name="spinTabPressureRandVerShift.TabIndex" type="System.Int32, mscorlib">
-    <value>100</value>
+    <value>101</value>
   </data>
   <data name="&gt;&gt;spinTabPressureRandVerShift.Name" xml:space="preserve">
     <value>spinTabPressureRandVerShift</value>
@@ -4717,7 +4747,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel11.TabIndex" type="System.Int32, mscorlib">
-    <value>99</value>
+    <value>100</value>
   </data>
   <data name="&gt;&gt;panel11.Name" xml:space="preserve">
     <value>panel11</value>
@@ -4753,7 +4783,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRandVerShift.TabIndex" type="System.Int32, mscorlib">
-    <value>102</value>
+    <value>103</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRandVerShift.Name" xml:space="preserve">
     <value>cmbxTabPressureRandVerShift</value>
@@ -4780,7 +4810,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRandVerShift.TabIndex" type="System.Int32, mscorlib">
-    <value>101</value>
+    <value>102</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRandVerShift.Name" xml:space="preserve">
     <value>panelTabPressureRandVerShift</value>
@@ -4813,7 +4843,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMinRedJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>103</value>
+    <value>104</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMinRedJitter.Name" xml:space="preserve">
     <value>spinTabPressureMinRedJitter</value>
@@ -4879,7 +4909,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMaxRedJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>104</value>
+    <value>105</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMaxRedJitter.Name" xml:space="preserve">
     <value>spinTabPressureMaxRedJitter</value>
@@ -4903,7 +4933,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel13.TabIndex" type="System.Int32, mscorlib">
-    <value>102</value>
+    <value>103</value>
   </data>
   <data name="&gt;&gt;panel13.Name" xml:space="preserve">
     <value>panel13</value>
@@ -4939,7 +4969,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureRedJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>106</value>
+    <value>107</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureRedJitter.Name" xml:space="preserve">
     <value>cmbxTabPressureRedJitter</value>
@@ -4966,7 +4996,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureRedJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>105</value>
+    <value>106</value>
   </data>
   <data name="&gt;&gt;panelTabPressureRedJitter.Name" xml:space="preserve">
     <value>panelTabPressureRedJitter</value>
@@ -4999,7 +5029,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMinGreenJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>107</value>
+    <value>108</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMinGreenJitter.Name" xml:space="preserve">
     <value>spinTabPressureMinGreenJitter</value>
@@ -5065,7 +5095,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMaxGreenJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>1108</value>
+    <value>109</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMaxGreenJitter.Name" xml:space="preserve">
     <value>spinTabPressureMaxGreenJitter</value>
@@ -5089,7 +5119,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel14.TabIndex" type="System.Int32, mscorlib">
-    <value>106</value>
+    <value>107</value>
   </data>
   <data name="&gt;&gt;panel14.Name" xml:space="preserve">
     <value>panel14</value>
@@ -5125,7 +5155,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureGreenJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>110</value>
+    <value>111</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureGreenJitter.Name" xml:space="preserve">
     <value>cmbxTabPressureGreenJitter</value>
@@ -5152,7 +5182,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureGreenJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>109</value>
+    <value>110</value>
   </data>
   <data name="&gt;&gt;panelTabPressureGreenJitter.Name" xml:space="preserve">
     <value>panelTabPressureGreenJitter</value>
@@ -5185,7 +5215,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMinBlueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>112</value>
+    <value>113</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMinBlueJitter.Name" xml:space="preserve">
     <value>spinTabPressureMinBlueJitter</value>
@@ -5251,7 +5281,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMaxBlueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>113</value>
+    <value>114</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMaxBlueJitter.Name" xml:space="preserve">
     <value>spinTabPressureMaxBlueJitter</value>
@@ -5275,7 +5305,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel15.TabIndex" type="System.Int32, mscorlib">
-    <value>111</value>
+    <value>112</value>
   </data>
   <data name="&gt;&gt;panel15.Name" xml:space="preserve">
     <value>panel15</value>
@@ -5311,7 +5341,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureBlueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>115</value>
+    <value>116</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureBlueJitter.Name" xml:space="preserve">
     <value>cmbxTabPressureBlueJitter</value>
@@ -5338,7 +5368,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureBlueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>114</value>
+    <value>115</value>
   </data>
   <data name="&gt;&gt;panelTabPressureBlueJitter.Name" xml:space="preserve">
     <value>panelTabPressureBlueJitter</value>
@@ -5371,7 +5401,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMinHueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>117</value>
+    <value>118</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMinHueJitter.Name" xml:space="preserve">
     <value>spinTabPressureMinHueJitter</value>
@@ -5437,7 +5467,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMaxHueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>118</value>
+    <value>119</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMaxHueJitter.Name" xml:space="preserve">
     <value>spinTabPressureMaxHueJitter</value>
@@ -5461,7 +5491,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel16.TabIndex" type="System.Int32, mscorlib">
-    <value>116</value>
+    <value>117</value>
   </data>
   <data name="&gt;&gt;panel16.Name" xml:space="preserve">
     <value>panel16</value>
@@ -5497,7 +5527,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureHueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>120</value>
+    <value>121</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureHueJitter.Name" xml:space="preserve">
     <value>cmbxTabPressureHueJitter</value>
@@ -5524,7 +5554,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureHueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>119</value>
+    <value>120</value>
   </data>
   <data name="&gt;&gt;panelTabPressureHueJitter.Name" xml:space="preserve">
     <value>panelTabPressureHueJitter</value>
@@ -5557,7 +5587,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMinSatJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>122</value>
+    <value>123</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMinSatJitter.Name" xml:space="preserve">
     <value>spinTabPressureMinSatJitter</value>
@@ -5623,7 +5653,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMaxSatJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>123</value>
+    <value>124</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMaxSatJitter.Name" xml:space="preserve">
     <value>spinTabPressureMaxSatJitter</value>
@@ -5647,7 +5677,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel17.TabIndex" type="System.Int32, mscorlib">
-    <value>121</value>
+    <value>122</value>
   </data>
   <data name="&gt;&gt;panel17.Name" xml:space="preserve">
     <value>panel17</value>
@@ -5683,7 +5713,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureSatJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>125</value>
+    <value>126</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureSatJitter.Name" xml:space="preserve">
     <value>cmbxTabPressureSatJitter</value>
@@ -5710,7 +5740,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureSatJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>124</value>
+    <value>125</value>
   </data>
   <data name="&gt;&gt;panelTabPressureSatJitter.Name" xml:space="preserve">
     <value>panelTabPressureSatJitter</value>
@@ -5743,7 +5773,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMinValueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>127</value>
+    <value>128</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMinValueJitter.Name" xml:space="preserve">
     <value>spinTabPressureMinValueJitter</value>
@@ -5809,7 +5839,7 @@
     <value>41, 20</value>
   </data>
   <data name="spinTabPressureMaxValueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>128</value>
+    <value>129</value>
   </data>
   <data name="&gt;&gt;spinTabPressureMaxValueJitter.Name" xml:space="preserve">
     <value>spinTabPressureMaxValueJitter</value>
@@ -5833,7 +5863,7 @@
     <value>156, 22</value>
   </data>
   <data name="panel18.TabIndex" type="System.Int32, mscorlib">
-    <value>126</value>
+    <value>127</value>
   </data>
   <data name="&gt;&gt;panel18.Name" xml:space="preserve">
     <value>panel18</value>
@@ -5869,7 +5899,7 @@
     <value>156, 21</value>
   </data>
   <data name="cmbxTabPressureValueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>130</value>
+    <value>131</value>
   </data>
   <data name="&gt;&gt;cmbxTabPressureValueJitter.Name" xml:space="preserve">
     <value>cmbxTabPressureValueJitter</value>
@@ -5896,7 +5926,7 @@
     <value>156, 49</value>
   </data>
   <data name="panelTabPressureValueJitter.TabIndex" type="System.Int32, mscorlib">
-    <value>129</value>
+    <value>130</value>
   </data>
   <data name="&gt;&gt;panelTabPressureValueJitter.Name" xml:space="preserve">
     <value>panelTabPressureValueJitter</value>
@@ -5923,7 +5953,7 @@
     <value>156, 990</value>
   </data>
   <data name="panelTabletAssignPressure.TabIndex" type="System.Int32, mscorlib">
-    <value>54</value>
+    <value>55</value>
   </data>
   <data name="&gt;&gt;panelTabletAssignPressure.Name" xml:space="preserve">
     <value>panelTabletAssignPressure</value>
@@ -5950,7 +5980,7 @@
     <value>155, 23</value>
   </data>
   <data name="bttnSettings.TabIndex" type="System.Int32, mscorlib">
-    <value>131</value>
+    <value>132</value>
   </data>
   <data name="bttnSettings.Text" xml:space="preserve">
     <value>▼ Settings</value>
@@ -5995,7 +6025,7 @@
     <value>156, 23</value>
   </data>
   <data name="bttnCustomBrushImageLocations.TabIndex" type="System.Int32, mscorlib">
-    <value>132</value>
+    <value>133</value>
   </data>
   <data name="bttnCustomBrushImageLocations.Text" xml:space="preserve">
     <value>Custom Brush Locations</value>
@@ -6031,7 +6061,7 @@
     <value>156, 23</value>
   </data>
   <data name="bttnClearSettings.TabIndex" type="System.Int32, mscorlib">
-    <value>134</value>
+    <value>135</value>
   </data>
   <data name="bttnClearSettings.Text" xml:space="preserve">
     <value>Clear Settings</value>
@@ -6070,7 +6100,7 @@
     <value>156, 23</value>
   </data>
   <data name="bttnDeleteBrush.TabIndex" type="System.Int32, mscorlib">
-    <value>135</value>
+    <value>136</value>
   </data>
   <data name="bttnDeleteBrush.Text" xml:space="preserve">
     <value>Delete Brush</value>
@@ -6106,7 +6136,7 @@
     <value>156, 23</value>
   </data>
   <data name="bttnSaveBrush.TabIndex" type="System.Int32, mscorlib">
-    <value>136</value>
+    <value>137</value>
   </data>
   <data name="bttnSaveBrush.Text" xml:space="preserve">
     <value>Save New Brush</value>
@@ -6136,7 +6166,7 @@
     <value>156, 145</value>
   </data>
   <data name="panelSettings.TabIndex" type="System.Int32, mscorlib">
-    <value>132</value>
+    <value>133</value>
   </data>
   <data name="&gt;&gt;panelSettings.Name" xml:space="preserve">
     <value>panelSettings</value>
@@ -6163,7 +6193,7 @@
     <value>156, 3073</value>
   </data>
   <data name="panelSettingsContainer.TabIndex" type="System.Int32, mscorlib">
-    <value>137</value>
+    <value>138</value>
   </data>
   <data name="&gt;&gt;panelSettingsContainer.Name" xml:space="preserve">
     <value>panelSettingsContainer</value>
@@ -6187,7 +6217,7 @@
     <value>173, 484</value>
   </data>
   <data name="panelDockSettingsContainer.TabIndex" type="System.Int32, mscorlib">
-    <value>138</value>
+    <value>139</value>
   </data>
   <data name="&gt;&gt;panelDockSettingsContainer.Name" xml:space="preserve">
     <value>panelDockSettingsContainer</value>
@@ -6211,7 +6241,7 @@
     <value>173, 541</value>
   </data>
   <data name="panelAllSettingsContainer.TabIndex" type="System.Int32, mscorlib">
-    <value>139</value>
+    <value>140</value>
   </data>
   <data name="&gt;&gt;panelAllSettingsContainer.Name" xml:space="preserve">
     <value>panelAllSettingsContainer</value>

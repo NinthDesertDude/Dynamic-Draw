@@ -83,7 +83,8 @@ namespace DynamicDraw
                 { ShortcutTarget.CanvasX, new Setting(Localization.Strings.CanvasX, int.MinValue, int.MaxValue) },
                 { ShortcutTarget.CanvasY, new Setting(Localization.Strings.CanvasY, int.MinValue, int.MaxValue) },
                 { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.CanvasRotation, int.MinValue, int.MaxValue) },
-                { ShortcutTarget.BlendMode, new Setting(Localization.Strings.ShortcutBlendMode, 0, Enum.GetValues(typeof(BlendMode)).Length - 1) }
+                { ShortcutTarget.BlendMode, new Setting(Localization.Strings.ShortcutBlendMode, 0, Enum.GetValues(typeof(BlendMode)).Length - 1) },
+                { ShortcutTarget.SeamlessDrawing, new Setting(Localization.Strings.SeamlessDrawing, ShortcutTargetDataType.Bool) }
             };
         }
 

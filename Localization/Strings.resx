@@ -816,4 +816,10 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="BuiltIn" xml:space="preserve">
     <value>Built in</value>
   </data>
+  <data name="SeamlessDrawing" xml:space="preserve">
+    <value>Seamless Drawing</value>
+  </data>
+  <data name="SeamlessDrawingTip" xml:space="preserve">
+    <value>When activated, brush strokes that clip at the edges of the canvas will "wrap around" to the other side, such that if the image was tiled, it would look smoothly continuous.</value>
+  </data>
 </root>

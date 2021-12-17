@@ -1327,6 +1327,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Seamless Drawing.
+        /// </summary>
+        internal static string SeamlessDrawing {
+            get {
+                return ResourceManager.GetString("SeamlessDrawing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When activated, brush strokes that clip at the edges of the canvas will &quot;wrap around&quot; to the other side, such that if the image was tiled, it would look smoothly continuous..
+        /// </summary>
+        internal static string SeamlessDrawingTip {
+            get {
+                return ResourceManager.GetString("SeamlessDrawingTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press new key....
         /// </summary>
         internal static string SetShortcutText {

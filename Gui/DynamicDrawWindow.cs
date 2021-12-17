@@ -282,6 +282,7 @@ namespace DynamicDraw
         private ComboBox cmbxSymmetry;
         private ComboBox cmbxBrushSmoothing;
         private CheckBox chkbxOrientToMouse;
+        private CheckBox chkbxSeamlessDrawing;
         private CheckBox chkbxLockAlpha;
         private Accordion bttnJitterBasicsControls;
         private FlowLayoutPanel panelJitterBasics;
@@ -628,6 +629,7 @@ namespace DynamicDraw
             }
 
             // Updates brush settings and the current image.
+            token.CurrentBrushSettings.BrushAlpha = token.CurrentBrushSettings.BrushColor.A;
             UpdateBrush(token.CurrentBrushSettings);
             UpdateBrushImage();
         }
@@ -658,6 +660,7 @@ namespace DynamicDraw
             token.CurrentBrushSettings.BrushSize = sliderBrushSize.Value;
             token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
             token.CurrentBrushSettings.DoLockAlpha = chkbxLockAlpha.Checked;
+            token.CurrentBrushSettings.SeamlessDrawing = chkbxSeamlessDrawing.Checked;
             token.CurrentBrushSettings.DoRotateWithMouse = chkbxOrientToMouse.Checked;
             token.CurrentBrushSettings.MinDrawDistance = sliderMinDrawDistance.Value;
             token.CurrentBrushSettings.RandHorzShift = sliderRandHorzShift.Value;
@@ -839,6 +842,7 @@ namespace DynamicDraw
 
             chkbxColorizeBrush.Text = Strings.ColorizeBrush;
             chkbxLockAlpha.Text = Strings.LockAlpha;
+            chkbxSeamlessDrawing.Text = Strings.SeamlessDrawing;
             chkbxOrientToMouse.Text = Strings.OrientToMouse;
             chkbxAutomaticBrushDensity.Text = Strings.AutomaticBrushDensity;
 
@@ -1570,9 +1574,11 @@ namespace DynamicDraw
             // Draws the brush.
             using (Graphics g = Graphics.FromImage(bmpCurrentDrawing))
             {
-                // GDI+ unfortunately has no native blend modes, only compositing modes, so all blend modes (including
-                // the eraser tool) are performed manually.
-                bool useLockbitsDrawing = activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal || chkbxLockAlpha.Checked;
+                // Lockbits is needed for blend modes, channel locks, and seamless drawing.
+                bool useLockbitsDrawing = activeTool == Tool.Eraser
+                    || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal
+                    || chkbxLockAlpha.Checked
+                    || chkbxSeamlessDrawing.Checked;
 
                 // Overwrite blend mode doesn't use the recolor matrix.
                 if (useLockbitsDrawing && activeTool != Tool.Eraser && cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
@@ -1657,7 +1663,8 @@ namespace DynamicDraw
                                         adjustedColor,
                                         chkbxColorizeBrush.Checked,
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked);
+                                        chkbxLockAlpha.Checked,
+                                        chkbxSeamlessDrawing.Checked);
                                 }
                             }
                         }
@@ -1735,7 +1742,8 @@ namespace DynamicDraw
                                         adjustedColor,
                                         chkbxColorizeBrush.Checked,
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked);
+                                        chkbxLockAlpha.Checked,
+                                        chkbxSeamlessDrawing.Checked);
                                 }
                             }
                         }
@@ -1793,7 +1801,8 @@ namespace DynamicDraw
                                             adjustedColor,
                                             chkbxColorizeBrush.Checked,
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
-                                            chkbxLockAlpha.Checked);
+                                            chkbxLockAlpha.Checked,
+                                            chkbxSeamlessDrawing.Checked);
                                     }
                                 }
                             }
@@ -1872,7 +1881,8 @@ namespace DynamicDraw
                                         adjustedColor,
                                         chkbxColorizeBrush.Checked,
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked);
+                                        chkbxLockAlpha.Checked,
+                                        chkbxSeamlessDrawing.Checked);
                                     }
 
                                     angle += angleIncrease;
@@ -2330,7 +2340,10 @@ namespace DynamicDraw
                     break;
                 case ShortcutTarget.BlendMode:
                     cmbxBlendMode.SelectedIndex =
-                        shortcut.GetDataAsInt((int)cmbxBlendMode.SelectedIndex, 0, cmbxBlendMode.Items.Count);
+                        shortcut.GetDataAsInt(cmbxBlendMode.SelectedIndex, 0, cmbxBlendMode.Items.Count);
+                    break;
+                case ShortcutTarget.SeamlessDrawing:
+                    chkbxSeamlessDrawing.Checked = shortcut.GetDataAsBool(chkbxSeamlessDrawing.Checked);
                     break;
             };
         }
@@ -2679,6 +2692,7 @@ namespace DynamicDraw
             this.sliderBrushDensity = new TrackBar();
             this.cmbxSymmetry = new ComboBox();
             this.cmbxBrushSmoothing = new ComboBox();
+            this.chkbxSeamlessDrawing = new CheckBox();
             this.chkbxOrientToMouse = new CheckBox();
             this.chkbxLockAlpha = new CheckBox();
             this.bttnJitterBasicsControls = new Accordion();
@@ -3320,6 +3334,7 @@ namespace DynamicDraw
             this.panelSpecialSettings.Controls.Add(this.sliderBrushDensity);
             this.panelSpecialSettings.Controls.Add(this.cmbxBrushSmoothing);
             this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
+            this.panelSpecialSettings.Controls.Add(this.chkbxSeamlessDrawing);
             this.panelSpecialSettings.Controls.Add(this.chkbxOrientToMouse);
             this.panelSpecialSettings.Controls.Add(this.chkbxLockAlpha);
             this.panelSpecialSettings.Name = "panelSpecialSettings";
@@ -3389,6 +3404,13 @@ namespace DynamicDraw
             this.cmbxBrushSmoothing.FormattingEnabled = true;
             this.cmbxBrushSmoothing.Name = "cmbxBrushSmoothing";
             this.cmbxBrushSmoothing.MouseEnter += new EventHandler(this.BttnBrushSmoothing_MouseEnter);
+            // 
+            // chkbxSeamlessDrawing
+            // 
+            resources.ApplyResources(this.chkbxSeamlessDrawing, "chkbxSeamlessDrawing");
+            this.chkbxSeamlessDrawing.Name = "chkbxSeamlessDrawing";
+            this.chkbxSeamlessDrawing.UseVisualStyleBackColor = true;
+            this.chkbxSeamlessDrawing.MouseEnter += new EventHandler(this.ChkbxSeamlessDrawing_MouseEnter);
             // 
             // chkbxOrientToMouse
             // 
@@ -5058,6 +5080,7 @@ namespace DynamicDraw
             activeTool = toolToSwitchTo;
 
             UpdateEnabledControls();
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -5133,6 +5156,7 @@ namespace DynamicDraw
             sliderRandRotRight.Value = settings.RandRotRight;
             sliderRandVertShift.Value = settings.RandVertShift;
             chkbxAutomaticBrushDensity.Checked = settings.AutomaticBrushDensity;
+            chkbxSeamlessDrawing.Checked = settings.SeamlessDrawing;
             chkbxOrientToMouse.Checked = settings.DoRotateWithMouse;
             chkbxColorizeBrush.Checked = settings.DoColorizeBrush;
             chkbxLockAlpha.Checked = settings.DoLockAlpha;
@@ -5216,7 +5240,7 @@ namespace DynamicDraw
             bttnBrushColor.ForeColor = oppositeColor;
 
             //Sets the back color and updates the brushes.
-            bttnBrushColor.BackColor = newColor;
+            bttnBrushColor.BackColor = Color.FromArgb(newColor.R, newColor.G, newColor.B);
             UpdateBrushImage();
         }
 
@@ -6005,10 +6029,11 @@ namespace DynamicDraw
         {
             e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             e.Graphics.SmoothingMode = SmoothingMode.None;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
 
-            float drawingOffsetX = (EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom);
-            float drawingOffsetY = (EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom);
-
+            float drawingOffsetX = EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom;
+            float drawingOffsetY = EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom;
+            
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
             e.Graphics.RotateTransform(sliderCanvasAngle.Value);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
@@ -6273,6 +6298,7 @@ namespace DynamicDraw
         private void BttnBlendMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateEnabledControls();
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -6519,6 +6545,7 @@ namespace DynamicDraw
                     BrushSize = sliderBrushSize.Value,
                     DoColorizeBrush = chkbxColorizeBrush.Checked,
                     DoLockAlpha = chkbxLockAlpha.Checked,
+                    SeamlessDrawing = chkbxSeamlessDrawing.Checked,
                     DoRotateWithMouse = chkbxOrientToMouse.Checked,
                     MinDrawDistance = sliderMinDrawDistance.Value,
                     RandHorzShift = sliderRandHorzShift.Value,
@@ -6737,6 +6764,11 @@ namespace DynamicDraw
             UpdateTooltip(Strings.LockAlphaTip);
         }
 
+        private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.SeamlessDrawingTip);
+        }
+
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.OrientToMouseTip);
@@ -6888,11 +6920,11 @@ namespace DynamicDraw
 
                 if (!string.IsNullOrEmpty(brush.Location))
                 {
-                    tooltipText = name + Environment.NewLine + brush.Location;
+                    tooltipText = name + Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + Environment.NewLine + brush.Location;
                 }
                 else
                 {
-                    tooltipText = name + Environment.NewLine + Strings.BuiltIn;
+                    tooltipText = name + Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + Environment.NewLine + Strings.BuiltIn;
                 }
 
                 e.Item = new ListViewItem
