@@ -897,6 +897,195 @@
   <data name="&gt;&gt;panelBrushAddPickColor.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
+  <data name="txtColorInfluence.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="txtColorInfluence.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="txtColorInfluence.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 449</value>
+  </data>
+  <data name="txtColorInfluence.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="txtColorInfluence.Size" type="System.Drawing.Size, System.Drawing">
+    <value>149, 17</value>
+  </data>
+  <data name="txtColorInfluence.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="txtColorInfluence.Text" xml:space="preserve">
+    <value>Colorize Strength:</value>
+  </data>
+  <data name="txtColorInfluence.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleCenter</value>
+  </data>
+  <data name="&gt;&gt;txtColorInfluence.Name" xml:space="preserve">
+    <value>txtColorInfluence</value>
+  </data>
+  <data name="&gt;&gt;txtColorInfluence.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;txtColorInfluence.Parent" xml:space="preserve">
+    <value>panelBrush</value>
+  </data>
+  <data name="&gt;&gt;txtColorInfluence.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="sliderColorInfluence.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="sliderColorInfluence.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="sliderColorInfluence.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="sliderColorInfluence.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 469</value>
+  </data>
+  <data name="sliderColorInfluence.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="sliderColorInfluence.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 25</value>
+  </data>
+  <data name="sliderColorInfluence.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;sliderColorInfluence.Name" xml:space="preserve">
+    <value>sliderColorInfluence</value>
+  </data>
+  <data name="&gt;&gt;sliderColorInfluence.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;sliderColorInfluence.Parent" xml:space="preserve">
+    <value>panelBrush</value>
+  </data>
+  <data name="&gt;&gt;sliderColorInfluence.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="panelColorInfluenceHSV.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+    <value>LeftToRight</value>
+  </data>
+  <data name="panelColorInfluenceHSV.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 497</value>
+  </data>
+  <data name="panelColorInfluenceHSV.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="panelColorInfluenceHSV.Size" type="System.Drawing.Size, System.Drawing">
+    <value>155, 28</value>
+  </data>
+  <data name="panelColorInfluenceHSV.TabIndex" type="System.Int32, mscorlib">
+    <value>145</value>
+  </data>
+  <data name="&gt;&gt;panelColorInfluenceHSV.Name" xml:space="preserve">
+    <value>panelUndoRedoOkCancel</value>
+  </data>
+  <data name="&gt;&gt;panelColorInfluenceHSV.Type" xml:space="preserve">
+    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panelColorInfluenceHSV.Parent" xml:space="preserve">
+    <value>panelBrush</value>
+  </data>
+  <data name="&gt;&gt;panelColorInfluenceHSV.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="panelColorInfluenceHSV.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+    <value>GrowAndShrink</value>
+  </data>
+  <data name="chkbxColorInfluenceHue.AutoSize" type="System.Boolean, mscorlib">
+    <value>true</value>
+  </data>
+  <data name="chkbxColorInfluenceHue.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbxColorInfluenceHue.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="chkbxColorInfluenceHue.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 17</value>
+  </data>
+  <data name="chkbxColorInfluenceHue.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="chkbxColorInfluenceHue.Text" xml:space="preserve">
+    <value>H</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceHue.Name" xml:space="preserve">
+    <value>chkbxColorInfluenceHue</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceHue.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceHue.Parent" xml:space="preserve">
+    <value>panelColorInfluenceHSV</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceHue.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="chkbxColorInfluenceSat.AutoSize" type="System.Boolean, mscorlib">
+    <value>true</value>
+  </data>
+  <data name="chkbxColorInfluenceSat.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbxColorInfluenceSat.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="chkbxColorInfluenceSat.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 17</value>
+  </data>
+  <data name="chkbxColorInfluenceSat.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="chkbxColorInfluenceSat.Text" xml:space="preserve">
+    <value>S</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceSat.Name" xml:space="preserve">
+    <value>chkbxColorInfluenceSat</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceSat.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceSat.Parent" xml:space="preserve">
+    <value>panelColorInfluenceHSV</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceSat.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="chkbxColorInfluenceVal.AutoSize" type="System.Boolean, mscorlib">
+    <value>true</value>
+  </data>
+  <data name="chkbxColorInfluenceVal.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbxColorInfluenceVal.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="chkbxColorInfluenceVal.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 17</value>
+  </data>
+  <data name="chkbxColorInfluenceVal.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="chkbxColorInfluenceVal.Text" xml:space="preserve">
+    <value>V</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceVal.Name" xml:space="preserve">
+    <value>chkbxColorInfluenceVal</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceVal.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceVal.Parent" xml:space="preserve">
+    <value>panelColorInfluenceHSV</value>
+  </data>
+  <data name="&gt;&gt;chkbxColorInfluenceVal.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="cmbxBlendMode.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
@@ -910,7 +1099,7 @@
     <value>13</value>
   </data>
   <data name="cmbxBlendMode.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 449</value>
+    <value>3, 477</value>
   </data>
   <data name="cmbxBlendMode.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -943,7 +1132,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 494</value>
+    <value>7, 522</value>
   </data>
   <data name="txtBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -982,7 +1171,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 514</value>
+    <value>6, 542</value>
   </data>
   <data name="sliderBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -1012,7 +1201,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 542</value>
+    <value>7, 570</value>
   </data>
   <data name="txtBrushRotation.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -1051,7 +1240,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 562</value>
+    <value>6, 590</value>
   </data>
   <data name="sliderBrushRotation.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -1081,7 +1270,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 590</value>
+    <value>7, 618</value>
   </data>
   <data name="txtBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -1120,7 +1309,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 610</value>
+    <value>6, 638</value>
   </data>
   <data name="sliderBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>

@@ -571,7 +571,52 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Colorize Brush.
+        ///   Looks up a localized string similar to Mix Color:.
+        /// </summary>
+        internal static string ColorInfluence {
+            get {
+                return ResourceManager.GetString("ColorInfluence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When activated, the active color affects the hue of the brush stroke..
+        /// </summary>
+        internal static string ColorInfluenceHTip {
+            get {
+                return ResourceManager.GetString("ColorInfluenceHTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When activated, the active color affects the saturation (grayness) of the brush stroke..
+        /// </summary>
+        internal static string ColorInfluenceSTip {
+            get {
+                return ResourceManager.GetString("ColorInfluenceSTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only the regular brush image colors are used at 0%. Only the active color is used at 100%. For values between, the active color is mixed into the brush image..
+        /// </summary>
+        internal static string ColorInfluenceTip {
+            get {
+                return ResourceManager.GetString("ColorInfluenceTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When activated, the active color affects the value (brightness) of the brush stroke..
+        /// </summary>
+        internal static string ColorInfluenceVTip {
+            get {
+                return ResourceManager.GetString("ColorInfluenceVTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Mixing.
         /// </summary>
         internal static string ColorizeBrush {
             get {
@@ -580,7 +625,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to When activated, the color of the brush is replaced by a solid color. Otherwise, the brush maintains its original colors and cannot use color shifting..
+        ///   Looks up a localized string similar to When activated, the brush image is replaced entirely with a solid color. When off, the original brush color will be used with options to influence it using the active color..
         /// </summary>
         internal static string ColorizeBrushTip {
             get {
@@ -891,6 +936,15 @@ namespace DynamicDraw.Localization {
         internal static string DeleteBrushTip {
             get {
                 return ResourceManager.GetString("DeleteBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hue.
+        /// </summary>
+        internal static string HueAbbr {
+            get {
+                return ResourceManager.GetString("HueAbbr", resourceCulture);
             }
         }
         
@@ -1291,6 +1345,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sat.
+        /// </summary>
+        internal static string SatAbbr {
+            get {
+                return ResourceManager.GetString("SatAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save New Brush.
         /// </summary>
         internal static string SaveNewBrush {
@@ -1458,6 +1521,15 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutCanvasZoom {
             get {
                 return ResourceManager.GetString("ShortcutCanvasZoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Color Influence.
+        /// </summary>
+        internal static string ShortcutColorInfluence {
+            get {
+                return ResourceManager.GetString("ShortcutColorInfluence", resourceCulture);
             }
         }
         
@@ -2043,6 +2115,15 @@ namespace DynamicDraw.Localization {
         internal static string UndoTip {
             get {
                 return ResourceManager.GetString("UndoTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Val.
+        /// </summary>
+        internal static string ValAbbr {
+            get {
+                return ResourceManager.GetString("ValAbbr", resourceCulture);
             }
         }
         

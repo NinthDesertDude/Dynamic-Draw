@@ -331,13 +331,21 @@ namespace DynamicDraw
         /// <param name="dest">The bitmap to edit.</param>
         /// <param name="brush">The brush image that will be drawn to the destination using custom blending.</param>
         /// <param name="location">The location to draw the brush at.</param>
+        /// <param name="userColor">
+        /// The active RGBA color, and the amount of extra reduction in transparency from alpha jitter. This is kept
+        /// separate since the userColor alpha is already computed and the jitter alpha contribution needs to be
+        /// applied separately when the original brush colors are used with alpha jitter.
+        /// </param>
+        /// <param name="colorInfluence">The amount of mixing with the active color to perform, and which HSV channels to affect.</param>
         /// <param name="blendMode">Determines the algorithm uesd to draw the brush on dest.</param>
+        /// <param name="lockAlpha">Whether to allow alpha to change or not.</param>
+        /// <param name="wrapAround">Whether to draw clipped brush parts to the opposite side of the canvas.</param>
         public static unsafe void DrawMasked(
             Bitmap dest,
             Bitmap brush,
             Point location,
-            ColorBgra userColor,
-            bool colorize,
+            (ColorBgra Color, int MinAlpha) userColor,
+            (int Amount, bool H, bool S, bool V)? colorInfluence,
             BlendMode blendMode,
             bool lockAlpha,
             bool wrapAround)
@@ -375,8 +383,15 @@ namespace DynamicDraw
             byte* destRow = (byte*)destData.Scan0;
             byte* brushRow = (byte*)brushData.Scan0;
             float alphaFactor;
-            ColorBgra userColorUnpremultiplied = userColor.ConvertFromPremultipliedAlpha();
+
+            ColorBgra userColorAdj = userColor.Color.ConvertFromPremultipliedAlpha();
+            HsvColor userColorAdjHSV = HsvColor.FromColor(userColorAdj);
+            float minAlphaFactor = (255 - userColor.MinAlpha) / 255f;
+            float userColorBlendFactor = colorInfluence != null ? colorInfluence.Value.Amount / 100f : 0;
+
             ColorBgra newColor, destCol;
+            ColorBgra intermediateBGRA = ColorBgra.Black;
+            HsvColor intermediateHSV;
 
             void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
@@ -387,14 +402,47 @@ namespace DynamicDraw
 
                     for (int x = 0; x < destWidth; x++)
                     {
+                        // HSV shift the pixel according to the color influence when colorize brush is off.
+                        if (colorInfluence != null)
+                        {
+                            intermediateBGRA = brushPtr->ConvertFromPremultipliedAlpha();
+
+                            if (colorInfluence.Value.Amount != 0)
+                            {
+                                intermediateHSV = HsvColor.FromColor(intermediateBGRA);
+
+                                if (colorInfluence.Value.H)
+                                {
+                                    intermediateHSV.Hue = (int)Math.Round(intermediateHSV.Hue
+                                        + userColorBlendFactor * (userColorAdjHSV.Hue - intermediateHSV.Hue));
+                                }
+                                if (colorInfluence.Value.S)
+                                {
+
+                                    intermediateHSV.Saturation = (int)Math.Round(intermediateHSV.Saturation
+                                        + userColorBlendFactor * (userColorAdjHSV.Saturation - intermediateHSV.Saturation));
+                                }
+                                if (colorInfluence.Value.V)
+                                {
+                                    intermediateHSV.Value = (int)Math.Round(intermediateHSV.Value
+                                        + userColorBlendFactor * (userColorAdjHSV.Value - intermediateHSV.Value));
+                                }
+
+                                byte alpha = intermediateBGRA.A;
+                                intermediateBGRA = ColorBgra.FromColor(intermediateHSV.ToColor());
+                                intermediateBGRA.A = alpha;
+                            }
+                        }
+
+                        // Perform a blend mode op on the pixel.
                         if (blendMode == BlendMode.Normal)
                         {
                             newColor = ColorBgra.Blend(
                                 destPtr->ConvertFromPremultipliedAlpha(),
-                                colorize
-                                    ? userColorUnpremultiplied.NewAlpha((byte)Math.Clamp(userColorUnpremultiplied.A + destPtr->A, 0, 255))
-                                    : brushPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
-                                brushPtr->A
+                                colorInfluence == null
+                                    ? userColorAdj.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
+                                    : intermediateBGRA.NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
+                                colorInfluence == null ? brushPtr->A : (byte)Math.Round(brushPtr->A * minAlphaFactor)
                             );
 
                             alphaFactor = (!lockAlpha)
@@ -411,12 +459,12 @@ namespace DynamicDraw
                             destCol = destPtr->ConvertFromPremultipliedAlpha();
                             newColor = ColorBgra.Blend(
                                 destCol,
-                                colorize ? userColorUnpremultiplied : brushPtr->ConvertFromPremultipliedAlpha(),
+                                colorInfluence == null ? userColorAdj : intermediateBGRA,
                                 brushPtr->A
                             );
 
                             alphaFactor = (!lockAlpha)
-                                ? (destCol.A + brushPtr->A / 255f * (userColorUnpremultiplied.A - destCol.A)) / 255f
+                                ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
                                 : destCol.A / 255f;
 
                             destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);

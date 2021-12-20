@@ -105,10 +105,40 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Whether the brush rotates with the mouse direction or not.
+        /// The percent of the chosen color to blend with the brush color.
         /// </summary>
-        [DataMember(Name = "DoRotateWithMouse")]
-        public bool DoRotateWithMouse
+        [DataMember(Name = "ColorInfluence")]
+        public int ColorInfluence
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// When true, colorize brush is off, and color influence is nonzero, the mixed color affects hue.
+        /// </summary>
+        [DataMember(Name = "ColorInfluenceHue")]
+        public bool ColorInfluenceHue
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// When true, colorize brush is off, and color influence is nonzero, the mixed color affects saturation.
+        /// </summary>
+        [DataMember(Name = "ColorInfluenceSat")]
+        public bool ColorInfluenceSat
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// When true, colorize brush is off, and color influence is nonzero, the mixed color affects value.
+        /// </summary>
+        [DataMember(Name = "ColorInfluenceVal")]
+        public bool ColorInfluenceVal
         {
             get;
             set;
@@ -119,6 +149,16 @@ namespace DynamicDraw
         /// </summary>
         [DataMember(Name = "DoColorizeBrush")]
         public bool DoColorizeBrush
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether the brush rotates with the mouse direction or not.
+        /// </summary>
+        [DataMember(Name = "DoRotateWithMouse")]
+        public bool DoRotateWithMouse
         {
             get;
             set;
@@ -539,6 +579,10 @@ namespace DynamicDraw
             RandVertShift = 0;
             DoRotateWithMouse = false;
             DoColorizeBrush = true;
+            ColorInfluence = 0;
+            ColorInfluenceHue = true;
+            ColorInfluenceSat = true;
+            ColorInfluenceVal = false;
             DoLockAlpha = false;
             MinDrawDistance = 0;
             RandMaxR = 0;
@@ -627,6 +671,10 @@ namespace DynamicDraw
             RandVertShift = other.RandVertShift;
             DoRotateWithMouse = other.DoRotateWithMouse;
             DoColorizeBrush = other.DoColorizeBrush;
+            ColorInfluence = other.ColorInfluence;
+            ColorInfluenceHue = other.ColorInfluenceHue;
+            ColorInfluenceSat = other.ColorInfluenceSat;
+            ColorInfluenceVal = other.ColorInfluenceVal;
             DoLockAlpha = other.DoLockAlpha;
             MinDrawDistance = other.MinDrawDistance;
             RandMaxR = other.RandMaxR;
