@@ -39,33 +39,41 @@ namespace DynamicDraw.TabletSupport
         /// </summary>
         public bool Start()
         {
-            winTabContext = CWintabInfo.GetDefaultSystemContext(ECTXOptionValues.CXO_MESSAGES | ECTXOptionValues.CXO_SYSTEM);
-            winTabData = new CWintabData(winTabContext);
-
-            // Failed to get the system context
-            if (winTabContext == null)
+            try
             {
+                winTabContext = CWintabInfo.GetDefaultSystemContext(ECTXOptionValues.CXO_MESSAGES | ECTXOptionValues.CXO_SYSTEM);
+                winTabData = new CWintabData(winTabContext);
+
+                // Failed to get the system context
+                if (winTabContext == null)
+                {
+                    return false;
+                }
+
+                winTabContext.Name = "DynamicDraw Tablet Event Data Context";
+
+                WintabAxis tabletX = CWintabInfo.GetTabletAxis(EAxisDimension.AXIS_X);
+                WintabAxis tabletY = CWintabInfo.GetTabletAxis(EAxisDimension.AXIS_Y);
+
+                winTabContext.InOrgX = 0;
+                winTabContext.InOrgY = 0;
+                winTabContext.InExtX = tabletX.axMax;
+                winTabContext.InExtY = tabletY.axMax;
+
+                // Tablet origin is usually lower left, invert it to be upper left to match screen coord system.
+                winTabContext.OutExtY = -winTabContext.OutExtY;
+
+                bool didOpen = winTabContext.Open();
+
+                winTabData.SetWTPacketEventHandler(UpdateTabletData);
+
+                return true;
+            }
+            catch (DllNotFoundException)
+            {
+                // winTab32.dll is missing. Tablet users will have it; non-tablet users don't need it.
                 return false;
             }
-
-            winTabContext.Name = "DynamicDraw Tablet Event Data Context";
-
-            WintabAxis tabletX = CWintabInfo.GetTabletAxis(EAxisDimension.AXIS_X);
-            WintabAxis tabletY = CWintabInfo.GetTabletAxis(EAxisDimension.AXIS_Y);
-
-            winTabContext.InOrgX = 0;
-            winTabContext.InOrgY = 0;
-            winTabContext.InExtX = tabletX.axMax;
-            winTabContext.InExtY = tabletY.axMax;
-
-            // Tablet origin is usually lower left, invert it to be upper left to match screen coord system.
-            winTabContext.OutExtY = -winTabContext.OutExtY;
-
-            bool didOpen = winTabContext.Open();
-
-            winTabData.SetWTPacketEventHandler(UpdateTabletData);
-
-            return true;
         }
 
         /// <summary>

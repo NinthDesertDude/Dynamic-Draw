@@ -261,6 +261,31 @@
         /// <summary>
         /// The blending mode used when drawing with the brush.
         /// </summary>
-        BlendMode = 68
+        BlendMode = 68,
+
+        /// <summary>
+        /// Whether to wrap around to the other side of the canvas where brush stamps would clip.
+        /// </summary>
+        SeamlessDrawing = 69,
+
+        /// <summary>
+        /// The amount to mix the active color with the brush color when colorize brush is off.
+        /// </summary>
+        ColorInfluence = 70,
+
+        /// <summary>
+        /// Whether mixing the active color with the brush should affect hue when colorize brush is off.
+        /// </summary>
+        ColorInfluenceHue = 71,
+
+        /// <summary>
+        /// Whether mixing the active color with the brush should affect saturation when colorize brush is off.
+        /// </summary>
+        ColorInfluenceSat = 72,
+
+        /// <summary>
+        /// Whether mixing the active color with the brush should affect value when colorize brush is off.
+        /// </summary>
+        ColorInfluenceVal = 73
     }
 }

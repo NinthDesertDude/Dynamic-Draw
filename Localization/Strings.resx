@@ -198,10 +198,16 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Clears all temporary changes to the current brush settings.</value>
   </data>
   <data name="ColorizeBrush" xml:space="preserve">
-    <value>Colorize Brush</value>
+    <value>No Mixing</value>
   </data>
   <data name="ColorizeBrushTip" xml:space="preserve">
-    <value>When activated, the color of the brush is replaced by a solid color. Otherwise, the brush maintains its original colors and cannot use color shifting.</value>
+    <value>When activated, the brush image is replaced entirely with a solid color. When off, the original brush color will be used with options to influence it using the active color.</value>
+  </data>
+  <data name="ColorInfluence" xml:space="preserve">
+    <value>Mix Color:</value>
+  </data>
+  <data name="ColorInfluenceTip" xml:space="preserve">
+    <value>Only the regular brush image colors are used at 0%. Only the active color is used at 100%. For values between, the active color is mixed into the brush image.</value>
   </data>
   <data name="ColorPickerTip" xml:space="preserve">
     <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards.</value>
@@ -815,5 +821,32 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="BuiltIn" xml:space="preserve">
     <value>Built in</value>
+  </data>
+  <data name="SeamlessDrawing" xml:space="preserve">
+    <value>Seamless Drawing</value>
+  </data>
+  <data name="SeamlessDrawingTip" xml:space="preserve">
+    <value>When activated, brush strokes that clip at the edges of the canvas will "wrap around" to the other side, such that if the image was tiled, it would look smoothly continuous.</value>
+  </data>
+  <data name="ShortcutColorInfluence" xml:space="preserve">
+    <value>Color Influence</value>
+  </data>
+  <data name="ColorInfluenceHTip" xml:space="preserve">
+    <value>When activated, the active color affects the hue of the brush stroke.</value>
+  </data>
+  <data name="ColorInfluenceSTip" xml:space="preserve">
+    <value>When activated, the active color affects the saturation (grayness) of the brush stroke.</value>
+  </data>
+  <data name="ColorInfluenceVTip" xml:space="preserve">
+    <value>When activated, the active color affects the value (brightness) of the brush stroke.</value>
+  </data>
+  <data name="HueAbbr" xml:space="preserve">
+    <value>Hue</value>
+  </data>
+  <data name="SatAbbr" xml:space="preserve">
+    <value>Sat</value>
+  </data>
+  <data name="ValAbbr" xml:space="preserve">
+    <value>Val</value>
   </data>
 </root>

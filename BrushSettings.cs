@@ -105,10 +105,40 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Whether the brush rotates with the mouse direction or not.
+        /// The percent of the chosen color to blend with the brush color.
         /// </summary>
-        [DataMember(Name = "DoRotateWithMouse")]
-        public bool DoRotateWithMouse
+        [DataMember(Name = "ColorInfluence")]
+        public int ColorInfluence
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// When true, colorize brush is off, and color influence is nonzero, the mixed color affects hue.
+        /// </summary>
+        [DataMember(Name = "ColorInfluenceHue")]
+        public bool ColorInfluenceHue
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// When true, colorize brush is off, and color influence is nonzero, the mixed color affects saturation.
+        /// </summary>
+        [DataMember(Name = "ColorInfluenceSat")]
+        public bool ColorInfluenceSat
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// When true, colorize brush is off, and color influence is nonzero, the mixed color affects value.
+        /// </summary>
+        [DataMember(Name = "ColorInfluenceVal")]
+        public bool ColorInfluenceVal
         {
             get;
             set;
@@ -119,6 +149,16 @@ namespace DynamicDraw
         /// </summary>
         [DataMember(Name = "DoColorizeBrush")]
         public bool DoColorizeBrush
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether the brush rotates with the mouse direction or not.
+        /// </summary>
+        [DataMember(Name = "DoRotateWithMouse")]
+        public bool DoRotateWithMouse
         {
             get;
             set;
@@ -366,6 +406,17 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Whether the areas of the brush that clip at the canvas edge should be wrapped around and drawn on the
+        /// opposite sides.
+        /// </summary>
+        [DataMember(Name = "SeamlessDrawing")]
+        public bool SeamlessDrawing
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Determines the smoothing applied to drawing.
         /// </summary>
         [DataMember(Name = "Smoothing")]
@@ -528,6 +579,10 @@ namespace DynamicDraw
             RandVertShift = 0;
             DoRotateWithMouse = false;
             DoColorizeBrush = true;
+            ColorInfluence = 0;
+            ColorInfluenceHue = true;
+            ColorInfluenceSat = true;
+            ColorInfluenceVal = false;
             DoLockAlpha = false;
             MinDrawDistance = 0;
             RandMaxR = 0;
@@ -542,6 +597,7 @@ namespace DynamicDraw
             RandMinH = 0;
             RandMinS = 0;
             RandMinV = 0;
+            SeamlessDrawing = false;
             SizeChange = 0;
             RotChange = 0;
             AlphaChange = 0;
@@ -615,6 +671,10 @@ namespace DynamicDraw
             RandVertShift = other.RandVertShift;
             DoRotateWithMouse = other.DoRotateWithMouse;
             DoColorizeBrush = other.DoColorizeBrush;
+            ColorInfluence = other.ColorInfluence;
+            ColorInfluenceHue = other.ColorInfluenceHue;
+            ColorInfluenceSat = other.ColorInfluenceSat;
+            ColorInfluenceVal = other.ColorInfluenceVal;
             DoLockAlpha = other.DoLockAlpha;
             MinDrawDistance = other.MinDrawDistance;
             RandMaxR = other.RandMaxR;
@@ -671,6 +731,7 @@ namespace DynamicDraw
             TabPressureRandRotLeft = other.TabPressureRandRotLeft;
             TabPressureRandRotRight = other.TabPressureRandRotRight;
             TabPressureRandVerShift = other.TabPressureRandVerShift;
+            SeamlessDrawing = other.SeamlessDrawing;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
             AlphaChange = other.AlphaChange;
@@ -680,6 +741,7 @@ namespace DynamicDraw
 
         /// <summary>
         /// Copies all settings to another brush settings object.
+        /// Called by Paint.NET to restore settings when the effect runs.
         /// </summary>
         public override object Clone()
         {

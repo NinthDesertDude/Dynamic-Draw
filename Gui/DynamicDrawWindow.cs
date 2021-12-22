@@ -108,6 +108,8 @@ namespace DynamicDraw
         private bool isUserDrawing = false;
         private bool isUserPanning = false;
 
+        private bool isWheelZooming = false;
+
         /// <summary>
         /// Creates the list of brushes used by the brush selector.
         /// </summary>
@@ -264,6 +266,12 @@ namespace DynamicDraw
         private CheckBox chkbxColorizeBrush;
         private Button bttnAddBrushImages;
         private ProgressBar brushImageLoadProgressBar;
+        private Label txtColorInfluence;
+        private TrackBar sliderColorInfluence;
+        private FlowLayoutPanel panelColorInfluenceHSV;
+        private CheckBox chkbxColorInfluenceHue;
+        private CheckBox chkbxColorInfluenceSat;
+        private CheckBox chkbxColorInfluenceVal;
         private Button bttnBrushColor;
         private ComboBox cmbxBlendMode;
         private Label txtBrushAlpha;
@@ -282,6 +290,7 @@ namespace DynamicDraw
         private ComboBox cmbxSymmetry;
         private ComboBox cmbxBrushSmoothing;
         private CheckBox chkbxOrientToMouse;
+        private CheckBox chkbxSeamlessDrawing;
         private CheckBox chkbxLockAlpha;
         private Accordion bttnJitterBasicsControls;
         private FlowLayoutPanel panelJitterBasics;
@@ -520,6 +529,7 @@ namespace DynamicDraw
             this.sliderCanvasZoom.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderCanvasAngle.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
+            this.sliderColorInfluence.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushAlpha.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushSize.MouseWheel += IgnoreMouseWheelEvent;
@@ -627,6 +637,13 @@ namespace DynamicDraw
                 keyboardShortcuts.Add(shortcut);
             }
 
+            // BrushColor is always saved opaque except first run, where it's taken from user color. If it's not
+            // opaque, use the user-provided alpha.
+            if (token.CurrentBrushSettings.BrushColor.A != 255)
+            {
+                token.CurrentBrushSettings.BrushAlpha = 255 - token.CurrentBrushSettings.BrushColor.A;
+            }
+
             // Updates brush settings and the current image.
             UpdateBrush(token.CurrentBrushSettings);
             UpdateBrushImage();
@@ -656,8 +673,13 @@ namespace DynamicDraw
                 : Strings.DefaultBrushCircle;
             token.CurrentBrushSettings.BrushRotation = sliderBrushRotation.Value;
             token.CurrentBrushSettings.BrushSize = sliderBrushSize.Value;
+            token.CurrentBrushSettings.ColorInfluence = sliderColorInfluence.Value;
+            token.CurrentBrushSettings.ColorInfluenceHue = chkbxColorInfluenceHue.Checked;
+            token.CurrentBrushSettings.ColorInfluenceSat = chkbxColorInfluenceSat.Checked;
+            token.CurrentBrushSettings.ColorInfluenceVal = chkbxColorInfluenceVal.Checked;
             token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
             token.CurrentBrushSettings.DoLockAlpha = chkbxLockAlpha.Checked;
+            token.CurrentBrushSettings.SeamlessDrawing = chkbxSeamlessDrawing.Checked;
             token.CurrentBrushSettings.DoRotateWithMouse = chkbxOrientToMouse.Checked;
             token.CurrentBrushSettings.MinDrawDistance = sliderMinDrawDistance.Value;
             token.CurrentBrushSettings.RandHorzShift = sliderRandHorzShift.Value;
@@ -775,6 +797,9 @@ namespace DynamicDraw
             txtCanvasAngle.Text = string.Format("{0} {1}°",
                 Strings.CanvasAngle, sliderCanvasAngle.Value);
 
+            txtColorInfluence.Text = String.Format("{0} {1}%",
+                Strings.ColorInfluence, sliderColorInfluence.Value);
+
             txtMinDrawDistance.Text = string.Format("{0} {1}",
                 Strings.MinDrawDistance, sliderMinDrawDistance.Value);
 
@@ -838,7 +863,11 @@ namespace DynamicDraw
             bttnRedo.Text = Strings.Redo;
 
             chkbxColorizeBrush.Text = Strings.ColorizeBrush;
+            chkbxColorInfluenceHue.Text = Strings.HueAbbr;
+            chkbxColorInfluenceSat.Text = Strings.SatAbbr;
+            chkbxColorInfluenceVal.Text = Strings.ValAbbr;
             chkbxLockAlpha.Text = Strings.LockAlpha;
+            chkbxSeamlessDrawing.Text = Strings.SeamlessDrawing;
             chkbxOrientToMouse.Text = Strings.OrientToMouse;
             chkbxAutomaticBrushDensity.Text = Strings.AutomaticBrushDensity;
 
@@ -1076,6 +1105,7 @@ namespace DynamicDraw
                 //Ctrl + Wheel: Zooms the canvas in/out.
                 else
                 {
+                    isWheelZooming = true;
                     Zoom(e.Delta, true);
                 }
             }
@@ -1398,9 +1428,17 @@ namespace DynamicDraw
             #region apply color jitter
             ImageAttributes recolorMatrix = null;
             ColorBgra adjustedColor = bttnBrushColor.BackColor;
-            adjustedColor.A = (byte)Math.Round(255 - Utils.ClampF(sliderBrushAlpha.Value + random.Next(finalRandMinAlpha), 0, 255));
+            int newMinAlpha = random.Next(finalRandMinAlpha);
+            adjustedColor.A = (byte)Math.Round(255 - Utils.ClampF(sliderBrushAlpha.Value + newMinAlpha, 0, 255));
 
-            if (chkbxColorizeBrush.Enabled && chkbxColorizeBrush.Checked || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
+            if (activeTool == Tool.Eraser)
+            {
+                if (newMinAlpha != 0)
+                {
+                    recolorMatrix = Utils.ColorImageAttr(1, 1, 1, (255 - newMinAlpha) / 255f);
+                }
+            }
+            else if (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0 || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
             {
                 int finalJitterMaxRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
                     (int)spinTabPressureMaxRedJitter.Value,
@@ -1502,14 +1540,14 @@ namespace DynamicDraw
                     finalJitterMaxVal != 0 ||
                     finalJitterMinVal != 0;
 
-                if (finalRandMinAlpha != 0 || jitterRgb || jitterHsv)
+                if (newMinAlpha != 0 || jitterRgb || jitterHsv)
                 {
                     // the brush image is already alpha multiplied for speed when the user sets brush transparency, so
                     // newAlpha just mixes the remainder from jitter, which is why it does 255 minus the jitter.
                     // Non-standard blend modes need to use the brush as an alpha mask, so they don't multiply brush
                     // transparency into the brush early on.
                     float newAlpha = (cmbxBlendMode.SelectedIndex == (int)BlendMode.Normal || activeTool == Tool.Eraser)
-                        ? Utils.ClampF((255 - random.Next(finalRandMinAlpha)) / 255f, 0, 1)
+                        ? Utils.ClampF((255 - newMinAlpha) / 255f, 0, 1)
                         : adjustedColor.A / 255f;
 
                     float newRed = bttnBrushColor.BackColor.R / 255f;
@@ -1570,14 +1608,24 @@ namespace DynamicDraw
             // Draws the brush.
             using (Graphics g = Graphics.FromImage(bmpCurrentDrawing))
             {
-                // GDI+ unfortunately has no native blend modes, only compositing modes, so all blend modes (including
-                // the eraser tool) are performed manually.
-                bool useLockbitsDrawing = activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal || chkbxLockAlpha.Checked;
+                // Lockbits is needed for blend modes, channel locks, and seamless drawing.
+                bool useLockbitsDrawing = activeTool == Tool.Eraser
+                    || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal
+                    || chkbxLockAlpha.Checked
+                    || chkbxSeamlessDrawing.Checked
+                    || !chkbxColorizeBrush.Checked;
 
-                // Overwrite blend mode doesn't use the recolor matrix.
-                if (useLockbitsDrawing && activeTool != Tool.Eraser && cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
+                // Overwrite blend mode and uncolorized images don't use the recolor matrix.
+                if (activeTool != Tool.Eraser)
                 {
-                    recolorMatrix = null;
+                    if (useLockbitsDrawing && cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
+                    {
+                        recolorMatrix = null;
+                    }
+                    else if (!chkbxColorizeBrush.Checked)
+                    {
+                        recolorMatrix = null;
+                    }
                 }
 
                 #region create intermediate rotated brush (as needed)
@@ -1654,10 +1702,13 @@ namespace DynamicDraw
                                         new Point(
                                             (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
                                             (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))),
-                                        adjustedColor,
-                                        chkbxColorizeBrush.Checked,
+                                        (adjustedColor, newMinAlpha),
+                                        chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
+                                            sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
+                                            chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked);
+                                        chkbxLockAlpha.Checked,
+                                        chkbxSeamlessDrawing.Checked);
                                 }
                             }
                         }
@@ -1732,10 +1783,13 @@ namespace DynamicDraw
                                         new Point(
                                             (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
                                             (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
-                                        adjustedColor,
-                                        chkbxColorizeBrush.Checked,
+                                        (adjustedColor, newMinAlpha),
+                                        chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
+                                            sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
+                                            chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked);
+                                        chkbxLockAlpha.Checked,
+                                        chkbxSeamlessDrawing.Checked);
                                 }
                             }
                         }
@@ -1790,10 +1844,13 @@ namespace DynamicDraw
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
                                                 (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
-                                            adjustedColor,
-                                            chkbxColorizeBrush.Checked,
+                                            (adjustedColor, newMinAlpha),
+                                            chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
+                                                sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
+                                                chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
-                                            chkbxLockAlpha.Checked);
+                                            chkbxLockAlpha.Checked,
+                                            chkbxSeamlessDrawing.Checked);
                                     }
                                 }
                             }
@@ -1869,10 +1926,13 @@ namespace DynamicDraw
                                         new Point(
                                             (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
                                             (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
-                                        adjustedColor,
-                                        chkbxColorizeBrush.Checked,
+                                        (adjustedColor, newMinAlpha),
+                                        chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
+                                            sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
+                                            chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked);
+                                        chkbxLockAlpha.Checked,
+                                        chkbxSeamlessDrawing.Checked);
                                     }
 
                                     angle += angleIncrease;
@@ -2109,6 +2169,20 @@ namespace DynamicDraw
                     chkbxColorizeBrush.Checked = shortcut.GetDataAsBool(chkbxColorizeBrush.Checked);
                     UpdateBrushImage();
                     break;
+                case ShortcutTarget.ColorInfluence:
+                    sliderColorInfluence.Value = shortcut.GetDataAsInt(sliderColorInfluence.Value,
+                        sliderColorInfluence.Minimum, sliderColorInfluence.Maximum);
+                    UpdateBrushImage();
+                    break;
+                case ShortcutTarget.ColorInfluenceHue:
+                    chkbxColorInfluenceHue.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceHue.Checked);
+                    break;
+                case ShortcutTarget.ColorInfluenceSat:
+                    chkbxColorInfluenceSat.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceSat.Checked);
+                    break;
+                case ShortcutTarget.ColorInfluenceVal:
+                    chkbxColorInfluenceVal.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceVal.Checked);
+                    break;
                 case ShortcutTarget.JitterBlueMax:
                     sliderJitterMaxBlue.Value = 
                         shortcut.GetDataAsInt(sliderJitterMaxBlue.Value,
@@ -2330,7 +2404,10 @@ namespace DynamicDraw
                     break;
                 case ShortcutTarget.BlendMode:
                     cmbxBlendMode.SelectedIndex =
-                        shortcut.GetDataAsInt((int)cmbxBlendMode.SelectedIndex, 0, cmbxBlendMode.Items.Count);
+                        shortcut.GetDataAsInt(cmbxBlendMode.SelectedIndex, 0, cmbxBlendMode.Items.Count);
+                    break;
+                case ShortcutTarget.SeamlessDrawing:
+                    chkbxSeamlessDrawing.Checked = shortcut.GetDataAsBool(chkbxSeamlessDrawing.Checked);
                     break;
             };
         }
@@ -2661,6 +2738,12 @@ namespace DynamicDraw
             this.listviewBrushImagePicker = new DoubleBufferedListView();
             this.panelBrushAddPickColor = new Panel();
             this.chkbxColorizeBrush = new CheckBox();
+            this.txtColorInfluence = new Label();
+            this.sliderColorInfluence = new TrackBar();
+            this.panelColorInfluenceHSV = new FlowLayoutPanel();
+            this.chkbxColorInfluenceHue = new CheckBox();
+            this.chkbxColorInfluenceSat = new CheckBox();
+            this.chkbxColorInfluenceVal = new CheckBox();
             this.bttnAddBrushImages = new Button();
             this.brushImageLoadProgressBar = new ProgressBar();
             this.bttnBrushColor = new Button();
@@ -2679,6 +2762,7 @@ namespace DynamicDraw
             this.sliderBrushDensity = new TrackBar();
             this.cmbxSymmetry = new ComboBox();
             this.cmbxBrushSmoothing = new ComboBox();
+            this.chkbxSeamlessDrawing = new CheckBox();
             this.chkbxOrientToMouse = new CheckBox();
             this.chkbxLockAlpha = new CheckBox();
             this.bttnJitterBasicsControls = new Accordion();
@@ -2841,6 +2925,8 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderCanvasZoom)).BeginInit();
             ((ISupportInitialize)(this.sliderCanvasAngle)).BeginInit();
             this.panelBrushAddPickColor.SuspendLayout();
+            ((ISupportInitialize)(this.sliderColorInfluence)).BeginInit();
+            this.panelColorInfluenceHSV.SuspendLayout();
             ((ISupportInitialize)(this.sliderBrushAlpha)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushSize)).BeginInit();
@@ -3121,6 +3207,9 @@ namespace DynamicDraw
             this.panelBrush.Controls.Add(this.listviewBrushPicker);
             this.panelBrush.Controls.Add(this.listviewBrushImagePicker);
             this.panelBrush.Controls.Add(this.panelBrushAddPickColor);
+            this.panelBrush.Controls.Add(this.txtColorInfluence);
+            this.panelBrush.Controls.Add(this.sliderColorInfluence);
+            this.panelBrush.Controls.Add(this.panelColorInfluenceHSV);
             this.panelBrush.Controls.Add(this.cmbxBlendMode);
             this.panelBrush.Controls.Add(this.txtBrushAlpha);
             this.panelBrush.Controls.Add(this.sliderBrushAlpha);
@@ -3238,6 +3327,57 @@ namespace DynamicDraw
             this.bttnBrushColor.Click += new EventHandler(this.BttnBrushColor_Click);
             this.bttnBrushColor.MouseEnter += new EventHandler(this.BttnBrushColor_MouseEnter);
             // 
+            // txtColorInfluence
+            // 
+            resources.ApplyResources(this.txtColorInfluence, "txtColorInfluence");
+            this.txtColorInfluence.BackColor = System.Drawing.Color.Transparent;
+            this.txtColorInfluence.Name = "txtColorInfluence";
+            // 
+            // sliderColorInfluence
+            // 
+            resources.ApplyResources(this.sliderColorInfluence, "sliderColorInfluence");
+            this.sliderColorInfluence.LargeChange = 1;
+            this.sliderColorInfluence.Maximum = 100;
+            this.sliderColorInfluence.Minimum = 0;
+            this.sliderColorInfluence.Name = "sliderColorInfluence";
+            this.sliderColorInfluence.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderColorInfluence.ValueChanged += new EventHandler(this.SliderColorInfluence_ValueChanged);
+            this.sliderColorInfluence.MouseEnter += new EventHandler(this.SliderColorInfluence_MouseEnter);
+            // 
+            // panelColorInfluenceHSV
+            // 
+            resources.ApplyResources(this.panelColorInfluenceHSV, "panelColorInfluenceHSV");
+            this.panelColorInfluenceHSV.BackColor = System.Drawing.Color.Transparent;
+            this.panelColorInfluenceHSV.Controls.Add(this.chkbxColorInfluenceHue);
+            this.panelColorInfluenceHSV.Controls.Add(this.chkbxColorInfluenceSat);
+            this.panelColorInfluenceHSV.Controls.Add(this.chkbxColorInfluenceVal);
+            this.panelColorInfluenceHSV.Name = "panelColorInfluenceHSV";
+            // 
+            // chkbxColorInfluenceHue
+            // 
+            resources.ApplyResources(this.chkbxColorInfluenceHue, "chkbxColorInfluenceHue");
+            this.chkbxColorInfluenceHue.Checked = true;
+            this.chkbxColorInfluenceHue.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkbxColorInfluenceHue.Name = "chkbxColorInfluenceHue";
+            this.chkbxColorInfluenceHue.UseVisualStyleBackColor = true;
+            this.chkbxColorInfluenceHue.MouseEnter += new EventHandler(this.ChkbxColorInfluenceHue_MouseEnter);
+            // 
+            // chkbxColorInfluenceSat
+            // 
+            resources.ApplyResources(this.chkbxColorInfluenceSat, "chkbxColorInfluenceSat");
+            this.chkbxColorInfluenceSat.Checked = true;
+            this.chkbxColorInfluenceSat.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkbxColorInfluenceSat.Name = "chkbxColorInfluenceSat";
+            this.chkbxColorInfluenceSat.UseVisualStyleBackColor = true;
+            this.chkbxColorInfluenceSat.MouseEnter += new EventHandler(this.ChkbxColorInfluenceSat_MouseEnter);
+            // 
+            // chkbxColorInfluenceVal
+            // 
+            resources.ApplyResources(this.chkbxColorInfluenceVal, "chkbxColorInfluenceVal");
+            this.chkbxColorInfluenceVal.Name = "chkbxColorInfluenceVal";
+            this.chkbxColorInfluenceVal.UseVisualStyleBackColor = true;
+            this.chkbxColorInfluenceVal.MouseEnter += new EventHandler(this.ChkbxColorInfluenceVal_MouseEnter);
+            // 
             // cmbxBlendMode
             // 
             resources.ApplyResources(this.cmbxBlendMode, "cmbxBlendMode");
@@ -3320,6 +3460,7 @@ namespace DynamicDraw
             this.panelSpecialSettings.Controls.Add(this.sliderBrushDensity);
             this.panelSpecialSettings.Controls.Add(this.cmbxBrushSmoothing);
             this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
+            this.panelSpecialSettings.Controls.Add(this.chkbxSeamlessDrawing);
             this.panelSpecialSettings.Controls.Add(this.chkbxOrientToMouse);
             this.panelSpecialSettings.Controls.Add(this.chkbxLockAlpha);
             this.panelSpecialSettings.Name = "panelSpecialSettings";
@@ -3389,6 +3530,13 @@ namespace DynamicDraw
             this.cmbxBrushSmoothing.FormattingEnabled = true;
             this.cmbxBrushSmoothing.Name = "cmbxBrushSmoothing";
             this.cmbxBrushSmoothing.MouseEnter += new EventHandler(this.BttnBrushSmoothing_MouseEnter);
+            // 
+            // chkbxSeamlessDrawing
+            // 
+            resources.ApplyResources(this.chkbxSeamlessDrawing, "chkbxSeamlessDrawing");
+            this.chkbxSeamlessDrawing.Name = "chkbxSeamlessDrawing";
+            this.chkbxSeamlessDrawing.UseVisualStyleBackColor = true;
+            this.chkbxSeamlessDrawing.MouseEnter += new EventHandler(this.ChkbxSeamlessDrawing_MouseEnter);
             // 
             // chkbxOrientToMouse
             // 
@@ -4781,6 +4929,9 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderCanvasAngle)).EndInit();
             this.panelBrushAddPickColor.ResumeLayout(false);
             this.panelBrushAddPickColor.PerformLayout();
+            ((ISupportInitialize)(this.sliderColorInfluence)).EndInit();
+            this.panelColorInfluenceHSV.ResumeLayout(false);
+            this.panelColorInfluenceHSV.PerformLayout();
             ((ISupportInitialize)(this.sliderBrushAlpha)).EndInit();
             ((ISupportInitialize)(this.sliderBrushRotation)).EndInit();
             ((ISupportInitialize)(this.sliderBrushSize)).EndInit();
@@ -5058,6 +5209,7 @@ namespace DynamicDraw
             activeTool = toolToSwitchTo;
 
             UpdateEnabledControls();
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -5133,8 +5285,13 @@ namespace DynamicDraw
             sliderRandRotRight.Value = settings.RandRotRight;
             sliderRandVertShift.Value = settings.RandVertShift;
             chkbxAutomaticBrushDensity.Checked = settings.AutomaticBrushDensity;
+            chkbxSeamlessDrawing.Checked = settings.SeamlessDrawing;
             chkbxOrientToMouse.Checked = settings.DoRotateWithMouse;
             chkbxColorizeBrush.Checked = settings.DoColorizeBrush;
+            sliderColorInfluence.Value = settings.ColorInfluence;
+            chkbxColorInfluenceHue.Checked = settings.ColorInfluenceHue;
+            chkbxColorInfluenceSat.Checked = settings.ColorInfluenceSat;
+            chkbxColorInfluenceVal.Checked = settings.ColorInfluenceVal;
             chkbxLockAlpha.Checked = settings.DoLockAlpha;
             sliderMinDrawDistance.Value = settings.MinDrawDistance;
             sliderJitterMaxRed.Value = settings.RandMaxR;
@@ -5216,7 +5373,7 @@ namespace DynamicDraw
             bttnBrushColor.ForeColor = oppositeColor;
 
             //Sets the back color and updates the brushes.
-            bttnBrushColor.BackColor = newColor;
+            bttnBrushColor.BackColor = Color.FromArgb(newColor.R, newColor.G, newColor.B);
             UpdateBrushImage();
         }
 
@@ -5261,7 +5418,7 @@ namespace DynamicDraw
                 //Applies the color and alpha changes.
                 bmpBrushEffects = Utils.FormatImage(bmpBrush, PixelFormat.Format32bppPArgb);
 
-                //Colorizes the image only if enabled.
+                // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
                 if (chkbxColorizeBrush.Checked)
                 {
                     Utils.ColorImage(bmpBrushEffects, setColor, multAlpha);
@@ -5277,24 +5434,29 @@ namespace DynamicDraw
         /// Updates which controls are enabled or not based on current settings.
         /// </summary>
         private void UpdateEnabledControls()
-        {            
-            bool enableAlphaJitter = chkbxColorizeBrush.Checked || activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Normal;
-            bool enableColorJitter = activeTool != Tool.Eraser && chkbxColorizeBrush.Checked;
+        {
+            bool enableColorInfluence = !chkbxColorizeBrush.Checked && activeTool != Tool.Eraser;
+            bool enableColorJitter = activeTool != Tool.Eraser && (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0);
 
             chkbxColorizeBrush.Enabled = activeTool != Tool.Eraser;
+            txtColorInfluence.Visible = enableColorInfluence;
+            sliderColorInfluence.Visible = enableColorInfluence;
+            panelColorInfluenceHSV.Visible = enableColorInfluence && sliderColorInfluence.Value != 0;
             chkbxLockAlpha.Enabled = activeTool != Tool.Eraser;
+            cmbxBlendMode.Enabled = activeTool != Tool.Eraser;
 
-            // Hide dynamic coloring options if colorize brush is off.
-            if (!chkbxColorizeBrush.Checked || activeTool == Tool.Eraser)
-            {
-                bttnJitterColorControls.ToggleCollapsed(true);
-                bttnJitterColorControls.Visible = false;
-            }
-
-            bttnJitterColorControls.Visible = chkbxColorizeBrush.Checked && activeTool != Tool.Eraser;
-            bttnBrushColor.Visible = (chkbxColorizeBrush.Checked || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal)
-                && activeTool != Tool.Eraser;
-
+            sliderJitterMaxRed.Enabled = enableColorJitter;
+            sliderJitterMinRed.Enabled = enableColorJitter;
+            sliderJitterMaxGreen.Enabled = enableColorJitter;
+            sliderJitterMinGreen.Enabled = enableColorJitter;
+            sliderJitterMaxBlue.Enabled = enableColorJitter;
+            sliderJitterMinBlue.Enabled = enableColorJitter;
+            sliderJitterMaxHue.Enabled = enableColorJitter;
+            sliderJitterMinHue.Enabled = enableColorJitter;
+            sliderJitterMaxSat.Enabled = enableColorJitter;
+            sliderJitterMinSat.Enabled = enableColorJitter;
+            sliderJitterMaxVal.Enabled = enableColorJitter;
+            sliderJitterMinVal.Enabled = enableColorJitter;
             panelTabPressureRedJitter.Enabled = enableColorJitter;
             panelTabPressureBlueJitter.Enabled = enableColorJitter;
             panelTabPressureGreenJitter.Enabled = enableColorJitter;
@@ -5302,8 +5464,7 @@ namespace DynamicDraw
             panelTabPressureSatJitter.Enabled = enableColorJitter;
             panelTabPressureValueJitter.Enabled = enableColorJitter;
 
-            sliderRandMinAlpha.Enabled = enableAlphaJitter;
-            panelTabPressureRandMinAlpha.Enabled = enableAlphaJitter;
+            bttnBrushColor.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser;
         }
 
         /// <summary>
@@ -5409,16 +5570,38 @@ namespace DynamicDraw
             txtCanvasZoom.Text = string.Format(
                 "{0} {1:p0}", Strings.CanvasZoom, newZoomFactor);
 
+            // Prevent losing the canvas due to nudging off-screen prior to zoom.
+            if (canvas.x + canvas.width < 0 || canvas.x > displayCanvas.Width)
+            {
+                isWheelZooming = false;
+                canvas.x = (displayCanvas.Width - canvas.width) / 2;
+            }
+            if (canvas.y + canvas.height < 0 || canvas.y > displayCanvas.Height)
+            {
+                isWheelZooming = false;
+                canvas.y = (displayCanvas.Height - canvas.height) / 2;
+            }
+
             //Gets the new width and height, adjusted for zooming.
             float zoomWidth = bmpCurrentDrawing.Width * newZoomFactor;
             float zoomHeight = bmpCurrentDrawing.Height * newZoomFactor;
 
-            PointF zoomingPoint = mouseLoc;
+            PointF zoomingPoint = isWheelZooming
+                ? mouseLoc
+                : new PointF(
+                    displayCanvas.ClientSize.Width / 2f - canvas.x,
+                    displayCanvas.ClientSize.Height / 2f - canvas.y);
+
+            // Clamp the zooming point at the edges of the canvas.
+            zoomingPoint.X = Utils.ClampF(zoomingPoint.X, 0, canvas.width);
+            zoomingPoint.Y = Utils.ClampF(zoomingPoint.Y, 0, canvas.height);
 
             int zoomX = (int)(canvas.x + zoomingPoint.X -
                 zoomingPoint.X * zoomWidth / canvas.width);
             int zoomY = (int)(canvas.y + zoomingPoint.Y -
                 zoomingPoint.Y * zoomHeight / canvas.height);
+
+            isWheelZooming = false;
 
             // Adjusts the canvas position after zooming, and the mouse location since it includes canvas position.
             (int x, int y) canvasOffset = new(canvas.x - zoomX, canvas.y - zoomY);
@@ -6005,10 +6188,11 @@ namespace DynamicDraw
         {
             e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             e.Graphics.SmoothingMode = SmoothingMode.None;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
 
-            float drawingOffsetX = (EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom);
-            float drawingOffsetY = (EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom);
-
+            float drawingOffsetX = EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom;
+            float drawingOffsetY = EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom;
+            
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
             e.Graphics.RotateTransform(sliderCanvasAngle.Value);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
@@ -6273,6 +6457,7 @@ namespace DynamicDraw
         private void BttnBlendMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateEnabledControls();
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -6517,8 +6702,13 @@ namespace DynamicDraw
                     BrushImagePath = index >= 0 ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name : string.Empty,
                     BrushRotation = sliderBrushRotation.Value,
                     BrushSize = sliderBrushSize.Value,
+                    ColorInfluence = sliderColorInfluence.Value,
                     DoColorizeBrush = chkbxColorizeBrush.Checked,
+                    ColorInfluenceHue = chkbxColorInfluenceHue.Checked,
+                    ColorInfluenceSat = chkbxColorInfluenceSat.Checked,
+                    ColorInfluenceVal = chkbxColorInfluenceVal.Checked,
                     DoLockAlpha = chkbxLockAlpha.Checked,
+                    SeamlessDrawing = chkbxSeamlessDrawing.Checked,
                     DoRotateWithMouse = chkbxOrientToMouse.Checked,
                     MinDrawDistance = sliderMinDrawDistance.Value,
                     RandHorzShift = sliderRandHorzShift.Value,
@@ -6732,9 +6922,48 @@ namespace DynamicDraw
             UpdateTooltip(Strings.ColorizeBrushTip);
         }
 
+        /// <summary>
+        /// Resets the brush to reconfigure colorization. Colorization is
+        /// applied when the brush is refreshed.
+        /// </summary>
+        private void SliderColorInfluence_ValueChanged(object sender, EventArgs e)
+        {
+            txtColorInfluence.Text = String.Format("{0} {1}%",
+                Strings.ColorInfluence,
+                sliderColorInfluence.Value);
+
+            UpdateEnabledControls();
+            UpdateBrushImage();
+        }
+
+        private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ColorInfluenceTip);
+        }
+
+        private void ChkbxColorInfluenceHue_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ColorInfluenceHTip);
+        }
+
+        private void ChkbxColorInfluenceSat_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ColorInfluenceSTip);
+        }
+
+        private void ChkbxColorInfluenceVal_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ColorInfluenceVTip);
+        }
+
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.LockAlphaTip);
+        }
+
+        private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.SeamlessDrawingTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
@@ -6888,11 +7117,11 @@ namespace DynamicDraw
 
                 if (!string.IsNullOrEmpty(brush.Location))
                 {
-                    tooltipText = name + Environment.NewLine + brush.Location;
+                    tooltipText = name + Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + Environment.NewLine + brush.Location;
                 }
                 else
                 {
-                    tooltipText = name + Environment.NewLine + Strings.BuiltIn;
+                    tooltipText = name + Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + Environment.NewLine + Strings.BuiltIn;
                 }
 
                 e.Item = new ListViewItem
