@@ -485,14 +485,21 @@ namespace DynamicDraw
             // Draw brush cutoffs on the opposite side of the canvas (wrap-around / seamless texture)
             if (wrapAround)
             {
+                // The brush is only guaranteed seamless when none of its dimensions are larger than any of the canvas dimensions.
+                // The basic decision to clamp prevents having to copy excess chunks in loops -- it's just much simpler.
+                negativeX = Math.Clamp(negativeX, 0, dest.Width);
+                negativeY = Math.Clamp(negativeY, 0, dest.Height);
+                extraX = Math.Clamp(extraX, 0, Math.Min(brush.Width, dest.Width));
+                extraY = Math.Clamp(extraY, 0, Math.Min(brush.Height, dest.Height));
+
                 draw(0, negativeY, dest.Width - negativeX, adjBounds.Y, negativeX, adjBounds.Height); // left
                 draw(negativeX, 0, adjBounds.X, dest.Height - negativeY, adjBounds.Width, negativeY); // top
-                draw(negativeX + brush.Width - extraX, negativeY, 0, adjBounds.Y, extraX, adjBounds.Height); // right
-                draw(negativeX, negativeY + brush.Height - extraY, adjBounds.X, 0, adjBounds.Width, extraY); // bottom
+                draw(brush.Width - extraX, negativeY, 0, adjBounds.Y, extraX, adjBounds.Height); // right
+                draw(negativeX, brush.Height - extraY, adjBounds.X, 0, adjBounds.Width, extraY); // bottom
                 draw(0, 0, dest.Width - negativeX, dest.Height - negativeY, negativeX, negativeY); // top left
                 draw(brush.Width - extraX, 0, 0, dest.Height - negativeY, extraX, negativeY); // top right
                 draw(0, brush.Height - extraY, dest.Width - negativeX, 0, negativeX, extraY); // bottom left
-                draw(negativeX + brush.Width - extraX, negativeY + brush.Height - extraY, 0, 0, extraX, extraY); // bottom right
+                draw(brush.Width - extraX, brush.Height - extraY, 0, 0, extraX, extraY); // bottom right
             }
 
             dest.UnlockBits(destData);
