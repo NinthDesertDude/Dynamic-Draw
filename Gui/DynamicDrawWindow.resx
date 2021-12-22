@@ -952,7 +952,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderColorInfluence.TabIndex" type="System.Int32, mscorlib">
-    <value>15</value>
+    <value>14</value>
   </data>
   <data name="&gt;&gt;sliderColorInfluence.Name" xml:space="preserve">
     <value>sliderColorInfluence</value>
@@ -979,7 +979,7 @@
     <value>155, 28</value>
   </data>
   <data name="panelColorInfluenceHSV.TabIndex" type="System.Int32, mscorlib">
-    <value>145</value>
+    <value>15</value>
   </data>
   <data name="&gt;&gt;panelColorInfluenceHSV.Name" xml:space="preserve">
     <value>panelUndoRedoOkCancel</value>
@@ -1009,7 +1009,7 @@
     <value>32, 17</value>
   </data>
   <data name="chkbxColorInfluenceHue.TabIndex" type="System.Int32, mscorlib">
-    <value>12</value>
+    <value>16</value>
   </data>
   <data name="chkbxColorInfluenceHue.Text" xml:space="preserve">
     <value>H</value>
@@ -1039,7 +1039,7 @@
     <value>32, 17</value>
   </data>
   <data name="chkbxColorInfluenceSat.TabIndex" type="System.Int32, mscorlib">
-    <value>12</value>
+    <value>17</value>
   </data>
   <data name="chkbxColorInfluenceSat.Text" xml:space="preserve">
     <value>S</value>
@@ -1069,7 +1069,7 @@
     <value>32, 17</value>
   </data>
   <data name="chkbxColorInfluenceVal.TabIndex" type="System.Int32, mscorlib">
-    <value>12</value>
+    <value>18</value>
   </data>
   <data name="chkbxColorInfluenceVal.Text" xml:space="preserve">
     <value>V</value>
@@ -1111,7 +1111,7 @@
     <value>153, 21</value>
   </data>
   <data name="cmbxBlendMode.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
+    <value>19</value>
   </data>
   <data name="&gt;&gt;cmbxBlendMode.Name" xml:space="preserve">
     <value>cmbxBlendMode</value>
@@ -1180,7 +1180,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>15</value>
+    <value>20</value>
   </data>
   <data name="&gt;&gt;sliderBrushAlpha.Name" xml:space="preserve">
     <value>sliderBrushAlpha</value>
@@ -1249,7 +1249,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>16</value>
+    <value>21</value>
   </data>
   <data name="&gt;&gt;sliderBrushRotation.Name" xml:space="preserve">
     <value>sliderBrushRotation</value>
@@ -1318,7 +1318,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushSize.TabIndex" type="System.Int32, mscorlib">
-    <value>17</value>
+    <value>22</value>
   </data>
   <data name="&gt;&gt;sliderBrushSize.Name" xml:space="preserve">
     <value>sliderBrushSize</value>
