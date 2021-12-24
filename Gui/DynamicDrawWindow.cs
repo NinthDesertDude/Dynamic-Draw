@@ -190,9 +190,20 @@ namespace DynamicDraw
         private readonly TabletService tabletService;
 
         /// <summary>
-        /// The pressure ratio as a value from 0 to 1, where 0 is no pressure at all and 1 is max measurable.
+        /// The pressure ratio as a value from 0 to 1, where 0 is no pressure at all and 1 is max measurable. This is
         /// </summary>
         private float tabletPressureRatio;
+
+        /// <summary>
+        /// The previous pressure ratio so lerping the sensitivity can be done for nonzero brush density.
+        /// </summary>
+        private float tabletPressureRatioPrev;
+
+        /// <summary>
+        /// The tablet reading service is async to this plugin, so any time this plugin runs faster, it might read the
+        /// same packets multiple times. Tracking the serial number of the last packet ensures unique reads.
+        /// </summary>
+        private uint tabletLastPacketId;
 
         /// <summary>
         /// The folder used to store undo/redo images, and deleted on exit.
@@ -946,6 +957,8 @@ namespace DynamicDraw
                     {
                         listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
                     }
+
+                    listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
                 }
             }
             catch (Exception ex)
@@ -1205,15 +1218,15 @@ namespace DynamicDraw
                     tempDir = null;
                 }
 
-                //Disposes all form bitmaps.
                 bmpBrush?.Dispose();
                 bmpBrushEffects?.Dispose();
                 bmpCurrentDrawing?.Dispose();
                 bmpBackgroundClipboard?.Dispose();
 
-                //Disposes all cursors.
                 displayCanvas.Cursor = Cursors.Default;
                 cursorColorPicker?.Dispose();
+
+                tabletService?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -3258,10 +3271,12 @@ namespace DynamicDraw
             // listviewBrushPicker
             // 
             this.listviewBrushPicker.HideSelection = false;
+            this.listviewBrushPicker.Columns.Add("_"); // name hidden and unimportant
+            this.listviewBrushPicker.HeaderStyle = ColumnHeaderStyle.None;
             resources.ApplyResources(this.listviewBrushPicker, "listviewBrushPicker");
             this.listviewBrushPicker.Name = "listviewBrushPicker";
             this.listviewBrushPicker.UseCompatibleStateImageBehavior = false;
-            this.listviewBrushPicker.View = System.Windows.Forms.View.List;
+            this.listviewBrushPicker.View = System.Windows.Forms.View.Details;
             this.listviewBrushPicker.SelectedIndexChanged += new EventHandler(this.ListViewBrushPicker_SelectedIndexChanged);
             this.listviewBrushPicker.MouseEnter += new EventHandler(this.ListviewBrushPicker_MouseEnter);
             // 
@@ -6126,11 +6141,6 @@ namespace DynamicDraw
                             tabletPressureRatio,
                             ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
 
-                        if (finalBrushSize <= 0)
-                        {
-                            return;
-                        }
-
                         double deltaX = (mouseLoc.X - mouseLocPrev.X) / canvasZoom;
                         double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / canvasZoom;
                         double brushWidthFrac = finalBrushSize / (double)finalBrushDensity;
@@ -6142,6 +6152,16 @@ namespace DynamicDraw
 
                         for (int i = 1; i <= (int)numIntervals; i++)
                         {
+                            // lerp between the last and current tablet pressure for smoother lines
+                            if (tabletPressureRatioPrev != tabletPressureRatio && spinTabPressureBrushSize.Value != 0)
+                            {
+                                finalBrushSize = Utils.GetStrengthMappedValue(sliderBrushSize.Value,
+                                    (int)spinTabPressureBrushSize.Value,
+                                    sliderBrushSize.Maximum,
+                                    (float)(tabletPressureRatioPrev + i / numIntervals * (tabletPressureRatio - tabletPressureRatioPrev)),
+                                    ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
+                            }
+
                             DrawBrush(new PointF(
                                 (float)(mouseLocPrev.X / canvasZoom + xDist * brushWidthFrac * i),
                                 (float)(mouseLocPrev.Y / canvasZoom + yDist * brushWidthFrac * i)),
@@ -6155,6 +6175,8 @@ namespace DynamicDraw
                             (float)((e.Location.X - canvas.x) - xDist * extraDist * canvasZoom),
                             (float)((e.Location.Y - canvas.y) - yDist * extraDist * canvasZoom));
                         mouseLocPrev = mouseLoc;
+
+                        tabletPressureRatioPrev = tabletPressureRatio;
                     }
                 }
             }
@@ -6536,6 +6558,7 @@ namespace DynamicDraw
         {
             settings.CustomBrushes.Remove(currentBrushPath);
             listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
+            listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
             settings.MarkSettingsChanged();
             currentBrushPath = null;
             bttnDeleteBrush.Enabled = false;
@@ -6788,6 +6811,7 @@ namespace DynamicDraw
                 }
 
                 listviewBrushPicker.Items.Add(new ListViewItem(inputText) { Selected = true });
+                listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
                 currentBrushPath = inputText;
                 bttnDeleteBrush.Enabled = true;
             }
@@ -7625,6 +7649,10 @@ namespace DynamicDraw
         {
             // Move cursor to stylus. This works since packets are only sent for touch or hover events.
             Cursor.Position = new Point(packet.pkX, packet.pkY);
+
+            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
+
+            tabletLastPacketId = packet.pkSerialNumber;
 
             // Gets the current pressure.
             int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
