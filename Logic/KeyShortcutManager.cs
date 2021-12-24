@@ -12,14 +12,22 @@ namespace DynamicDraw.Logic
         /// <summary>
         /// Fires any shortcuts that might be registered, which would be fired based on the currently-held keys.
         /// </summary>
-        public static void FireShortcuts(HashSet<KeyboardShortcut> shortcuts, Keys key, bool ctrlHeld, bool shiftHeld, bool altHeld)
+        public static void FireShortcuts(
+            HashSet<KeyboardShortcut> shortcuts,
+            Keys key,
+            bool ctrlHeld,
+            bool shiftHeld,
+            bool altHeld,
+            HashSet<ShortcutContext> contexts)
         {
             foreach (var entry in shortcuts)
             {
                 if (entry.Key != key ||
                     entry.RequireCtrl != ctrlHeld ||
                     entry.RequireShift != shiftHeld ||
-                    entry.RequireAlt != altHeld)
+                    entry.RequireAlt != altHeld ||
+                    (entry.ContextsDenied?.Overlaps(contexts) ?? false) ||
+                    (!entry.ContextsRequired?.IsSubsetOf(contexts) ?? false))
                 {
                     continue;
                 }

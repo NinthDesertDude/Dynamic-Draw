@@ -151,7 +151,7 @@ namespace DynamicDraw
         private PointF? mouseLocBrush;
 
         /// <summary>
-        /// Stores the previous mouse location.
+        /// Stores the previous mouse location. This is used for calculating mouse direction, speed, etc.
         /// </summary>
         private PointF mouseLocPrev = new PointF();
 
@@ -992,7 +992,11 @@ namespace DynamicDraw
         {
             base.OnKeyDown(e);
 
-            KeyShortcutManager.FireShortcuts(keyboardShortcuts, e.KeyCode, e.Control, e.Shift, e.Alt);
+            HashSet<ShortcutContext> contexts = new HashSet<ShortcutContext>();
+            if (displayCanvas.Focused) { contexts.Add(ShortcutContext.OnCanvas); }
+            else { contexts.Add(ShortcutContext.OnSidebar); }
+
+            KeyShortcutManager.FireShortcuts(keyboardShortcuts, e.KeyCode, e.Control, e.Shift, e.Alt, contexts);
 
             //Display a hand icon while panning.
             if (e.Control)
@@ -5988,7 +5992,7 @@ namespace DynamicDraw
 
                     //Draws the brush on the first canvas click. Lines aren't drawn at a single point.
                     //Doesn't draw for tablets, since the user hasn't exerted full pressure yet.
-                    if (!chkbxOrientToMouse.Checked && tabletPressureRatio == 0)
+                    if (!chkbxOrientToMouse.Checked)
                     {
                         int finalBrushSize = Utils.GetStrengthMappedValue(sliderBrushSize.Value,
                             (int)spinTabPressureBrushSize.Value,
@@ -6409,15 +6413,36 @@ namespace DynamicDraw
 
                         if (activeTool == Tool.SetSymmetryOrigin)
                         {
-                            pointsDrawnX = symmetryOrigin.X;
-                            pointsDrawnY = symmetryOrigin.Y;
+                            var transformedMouseLoc = TransformPoint(mouseLoc, true);
+                            Pen transparentRed = new Pen(Color.FromArgb(128, 128, 0, 0), 1);
+
+                            e.Graphics.DrawRectangle(
+                                transparentRed,
+                                symmetryOrigin.X - (sliderBrushSize.Value / 2f),
+                                symmetryOrigin.Y - (sliderBrushSize.Value / 2f),
+                                sliderBrushSize.Value,
+                                sliderBrushSize.Value);
+                            
+                            e.Graphics.DrawRectangle(
+                                Pens.Black,
+                                transformedMouseLoc.X - (sliderBrushSize.Value / 2f),
+                                transformedMouseLoc.Y - (sliderBrushSize.Value / 2f),
+                                sliderBrushSize.Value,
+                                sliderBrushSize.Value);
 
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
                                 e.Graphics.DrawRectangle(
+                                    transparentRed,
+                                    symmetryOrigin.X + symmetryOrigins[i].X - (sliderBrushSize.Value / 2f),
+                                    symmetryOrigin.Y + symmetryOrigins[i].Y - (sliderBrushSize.Value / 2f),
+                                    sliderBrushSize.Value,
+                                    sliderBrushSize.Value);
+
+                                e.Graphics.DrawRectangle(
                                     Pens.Red,
-                                    (float)(pointsDrawnX + symmetryOrigins[i].X - 1),
-                                    (float)(pointsDrawnY + symmetryOrigins[i].Y - 1),
+                                    (float)(symmetryOrigin.X + symmetryOrigins[i].X - 1),
+                                    (float)(symmetryOrigin.Y + symmetryOrigins[i].Y - 1),
                                     2, 2);
                             }
                         }

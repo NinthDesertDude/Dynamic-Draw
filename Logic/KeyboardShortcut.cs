@@ -83,6 +83,18 @@ namespace DynamicDraw.Logic
         };
 
         /// <summary>
+        /// While any of these contexts are valid, the shortcut is automatically disabled.
+        /// </summary>
+        [DataMember(Name = "ContextsDenied")]
+        public HashSet<ShortcutContext> ContextsDenied { get; set; }
+
+        /// <summary>
+        /// The shortcut is automatically disabled while any of these contexts are absent.
+        /// </summary>
+        [DataMember(Name = "ContextsRequired")]
+        public HashSet<ShortcutContext> ContextsRequired { get; set; }
+
+        /// <summary>
         /// The key that, when pressed in conjunction with any listed modifier keys, triggers the shortcut.
         /// </summary>
         [DataMember(Name = "Key")]
