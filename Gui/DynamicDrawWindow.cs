@@ -105,7 +105,7 @@ namespace DynamicDraw
         /// </summary>
         private bool isGrowingSize = true;
 
-        private bool isUserDrawing = false;
+        private (bool started, bool canvasChanged) isUserDrawing = new(false, false);
         private bool isUserPanning = false;
 
         private bool isWheelZooming = false;
@@ -1250,6 +1250,26 @@ namespace DynamicDraw
             if (bmpBrushEffects == null)
             {
                 return;
+            }
+
+            // Updates undo stack on first brush stroke.
+            if (!isUserDrawing.canvasChanged)
+            {
+                isUserDrawing.canvasChanged = true;
+
+                //Adds to the list of undo operations.
+                string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
+
+                //Saves the drawing to the file and saves the file path.
+                bmpCurrentDrawing.Save(path);
+                undoHistory.Push(path);
+                if (!bttnUndo.Enabled)
+                {
+                    bttnUndo.Enabled = true;
+                }
+
+                //Removes all redo history.
+                redoHistory.Clear();
             }
 
             #region apply size jitter
@@ -5971,24 +5991,8 @@ namespace DynamicDraw
                 //Draws with the brush.
                 if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
                 {
-                    isUserDrawing = true;
-
-                    //Repositions the canvas when the user draws out-of-bounds.
+                    isUserDrawing.started = true;
                     timerRepositionUpdate.Enabled = true;
-
-                    //Adds to the list of undo operations.
-                    string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
-
-                    //Saves the drawing to the file and saves the file path.
-                    bmpCurrentDrawing.Save(path);
-                    undoHistory.Push(path);
-                    if (!bttnUndo.Enabled)
-                    {
-                        bttnUndo.Enabled = true;
-                    }
-
-                    //Removes all redo history.
-                    redoHistory.Clear();
 
                     //Draws the brush on the first canvas click. Lines aren't drawn at a single point.
                     //Doesn't draw for tablets, since the user hasn't exerted full pressure yet.
@@ -6078,7 +6082,7 @@ namespace DynamicDraw
                 canvas.y = locy;
             }
 
-            else if (isUserDrawing)
+            else if (isUserDrawing.started)
             {
                 finalMinDrawDistance = Utils.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
                         (int)spinTabPressureMinDrawDistance.Value,
@@ -6199,8 +6203,17 @@ namespace DynamicDraw
         /// </summary>
         private void DisplayCanvas_MouseUp(object sender, MouseEventArgs e)
         {
+            if (isUserDrawing.started && !isUserDrawing.canvasChanged)
+            {
+                DrawBrush(new PointF(
+                    mouseLocPrev.X / canvasZoom,
+                    mouseLocPrev.Y / canvasZoom),
+                    sliderBrushSize.Value); // (no tablet pressure, by definition, on mouse up)
+            }
+
             isUserPanning = false;
-            isUserDrawing = false;
+            isUserDrawing.started = false;
+            isUserDrawing.canvasChanged = false;
             timerRepositionUpdate.Enabled = false;
 
             //Lets the user click anywhere to draw again.
@@ -6342,7 +6355,7 @@ namespace DynamicDraw
             if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
             {
                 //Draws the brush as a rectangle when not drawing by mouse.
-                if (!isUserDrawing)
+                if (!isUserDrawing.started)
                 {
                     int radius = (int)(sliderBrushSize.Value * canvasZoom);
 
@@ -6407,7 +6420,7 @@ namespace DynamicDraw
 
                     // Draws a rectangle for each origin point, either relative to the symmetry origin (in
                     // SetSymmetryOrigin tool) or the mouse (with the Brush tool)
-                    if (!isUserDrawing)
+                    if (!isUserDrawing.started)
                     {
                         float pointsDrawnX, pointsDrawnY;
 
@@ -6669,7 +6682,8 @@ namespace DynamicDraw
 
             //Prevents an error that would occur if redo was pressed in the
             //middle of a drawing operation by aborting it.
-            isUserDrawing = false;
+            isUserDrawing.started = false;
+            isUserDrawing.canvasChanged = false;
 
             //Acquires the bitmap from the file and loads it if it exists.
             string fileAndPath = redoHistory.Pop();
@@ -6905,7 +6919,8 @@ namespace DynamicDraw
 
             //Prevents an error that would occur if undo was pressed in the
             //middle of a drawing operation by aborting it.
-            isUserDrawing = false;
+            isUserDrawing.started = false;
+            isUserDrawing.canvasChanged = false;
 
             //Acquires the bitmap from the file and loads it if it exists.
             string fileAndPath = undoHistory.Pop();
@@ -7716,7 +7731,7 @@ namespace DynamicDraw
             Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
 
             //Exits if the user isn't drawing out of the canvas boundary.
-            if (!isUserDrawing || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
+            if (!isUserDrawing.started || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
             {
                 return;
             }
