@@ -514,6 +514,7 @@ namespace DynamicDraw
             Bitmap clone = new Bitmap(img.Width, img.Height, format);
             using (Graphics gr = Graphics.FromImage(clone))
             {
+                gr.PixelOffsetMode = PixelOffsetMode.Half;
                 gr.SmoothingMode = SmoothingMode.None;
                 gr.DrawImage(img, 0, 0, img.Width, img.Height);
             }
@@ -605,14 +606,27 @@ namespace DynamicDraw
             }
 
             //Iterates through each pixel to apply the change.
+            ColorBgra temp;
             for (int y = 0; y < image.Height; y++)
             {
+                ColorBgra* dst = (ColorBgra*)(row + (y * bmpData.Stride));
+
                 for (int x = 0; x < image.Width; x++)
                 {
                     int pos = y * bmpData.Stride + x * 4;
 
+                    temp = dst->ConvertFromPremultipliedAlpha();
+                    byte newAlpha = (byte)Math.Ceiling((dst->R + dst->G + dst->B) / 3d);
+                    float alphaFactor = newAlpha / 255f;
+
                     //Sets the alpha channel based on its intensity.
-                    row[pos + 3] = (byte)((row[pos + 2] + row[pos + 1] + row[pos]) / 3);
+                    dst->Bgra = temp.Bgra;
+                    dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
+                    dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
+                    dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
+                    dst->A = newAlpha;
+
+                    dst++;
                 }
             }
 
@@ -640,9 +654,12 @@ namespace DynamicDraw
 
             using (Graphics graphics = Graphics.FromImage(newImg))
             {
+                graphics.SmoothingMode = SmoothingMode.None;
+                graphics.PixelOffsetMode = PixelOffsetMode.None;
+
                 graphics.DrawImage(img,
-                    (size - img.Width) / 2,
-                    (size - img.Height) / 2,
+                    (size - img.Width) / 2f,
+                    (size - img.Height) / 2f,
                     img.Width, img.Height);
             }
 
@@ -687,19 +704,21 @@ namespace DynamicDraw
             Bitmap newBmp = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
+                g.PixelOffsetMode = PixelOffsetMode.Half;
+
                 //Uses matrices to centrally-rotate the original image.
                 g.TranslateTransform(
-                    (float)(newWidth - origBmp.Width) / 2,
-                    (float)(newHeight - origBmp.Height) / 2);
+                    (newWidth - origBmp.Width) / 2f,
+                    (newHeight - origBmp.Height) / 2f);
 
                 g.TranslateTransform(
-                    (float)origBmp.Width / 2,
-                    (float)origBmp.Height / 2);
+                    origBmp.Width / 2f,
+                    origBmp.Height / 2f);
 
                 g.RotateTransform(angle);
 
                 //Undoes the transform.
-                g.TranslateTransform(-(float)origBmp.Width / 2, -(float)origBmp.Height / 2);
+                g.TranslateTransform(-origBmp.Width / 2f, -origBmp.Height / 2f);
 
                 //Draws the image.
                 g.DrawImage(origBmp, 0, 0, origBmp.Width, origBmp.Height);
@@ -743,18 +762,8 @@ namespace DynamicDraw
             Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
-                switch (smoothing)
-                {
-                    case CmbxSmoothing.Smoothing.Jagged:
-                        g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                        break;
-                    case CmbxSmoothing.Smoothing.Normal:
-                        g.InterpolationMode = InterpolationMode.Bilinear;
-                        break;
-                    case CmbxSmoothing.Smoothing.High:
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        break;
-                }
+                g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[smoothing];
+                g.PixelOffsetMode = PixelOffsetMode.Half;
 
                 if (attr != null)
                 {

@@ -21,25 +21,29 @@ namespace DynamicDraw
             {
                 ActionData = $"{(int)Tool.Brush}|set",
                 Key = System.Windows.Forms.Keys.B,
-                Target = ShortcutTarget.SelectedTool
+                Target = ShortcutTarget.SelectedTool,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = $"{(int)Tool.ColorPicker}|set",
                 Key = System.Windows.Forms.Keys.K,
-                Target = ShortcutTarget.SelectedTool
+                Target = ShortcutTarget.SelectedTool,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = $"{(int)Tool.Eraser}|set",
                 Key = System.Windows.Forms.Keys.E,
-                Target = ShortcutTarget.SelectedTool
+                Target = ShortcutTarget.SelectedTool,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = $"{(int)Tool.SetSymmetryOrigin}|set",
                 Key = System.Windows.Forms.Keys.O,
-                Target = ShortcutTarget.SelectedTool
+                Target = ShortcutTarget.SelectedTool,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
@@ -68,48 +72,56 @@ namespace DynamicDraw
                 ActionData = "2|mul",
                 Key = System.Windows.Forms.Keys.Oemplus,
                 Target = ShortcutTarget.CanvasZoom,
-                RequireCtrl = true
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = "0.5|mul",
                 Key = System.Windows.Forms.Keys.OemMinus,
                 Target = ShortcutTarget.CanvasZoom,
-                RequireCtrl = true
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = null,
                 Key = System.Windows.Forms.Keys.D0,
-                Target = ShortcutTarget.ResetCanvasTransforms
+                Target = ShortcutTarget.ResetCanvasTransforms,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+            },
+            new KeyboardShortcut()
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.NumPad0,
+                Target = ShortcutTarget.ResetCanvasTransforms,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = "5|sub",
                 Key = System.Windows.Forms.Keys.Left,
                 Target = ShortcutTarget.CanvasX,
-                RequireCtrl = true
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = "5|add",
                 Key = System.Windows.Forms.Keys.Right,
                 Target = ShortcutTarget.CanvasX,
-                RequireCtrl = true
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = "5|sub",
                 Key = System.Windows.Forms.Keys.Up,
                 Target = ShortcutTarget.CanvasY,
-                RequireCtrl = true
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
                 ActionData = "5|add",
                 Key = System.Windows.Forms.Keys.Down,
                 Target = ShortcutTarget.CanvasY,
-                RequireCtrl = true
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut()
             {
@@ -166,6 +178,16 @@ namespace DynamicDraw
                     RandMinV = 10,
                     RandMaxH = 4,
                     RandMinH = 4
+                }
+            },
+            {
+                Strings.BuiltInBrushRecolor,
+                new BrushSettings()
+                {
+                    BrushImagePath = Strings.DefaultBrushCircle,
+                    BrushColor = Color.Red,
+                    BrushSize = 50,
+                    DoLockAlpha = true
                 }
             }
         };

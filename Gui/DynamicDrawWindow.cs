@@ -54,6 +54,13 @@ namespace DynamicDraw
         private Bitmap bmpBrush;
 
         /// <summary>
+        /// Contains the current brush resized to be as small as the maximum possible brush size through randomization
+        /// and the current brush. If the max possible size is larger than the current brush image, this is the same as
+        /// bmpBrush.
+        /// </summary>
+        private Bitmap bmpBrushDownsized;
+
+        /// <summary>
         /// Contains the current brush with all modifications applied. This is
         /// overwritten by the original brush to apply new changes so changes
         /// are not cumulative. For example, applying 25% alpha repeatedly
@@ -105,7 +112,7 @@ namespace DynamicDraw
         /// </summary>
         private bool isGrowingSize = true;
 
-        private bool isUserDrawing = false;
+        private (bool started, bool canvasChanged) isUserDrawing = new(false, false);
         private bool isUserPanning = false;
 
         private bool isWheelZooming = false;
@@ -151,7 +158,7 @@ namespace DynamicDraw
         private PointF? mouseLocBrush;
 
         /// <summary>
-        /// Stores the previous mouse location.
+        /// Stores the previous mouse location. This is used for calculating mouse direction, speed, etc.
         /// </summary>
         private PointF mouseLocPrev = new PointF();
 
@@ -193,6 +200,17 @@ namespace DynamicDraw
         /// The pressure ratio as a value from 0 to 1, where 0 is no pressure at all and 1 is max measurable.
         /// </summary>
         private float tabletPressureRatio;
+
+        /// <summary>
+        /// The previous pressure ratio so lerping the sensitivity can be done for nonzero brush density.
+        /// </summary>
+        private float tabletPressureRatioPrev;
+
+        /// <summary>
+        /// The tablet reading service is async to this plugin, so any time this plugin runs faster, it might read the
+        /// same packets multiple times. Tracking the serial number of the last packet ensures unique reads.
+        /// </summary>
+        private uint tabletLastPacketId;
 
         /// <summary>
         /// The folder used to store undo/redo images, and deleted on exit.
@@ -946,6 +964,8 @@ namespace DynamicDraw
                     {
                         listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
                     }
+
+                    listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
                 }
             }
             catch (Exception ex)
@@ -979,7 +999,11 @@ namespace DynamicDraw
         {
             base.OnKeyDown(e);
 
-            KeyShortcutManager.FireShortcuts(keyboardShortcuts, e.KeyCode, e.Control, e.Shift, e.Alt);
+            HashSet<ShortcutContext> contexts = new HashSet<ShortcutContext>();
+            if (displayCanvas.Focused) { contexts.Add(ShortcutContext.OnCanvas); }
+            else { contexts.Add(ShortcutContext.OnSidebar); }
+
+            KeyShortcutManager.FireShortcuts(keyboardShortcuts, e.KeyCode, e.Control, e.Shift, e.Alt, contexts);
 
             //Display a hand icon while panning.
             if (e.Control)
@@ -1205,15 +1229,16 @@ namespace DynamicDraw
                     tempDir = null;
                 }
 
-                //Disposes all form bitmaps.
                 bmpBrush?.Dispose();
+                bmpBrushDownsized?.Dispose();
                 bmpBrushEffects?.Dispose();
                 bmpCurrentDrawing?.Dispose();
                 bmpBackgroundClipboard?.Dispose();
 
-                //Disposes all cursors.
                 displayCanvas.Cursor = Cursors.Default;
                 cursorColorPicker?.Dispose();
+
+                tabletService?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -1233,6 +1258,26 @@ namespace DynamicDraw
             if (bmpBrushEffects == null)
             {
                 return;
+            }
+
+            // Updates undo stack on first brush stroke.
+            if (!isUserDrawing.canvasChanged)
+            {
+                isUserDrawing.canvasChanged = true;
+
+                //Adds to the list of undo operations.
+                string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
+
+                //Saves the drawing to the file and saves the file path.
+                bmpCurrentDrawing.Save(path);
+                undoHistory.Push(path);
+                if (!bttnUndo.Enabled)
+                {
+                    bttnUndo.Enabled = true;
+                }
+
+                //Removes all redo history.
+                redoHistory.Clear();
             }
 
             #region apply size jitter
@@ -2517,6 +2562,9 @@ namespace DynamicDraw
                 return;
             }
 
+            bmpBrush?.Dispose();
+            bmpBrushDownsized?.Dispose();
+            bmpBrushDownsized = null;
             bmpBrush = new Bitmap(Resources.BrCircle);
 
             if (loadedBrushImages.Count > 0)
@@ -3258,10 +3306,12 @@ namespace DynamicDraw
             // listviewBrushPicker
             // 
             this.listviewBrushPicker.HideSelection = false;
+            this.listviewBrushPicker.Columns.Add("_"); // name hidden and unimportant
+            this.listviewBrushPicker.HeaderStyle = ColumnHeaderStyle.None;
             resources.ApplyResources(this.listviewBrushPicker, "listviewBrushPicker");
             this.listviewBrushPicker.Name = "listviewBrushPicker";
             this.listviewBrushPicker.UseCompatibleStateImageBehavior = false;
-            this.listviewBrushPicker.View = System.Windows.Forms.View.List;
+            this.listviewBrushPicker.View = System.Windows.Forms.View.Details;
             this.listviewBrushPicker.SelectedIndexChanged += new EventHandler(this.ListViewBrushPicker_SelectedIndexChanged);
             this.listviewBrushPicker.MouseEnter += new EventHandler(this.ListviewBrushPicker_MouseEnter);
             // 
@@ -4064,6 +4114,7 @@ namespace DynamicDraw
             0,
             -2147483648});
             this.spinTabPressureBrushSize.Name = "spinTabPressureBrushSize";
+            this.spinTabPressureBrushSize.LostFocus += SpinTabPressureBrushSize_LostFocus;
             // 
             // cmbxTabPressureBrushSize
             // 
@@ -4077,6 +4128,7 @@ namespace DynamicDraw
             this.cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
             this.cmbxTabPressureBrushSize.ValueMember = "ValueMember";
             this.cmbxTabPressureBrushSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBrushSize.SelectedIndexChanged += CmbxTabPressureBrushSize_SelectedIndexChanged;
             // 
             // panelTabPressureBrushRotation
             // 
@@ -5104,7 +5156,7 @@ namespace DynamicDraw
                                         bmpBackgroundClipboard = new Bitmap(bmpCurrentDrawing.Width, bmpCurrentDrawing.Height, PixelFormat.Format32bppPArgb);
                                         using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
                                         {
-                                            graphics.Clear(Color.Transparent);
+                                            graphics.CompositingMode = CompositingMode.SourceCopy;
                                             graphics.DrawImage(clipboardImage, 0, 0, bmpBackgroundClipboard.Width, bmpBackgroundClipboard.Height);
                                         }
                                     }
@@ -5401,6 +5453,11 @@ namespace DynamicDraw
         /// </summary>
         private void UpdateBrushImage()
         {
+            if (bmpBrush == null)
+            {
+                return;
+            }
+
             int finalBrushAlpha = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushAlpha.Value,
                 (int)spinTabPressureBrushAlpha.Value,
                 sliderBrushAlpha.Maximum,
@@ -5413,10 +5470,31 @@ namespace DynamicDraw
                 ? 1 - (finalBrushAlpha / 255f)
                 : 1;
 
-            if (bmpBrush != null)
+            int maxPossibleSize = sliderRandMaxSize.Value
+                + Math.Max(sliderBrushSize.Value, Utils.GetStrengthMappedValue(sliderBrushSize.Value,
+                    (int)spinTabPressureBrushSize.Value, sliderBrushSize.Maximum, 1,
+                    ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember));
+
+            // Creates a downsized intermediate bmp for faster transformations and blitting. Brush assumed square.
+            if (bmpBrushDownsized != null && maxPossibleSize > bmpBrushDownsized.Width)
+            {
+                bmpBrushDownsized.Dispose();
+                bmpBrushDownsized = null;
+            }
+            if (maxPossibleSize < bmpBrush.Width && (bmpBrushDownsized == null || bmpBrushDownsized.Width != maxPossibleSize))
+            {
+                bmpBrushDownsized?.Dispose();
+                bmpBrushDownsized = Utils.ScaleImage(
+                    bmpBrush,
+                    new Size(maxPossibleSize, maxPossibleSize),
+                    false, false, null,
+                    (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex);
+            }
+
+            if (bmpBrushDownsized != null || bmpBrush != null)
             {
                 //Applies the color and alpha changes.
-                bmpBrushEffects = Utils.FormatImage(bmpBrush, PixelFormat.Format32bppPArgb);
+                bmpBrushEffects = Utils.FormatImage(bmpBrushDownsized ?? bmpBrush, PixelFormat.Format32bppPArgb);
 
                 // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
                 if (chkbxColorizeBrush.Checked)
@@ -5897,6 +5975,12 @@ namespace DynamicDraw
                 + Strings.ValueTypeMatchPercentTip);
         }
 
+        private void CmbxTabPressureBrushSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Included in brush size calculation in this function, so needs to be recalculated.
+            UpdateBrushImage();
+        }
+
         /// <summary>
         /// Sets up image panning and drawing to occur with mouse movement.
         /// </summary>
@@ -5952,28 +6036,12 @@ namespace DynamicDraw
                 //Draws with the brush.
                 if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
                 {
-                    isUserDrawing = true;
-
-                    //Repositions the canvas when the user draws out-of-bounds.
+                    isUserDrawing.started = true;
                     timerRepositionUpdate.Enabled = true;
-
-                    //Adds to the list of undo operations.
-                    string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
-
-                    //Saves the drawing to the file and saves the file path.
-                    bmpCurrentDrawing.Save(path);
-                    undoHistory.Push(path);
-                    if (!bttnUndo.Enabled)
-                    {
-                        bttnUndo.Enabled = true;
-                    }
-
-                    //Removes all redo history.
-                    redoHistory.Clear();
 
                     //Draws the brush on the first canvas click. Lines aren't drawn at a single point.
                     //Doesn't draw for tablets, since the user hasn't exerted full pressure yet.
-                    if (!chkbxOrientToMouse.Checked && tabletPressureRatio == 0)
+                    if (!chkbxOrientToMouse.Checked)
                     {
                         int finalBrushSize = Utils.GetStrengthMappedValue(sliderBrushSize.Value,
                             (int)spinTabPressureBrushSize.Value,
@@ -6059,7 +6127,7 @@ namespace DynamicDraw
                 canvas.y = locy;
             }
 
-            else if (isUserDrawing)
+            else if (isUserDrawing.started)
             {
                 finalMinDrawDistance = Utils.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
                         (int)spinTabPressureMinDrawDistance.Value,
@@ -6126,11 +6194,6 @@ namespace DynamicDraw
                             tabletPressureRatio,
                             ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
 
-                        if (finalBrushSize <= 0)
-                        {
-                            return;
-                        }
-
                         double deltaX = (mouseLoc.X - mouseLocPrev.X) / canvasZoom;
                         double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / canvasZoom;
                         double brushWidthFrac = finalBrushSize / (double)finalBrushDensity;
@@ -6142,6 +6205,16 @@ namespace DynamicDraw
 
                         for (int i = 1; i <= (int)numIntervals; i++)
                         {
+                            // lerp between the last and current tablet pressure for smoother lines
+                            if (tabletPressureRatioPrev != tabletPressureRatio && spinTabPressureBrushSize.Value != 0)
+                            {
+                                finalBrushSize = Utils.GetStrengthMappedValue(sliderBrushSize.Value,
+                                    (int)spinTabPressureBrushSize.Value,
+                                    sliderBrushSize.Maximum,
+                                    (float)(tabletPressureRatioPrev + i / numIntervals * (tabletPressureRatio - tabletPressureRatioPrev)),
+                                    ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
+                            }
+
                             DrawBrush(new PointF(
                                 (float)(mouseLocPrev.X / canvasZoom + xDist * brushWidthFrac * i),
                                 (float)(mouseLocPrev.Y / canvasZoom + yDist * brushWidthFrac * i)),
@@ -6155,6 +6228,8 @@ namespace DynamicDraw
                             (float)((e.Location.X - canvas.x) - xDist * extraDist * canvasZoom),
                             (float)((e.Location.Y - canvas.y) - yDist * extraDist * canvasZoom));
                         mouseLocPrev = mouseLoc;
+
+                        tabletPressureRatioPrev = tabletPressureRatio;
                     }
                 }
             }
@@ -6173,8 +6248,17 @@ namespace DynamicDraw
         /// </summary>
         private void DisplayCanvas_MouseUp(object sender, MouseEventArgs e)
         {
+            if (isUserDrawing.started && !isUserDrawing.canvasChanged)
+            {
+                DrawBrush(new PointF(
+                    mouseLocPrev.X / canvasZoom,
+                    mouseLocPrev.Y / canvasZoom),
+                    sliderBrushSize.Value); // (no tablet pressure, by definition, on mouse up)
+            }
+
             isUserPanning = false;
-            isUserDrawing = false;
+            isUserDrawing.started = false;
+            isUserDrawing.canvasChanged = false;
             timerRepositionUpdate.Enabled = false;
 
             //Lets the user click anywhere to draw again.
@@ -6316,7 +6400,7 @@ namespace DynamicDraw
             if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
             {
                 //Draws the brush as a rectangle when not drawing by mouse.
-                if (!isUserDrawing)
+                if (!isUserDrawing.started)
                 {
                     int radius = (int)(sliderBrushSize.Value * canvasZoom);
 
@@ -6381,21 +6465,42 @@ namespace DynamicDraw
 
                     // Draws a rectangle for each origin point, either relative to the symmetry origin (in
                     // SetSymmetryOrigin tool) or the mouse (with the Brush tool)
-                    if (!isUserDrawing)
+                    if (!isUserDrawing.started)
                     {
                         float pointsDrawnX, pointsDrawnY;
 
                         if (activeTool == Tool.SetSymmetryOrigin)
                         {
-                            pointsDrawnX = symmetryOrigin.X;
-                            pointsDrawnY = symmetryOrigin.Y;
+                            var transformedMouseLoc = TransformPoint(mouseLoc, true);
+                            Pen transparentRed = new Pen(Color.FromArgb(128, 128, 0, 0), 1);
+
+                            e.Graphics.DrawRectangle(
+                                transparentRed,
+                                symmetryOrigin.X - (sliderBrushSize.Value / 2f),
+                                symmetryOrigin.Y - (sliderBrushSize.Value / 2f),
+                                sliderBrushSize.Value,
+                                sliderBrushSize.Value);
+                            
+                            e.Graphics.DrawRectangle(
+                                Pens.Black,
+                                transformedMouseLoc.X - (sliderBrushSize.Value / 2f),
+                                transformedMouseLoc.Y - (sliderBrushSize.Value / 2f),
+                                sliderBrushSize.Value,
+                                sliderBrushSize.Value);
 
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
                                 e.Graphics.DrawRectangle(
+                                    transparentRed,
+                                    symmetryOrigin.X + symmetryOrigins[i].X - (sliderBrushSize.Value / 2f),
+                                    symmetryOrigin.Y + symmetryOrigins[i].Y - (sliderBrushSize.Value / 2f),
+                                    sliderBrushSize.Value,
+                                    sliderBrushSize.Value);
+
+                                e.Graphics.DrawRectangle(
                                     Pens.Red,
-                                    (float)(pointsDrawnX + symmetryOrigins[i].X - 1),
-                                    (float)(pointsDrawnY + symmetryOrigins[i].Y - 1),
+                                    (float)(symmetryOrigin.X + symmetryOrigins[i].X - 1),
+                                    (float)(symmetryOrigin.Y + symmetryOrigins[i].Y - 1),
                                     2, 2);
                             }
                         }
@@ -6536,6 +6641,7 @@ namespace DynamicDraw
         {
             settings.CustomBrushes.Remove(currentBrushPath);
             listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
+            listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
             settings.MarkSettingsChanged();
             currentBrushPath = null;
             bttnDeleteBrush.Enabled = false;
@@ -6621,7 +6727,8 @@ namespace DynamicDraw
 
             //Prevents an error that would occur if redo was pressed in the
             //middle of a drawing operation by aborting it.
-            isUserDrawing = false;
+            isUserDrawing.started = false;
+            isUserDrawing.canvasChanged = false;
 
             //Acquires the bitmap from the file and loads it if it exists.
             string fileAndPath = redoHistory.Pop();
@@ -6788,6 +6895,7 @@ namespace DynamicDraw
                 }
 
                 listviewBrushPicker.Items.Add(new ListViewItem(inputText) { Selected = true });
+                listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
                 currentBrushPath = inputText;
                 bttnDeleteBrush.Enabled = true;
             }
@@ -6856,7 +6964,8 @@ namespace DynamicDraw
 
             //Prevents an error that would occur if undo was pressed in the
             //middle of a drawing operation by aborting it.
-            isUserDrawing = false;
+            isUserDrawing.started = false;
+            isUserDrawing.canvasChanged = false;
 
             //Acquires the bitmap from the file and loads it if it exists.
             string fileAndPath = undoHistory.Pop();
@@ -7169,6 +7278,7 @@ namespace DynamicDraw
                     bmpBrush = Utils.FormatImage(
                         currentItem.Brush,
                         PixelFormat.Format32bppPArgb);
+                    bmpBrushDownsized = null;
 
                     UpdateBrushImage();
                 }
@@ -7294,6 +7404,7 @@ namespace DynamicDraw
                 sliderBrushSize.Value);
 
             //Updates to show changes in the brush indicator.
+            UpdateBrushImage();
             displayCanvas.Refresh();
         }
 
@@ -7621,10 +7732,24 @@ namespace DynamicDraw
                 sliderShiftSize.Value);
         }
 
+        private void SpinTabPressureBrushSize_LostFocus(object sender, EventArgs e)
+        {
+            // Included in brush size calculation in this function when on.
+            if (((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember
+                != CmbxTabletValueType.ValueHandlingMethod.DoNothing)
+            {
+                UpdateBrushImage();
+            }
+        }
+
         private void TabletUpdated(WintabDN.WintabPacket packet)
         {
             // Move cursor to stylus. This works since packets are only sent for touch or hover events.
             Cursor.Position = new Point(packet.pkX, packet.pkY);
+
+            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
+
+            tabletLastPacketId = packet.pkSerialNumber;
 
             // Gets the current pressure.
             int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
@@ -7663,7 +7788,7 @@ namespace DynamicDraw
             Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
 
             //Exits if the user isn't drawing out of the canvas boundary.
-            if (!isUserDrawing || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
+            if (!isUserDrawing.started || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
             {
                 return;
             }

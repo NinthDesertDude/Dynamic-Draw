@@ -8,7 +8,6 @@ namespace DynamicDraw.TabletSupport
     /// </summary>
     public class TabletService : IDisposable
     {
-        private static TabletService tabletService;
         private CWintabContext winTabContext;
         private CWintabData winTabData;
         private bool disposedValue;
@@ -21,12 +20,7 @@ namespace DynamicDraw.TabletSupport
         /// </summary>
         public static TabletService GetTabletService()
         {
-            if (tabletService == null)
-            {
-                tabletService = new TabletService();
-            }
-
-            return tabletService;
+            return new TabletService();
         }
 
         /// <summary>

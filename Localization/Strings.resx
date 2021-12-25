@@ -849,4 +849,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="ValAbbr" xml:space="preserve">
     <value>Val</value>
   </data>
+  <data name="BuiltInBrushRecolor" xml:space="preserve">
+    <value>Preset - Recolor</value>
+  </data>
 </root>

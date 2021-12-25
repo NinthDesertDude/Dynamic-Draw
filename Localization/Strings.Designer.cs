@@ -450,6 +450,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Preset - Recolor.
+        /// </summary>
+        internal static string BuiltInBrushRecolor {
+            get {
+                return ResourceManager.GetString("BuiltInBrushRecolor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string Cancel {
