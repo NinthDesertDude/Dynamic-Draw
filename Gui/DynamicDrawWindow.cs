@@ -54,6 +54,13 @@ namespace DynamicDraw
         private Bitmap bmpBrush;
 
         /// <summary>
+        /// Contains the current brush resized to be as small as the maximum possible brush size through randomization
+        /// and the current brush. If the max possible size is larger than the current brush image, this is the same as
+        /// bmpBrush.
+        /// </summary>
+        private Bitmap bmpBrushDownsized;
+
+        /// <summary>
         /// Contains the current brush with all modifications applied. This is
         /// overwritten by the original brush to apply new changes so changes
         /// are not cumulative. For example, applying 25% alpha repeatedly
@@ -190,7 +197,7 @@ namespace DynamicDraw
         private readonly TabletService tabletService;
 
         /// <summary>
-        /// The pressure ratio as a value from 0 to 1, where 0 is no pressure at all and 1 is max measurable. This is
+        /// The pressure ratio as a value from 0 to 1, where 0 is no pressure at all and 1 is max measurable.
         /// </summary>
         private float tabletPressureRatio;
 
@@ -1223,6 +1230,7 @@ namespace DynamicDraw
                 }
 
                 bmpBrush?.Dispose();
+                bmpBrushDownsized?.Dispose();
                 bmpBrushEffects?.Dispose();
                 bmpCurrentDrawing?.Dispose();
                 bmpBackgroundClipboard?.Dispose();
@@ -2554,6 +2562,9 @@ namespace DynamicDraw
                 return;
             }
 
+            bmpBrush?.Dispose();
+            bmpBrushDownsized?.Dispose();
+            bmpBrushDownsized = null;
             bmpBrush = new Bitmap(Resources.BrCircle);
 
             if (loadedBrushImages.Count > 0)
@@ -4103,6 +4114,7 @@ namespace DynamicDraw
             0,
             -2147483648});
             this.spinTabPressureBrushSize.Name = "spinTabPressureBrushSize";
+            this.spinTabPressureBrushSize.LostFocus += SpinTabPressureBrushSize_LostFocus;
             // 
             // cmbxTabPressureBrushSize
             // 
@@ -4116,6 +4128,7 @@ namespace DynamicDraw
             this.cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
             this.cmbxTabPressureBrushSize.ValueMember = "ValueMember";
             this.cmbxTabPressureBrushSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBrushSize.SelectedIndexChanged += CmbxTabPressureBrushSize_SelectedIndexChanged;
             // 
             // panelTabPressureBrushRotation
             // 
@@ -5143,7 +5156,7 @@ namespace DynamicDraw
                                         bmpBackgroundClipboard = new Bitmap(bmpCurrentDrawing.Width, bmpCurrentDrawing.Height, PixelFormat.Format32bppPArgb);
                                         using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
                                         {
-                                            graphics.Clear(Color.Transparent);
+                                            graphics.CompositingMode = CompositingMode.SourceCopy;
                                             graphics.DrawImage(clipboardImage, 0, 0, bmpBackgroundClipboard.Width, bmpBackgroundClipboard.Height);
                                         }
                                     }
@@ -5440,6 +5453,11 @@ namespace DynamicDraw
         /// </summary>
         private void UpdateBrushImage()
         {
+            if (bmpBrush == null)
+            {
+                return;
+            }
+
             int finalBrushAlpha = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushAlpha.Value,
                 (int)spinTabPressureBrushAlpha.Value,
                 sliderBrushAlpha.Maximum,
@@ -5452,10 +5470,31 @@ namespace DynamicDraw
                 ? 1 - (finalBrushAlpha / 255f)
                 : 1;
 
-            if (bmpBrush != null)
+            int maxPossibleSize = sliderRandMaxSize.Value
+                + Math.Max(sliderBrushSize.Value, Utils.GetStrengthMappedValue(sliderBrushSize.Value,
+                    (int)spinTabPressureBrushSize.Value, sliderBrushSize.Maximum, 1,
+                    ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember));
+
+            // Creates a downsized intermediate bmp for faster transformations and blitting. Brush assumed square.
+            if (bmpBrushDownsized != null && maxPossibleSize > bmpBrushDownsized.Width)
+            {
+                bmpBrushDownsized.Dispose();
+                bmpBrushDownsized = null;
+            }
+            if (maxPossibleSize < bmpBrush.Width && (bmpBrushDownsized == null || bmpBrushDownsized.Width != maxPossibleSize))
+            {
+                bmpBrushDownsized?.Dispose();
+                bmpBrushDownsized = Utils.ScaleImage(
+                    bmpBrush,
+                    new Size(maxPossibleSize, maxPossibleSize),
+                    false, false, null,
+                    (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex);
+            }
+
+            if (bmpBrushDownsized != null || bmpBrush != null)
             {
                 //Applies the color and alpha changes.
-                bmpBrushEffects = Utils.FormatImage(bmpBrush, PixelFormat.Format32bppPArgb);
+                bmpBrushEffects = Utils.FormatImage(bmpBrushDownsized ?? bmpBrush, PixelFormat.Format32bppPArgb);
 
                 // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
                 if (chkbxColorizeBrush.Checked)
@@ -5934,6 +5973,12 @@ namespace DynamicDraw
                 + Strings.ValueTypeAddPercentCurrentTip + "\n"
                 + Strings.ValueTypeMatchValueTip + "\n"
                 + Strings.ValueTypeMatchPercentTip);
+        }
+
+        private void CmbxTabPressureBrushSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Included in brush size calculation in this function, so needs to be recalculated.
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -7233,6 +7278,7 @@ namespace DynamicDraw
                     bmpBrush = Utils.FormatImage(
                         currentItem.Brush,
                         PixelFormat.Format32bppPArgb);
+                    bmpBrushDownsized = null;
 
                     UpdateBrushImage();
                 }
@@ -7358,6 +7404,7 @@ namespace DynamicDraw
                 sliderBrushSize.Value);
 
             //Updates to show changes in the brush indicator.
+            UpdateBrushImage();
             displayCanvas.Refresh();
         }
 
@@ -7683,6 +7730,16 @@ namespace DynamicDraw
             txtShiftSize.Text = String.Format("{0} {1}",
                 Strings.ShiftSize,
                 sliderShiftSize.Value);
+        }
+
+        private void SpinTabPressureBrushSize_LostFocus(object sender, EventArgs e)
+        {
+            // Included in brush size calculation in this function when on.
+            if (((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember
+                != CmbxTabletValueType.ValueHandlingMethod.DoNothing)
+            {
+                UpdateBrushImage();
+            }
         }
 
         private void TabletUpdated(WintabDN.WintabPacket packet)
