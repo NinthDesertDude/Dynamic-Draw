@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <OutputType>Library</OutputType>
     <StartupObject></StartupObject>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -23,6 +22,7 @@
     <Deterministic>false</Deterministic>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <OutputPath></OutputPath>
+    <Configurations>Debug;Release;FastDebug</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PaintDotNet.Base">
@@ -100,14 +100,23 @@
   </ItemGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NoWarn>1701;1702;CA1416;IDE0090;IDE0063</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='FastDebug|AnyCPU'">
+    <OutputType>WinExe</OutputType>
+    <DefineConstants>FASTDEBUG;DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <NoWarn>1701;1702;CA1416;IDE0090;IDE0063</NoWarn>
+  </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\DynamicDraw.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
+    <Exec Command="if $(ConfigurationName)==FastDebug exit 0&#xD;&#xA;&#xD;&#xA;mkdir -p &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\DynamicDraw.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
   </Target>
 </Project>
