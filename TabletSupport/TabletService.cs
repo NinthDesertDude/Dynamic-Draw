@@ -119,7 +119,13 @@ namespace DynamicDraw.TabletSupport
                     winTabData = null;
                 }
 
-                winTabContext?.Close();
+                // This sometimes throws an error even with a null check, in which case it's already closed/invalid.
+                try
+                {
+                    winTabContext?.Close();
+                }
+                catch { }
+
                 disposedValue = true;
             }
         }
