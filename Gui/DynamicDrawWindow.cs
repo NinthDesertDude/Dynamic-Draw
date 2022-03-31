@@ -1658,7 +1658,8 @@ namespace DynamicDraw
                     || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal
                     || chkbxLockAlpha.Checked
                     || chkbxSeamlessDrawing.Checked
-                    || !chkbxColorizeBrush.Checked;
+                    || !chkbxColorizeBrush.Checked
+                    || (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex == CmbxSmoothing.Smoothing.Jagged;
 
                 // Overwrite blend mode and uncolorized images don't use the recolor matrix.
                 if (activeTool != Tool.Eraser)
@@ -1680,7 +1681,9 @@ namespace DynamicDraw
                     rotation -= sliderCanvasAngle.Value;
                 }
 
-                Bitmap bmpBrushRot = Utils.RotateImage(bmpBrushEffects, rotation);
+                Bitmap bmpBrushRot = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged
+                    ? Utils.RotateImage(bmpBrushEffects, rotation, adjustedColor.A)
+                    : Utils.RotateImage(bmpBrushEffects, rotation);
 
                 //Rotating the brush increases image bounds, so brush space
                 //must increase to avoid making it visually shrink.

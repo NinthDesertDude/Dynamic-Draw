@@ -98,6 +98,48 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Edits alpha to be 0 or a set maximum for all pixels in the given image.
+        /// </summary>
+        /// <param name="img">
+        /// The affected image.
+        /// </param>
+        /// <param name="maxAlpha">
+        /// The maximum alpha (usually 255, but can be lower for when alpha is pre-applied to an image).
+        /// </param>
+        public static unsafe void AliasImage(Bitmap img, byte maxAlpha)
+        {
+            BitmapData bmpData = img.LockBits(
+                new Rectangle(0, 0,
+                    img.Width,
+                    img.Height),
+                ImageLockMode.ReadOnly,
+                img.PixelFormat);
+
+            byte* row = (byte*)bmpData.Scan0;
+            byte halfAlpha = (byte)(maxAlpha / 2);
+            ColorBgra pixel;
+
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    int ptr = y * bmpData.Stride + x * 4;
+
+                    ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
+                    unmultipliedPixel.A = (byte)(unmultipliedPixel.A >= halfAlpha ? maxAlpha : 0);
+                    pixel = unmultipliedPixel.ConvertToPremultipliedAlpha();
+
+                    row[ptr + 3] = pixel.A;
+                    row[ptr + 2] = pixel.R;
+                    row[ptr + 1] = pixel.G;
+                    row[ptr] = pixel.B;
+                }
+            }
+
+            img.UnlockBits(bmpData);
+        }
+
+        /// <summary>
         /// Returns an ImageAttributes object containing info to set the
         /// RGB channels and multiply alpha. All values should be decimals
         /// between 0 and 1, inclusive.
@@ -675,10 +717,14 @@ namespace DynamicDraw
         /// <param name="angle">
         /// The angle in degrees; positive or negative.
         /// </param>
-        public static Bitmap RotateImage(Bitmap origBmp, float angle)
+        /// <param name="maxAliasedAlpha">
+        /// If provided, aliasing will be manually performed by snapping all alpha values to 0 or the specified value,
+        /// based on whether they're more/less transparent than half the given max.
+        /// </param>
+        public static Bitmap RotateImage(Bitmap origBmp, float angle, byte? maxAliasedAlpha = null)
         {
             //Performs nothing if there is no need.
-            if (angle == 0)
+            if (angle == 0 && maxAliasedAlpha == null)
             {
                 return origBmp;
             }
@@ -722,8 +768,15 @@ namespace DynamicDraw
 
                 //Draws the image.
                 g.DrawImage(origBmp, 0, 0, origBmp.Width, origBmp.Height);
-                return newBmp;
             }
+
+            // Manual aliasing after transform, since there's no way to turn off rotation anti-aliasing in GDI+
+            if (maxAliasedAlpha != null)
+            {
+                AliasImage(newBmp, maxAliasedAlpha.Value);
+            }
+
+            return newBmp;
         }
 
         /// <summary>
