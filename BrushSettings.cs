@@ -601,7 +601,7 @@ namespace DynamicDraw
             SizeChange = 0;
             RotChange = 0;
             AlphaChange = 0;
-            Smoothing = CmbxSmoothing.Smoothing.Jagged;
+            Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
             CmbxTabPressureBrushAlpha = 0;
             CmbxTabPressureBrushDensity = 0;
