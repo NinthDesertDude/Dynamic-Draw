@@ -243,6 +243,8 @@ namespace DynamicDraw
         /// The starting index in the brush selector cache.
         /// </summary>
         private int visibleBrushImagesIndex;
+
+        private Surface srcSurface;
         #endregion
 
         #region Fields (Gui)
@@ -774,14 +776,21 @@ namespace DynamicDraw
         {
             base.OnLoad(e);
 
-            //Sets the sizes of the canvas and drawing region.
-            canvas.width = EnvironmentParameters.SourceSurface.Size.Width;
-            canvas.height = EnvironmentParameters.SourceSurface.Size.Height;
+#if FASTDEBUG
+            this.ShowInTaskbar = true;
+            srcSurface = new Surface(800, 600);
+#else
+            srcSurface = EnvironmentParameters.SourceSurface;
+#endif
 
-            bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
+            //Sets the sizes of the canvas and drawing region.
+            canvas.width = srcSurface.Width;
+            canvas.height = srcSurface.Height;
+
+            bmpCurrentDrawing = Utils.CreateBitmapFromSurface(srcSurface);
             symmetryOrigin = new PointF(
-                EnvironmentParameters.SourceSurface.Width / 2f,
-                EnvironmentParameters.SourceSurface.Height / 2f);
+                srcSurface.Width / 2f,
+                srcSurface.Height / 2f);
 
             //Sets the canvas dimensions.
             canvas.x = (displayCanvas.Width - canvas.width) / 2;
@@ -918,13 +927,16 @@ namespace DynamicDraw
 
             try
             {
+#if FASTDEBUG
+                string basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files");
+#else
                 IUserFilesService userFilesService =
                 (IUserFilesService)Services.GetService(typeof(IUserFilesService));
 
                 // userFilesService.UserFilesPath has been reported null before, so if it is, try to guess at the path.
                 string basePath = userFilesService.UserFilesPath ??
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files");
-
+#endif
                 string path = Path.Combine(basePath, "DynamicDrawSettings.xml");
                 settings = new DynamicDrawSettings(path);
 
@@ -1735,7 +1747,7 @@ namespace DynamicDraw
                                 if (activeTool == Tool.Eraser)
                                 {
                                     Utils.OverwriteMasked(
-                                        this.EnvironmentParameters.SourceSurface,
+                                        this.srcSurface,
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
                                         new Point(
@@ -1815,7 +1827,7 @@ namespace DynamicDraw
                                 if (activeTool == Tool.Eraser)
                                 {
                                     Utils.OverwriteMasked(
-                                        this.EnvironmentParameters.SourceSurface,
+                                        this.srcSurface,
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
                                         new Point(
@@ -1877,7 +1889,7 @@ namespace DynamicDraw
                                     if (activeTool == Tool.Eraser)
                                     {
                                         Utils.OverwriteMasked(
-                                            this.EnvironmentParameters.SourceSurface,
+                                            this.srcSurface,
                                             bmpCurrentDrawing,
                                             bmpBrushRotScaled,
                                             new Point(
@@ -1959,7 +1971,7 @@ namespace DynamicDraw
                                     if (activeTool == Tool.Eraser)
                                     {
                                         Utils.OverwriteMasked(
-                                        this.EnvironmentParameters.SourceSurface,
+                                        this.srcSurface,
                                         bmpCurrentDrawing,
                                         bmpBrushRotScaled,
                                         new Point(
@@ -5109,9 +5121,13 @@ namespace DynamicDraw
         /// </summary>
         private void DynamicDrawWindow_Load(object sender, EventArgs e)
         {
+#if FASTDEBUG
+            this.Size = new Size(1200, 900);
+#else
             this.DesktopLocation = Owner.PointToScreen(new Point(0, 30));
             this.Size = new Size(Owner.ClientSize.Width, Owner.ClientSize.Height - 30);
             this.WindowState = Owner.WindowState;
+#endif
         }
 
         /// <summary>
@@ -6277,8 +6293,8 @@ namespace DynamicDraw
             e.Graphics.SmoothingMode = SmoothingMode.None;
             e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
 
-            float drawingOffsetX = EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom;
-            float drawingOffsetY = EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom;
+            float drawingOffsetX = srcSurface.Width * 0.5f * canvasZoom;
+            float drawingOffsetY = srcSurface.Height * 0.5f * canvasZoom;
             
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
             e.Graphics.RotateTransform(sliderCanvasAngle.Value);
@@ -6317,8 +6333,8 @@ namespace DynamicDraw
                         visibleBounds,
                         lCutoffUnzoomed,
                         tCutoffUnzoomed,
-                        EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
-                        EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                        srcSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                        srcSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
                         GraphicsUnit.Pixel);
                 }
                 else
@@ -6349,8 +6365,8 @@ namespace DynamicDraw
                     visibleBounds,
                     lCutoffUnzoomed,
                     tCutoffUnzoomed,
-                    EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
-                    EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                    srcSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                    srcSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
                     GraphicsUnit.Pixel);
             }
             else
@@ -6359,7 +6375,11 @@ namespace DynamicDraw
             }
 
             //Draws the selection.
+#if FASTDEBUG
+            var selection = new PdnRegion(srcSurface.Bounds);
+#else
             var selection = EnvironmentParameters.GetSelectionAsPdnRegion();
+#endif
             long area = selection.GetArea64();
 
             if (selection?.GetRegionReadOnly() != null)
@@ -6367,12 +6387,12 @@ namespace DynamicDraw
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
                 {
-                    if (area != EnvironmentParameters.SourceSurface.Width * EnvironmentParameters.SourceSurface.Height)
+                    if (area != srcSurface.Width * srcSurface.Height)
                     {
                         selectionOutline = selection.ConstructOutline(
                             new RectangleF(0, 0,
-                            EnvironmentParameters.SourceSurface.Width,
-                            EnvironmentParameters.SourceSurface.Height),
+                            srcSurface.Width,
+                            srcSurface.Height),
                             canvasZoom);
                     }
                 }
@@ -6382,7 +6402,7 @@ namespace DynamicDraw
 
                 //Creates the inverted region of the selection.
                 var drawingArea = new Region(new Rectangle
-                    (0, 0, EnvironmentParameters.SourceSurface.Width, EnvironmentParameters.SourceSurface.Height));
+                    (0, 0, srcSurface.Width, srcSurface.Height));
                 drawingArea.Exclude(selection.GetRegionReadOnly());
 
                 //Draws the region as a darkening over unselected pixels.
@@ -6457,11 +6477,11 @@ namespace DynamicDraw
                         e.Graphics.DrawLine(
                             Pens.Red,
                             new PointF(0, symmetryOrigin.Y * canvasZoom),
-                            new PointF(EnvironmentParameters.SourceSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
+                            new PointF(srcSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                         e.Graphics.DrawLine(
                             Pens.Red,
                             new PointF(symmetryOrigin.X * canvasZoom, 0),
-                            new PointF(symmetryOrigin.X * canvasZoom, EnvironmentParameters.SourceSurface.Height * canvasZoom));
+                            new PointF(symmetryOrigin.X * canvasZoom, srcSurface.Height * canvasZoom));
                     }
 
                     e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
@@ -6509,8 +6529,8 @@ namespace DynamicDraw
                         }
                         else
                         {
-                            pointsDrawnX = (mouseLoc.X / canvasZoom - EnvironmentParameters.SourceSurface.Width / 2);
-                            pointsDrawnY = (mouseLoc.Y / canvasZoom - EnvironmentParameters.SourceSurface.Height / 2);
+                            pointsDrawnX = (mouseLoc.X / canvasZoom - srcSurface.Width / 2);
+                            pointsDrawnY = (mouseLoc.Y / canvasZoom - srcSurface.Height / 2);
 
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
@@ -6521,8 +6541,8 @@ namespace DynamicDraw
                                 angle -= sliderCanvasAngle.Value * Math.PI / 180;
                                 e.Graphics.DrawRectangle(
                                     Pens.Red,
-                                    (float)(EnvironmentParameters.SourceSurface.Width / 2 + dist * Math.Cos(angle) - 1),
-                                    (float)(EnvironmentParameters.SourceSurface.Height / 2 + dist * Math.Sin(angle) - 1),
+                                    (float)(srcSurface.Width / 2 + dist * Math.Cos(angle) - 1),
+                                    (float)(srcSurface.Height / 2 + dist * Math.Sin(angle) - 1),
                                     2, 2);
                             }
                         }
@@ -6533,11 +6553,11 @@ namespace DynamicDraw
                     e.Graphics.DrawLine(
                         Pens.Red,
                         new PointF(0, symmetryOrigin.Y * canvasZoom),
-                        new PointF(EnvironmentParameters.SourceSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
+                        new PointF(srcSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                     e.Graphics.DrawLine(
                         Pens.Red,
                         new PointF(symmetryOrigin.X * canvasZoom, 0),
-                        new PointF(symmetryOrigin.X * canvasZoom, EnvironmentParameters.SourceSurface.Height * canvasZoom));
+                        new PointF(symmetryOrigin.X * canvasZoom, srcSurface.Height * canvasZoom));
                 }
             }
 
