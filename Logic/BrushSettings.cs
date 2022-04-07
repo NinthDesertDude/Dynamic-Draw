@@ -165,6 +165,16 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Whether to draw in a checkerboard pattern (skipping every other pixel) or not.
+        /// </summary>
+        [DataMember(Name = "DoDitherDraw")]
+        public bool DoDitherDraw
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Whether to prevent brush strokes from changing alpha or not.
         /// </summary>
         [DataMember(Name = "DoLockAlpha")]
@@ -583,6 +593,7 @@ namespace DynamicDraw
             ColorInfluenceHue = true;
             ColorInfluenceSat = true;
             ColorInfluenceVal = false;
+            DoDitherDraw = false;
             DoLockAlpha = false;
             MinDrawDistance = 0;
             RandMaxR = 0;
@@ -675,6 +686,7 @@ namespace DynamicDraw
             ColorInfluenceHue = other.ColorInfluenceHue;
             ColorInfluenceSat = other.ColorInfluenceSat;
             ColorInfluenceVal = other.ColorInfluenceVal;
+            DoDitherDraw = other.DoDitherDraw;
             DoLockAlpha = other.DoLockAlpha;
             MinDrawDistance = other.MinDrawDistance;
             RandMaxR = other.RandMaxR;

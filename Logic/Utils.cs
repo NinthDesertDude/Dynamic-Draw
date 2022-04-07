@@ -298,7 +298,13 @@ namespace DynamicDraw
         /// <param name="dest">The bitmap to edit.</param>
         /// <param name="alphaMask">The brush used to draw.</param>
         /// <param name="location">The location to draw the brush at.</param>
-        public static unsafe void OverwriteMasked(Surface surface, Bitmap dest, Bitmap alphaMask, Point location)
+        public static unsafe void OverwriteMasked(
+            Surface surface,
+            Bitmap dest,
+            Bitmap alphaMask,
+            Point location,
+            bool wrapAround,
+            bool ditherFilter)
         {
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -322,7 +328,7 @@ namespace DynamicDraw
                 adjHeight);
 
             BitmapData destData = dest.LockBits(
-                adjBounds,
+                new Rectangle(0, 0, dest.Width, dest.Height),
                 ImageLockMode.ReadWrite,
                 dest.PixelFormat);
 
@@ -338,29 +344,75 @@ namespace DynamicDraw
             byte* srcRow = (byte*)surface.Scan0.Pointer;
             float alphaFactor;
 
-            for (int y = 0; y < adjHeight; y++)
+            void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
-                ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + negativeX * 4 + ((negativeY + y) * alphaMaskData.Stride));
-                ColorBgra* srcPtr = (ColorBgra*)(srcRow + adjBounds.X * 4 + ((adjBounds.Y + y) * surface.Stride));
-                ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
-
-                for (int x = 0; x < adjWidth; x++)
+                for (int y = 0; y < destHeight; y++)
                 {
-                    ColorBgra newColor = ColorBgra.Blend(
-                        destPtr->ConvertFromPremultipliedAlpha(),
-                        *srcPtr,
-                        alphaMaskPtr->A);
+                    int x = 0;
+                    ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + brushXOffset * 4 + ((brushYOffset + y) * alphaMaskData.Stride));
+                    ColorBgra* srcPtr = (ColorBgra*)(srcRow + destXOffset * 4 + ((y + destYOffset) * surface.Stride));
+                    ColorBgra* destPtr = (ColorBgra*)(destRow + destXOffset * 4 + ((y + destYOffset) * destData.Stride));
 
-                    alphaFactor = newColor.A / 255f;
-                    destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                    destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                    destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                    destPtr->A = newColor.A;
+                    // Dither align
+                    if (ditherFilter && ((destXOffset + y) % 2 != destYOffset % 2))
+                    {
+                        x++;
+                        alphaMaskPtr++;
+                        destPtr++;
+                        srcPtr++;
+                    }
 
-                    alphaMaskPtr++;
-                    destPtr++;
-                    srcPtr++;
+                    for (; x < destWidth; x++)
+                    {
+                        ColorBgra newColor = ColorBgra.Blend(
+                            destPtr->ConvertFromPremultipliedAlpha(),
+                            *srcPtr,
+                            alphaMaskPtr->A);
+
+                        alphaFactor = newColor.A / 255f;
+                        destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
+                        destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
+                        destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                        destPtr->A = newColor.A;
+
+                        if (!ditherFilter)
+                        {
+                            alphaMaskPtr++;
+                            destPtr++;
+                            srcPtr++;
+                        }
+                        else
+                        {
+                            x++;
+                            alphaMaskPtr += 2;
+                            destPtr += 2;
+                            srcPtr += 2;
+                        }
+                    }
                 }
+            }
+
+            // Draw within normal bounds
+            draw(negativeX, negativeY, adjBounds.X, adjBounds.Y, adjBounds.Width, adjBounds.Height);
+
+            // Draw brush cutoffs on the opposite side of the canvas (wrap-around / seamless texture)
+            if (wrapAround)
+            {
+                // The brush is only guaranteed seamless when none of its dimensions are larger than any of the canvas dimensions.
+                // The basic decision to clamp prevents having to copy excess chunks in loops -- it's just much simpler.
+                negativeX = Math.Clamp(negativeX, 0, dest.Width);
+                negativeY = Math.Clamp(negativeY, 0, dest.Height);
+                extraX = Math.Clamp(extraX, 0, Math.Min(alphaMask.Width, dest.Width));
+                extraY = Math.Clamp(extraY, 0, Math.Min(alphaMask.Height, dest.Height));
+
+                draw(0, negativeY, dest.Width - negativeX, adjBounds.Y, negativeX, adjBounds.Height); // left
+                draw(negativeX, 0, adjBounds.X, dest.Height - negativeY, adjBounds.Width, negativeY); // top
+                draw(alphaMask.Width - extraX, negativeY, 0, adjBounds.Y, extraX, adjBounds.Height); // right
+                draw(negativeX, alphaMask.Height - extraY, adjBounds.X, 0, adjBounds.Width, extraY); // bottom
+                draw(0, 0, dest.Width - negativeX, dest.Height - negativeY, negativeX, negativeY); // top left
+                draw(alphaMask.Width - extraX, 0, 0, dest.Height - negativeY, extraX, negativeY); // top right
+                draw(0, alphaMask.Height - extraY, dest.Width - negativeX, 0, negativeX, extraY); // bottom left
+                draw(alphaMask.Width - extraX, alphaMask.Height - extraY, 0, 0, extraX, extraY); // bottom right
             }
 
             dest.UnlockBits(destData);
@@ -390,7 +442,8 @@ namespace DynamicDraw
             (int Amount, bool H, bool S, bool V)? colorInfluence,
             BlendMode blendMode,
             bool lockAlpha,
-            bool wrapAround)
+            bool wrapAround,
+            bool ditherFilter)
         {
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -439,10 +492,19 @@ namespace DynamicDraw
             {
                 for (int y = 0; y < destHeight; y++)
                 {
+                    int x = 0;
                     ColorBgra* brushPtr = (ColorBgra*)(brushRow + brushXOffset * 4 + ((brushYOffset + y) * brushData.Stride));
                     ColorBgra* destPtr = (ColorBgra*)(destRow + destXOffset * 4 + ((y + destYOffset) * destData.Stride));
 
-                    for (int x = 0; x < destWidth; x++)
+                    // Dither align
+                    if (ditherFilter && ((destXOffset + y) % 2 != destYOffset % 2))
+                    {
+                        x++;
+                        brushPtr++;
+                        destPtr++;
+                    }
+
+                    for (; x < destWidth; x++)
                     {
                         // HSV shift the pixel according to the color influence when colorize brush is off.
                         if (colorInfluence != null)
@@ -515,8 +577,17 @@ namespace DynamicDraw
                             if (!lockAlpha) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
                         }
 
-                        brushPtr++;
-                        destPtr++;
+                        if (!ditherFilter)
+                        {
+                            brushPtr++;
+                            destPtr++;
+                        }
+                        else
+                        {
+                            x++;
+                            brushPtr += 2;
+                            destPtr += 2;
+                        }
                     }
                 }
             }

@@ -88,7 +88,8 @@ namespace DynamicDraw
                 { ShortcutTarget.ColorInfluence, new Setting(Localization.Strings.ShortcutColorInfluence, 0, 100) },
                 { ShortcutTarget.ColorInfluenceHue, new Setting(Localization.Strings.HueAbbr, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.ColorInfluenceSat, new Setting(Localization.Strings.SatAbbr, ShortcutTargetDataType.Bool) },
-                { ShortcutTarget.ColorInfluenceVal, new Setting(Localization.Strings.ValAbbr, ShortcutTargetDataType.Bool) }
+                { ShortcutTarget.ColorInfluenceVal, new Setting(Localization.Strings.ValAbbr, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DitherDraw, new Setting(Localization.Strings.DitherDraw, ShortcutTargetDataType.Bool) }
             };
         }
 

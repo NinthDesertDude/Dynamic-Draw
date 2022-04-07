@@ -286,6 +286,11 @@
         /// <summary>
         /// Whether mixing the active color with the brush should affect value when colorize brush is off.
         /// </summary>
-        ColorInfluenceVal = 73
+        ColorInfluenceVal = 73,
+
+        /// <summary>
+        /// Whether to draw in a checkerboard pattern, skipping every other pixel or not.
+        /// </summary>
+        DitherDraw = 74
     }
 }

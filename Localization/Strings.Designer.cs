@@ -958,6 +958,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Checkerboard Dithering.
+        /// </summary>
+        internal static string DitherDraw {
+            get {
+                return ResourceManager.GetString("DitherDraw", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only draw every other pixel, in a checkerboard pattern. Useful for pixel art..
+        /// </summary>
+        internal static string DitherDrawTip {
+            get {
+                return ResourceManager.GetString("DitherDrawTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hue.
         /// </summary>
         internal static string HueAbbr {
@@ -976,7 +994,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue..
+        ///   Looks up a localized string similar to While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue..
         /// </summary>
         internal static string JitterBlueTip {
             get {
@@ -994,7 +1012,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green..
+        ///   Looks up a localized string similar to While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green..
         /// </summary>
         internal static string JitterGreenTip {
             get {
@@ -1012,7 +1030,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush&apos;s hue will randomly shift based on the provided amounts..
+        ///   Looks up a localized string similar to While drawing, the hue will randomly shift based on the provided amounts..
         /// </summary>
         internal static string JitterHueTip {
             get {
@@ -1030,7 +1048,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red..
+        ///   Looks up a localized string similar to While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red..
         /// </summary>
         internal static string JitterRedTip {
             get {
@@ -1048,7 +1066,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush&apos;s grayness will randomly shift based on the provided amounts..
+        ///   Looks up a localized string similar to While drawing, the grayness will randomly shift based on the provided amounts..
         /// </summary>
         internal static string JitterSaturationTip {
             get {
@@ -1066,7 +1084,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift based on the provided amounts..
+        ///   Looks up a localized string similar to While drawing, the brightness will randomly shift based on the provided amounts..
         /// </summary>
         internal static string JitterValueTip {
             get {

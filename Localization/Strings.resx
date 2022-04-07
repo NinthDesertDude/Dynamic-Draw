@@ -222,37 +222,37 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Blue Jitter:</value>
   </data>
   <data name="JitterBlueTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue.</value>
+    <value>While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue.</value>
   </data>
   <data name="JitterGreen" xml:space="preserve">
     <value>Green Jitter:</value>
   </data>
   <data name="JitterGreenTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green.</value>
+    <value>While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green.</value>
   </data>
   <data name="JitterHue" xml:space="preserve">
     <value>Hue Jitter:</value>
   </data>
   <data name="JitterHueTip" xml:space="preserve">
-    <value>While drawing, the brush's hue will randomly shift based on the provided amounts.</value>
+    <value>While drawing, the hue will randomly shift based on the provided amounts.</value>
   </data>
   <data name="JitterRed" xml:space="preserve">
     <value>Red Jitter:</value>
   </data>
   <data name="JitterRedTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red.</value>
+    <value>While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red.</value>
   </data>
   <data name="JitterSaturation" xml:space="preserve">
     <value>Sat. Jitter:</value>
   </data>
   <data name="JitterSaturationTip" xml:space="preserve">
-    <value>While drawing, the brush's grayness will randomly shift based on the provided amounts.</value>
+    <value>While drawing, the grayness will randomly shift based on the provided amounts.</value>
   </data>
   <data name="JitterValue" xml:space="preserve">
     <value>Value Jitter:</value>
   </data>
   <data name="JitterValueTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift based on the provided amounts.</value>
+    <value>While drawing, the brightness will randomly shift based on the provided amounts.</value>
   </data>
   <data name="LoadDefaultBrushes" xml:space="preserve">
     <value>Load Default Brush Images?</value>
@@ -854,5 +854,11 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="DefaultBrushSquare" xml:space="preserve">
     <value>Square</value>
+  </data>
+  <data name="DitherDraw" xml:space="preserve">
+    <value>Checkerboard Dithering</value>
+  </data>
+  <data name="DitherDrawTip" xml:space="preserve">
+    <value>Only draw every other pixel, in a checkerboard pattern. Useful for pixel art.</value>
   </data>
 </root>

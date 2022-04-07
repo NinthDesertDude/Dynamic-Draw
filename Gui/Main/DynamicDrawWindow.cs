@@ -320,6 +320,7 @@ namespace DynamicDraw
         private ComboBox cmbxBrushSmoothing;
         private CheckBox chkbxOrientToMouse;
         private CheckBox chkbxSeamlessDrawing;
+        private CheckBox chkbxDitherDraw;
         private CheckBox chkbxLockAlpha;
         private Accordion bttnJitterBasicsControls;
         private FlowLayoutPanel panelJitterBasics;
@@ -666,14 +667,9 @@ namespace DynamicDraw
                 keyboardShortcuts.Add(shortcut);
             }
 
-            // BrushColor is always saved opaque except first run, where it's taken from user color. If it's not
-            // opaque, use the user-provided alpha.
-            if (token.CurrentBrushSettings.BrushColor.A != 255)
-            {
-                token.CurrentBrushSettings.BrushAlpha = 255 - token.CurrentBrushSettings.BrushColor.A;
-            }
-
             // Updates brush settings and the current image.
+            token.CurrentBrushSettings.BrushAlpha = 255 - UserSettings.userPrimaryColor.A;
+            token.CurrentBrushSettings.BrushColor = UserSettings.userPrimaryColor;
             UpdateBrush(token.CurrentBrushSettings);
             UpdateBrushImage();
         }
@@ -693,8 +689,7 @@ namespace DynamicDraw
             token.CustomBrushLocations = loadedBrushImagePaths;
             token.CurrentBrushSettings.AlphaChange = sliderShiftAlpha.Value;
             token.CurrentBrushSettings.BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex;
-            token.CurrentBrushSettings.BrushAlpha = sliderBrushAlpha.Value;
-            token.CurrentBrushSettings.BrushColor = bttnBrushColor.BackColor;
+            // Skipping BrushAlpha and BrushColor since they'll be overridden anyway
             token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
             token.CurrentBrushSettings.AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked;
             token.CurrentBrushSettings.BrushImagePath = index >= 0
@@ -707,6 +702,7 @@ namespace DynamicDraw
             token.CurrentBrushSettings.ColorInfluenceSat = chkbxColorInfluenceSat.Checked;
             token.CurrentBrushSettings.ColorInfluenceVal = chkbxColorInfluenceVal.Checked;
             token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
+            token.CurrentBrushSettings.DoDitherDraw = chkbxDitherDraw.Checked;
             token.CurrentBrushSettings.DoLockAlpha = chkbxLockAlpha.Checked;
             token.CurrentBrushSettings.SeamlessDrawing = chkbxSeamlessDrawing.Checked;
             token.CurrentBrushSettings.DoRotateWithMouse = chkbxOrientToMouse.Checked;
@@ -896,6 +892,7 @@ namespace DynamicDraw
             chkbxColorInfluenceSat.Text = Strings.SatAbbr;
             chkbxColorInfluenceVal.Text = Strings.ValAbbr;
             chkbxLockAlpha.Text = Strings.LockAlpha;
+            chkbxDitherDraw.Text = Strings.DitherDraw;
             chkbxSeamlessDrawing.Text = Strings.SeamlessDrawing;
             chkbxOrientToMouse.Text = Strings.OrientToMouse;
             chkbxAutomaticBrushDensity.Text = Strings.AutomaticBrushDensity;
@@ -1668,8 +1665,9 @@ namespace DynamicDraw
                 // Lockbits is needed for blend modes, channel locks, and seamless drawing.
                 bool useLockbitsDrawing = activeTool == Tool.Eraser
                     || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal
-                    || chkbxLockAlpha.Checked
                     || chkbxSeamlessDrawing.Checked
+                    || chkbxLockAlpha.Checked
+                    || chkbxDitherDraw.Checked
                     || !chkbxColorizeBrush.Checked
                     || (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex == CmbxSmoothing.Smoothing.Jagged;
 
@@ -1759,7 +1757,9 @@ namespace DynamicDraw
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
-                                            (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))));
+                                            (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
                                 }
                                 else
                                 {
@@ -1775,7 +1775,8 @@ namespace DynamicDraw
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
                                         chkbxLockAlpha.Checked,
-                                        chkbxSeamlessDrawing.Checked);
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
                                 }
                             }
                         }
@@ -1839,8 +1840,9 @@ namespace DynamicDraw
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
-                                            (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))));
-
+                                            (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
                                 }
                                 else
                                 {
@@ -1856,7 +1858,8 @@ namespace DynamicDraw
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
                                         chkbxLockAlpha.Checked,
-                                        chkbxSeamlessDrawing.Checked);
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
                                 }
                             }
                         }
@@ -1901,7 +1904,9 @@ namespace DynamicDraw
                                             bmpBrushRotScaled,
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
-                                                (int)Math.Round(transformedPoint.Y - halfScaleFactor)));
+                                                (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
                                     }
                                     else
                                     {
@@ -1917,7 +1922,8 @@ namespace DynamicDraw
                                                 chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
                                             chkbxLockAlpha.Checked,
-                                            chkbxSeamlessDrawing.Checked);
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked);
                                     }
                                 }
                             }
@@ -1983,7 +1989,9 @@ namespace DynamicDraw
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))));
+                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
                                     }
                                     else
                                     {
@@ -1999,7 +2007,8 @@ namespace DynamicDraw
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
                                         chkbxLockAlpha.Checked,
-                                        chkbxSeamlessDrawing.Checked);
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
                                     }
 
                                     angle += angleIncrease;
@@ -2259,6 +2268,9 @@ namespace DynamicDraw
                     break;
                 case ShortcutTarget.ColorInfluenceVal:
                     chkbxColorInfluenceVal.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceVal.Checked);
+                    break;
+                case ShortcutTarget.DitherDraw:
+                    chkbxDitherDraw.Checked = shortcut.GetDataAsBool(chkbxDitherDraw.Checked);
                     break;
                 case ShortcutTarget.JitterBlueMax:
                     sliderJitterMaxBlue.Value =
@@ -2845,6 +2857,7 @@ namespace DynamicDraw
             this.cmbxBrushSmoothing = new ComboBox();
             this.chkbxSeamlessDrawing = new CheckBox();
             this.chkbxOrientToMouse = new CheckBox();
+            this.chkbxDitherDraw = new CheckBox();
             this.chkbxLockAlpha = new CheckBox();
             this.bttnJitterBasicsControls = new Accordion();
             this.panelJitterBasics = new FlowLayoutPanel();
@@ -3545,6 +3558,7 @@ namespace DynamicDraw
             this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
             this.panelSpecialSettings.Controls.Add(this.chkbxSeamlessDrawing);
             this.panelSpecialSettings.Controls.Add(this.chkbxOrientToMouse);
+            this.panelSpecialSettings.Controls.Add(this.chkbxDitherDraw);
             this.panelSpecialSettings.Controls.Add(this.chkbxLockAlpha);
             this.panelSpecialSettings.Name = "panelSpecialSettings";
             // 
@@ -3627,6 +3641,13 @@ namespace DynamicDraw
             this.chkbxOrientToMouse.Name = "chkbxOrientToMouse";
             this.chkbxOrientToMouse.UseVisualStyleBackColor = true;
             this.chkbxOrientToMouse.MouseEnter += new EventHandler(this.ChkbxOrientToMouse_MouseEnter);
+            // 
+            // chkbxDitherDraw
+            // 
+            resources.ApplyResources(this.chkbxDitherDraw, "chkbxDitherDraw");
+            this.chkbxDitherDraw.Name = "chkbxDitherDraw";
+            this.chkbxDitherDraw.UseVisualStyleBackColor = true;
+            this.chkbxDitherDraw.MouseEnter += new EventHandler(this.ChkbxDitherDraw_MouseEnter);
             // 
             // chkbxLockAlpha
             // 
@@ -5377,6 +5398,7 @@ namespace DynamicDraw
             chkbxColorInfluenceHue.Checked = settings.ColorInfluenceHue;
             chkbxColorInfluenceSat.Checked = settings.ColorInfluenceSat;
             chkbxColorInfluenceVal.Checked = settings.ColorInfluenceVal;
+            chkbxDitherDraw.Checked = settings.DoDitherDraw;
             chkbxLockAlpha.Checked = settings.DoLockAlpha;
             sliderMinDrawDistance.Value = settings.MinDrawDistance;
             sliderJitterMaxRed.Value = settings.RandMaxR;
@@ -5997,24 +6019,6 @@ namespace DynamicDraw
             }
         }
 
-        private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
-        {
-            UpdateTooltip(
-                Strings.ValueInfluenceTip + "\n\n"
-                + Strings.ValueTypeNothingTip + "\n"
-                + Strings.ValueTypeAddTip + "\n"
-                + Strings.ValueTypeAddPercentTip + "\n"
-                + Strings.ValueTypeAddPercentCurrentTip + "\n"
-                + Strings.ValueTypeMatchValueTip + "\n"
-                + Strings.ValueTypeMatchPercentTip);
-        }
-
-        private void CmbxTabPressureBrushSize_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Included in brush size calculation in this function, so needs to be recalculated.
-            UpdateBrushImage();
-        }
-
         /// <summary>
         /// Sets up image panning and drawing to occur with mouse movement.
         /// </summary>
@@ -6450,9 +6454,9 @@ namespace DynamicDraw
                         ? (int)(mouseLoc.Y / canvasZoom) * canvasZoom + canvas.y
                         : (int)(mouseLoc.Y / canvasZoom - halfSize + halfPixelOffset) * canvasZoom + canvas.y;
 
-                    e.Graphics.TranslateTransform(x + radius/2f, y + radius/2f);
+                    e.Graphics.TranslateTransform(x + radius / 2f, y + radius / 2f);
                     e.Graphics.RotateTransform(sliderBrushRotation.Value);
-                    e.Graphics.TranslateTransform(-radius/2f, -radius/2f);
+                    e.Graphics.TranslateTransform(-radius / 2f, -radius / 2f);
 
                     e.Graphics.DrawRectangle(Pens.Black, 0, 0, radius, radius);
                     e.Graphics.DrawRectangle(Pens.White, -1, -1, radius + 2, radius + 2);
@@ -6580,6 +6584,166 @@ namespace DynamicDraw
             }
 
             e.Graphics.ResetTransform();
+        }
+
+        /// <summary>
+        /// Trackbars and comboboxes (among others) handle the mouse wheel event, which makes it hard to scroll across
+        /// the controls in the right-side pane. Since these controls are more traditionally used with left-clicking,
+        /// being able to scroll the window with the mouse wheel is more important. This prevents handling.
+        /// </summary>
+        private void IgnoreMouseWheelEvent(object sender, MouseEventArgs e)
+        {
+            var scroll = panelDockSettingsContainer.VerticalScroll;
+            var mouseEvent = (HandledMouseEventArgs)e;
+            mouseEvent.Handled = true;
+
+            // Stopping the mouse wheel event prevents scrolling the parent container too. This does it manually.
+            scroll.Value = Utils.Clamp(scroll.Value - mouseEvent.Delta, scroll.Minimum, scroll.Maximum);
+            panelDockSettingsContainer.PerformLayout(); // visually update scrollbar since it won't always.
+        }
+
+        /// <summary>
+        /// Called by the tablet drawing service. Reads the packet for x/y and pressure info.
+        /// </summary>
+        /// <param name="packet"></param>
+        private void TabletUpdated(WintabDN.WintabPacket packet)
+        {
+            // Move cursor to stylus. This works since packets are only sent for touch or hover events.
+            Cursor.Position = new Point(packet.pkX, packet.pkY);
+
+            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
+
+            tabletLastPacketId = packet.pkSerialNumber;
+
+            // Gets the current pressure.
+            int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
+            float newPressureRatio = (packet.pkNormalPressure == 0) ? 0 : (float)packet.pkNormalPressure / maxPressure;
+            float deadzone = 0.01f; // Represents the 0 to 1% range of pressure.
+
+            // Simulates the left mouse based on pressure. It must be simulated to avoid special handling for each
+            // button since winforms doesn't support touch events.
+            if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
+            {
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftDown);
+            }
+            else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
+            {
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftUp);
+            }
+
+            // Updates the pressure.
+            tabletPressureRatio = newPressureRatio;
+        }
+
+        /// <summary>
+        /// While drawing, moves the canvas automatically when trying to draw
+        /// past the visible bounds.
+        /// </summary>
+        private void RepositionUpdate_Tick(object sender, EventArgs e)
+        {
+            if (displayCanvas.IsDisposed)
+            {
+                return;
+            }
+
+            // Converts the mouse coordinates on the screen relative to the
+            // canvas such that the top-left corner is (0, 0) up to its
+            // width and height.
+            Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
+
+            //Exits if the user isn't drawing out of the canvas boundary.
+            if (!isUserDrawing.started || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
+            {
+                return;
+            }
+
+            //Amount of space between the display canvas and background.
+            Rectangle range = GetRange();
+
+            //The amount to move the canvas while drawing.
+            int nudge = (int)(canvasZoom * 10);
+            int canvasNewPosX, canvasNewPosY;
+
+            //Nudges the screen horizontally when out of bounds and out of
+            //the drawing region.
+            if (canvas.width >=
+                displayCanvas.ClientRectangle.Width)
+            {
+                if (mouseLocOnBG.X > displayCanvas.ClientRectangle.Width)
+                {
+                    canvasNewPosX = -nudge;
+                }
+                else if (mouseLocOnBG.X < 0)
+                {
+                    canvasNewPosX = nudge;
+                }
+                else
+                {
+                    canvasNewPosX = 0;
+                }
+            }
+            else
+            {
+                canvasNewPosX = 0;
+            }
+
+            //Adds the left corner position to make it relative.
+            if (range.Width != 0)
+            {
+                canvasNewPosX += canvas.x;
+            }
+
+            //Nudges the screen vertically when out of bounds and out of
+            //the drawing region.
+            if (canvas.height >=
+                displayCanvas.ClientRectangle.Height)
+            {
+                if (mouseLocOnBG.Y > displayCanvas.ClientRectangle.Height)
+                {
+                    canvasNewPosY = -nudge;
+                }
+                else if (mouseLocOnBG.Y < 0)
+                {
+                    canvasNewPosY = nudge;
+                }
+                else
+                {
+                    canvasNewPosY = 0;
+                }
+            }
+            else
+            {
+                canvasNewPosY = 0;
+            }
+
+            //Adds the top corner position to make it relative.
+            if (range.Height != 0)
+            {
+                canvasNewPosY += canvas.y;
+            }
+
+            //Clamps all location values.
+            if (canvasNewPosX <= range.Left) { canvasNewPosX = range.Left; }
+            if (canvasNewPosX >= range.Right) { canvasNewPosX = range.Right; }
+            if (canvasNewPosY <= range.Top) { canvasNewPosY = range.Top; }
+            if (canvasNewPosY >= range.Bottom) { canvasNewPosY = range.Bottom; }
+
+            //Updates with the new location and redraws the screen.
+            canvas.x = canvasNewPosX;
+            canvas.y = canvasNewPosY;
+            displayCanvas.Refresh();
+        }
+        #endregion
+
+        #region Methods (button event handlers)
+        private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.AutomaticBrushDensityTip);
+        }
+
+        private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e)
+        {
+            sliderBrushDensity.Enabled = !chkbxAutomaticBrushDensity.Checked;
         }
 
         /// <summary>
@@ -6855,6 +7019,7 @@ namespace DynamicDraw
                     ColorInfluenceHue = chkbxColorInfluenceHue.Checked,
                     ColorInfluenceSat = chkbxColorInfluenceSat.Checked,
                     ColorInfluenceVal = chkbxColorInfluenceVal.Checked,
+                    DoDitherDraw = chkbxDitherDraw.Checked,
                     DoLockAlpha = chkbxLockAlpha.Checked,
                     SeamlessDrawing = chkbxSeamlessDrawing.Checked,
                     DoRotateWithMouse = chkbxOrientToMouse.Checked,
@@ -7048,16 +7213,6 @@ namespace DynamicDraw
             UpdateTooltip(Strings.UndoTip);
         }
 
-        private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.AutomaticBrushDensityTip);
-        }
-
-        private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e)
-        {
-            sliderBrushDensity.Enabled = !chkbxAutomaticBrushDensity.Checked;
-        }
-
         /// <summary>
         /// Resets the brush to reconfigure colorization. Colorization is
         /// applied when the brush is refreshed.
@@ -7071,25 +7226,6 @@ namespace DynamicDraw
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.ColorizeBrushTip);
-        }
-
-        /// <summary>
-        /// Resets the brush to reconfigure colorization. Colorization is
-        /// applied when the brush is refreshed.
-        /// </summary>
-        private void SliderColorInfluence_ValueChanged(object sender, EventArgs e)
-        {
-            txtColorInfluence.Text = String.Format("{0} {1}%",
-                Strings.ColorInfluence,
-                sliderColorInfluence.Value);
-
-            UpdateEnabledControls();
-            UpdateBrushImage();
-        }
-
-        private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.ColorInfluenceTip);
         }
 
         private void ChkbxColorInfluenceHue_MouseEnter(object sender, EventArgs e)
@@ -7107,14 +7243,14 @@ namespace DynamicDraw
             UpdateTooltip(Strings.ColorInfluenceVTip);
         }
 
+        private void ChkbxDitherDraw_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.DitherDrawTip);
+        }
+
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.LockAlphaTip);
-        }
-
-        private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.SeamlessDrawingTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
@@ -7122,20 +7258,27 @@ namespace DynamicDraw
             UpdateTooltip(Strings.OrientToMouseTip);
         }
 
-        /// <summary>
-        /// Trackbars and comboboxes (among others) handle the mouse wheel event, which makes it hard to scroll across
-        /// the controls in the right-side pane. Since these controls are more traditionally used with left-clicking,
-        /// being able to scroll the window with the mouse wheel is more important. This prevents handling.
-        /// </summary>
-        private void IgnoreMouseWheelEvent(object sender, MouseEventArgs e)
+        private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
         {
-            var scroll = panelDockSettingsContainer.VerticalScroll;
-            var mouseEvent = (HandledMouseEventArgs)e;
-            mouseEvent.Handled = true;
+            UpdateTooltip(Strings.SeamlessDrawingTip);
+        }
 
-            // Stopping the mouse wheel event prevents scrolling the parent container too. This does it manually.
-            scroll.Value = Utils.Clamp(scroll.Value - mouseEvent.Delta, scroll.Minimum, scroll.Maximum);
-            panelDockSettingsContainer.PerformLayout(); // visually update scrollbar since it won't always.
+        private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
+        {
+            UpdateTooltip(
+                Strings.ValueInfluenceTip + "\n\n"
+                + Strings.ValueTypeNothingTip + "\n"
+                + Strings.ValueTypeAddTip + "\n"
+                + Strings.ValueTypeAddPercentTip + "\n"
+                + Strings.ValueTypeAddPercentCurrentTip + "\n"
+                + Strings.ValueTypeMatchValueTip + "\n"
+                + Strings.ValueTypeMatchPercentTip);
+        }
+
+        private void CmbxTabPressureBrushSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Included in brush size calculation in this function, so needs to be recalculated.
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -7493,6 +7636,25 @@ namespace DynamicDraw
             displayCanvas.Refresh();
         }
 
+        /// <summary>
+        /// Resets the brush to reconfigure colorization. Colorization is
+        /// applied when the brush is refreshed.
+        /// </summary>
+        private void SliderColorInfluence_ValueChanged(object sender, EventArgs e)
+        {
+            txtColorInfluence.Text = String.Format("{0} {1}%",
+                Strings.ColorInfluence,
+                sliderColorInfluence.Value);
+
+            UpdateEnabledControls();
+            UpdateBrushImage();
+        }
+
+        private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ColorInfluenceTip);
+        }
+
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.MinDrawDistanceTip);
@@ -7789,134 +7951,6 @@ namespace DynamicDraw
             {
                 UpdateBrushImage();
             }
-        }
-
-        private void TabletUpdated(WintabDN.WintabPacket packet)
-        {
-            // Move cursor to stylus. This works since packets are only sent for touch or hover events.
-            Cursor.Position = new Point(packet.pkX, packet.pkY);
-
-            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
-
-            tabletLastPacketId = packet.pkSerialNumber;
-
-            // Gets the current pressure.
-            int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
-            float newPressureRatio = (packet.pkNormalPressure == 0) ? 0 : (float)packet.pkNormalPressure / maxPressure;
-            float deadzone = 0.01f; // Represents the 0 to 1% range of pressure.
-
-            // Simulates the left mouse based on pressure. It must be simulated to avoid special handling for each
-            // button since winforms doesn't support touch events.
-            if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
-            {
-                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftDown);
-            }
-            else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
-            {
-                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftUp);
-            }
-
-            // Updates the pressure.
-            tabletPressureRatio = newPressureRatio;
-        }
-
-        /// <summary>
-        /// While drawing, moves the canvas automatically when trying to draw
-        /// past the visible bounds.
-        /// </summary>
-        private void RepositionUpdate_Tick(object sender, EventArgs e)
-        {
-            if (displayCanvas.IsDisposed)
-            {
-                return;
-            }
-
-            // Converts the mouse coordinates on the screen relative to the
-            // canvas such that the top-left corner is (0, 0) up to its
-            // width and height.
-            Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
-
-            //Exits if the user isn't drawing out of the canvas boundary.
-            if (!isUserDrawing.started || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
-            {
-                return;
-            }
-
-            //Amount of space between the display canvas and background.
-            Rectangle range = GetRange();
-
-            //The amount to move the canvas while drawing.
-            int nudge = (int)(canvasZoom * 10);
-            int canvasNewPosX, canvasNewPosY;
-
-            //Nudges the screen horizontally when out of bounds and out of
-            //the drawing region.
-            if (canvas.width >=
-                displayCanvas.ClientRectangle.Width)
-            {
-                if (mouseLocOnBG.X > displayCanvas.ClientRectangle.Width)
-                {
-                    canvasNewPosX = -nudge;
-                }
-                else if (mouseLocOnBG.X < 0)
-                {
-                    canvasNewPosX = nudge;
-                }
-                else
-                {
-                    canvasNewPosX = 0;
-                }
-            }
-            else
-            {
-                canvasNewPosX = 0;
-            }
-
-            //Adds the left corner position to make it relative.
-            if (range.Width != 0)
-            {
-                canvasNewPosX += canvas.x;
-            }
-
-            //Nudges the screen vertically when out of bounds and out of
-            //the drawing region.
-            if (canvas.height >=
-                displayCanvas.ClientRectangle.Height)
-            {
-                if (mouseLocOnBG.Y > displayCanvas.ClientRectangle.Height)
-                {
-                    canvasNewPosY = -nudge;
-                }
-                else if (mouseLocOnBG.Y < 0)
-                {
-                    canvasNewPosY = nudge;
-                }
-                else
-                {
-                    canvasNewPosY = 0;
-                }
-            }
-            else
-            {
-                canvasNewPosY = 0;
-            }
-
-            //Adds the top corner position to make it relative.
-            if (range.Height != 0)
-            {
-                canvasNewPosY += canvas.y;
-            }
-
-            //Clamps all location values.
-            if (canvasNewPosX <= range.Left) { canvasNewPosX = range.Left; }
-            if (canvasNewPosX >= range.Right) { canvasNewPosX = range.Right; }
-            if (canvasNewPosY <= range.Top) { canvasNewPosY = range.Top; }
-            if (canvasNewPosY >= range.Bottom) { canvasNewPosY = range.Bottom; }
-
-            //Updates with the new location and redraws the screen.
-            canvas.x = canvasNewPosX;
-            canvas.y = canvasNewPosY;
-            displayCanvas.Refresh();
         }
         #endregion
     }
