@@ -931,6 +931,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Square.
+        /// </summary>
+        internal static string DefaultBrushSquare {
+            get {
+                return ResourceManager.GetString("DefaultBrushSquare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete Brush.
         /// </summary>
         internal static string DeleteBrush {

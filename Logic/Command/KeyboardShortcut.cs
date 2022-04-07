@@ -223,7 +223,7 @@ namespace DynamicDraw.Logic
             if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Integer &&
                 Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Float)
             {
-                throw new Exception("Was expecting setting to a numeric data type.");
+                throw new Exception("Was expecting setting to be a numeric data type.");
             }
 
             float value = float.Parse(chunks[0]);

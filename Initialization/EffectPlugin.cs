@@ -9,76 +9,10 @@ using DynamicDraw.Properties;
 namespace DynamicDraw
 {
     /// <summary>
-    /// Contains assembly information, accessible through variables.
-    /// </summary>
-    public class PluginSupportInfo : IPluginSupportInfo
-    {
-        #region Properties
-        /// <summary>
-        /// Gets the author.
-        /// </summary>
-        public string Author
-        {
-            get
-            {
-                return ((AssemblyCompanyAttribute)base.GetType().Assembly
-                    .GetCustomAttributes(typeof(AssemblyCompanyAttribute), false)[0]).Company;
-            }
-        }
-
-        /// <summary>
-        /// Gets the copyright information.
-        /// </summary>
-        public string Copyright
-        {
-            get
-            {
-                return ((AssemblyCopyrightAttribute)base.GetType().Assembly
-                    .GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false)[0]).Copyright;
-            }
-        }
-
-        /// <summary>
-        /// Gets the name of the product.
-        /// </summary>
-        public string DisplayName
-        {
-            get
-            {
-                return ((AssemblyProductAttribute)base.GetType().Assembly
-                    .GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0]).Product;
-            }
-        }
-
-        /// <summary>
-        /// Gets the version number.
-        /// </summary>
-        public Version Version
-        {
-            get
-            {
-                return base.GetType().Assembly.GetName().Version;
-            }
-        }
-
-        /// <summary>
-        /// Gets the URL where the plugin is released to the public.
-        /// </summary>
-        public Uri WebsiteUri
-        {
-            get
-            {
-                return new Uri("http://forums.getpaint.net/index.php?/forum/7-plugins-publishing-only/");
-            }
-        }
-        #endregion
-    }
-
-    /// <summary>
-    /// Controls the effect. In short, a GUI is instantiated by
-    /// CreateConfigDialog and when the dialog signals OK, Render is called,
+    /// Called remotely by Paint.Net. In short, a GUI is instantiated by
+    /// <see cref="CreateConfigDialog"/> and when the dialog signals OK, Render is called,
     /// passing OnSetRenderInfo to it. The dialog stores its result in an
-    /// intermediate class called RenderSettings, which is then accessed to
+    /// intermediate class called <see cref="RenderSettings"/>, which is then accessed to
     /// draw the final result in Render.
     /// </summary>
     [PluginSupportInfo(typeof(PluginSupportInfo), DisplayName = "Dynamic Draw")]

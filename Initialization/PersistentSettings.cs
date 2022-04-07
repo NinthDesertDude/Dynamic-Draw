@@ -17,49 +17,57 @@ namespace DynamicDraw
         /// </summary>
         private static readonly HashSet<KeyboardShortcut> defaultShortcuts = new()
         {
-            new KeyboardShortcut()
+            new KeyboardShortcut() // B: brush tool
             {
                 ActionData = $"{(int)Tool.Brush}|set",
                 Key = System.Windows.Forms.Keys.B,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // K: color picker tool
             {
                 ActionData = $"{(int)Tool.ColorPicker}|set",
                 Key = System.Windows.Forms.Keys.K,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // E: eraser tool
             {
                 ActionData = $"{(int)Tool.Eraser}|set",
                 Key = System.Windows.Forms.Keys.E,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // O: origin tool
             {
                 ActionData = $"{(int)Tool.SetSymmetryOrigin}|set",
                 Key = System.Windows.Forms.Keys.O,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // Ctrl + Z: undo
             {
                 ActionData = null,
                 Key = System.Windows.Forms.Keys.Z,
                 Target = ShortcutTarget.UndoAction,
                 RequireCtrl = true
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // Ctrl + Alt + Z: undo (common alt shortcut)
+            {
+                ActionData = null,
+                Key = System.Windows.Forms.Keys.Z,
+                Target = ShortcutTarget.UndoAction,
+                RequireCtrl = true,
+                RequireAlt = true
+            },
+            new KeyboardShortcut() // Ctrl + Y: redo
             {
                 ActionData = null,
                 Key = System.Windows.Forms.Keys.Y,
                 Target = ShortcutTarget.RedoAction,
                 RequireCtrl = true
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // Ctrl + Shift + Z: redo (common alt shortcut)
             {
                 ActionData = null,
                 Key = System.Windows.Forms.Keys.Z,
@@ -67,70 +75,86 @@ namespace DynamicDraw
                 RequireCtrl = true,
                 RequireShift = true
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // +: zoom in
             {
                 ActionData = "2|mul",
                 Key = System.Windows.Forms.Keys.Oemplus,
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // Ctrl + +: zoom in (common alt shortcut)
+            {
+                ActionData = "2|mul",
+                Key = System.Windows.Forms.Keys.Oemplus,
+                Target = ShortcutTarget.CanvasZoom,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // -: zoom out
             {
                 ActionData = "0.5|mul",
                 Key = System.Windows.Forms.Keys.OemMinus,
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // Ctrl + -: zoom out (common alt shortcut)
+            {
+                ActionData = "0.5|mul",
+                Key = System.Windows.Forms.Keys.OemMinus,
+                Target = ShortcutTarget.CanvasZoom,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // 0: reset canvas transforms
             {
                 ActionData = null,
                 Key = System.Windows.Forms.Keys.D0,
                 Target = ShortcutTarget.ResetCanvasTransforms,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // 0: reset canvas transforms
             {
                 ActionData = null,
                 Key = System.Windows.Forms.Keys.NumPad0,
                 Target = ShortcutTarget.ResetCanvasTransforms,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // left arrow: nudge left
             {
                 ActionData = "5|sub",
                 Key = System.Windows.Forms.Keys.Left,
                 Target = ShortcutTarget.CanvasX,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // right arrow: nudge right
             {
                 ActionData = "5|add",
                 Key = System.Windows.Forms.Keys.Right,
                 Target = ShortcutTarget.CanvasX,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // up arrow: nudge up
             {
                 ActionData = "5|sub",
                 Key = System.Windows.Forms.Keys.Up,
                 Target = ShortcutTarget.CanvasY,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // down arrow: nudge down
             {
                 ActionData = "5|add",
                 Key = System.Windows.Forms.Keys.Down,
                 Target = ShortcutTarget.CanvasY,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // shift + left arrow: rotate counter-clockwise
             {
                 ActionData = "10|sub",
                 Key = System.Windows.Forms.Keys.Left,
                 Target = ShortcutTarget.CanvasRotation,
                 RequireShift = true
             },
-            new KeyboardShortcut()
+            new KeyboardShortcut() // shift + right arrow: rotate clockwise
             {
                 ActionData = "10|add",
                 Key = System.Windows.Forms.Keys.Right,
@@ -147,7 +171,7 @@ namespace DynamicDraw
                 {
                     BrushImagePath = Strings.DefaultBrushCircle,
                     BrushDensity = 2,
-                    CmbxTabPressureBrushSize = (int)CmbxTabletValueType.ValueHandlingMethod.Add,
+                    CmbxTabPressureBrushSize = (int)ConstraintValueHandlingMethod.Add,
                     TabPressureBrushSize = 10,
                 }
             },

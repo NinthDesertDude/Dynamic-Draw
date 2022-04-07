@@ -858,19 +858,19 @@ namespace DynamicDraw
             int targetValue,
             int maxRange,
             float inputRatio,
-            CmbxTabletValueType.ValueHandlingMethod method)
+            ConstraintValueHandlingMethod method)
         {
             switch (method)
             {
-                case CmbxTabletValueType.ValueHandlingMethod.Add:
+                case ConstraintValueHandlingMethod.Add:
                     return (int)(settingValue + inputRatio * targetValue);
-                case CmbxTabletValueType.ValueHandlingMethod.AddPercent:
+                case ConstraintValueHandlingMethod.AddPercent:
                     return (int)(settingValue + inputRatio * targetValue / 100 * maxRange);
-                case CmbxTabletValueType.ValueHandlingMethod.AddPercentCurrent:
+                case ConstraintValueHandlingMethod.AddPercentCurrent:
                     return (int)(settingValue + inputRatio * targetValue / 100 * settingValue);
-                case CmbxTabletValueType.ValueHandlingMethod.MatchValue:
+                case ConstraintValueHandlingMethod.MatchValue:
                     return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue);
-                case CmbxTabletValueType.ValueHandlingMethod.MatchPercent:
+                case ConstraintValueHandlingMethod.MatchPercent:
                     return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue / 100 * maxRange);
             }
 
