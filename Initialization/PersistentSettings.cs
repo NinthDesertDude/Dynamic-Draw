@@ -19,28 +19,28 @@ namespace DynamicDraw
         {
             new KeyboardShortcut() // B: brush tool
             {
-                ActionData = $"{(int)Tool.Brush}|set",
+                ActionData = $"{(int)Tool.Brush},{(int)Tool.PreviousTool}|cycle",
                 Key = System.Windows.Forms.Keys.B,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // K: color picker tool
             {
-                ActionData = $"{(int)Tool.ColorPicker}|set",
+                ActionData = $"{(int)Tool.ColorPicker},{(int)Tool.PreviousTool}|cycle",
                 Key = System.Windows.Forms.Keys.K,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // E: eraser tool
             {
-                ActionData = $"{(int)Tool.Eraser}|set",
+                ActionData = $"{(int)Tool.Eraser},{(int)Tool.PreviousTool}|cycle",
                 Key = System.Windows.Forms.Keys.E,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // O: origin tool
             {
-                ActionData = $"{(int)Tool.SetSymmetryOrigin}|set",
+                ActionData = $"{(int)Tool.SetSymmetryOrigin},{(int)Tool.PreviousTool}|cycle",
                 Key = System.Windows.Forms.Keys.O,
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
@@ -77,14 +77,14 @@ namespace DynamicDraw
             },
             new KeyboardShortcut() // +: zoom in
             {
-                ActionData = "2|mul",
+                ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-add-stop",
                 Key = System.Windows.Forms.Keys.Oemplus,
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // Ctrl + +: zoom in (common alt shortcut)
             {
-                ActionData = "2|mul",
+                ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-add-stop",
                 Key = System.Windows.Forms.Keys.Oemplus,
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
@@ -92,14 +92,14 @@ namespace DynamicDraw
             },
             new KeyboardShortcut() // -: zoom out
             {
-                ActionData = "0.5|mul",
+                ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-sub-stop",
                 Key = System.Windows.Forms.Keys.OemMinus,
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // Ctrl + -: zoom out (common alt shortcut)
             {
-                ActionData = "0.5|mul",
+                ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-sub-stop",
                 Key = System.Windows.Forms.Keys.OemMinus,
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
@@ -210,8 +210,12 @@ namespace DynamicDraw
                 {
                     BrushImagePath = Strings.DefaultBrushCircle,
                     BrushColor = Color.Red,
-                    BrushSize = 50,
-                    DoLockAlpha = true
+                    BrushSize = 30,
+                    DoLockAlpha = true,
+                    DoLockVal= true,
+                    DoLockSat = true,
+                    CmbxTabPressureBrushSize = (int)ConstraintValueHandlingMethod.Add,
+                    TabPressureBrushSize = 10,
                 }
             }
         };

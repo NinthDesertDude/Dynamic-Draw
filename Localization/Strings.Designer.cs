@@ -1129,6 +1129,60 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to H.
+        /// </summary>
+        internal static string LockHue {
+            get {
+                return ResourceManager.GetString("LockHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preserves hue so no brush strokes affect the hue of the pixels..
+        /// </summary>
+        internal static string LockHueTip {
+            get {
+                return ResourceManager.GetString("LockHueTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.
+        /// </summary>
+        internal static string LockSat {
+            get {
+                return ResourceManager.GetString("LockSat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preserves saturation so no brush strokes affect the grayness of the pixels..
+        /// </summary>
+        internal static string LockSatTip {
+            get {
+                return ResourceManager.GetString("LockSatTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to V.
+        /// </summary>
+        internal static string LockVal {
+            get {
+                return ResourceManager.GetString("LockVal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preserves value so no brush strokes affect the brightness of the pixels..
+        /// </summary>
+        internal static string LockValTip {
+            get {
+                return ResourceManager.GetString("LockValTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Maximize window?.
         /// </summary>
         internal static string MaximizeWindow {

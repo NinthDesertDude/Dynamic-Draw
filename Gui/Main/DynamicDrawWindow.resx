@@ -1722,6 +1722,120 @@
   <data name="&gt;&gt;chkbxLockAlpha.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
+  <data name="panelHSVLocks.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 255</value>
+  </data>
+  <data name="panelHSVLocks.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 0</value>
+  </data>
+  <data name="panelHSVLocks.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="panelHSVLocks.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="&gt;&gt;panelHSVLocks.Name" xml:space="preserve">
+    <value>panelHSVLocks</value>
+  </data>
+  <data name="&gt;&gt;panelHSVLocks.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panelHSVLocks.Parent" xml:space="preserve">
+    <value>panelSpecialSettings</value>
+  </data>
+  <data name="&gt;&gt;panelHSVLocks.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="chkbxLockHue.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chkbxLockHue.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbxLockHue.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 0</value>
+  </data>
+  <data name="chkbxLockHue.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 17</value>
+  </data>
+  <data name="chkbxLockHue.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="chkbxLockHue.Text" xml:space="preserve">
+    <value>H</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockHue.Name" xml:space="preserve">
+    <value>chkbxLockHue</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockHue.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockHue.Parent" xml:space="preserve">
+    <value>panelHSVLocks</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockHue.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="chkbxLockSat.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chkbxLockSat.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbxLockSat.Location" type="System.Drawing.Point, System.Drawing">
+    <value>44, 0</value>
+  </data>
+  <data name="chkbxLockSat.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 17</value>
+  </data>
+  <data name="chkbxLockSat.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="chkbxLockSat.Text" xml:space="preserve">
+    <value>S</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockSat.Name" xml:space="preserve">
+    <value>chkbxLockSat</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockSat.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockSat.Parent" xml:space="preserve">
+    <value>panelHSVLocks</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockSat.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="chkbxLockVal.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chkbxLockVal.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbxLockVal.Location" type="System.Drawing.Point, System.Drawing">
+    <value>82, 0</value>
+  </data>
+  <data name="chkbxLockVal.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 17</value>
+  </data>
+  <data name="chkbxLockVal.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="chkbxLockVal.Text" xml:space="preserve">
+    <value>V</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockVal.Name" xml:space="preserve">
+    <value>chkbxLockVal</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockVal.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockVal.Parent" xml:space="preserve">
+    <value>panelHSVLocks</value>
+  </data>
+  <data name="&gt;&gt;chkbxLockVal.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
   <data name="panelSpecialSettings.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>TopDown</value>
   </data>

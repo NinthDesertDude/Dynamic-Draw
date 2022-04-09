@@ -321,7 +321,11 @@ namespace DynamicDraw
         private CheckBox chkbxOrientToMouse;
         private CheckBox chkbxSeamlessDrawing;
         private CheckBox chkbxDitherDraw;
+        private Panel panelHSVLocks;
         private CheckBox chkbxLockAlpha;
+        private CheckBox chkbxLockHue;
+        private CheckBox chkbxLockSat;
+        private CheckBox chkbxLockVal;
         private Accordion bttnJitterBasicsControls;
         private FlowLayoutPanel panelJitterBasics;
         private Label txtRandMinSize;
@@ -704,6 +708,9 @@ namespace DynamicDraw
             token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
             token.CurrentBrushSettings.DoDitherDraw = chkbxDitherDraw.Checked;
             token.CurrentBrushSettings.DoLockAlpha = chkbxLockAlpha.Checked;
+            token.CurrentBrushSettings.DoLockHue = chkbxLockHue.Checked;
+            token.CurrentBrushSettings.DoLockSat = chkbxLockSat.Checked;
+            token.CurrentBrushSettings.DoLockVal = chkbxLockVal.Checked;
             token.CurrentBrushSettings.SeamlessDrawing = chkbxSeamlessDrawing.Checked;
             token.CurrentBrushSettings.DoRotateWithMouse = chkbxOrientToMouse.Checked;
             token.CurrentBrushSettings.MinDrawDistance = sliderMinDrawDistance.Value;
@@ -892,6 +899,9 @@ namespace DynamicDraw
             chkbxColorInfluenceSat.Text = Strings.SatAbbr;
             chkbxColorInfluenceVal.Text = Strings.ValAbbr;
             chkbxLockAlpha.Text = Strings.LockAlpha;
+            chkbxLockHue.Text = Strings.LockHue;
+            chkbxLockSat.Text = Strings.LockSat;
+            chkbxLockVal.Text = Strings.LockVal;
             chkbxDitherDraw.Text = Strings.DitherDraw;
             chkbxSeamlessDrawing.Text = Strings.SeamlessDrawing;
             chkbxOrientToMouse.Text = Strings.OrientToMouse;
@@ -1667,6 +1677,9 @@ namespace DynamicDraw
                     || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal
                     || chkbxSeamlessDrawing.Checked
                     || chkbxLockAlpha.Checked
+                    || chkbxLockHue.Checked
+                    || chkbxLockSat.Checked
+                    || chkbxLockVal.Checked
                     || chkbxDitherDraw.Checked
                     || !chkbxColorizeBrush.Checked
                     || (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex == CmbxSmoothing.Smoothing.Jagged;
@@ -1758,6 +1771,7 @@ namespace DynamicDraw
                                         new Point(
                                             (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
                                             (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))),
+                                        (chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
                                 }
@@ -1774,7 +1788,7 @@ namespace DynamicDraw
                                             sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked,
+                                        (chkbxLockAlpha.Checked, chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
                                 }
@@ -1841,6 +1855,7 @@ namespace DynamicDraw
                                         new Point(
                                             (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
                                             (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
+                                        (chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
                                 }
@@ -1857,7 +1872,7 @@ namespace DynamicDraw
                                             sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked,
+                                        (chkbxLockAlpha.Checked, chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
                                 }
@@ -1905,6 +1920,7 @@ namespace DynamicDraw
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
                                                 (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
+                                        (chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
                                     }
@@ -1921,7 +1937,7 @@ namespace DynamicDraw
                                                 sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                                 chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
-                                            chkbxLockAlpha.Checked,
+                                            (chkbxLockAlpha.Checked, chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
                                             chkbxDitherDraw.Checked);
                                     }
@@ -1990,6 +2006,7 @@ namespace DynamicDraw
                                         new Point(
                                             (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
                                             (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                        (chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
                                     }
@@ -2006,7 +2023,7 @@ namespace DynamicDraw
                                             sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked,
+                                        (chkbxLockAlpha.Checked, chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
                                     }
@@ -2367,8 +2384,17 @@ namespace DynamicDraw
                         shortcut.GetDataAsInt(sliderRandVertShift.Value,
                         sliderRandVertShift.Minimum, sliderRandVertShift.Maximum);
                     break;
-                case ShortcutTarget.LockAlpha:
+                case ShortcutTarget.DoLockAlpha:
                     chkbxLockAlpha.Checked = shortcut.GetDataAsBool(chkbxLockAlpha.Checked);
+                    break;
+                case ShortcutTarget.DoLockHue:
+                    chkbxLockHue.Checked = shortcut.GetDataAsBool(chkbxLockHue.Checked);
+                    break;
+                case ShortcutTarget.DoLockSat:
+                    chkbxLockSat.Checked = shortcut.GetDataAsBool(chkbxLockSat.Checked);
+                    break;
+                case ShortcutTarget.DoLockVal:
+                    chkbxLockVal.Checked = shortcut.GetDataAsBool(chkbxLockVal.Checked);
                     break;
                 case ShortcutTarget.MinDrawDistance:
                     sliderMinDrawDistance.Value =
@@ -2429,6 +2455,8 @@ namespace DynamicDraw
                 case ShortcutTarget.SelectedTool:
                     Tool newTool = (Tool)shortcut.GetDataAsInt((int)activeTool, 0, Enum.GetValues(typeof(Tool)).Length);
                     SwitchTool(newTool);
+
+                    if (newTool == Tool.PreviousTool) { newTool = lastTool; }
 
                     if (newTool == Tool.SetSymmetryOrigin)
                     {
@@ -2858,7 +2886,11 @@ namespace DynamicDraw
             this.chkbxSeamlessDrawing = new CheckBox();
             this.chkbxOrientToMouse = new CheckBox();
             this.chkbxDitherDraw = new CheckBox();
+            this.panelHSVLocks = new Panel();
             this.chkbxLockAlpha = new CheckBox();
+            this.chkbxLockHue= new CheckBox();
+            this.chkbxLockSat = new CheckBox();
+            this.chkbxLockVal = new CheckBox();
             this.bttnJitterBasicsControls = new Accordion();
             this.panelJitterBasics = new FlowLayoutPanel();
             this.txtRandMinSize = new Label();
@@ -3025,6 +3057,7 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushSize)).BeginInit();
             this.panelSpecialSettings.SuspendLayout();
+            this.panelHSVLocks.SuspendLayout();
             ((ISupportInitialize)(this.sliderMinDrawDistance)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
             this.panelJitterBasics.SuspendLayout();
@@ -3560,6 +3593,7 @@ namespace DynamicDraw
             this.panelSpecialSettings.Controls.Add(this.chkbxOrientToMouse);
             this.panelSpecialSettings.Controls.Add(this.chkbxDitherDraw);
             this.panelSpecialSettings.Controls.Add(this.chkbxLockAlpha);
+            this.panelSpecialSettings.Controls.Add(this.panelHSVLocks);
             this.panelSpecialSettings.Name = "panelSpecialSettings";
             // 
             // txtMinDrawDistance
@@ -3572,7 +3606,7 @@ namespace DynamicDraw
             // 
             resources.ApplyResources(this.sliderMinDrawDistance, "sliderMinDrawDistance");
             this.sliderMinDrawDistance.LargeChange = 1;
-            this.sliderMinDrawDistance.Maximum = 100;
+            this.sliderMinDrawDistance.Maximum = 500;
             this.sliderMinDrawDistance.Name = "sliderMinDrawDistance";
             this.sliderMinDrawDistance.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderMinDrawDistance.ValueChanged += new EventHandler(this.SliderMinDrawDistance_ValueChanged);
@@ -3649,12 +3683,41 @@ namespace DynamicDraw
             this.chkbxDitherDraw.UseVisualStyleBackColor = true;
             this.chkbxDitherDraw.MouseEnter += new EventHandler(this.ChkbxDitherDraw_MouseEnter);
             // 
+            // panelHSVLocks
+            // 
+            this.panelHSVLocks.Controls.Add(this.chkbxLockHue);
+            this.panelHSVLocks.Controls.Add(this.chkbxLockSat);
+            this.panelHSVLocks.Controls.Add(this.chkbxLockVal);
+            resources.ApplyResources(this.panelHSVLocks, "panelHSVLocks");
+            this.panelHSVLocks.Name = "panelHSVLocks";
+            // 
             // chkbxLockAlpha
             // 
             resources.ApplyResources(this.chkbxLockAlpha, "chkbxLockAlpha");
             this.chkbxLockAlpha.Name = "chkbxLockAlpha";
             this.chkbxLockAlpha.UseVisualStyleBackColor = true;
             this.chkbxLockAlpha.MouseEnter += new EventHandler(this.ChkbxLockAlpha_MouseEnter);
+            // 
+            // chkbxLockHue
+            // 
+            resources.ApplyResources(this.chkbxLockHue, "chkbxLockHue");
+            this.chkbxLockHue.Name = "chkbxLockHue";
+            this.chkbxLockHue.UseVisualStyleBackColor = true;
+            this.chkbxLockHue.MouseEnter += new EventHandler(this.ChkbxLockHue_MouseEnter);
+            // 
+            // chkbxLockSat
+            // 
+            resources.ApplyResources(this.chkbxLockSat, "chkbxLockSat");
+            this.chkbxLockSat.Name = "chkbxLockSat";
+            this.chkbxLockSat.UseVisualStyleBackColor = true;
+            this.chkbxLockSat.MouseEnter += new EventHandler(this.ChkbxLockSat_MouseEnter);
+            // 
+            // chkbxLockVal
+            // 
+            resources.ApplyResources(this.chkbxLockVal, "chkbxLockVal");
+            this.chkbxLockVal.Name = "chkbxLockVal";
+            this.chkbxLockVal.UseVisualStyleBackColor = true;
+            this.chkbxLockVal.MouseEnter += new EventHandler(this.ChkbxLockVal_MouseEnter);
             // 
             // bttnJitterBasicsControls
             // 
@@ -5043,6 +5106,8 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderBrushSize)).EndInit();
             this.panelSpecialSettings.ResumeLayout(false);
             this.panelSpecialSettings.PerformLayout();
+            this.panelHSVLocks.ResumeLayout(false);
+            this.panelHSVLocks.PerformLayout();
             ((ISupportInitialize)(this.sliderMinDrawDistance)).EndInit();
             ((ISupportInitialize)(this.sliderBrushDensity)).EndInit();
             this.panelJitterBasics.ResumeLayout(false);
@@ -5270,6 +5335,11 @@ namespace DynamicDraw
         /// <param name="toolToSwitchTo">The tool to switch to.</param>
         private void SwitchTool(Tool toolToSwitchTo)
         {
+            if (toolToSwitchTo == Tool.PreviousTool)
+            {
+                toolToSwitchTo = lastTool;
+            }
+
             bttnToolBrush.BackColor = SystemColors.ButtonFace;
             BttnToolEraser.BackColor = SystemColors.ButtonFace;
             bttnColorPicker.BackColor = SystemColors.ButtonFace;
@@ -5400,6 +5470,9 @@ namespace DynamicDraw
             chkbxColorInfluenceVal.Checked = settings.ColorInfluenceVal;
             chkbxDitherDraw.Checked = settings.DoDitherDraw;
             chkbxLockAlpha.Checked = settings.DoLockAlpha;
+            chkbxLockHue.Checked = settings.DoLockHue;
+            chkbxLockSat.Checked = settings.DoLockSat;
+            chkbxLockVal.Checked = settings.DoLockVal;
             sliderMinDrawDistance.Value = settings.MinDrawDistance;
             sliderJitterMaxRed.Value = settings.RandMaxR;
             sliderJitterMaxGreen.Value = settings.RandMaxG;
@@ -6169,11 +6242,11 @@ namespace DynamicDraw
             else if (isUserDrawing.started)
             {
                 finalMinDrawDistance = Utils.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
-                        (int)spinTabPressureMinDrawDistance.Value,
-                        sliderMinDrawDistance.Maximum,
-                        tabletPressureRatio,
-                        ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureMinDrawDistance.SelectedItem).ValueMember),
-                        0, sliderMinDrawDistance.Maximum);
+                    (int)spinTabPressureMinDrawDistance.Value,
+                    sliderMinDrawDistance.Maximum,
+                    tabletPressureRatio,
+                    ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureMinDrawDistance.SelectedItem).ValueMember),
+                    0, sliderMinDrawDistance.Maximum);
 
                 // Doesn't draw unless the minimum drawing distance is met.
                 if (finalMinDrawDistance != 0)
@@ -7021,6 +7094,9 @@ namespace DynamicDraw
                     ColorInfluenceVal = chkbxColorInfluenceVal.Checked,
                     DoDitherDraw = chkbxDitherDraw.Checked,
                     DoLockAlpha = chkbxLockAlpha.Checked,
+                    DoLockHue = chkbxLockHue.Checked,
+                    DoLockSat = chkbxLockSat.Checked,
+                    DoLockVal = chkbxLockVal.Checked,
                     SeamlessDrawing = chkbxSeamlessDrawing.Checked,
                     DoRotateWithMouse = chkbxOrientToMouse.Checked,
                     MinDrawDistance = sliderMinDrawDistance.Value,
@@ -7251,6 +7327,21 @@ namespace DynamicDraw
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.LockAlphaTip);
+        }
+
+        private void ChkbxLockHue_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockHueTip);
+        }
+
+        private void ChkbxLockSat_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockSatTip);
+        }
+
+        private void ChkbxLockVal_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockValTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)

@@ -88,7 +88,7 @@
         /// <summary>
         /// If true, the alpha value is left unchanged at the end of a brush stroke.
         /// </summary>
-        LockAlpha = 15,
+        DoLockAlpha = 15,
 
         /// <summary>
         /// The amount the brush randomly shrinks from its normal value on each brush application.
@@ -291,6 +291,21 @@
         /// <summary>
         /// Whether to draw in a checkerboard pattern, skipping every other pixel or not.
         /// </summary>
-        DitherDraw = 74
+        DitherDraw = 74,
+
+        /// <summary>
+        /// If true, the hue is left unchanged at the end of a brush stroke.
+        /// </summary>
+        DoLockHue = 75,
+
+        /// <summary>
+        /// If true, the saturation is left unchanged at the end of a brush stroke.
+        /// </summary>
+        DoLockSat = 76,
+
+        /// <summary>
+        /// If true, the value is left unchanged at the end of a brush stroke.
+        /// </summary>
+        DoLockVal = 77
     }
 }

@@ -861,4 +861,22 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="DitherDrawTip" xml:space="preserve">
     <value>Only draw every other pixel, in a checkerboard pattern. Useful for pixel art.</value>
   </data>
+  <data name="LockHue" xml:space="preserve">
+    <value>H</value>
+  </data>
+  <data name="LockHueTip" xml:space="preserve">
+    <value>Preserves hue so no brush strokes affect the hue of the pixels.</value>
+  </data>
+  <data name="LockSat" xml:space="preserve">
+    <value>S</value>
+  </data>
+  <data name="LockSatTip" xml:space="preserve">
+    <value>Preserves saturation so no brush strokes affect the grayness of the pixels.</value>
+  </data>
+  <data name="LockVal" xml:space="preserve">
+    <value>V</value>
+  </data>
+  <data name="LockValTip" xml:space="preserve">
+    <value>Preserves value so no brush strokes affect the brightness of the pixels.</value>
+  </data>
 </root>

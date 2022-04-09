@@ -226,6 +226,73 @@ namespace DynamicDraw.Logic
                 throw new Exception("Was expecting setting to be a numeric data type.");
             }
 
+            /** Cycles the list of numbers based on the current value. Valid syntaxes:
+             * cycle: selects next item, or first item if current value isn't in list.
+             * cycle--stop: same as cycle, but does nothing if at end of list.
+             * cycle-add: selects next item, or nearest greater number if current value isn't in list.
+             * cycle-add-stop: same as cycle-add, but does nothing if at end of list.
+             * cycle-sub: selects prev item, or nearest smaller number if current value isn't in list.
+             * cycle-sub-stop: same as cycle-sub, but does nothing if at start of list.
+             */
+            if (chunks[1].StartsWith("cycle"))
+            {
+                List<float> numbers = new List<float>();
+                string[] numberStrings = chunks[0].Split(",");
+                for (int i = 0; i < numberStrings.Length; i++)
+                {
+                    if (!float.TryParse(numberStrings[i], out float result))
+                    {
+                        throw new Exception("Was expecting setting to contain purely numeric data with comma delimiters.");
+                    }
+
+                    numbers.Add(Utils.ClampF(result, minValue, maxValue));
+                }
+
+                if (numbers.Count == 0)
+                {
+                    throw new Exception("Was expecting setting to contain at least one number for cycle.");
+                }
+
+                string[] actionDataOptions = chunks[1].Split("-");
+                bool doAdd = actionDataOptions.Length > 1 && actionDataOptions[1].Equals("add");
+                bool doSub = actionDataOptions.Length > 1 && actionDataOptions[1].Equals("sub");
+                bool doStop = actionDataOptions.Length > 2 && actionDataOptions[2].Equals("stop");
+
+                // Jump to the exact number.
+                int nearestValueIndex = -1;
+                float nearestValueDiff = float.MaxValue;
+                for (int i = 0; i < numbers.Count; i++)
+                {
+                    // If a number in the cycle is matched, shift to the next/prev.
+                    if (origValue == numbers[i])
+                    {
+                        if (doSub)
+                        {
+                            return (i != 0)
+                                ? numbers[i - 1]
+                                : doStop ? origValue : numbers[numbers.Count - 1];
+                        }
+                        
+                        return (i < numbers.Count - 1)
+                            ? numbers[i + 1]
+                            : doStop ? origValue : numbers[0];
+                    }
+
+                    // While no number is matched, track the nearest one to snap to.
+                    if ((doAdd && numbers[i] - origValue > 0 && numbers[i] - origValue < nearestValueDiff) ||
+                        (doSub && origValue - numbers[i] > 0 && origValue - numbers[i] < nearestValueDiff))
+                    {
+                        nearestValueIndex = i;
+                        nearestValueDiff = numbers[i];
+                    }
+                }
+
+                // snaps to nearest if set, else jumps to start.
+                return (nearestValueIndex != -1)
+                    ? numbers[nearestValueIndex]
+                    : numbers[0];
+            }
+
             float value = float.Parse(chunks[0]);
 
             if (chunks[1].Equals("set"))

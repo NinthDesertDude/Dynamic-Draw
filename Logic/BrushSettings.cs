@@ -185,6 +185,36 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Whether to prevent brush strokes from changing hue or not.
+        /// </summary>
+        [DataMember(Name = "DoLockHue")]
+        public bool DoLockHue
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether to prevent brush strokes from changing saturation or not.
+        /// </summary>
+        [DataMember(Name = "DoLockSat")]
+        public bool DoLockSat
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether to prevent brush strokes from changing value or not.
+        /// </summary>
+        [DataMember(Name = "DoLockVal")]
+        public bool DoLockVal
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Randomized maximum brush transparency.
         /// </summary>
         [DataMember(Name = "RandMaxAlpha")]
@@ -595,6 +625,9 @@ namespace DynamicDraw
             ColorInfluenceVal = false;
             DoDitherDraw = false;
             DoLockAlpha = false;
+            DoLockHue = false;
+            DoLockSat = false;
+            DoLockVal = false;
             MinDrawDistance = 0;
             RandMaxR = 0;
             RandMaxG = 0;
@@ -688,6 +721,9 @@ namespace DynamicDraw
             ColorInfluenceVal = other.ColorInfluenceVal;
             DoDitherDraw = other.DoDitherDraw;
             DoLockAlpha = other.DoLockAlpha;
+            DoLockHue = other.DoLockHue;
+            DoLockSat = other.DoLockSat;
+            DoLockVal = other.DoLockVal;
             MinDrawDistance = other.MinDrawDistance;
             RandMaxR = other.RandMaxR;
             RandMaxG = other.RandMaxG;

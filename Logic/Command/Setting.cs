@@ -41,7 +41,7 @@ namespace DynamicDraw
                 { ShortcutTarget.JitterValMax, new Setting(Localization.Strings.ShortcutJitterValueMax, 0, 100) },
                 { ShortcutTarget.JitterValMin, new Setting(Localization.Strings.ShortcutJitterValueMin, 0, 100) },
                 { ShortcutTarget.JitterVerSpray, new Setting(Localization.Strings.ShortcutJitterVerSpray, 0, 100) },
-                { ShortcutTarget.LockAlpha, new Setting(Localization.Strings.LockAlpha, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DoLockAlpha, new Setting(Localization.Strings.LockAlpha, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.MinDrawDistance, new Setting(Localization.Strings.MinDrawDistance, 0, 100) },
                 { ShortcutTarget.RedoAction, new Setting(Localization.Strings.Redo, ShortcutTargetDataType.Action) },
                 { ShortcutTarget.RotateWithMouse, new Setting(Localization.Strings.OrientToMouse, ShortcutTargetDataType.Bool) },
@@ -89,7 +89,10 @@ namespace DynamicDraw
                 { ShortcutTarget.ColorInfluenceHue, new Setting(Localization.Strings.HueAbbr, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.ColorInfluenceSat, new Setting(Localization.Strings.SatAbbr, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.ColorInfluenceVal, new Setting(Localization.Strings.ValAbbr, ShortcutTargetDataType.Bool) },
-                { ShortcutTarget.DitherDraw, new Setting(Localization.Strings.DitherDraw, ShortcutTargetDataType.Bool) }
+                { ShortcutTarget.DitherDraw, new Setting(Localization.Strings.DitherDraw, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DoLockHue, new Setting(Localization.Strings.LockHue, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DoLockSat, new Setting(Localization.Strings.LockSat, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DoLockVal, new Setting(Localization.Strings.LockVal, ShortcutTargetDataType.Bool) }
             };
         }
 
