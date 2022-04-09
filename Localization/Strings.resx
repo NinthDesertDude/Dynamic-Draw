@@ -264,7 +264,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Lock Alpha</value>
   </data>
   <data name="LockAlphaTip" xml:space="preserve">
-    <value>Preserves transparency so no brush strokes affect the transparency of the pixels.</value>
+    <value>Prevents drawing from affecting the transparency of the image.</value>
   </data>
   <data name="MaximizeWindow" xml:space="preserve">
     <value>Maximize window?</value>
@@ -865,18 +865,36 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>H</value>
   </data>
   <data name="LockHueTip" xml:space="preserve">
-    <value>Preserves hue so no brush strokes affect the hue of the pixels.</value>
+    <value>Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results.</value>
   </data>
   <data name="LockSat" xml:space="preserve">
     <value>S</value>
   </data>
   <data name="LockSatTip" xml:space="preserve">
-    <value>Preserves saturation so no brush strokes affect the grayness of the pixels.</value>
+    <value>Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation.</value>
   </data>
   <data name="LockVal" xml:space="preserve">
     <value>V</value>
   </data>
   <data name="LockValTip" xml:space="preserve">
-    <value>Preserves value so no brush strokes affect the brightness of the pixels.</value>
+    <value>Prevents drawing from affecting the value (brightness) of the image.</value>
+  </data>
+  <data name="LockB" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="LockBTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa.</value>
+  </data>
+  <data name="LockG" xml:space="preserve">
+    <value>G</value>
+  </data>
+  <data name="LockGTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the greenness of the image. Note that bright values have more green and vice versa.</value>
+  </data>
+  <data name="LockR" xml:space="preserve">
+    <value>R</value>
+  </data>
+  <data name="LockRTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the redness of the image. Note that bright values have more red and vice versa.</value>
   </data>
 </root>

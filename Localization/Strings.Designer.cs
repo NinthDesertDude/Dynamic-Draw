@@ -1120,11 +1120,47 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Preserves transparency so no brush strokes affect the transparency of the pixels..
+        ///   Looks up a localized string similar to Prevents drawing from affecting the transparency of the image..
         /// </summary>
         internal static string LockAlphaTip {
             get {
                 return ResourceManager.GetString("LockAlphaTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to B.
+        /// </summary>
+        internal static string LockB {
+            get {
+                return ResourceManager.GetString("LockB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa..
+        /// </summary>
+        internal static string LockBTip {
+            get {
+                return ResourceManager.GetString("LockBTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to G.
+        /// </summary>
+        internal static string LockG {
+            get {
+                return ResourceManager.GetString("LockG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the greenness of the image. Note that bright values have more green and vice versa..
+        /// </summary>
+        internal static string LockGTip {
+            get {
+                return ResourceManager.GetString("LockGTip", resourceCulture);
             }
         }
         
@@ -1138,11 +1174,29 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Preserves hue so no brush strokes affect the hue of the pixels..
+        ///   Looks up a localized string similar to Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results..
         /// </summary>
         internal static string LockHueTip {
             get {
                 return ResourceManager.GetString("LockHueTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to R.
+        /// </summary>
+        internal static string LockR {
+            get {
+                return ResourceManager.GetString("LockR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the redness of the image. Note that bright values have more red and vice versa..
+        /// </summary>
+        internal static string LockRTip {
+            get {
+                return ResourceManager.GetString("LockRTip", resourceCulture);
             }
         }
         
@@ -1156,7 +1210,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Preserves saturation so no brush strokes affect the grayness of the pixels..
+        ///   Looks up a localized string similar to Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation..
         /// </summary>
         internal static string LockSatTip {
             get {
@@ -1174,7 +1228,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Preserves value so no brush strokes affect the brightness of the pixels..
+        ///   Looks up a localized string similar to Prevents drawing from affecting the value (brightness) of the image..
         /// </summary>
         internal static string LockValTip {
             get {

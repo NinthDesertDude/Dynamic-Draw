@@ -90,6 +90,9 @@ namespace DynamicDraw
                 { ShortcutTarget.ColorInfluenceSat, new Setting(Localization.Strings.SatAbbr, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.ColorInfluenceVal, new Setting(Localization.Strings.ValAbbr, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DitherDraw, new Setting(Localization.Strings.DitherDraw, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DoLockR, new Setting(Localization.Strings.LockR, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DoLockG, new Setting(Localization.Strings.LockG, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.DoLockB, new Setting(Localization.Strings.LockB, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DoLockHue, new Setting(Localization.Strings.LockHue, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DoLockSat, new Setting(Localization.Strings.LockSat, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DoLockVal, new Setting(Localization.Strings.LockVal, ShortcutTargetDataType.Bool) }

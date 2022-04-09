@@ -86,7 +86,7 @@
         RotateWithMouse = 14,
 
         /// <summary>
-        /// If true, the alpha value is left unchanged at the end of a brush stroke.
+        /// If true, the alpha channel will not be affected while drawing.
         /// </summary>
         DoLockAlpha = 15,
 
@@ -294,18 +294,33 @@
         DitherDraw = 74,
 
         /// <summary>
-        /// If true, the hue is left unchanged at the end of a brush stroke.
+        /// If true, the red channel will not be affected while drawing.
         /// </summary>
-        DoLockHue = 75,
+        DoLockR = 75,
 
         /// <summary>
-        /// If true, the saturation is left unchanged at the end of a brush stroke.
+        /// If true, the green channel will not be affected while drawing.
         /// </summary>
-        DoLockSat = 76,
+        DoLockG = 76,
 
         /// <summary>
-        /// If true, the value is left unchanged at the end of a brush stroke.
+        /// If true, the blue channel will not be affected while drawing.
         /// </summary>
-        DoLockVal = 77
+        DoLockB = 77,
+
+        /// <summary>
+        /// If true, the hue will not be affected while drawing.
+        /// </summary>
+        DoLockHue = 78,
+
+        /// <summary>
+        /// If true, the saturation will not be affected while drawing.
+        /// </summary>
+        DoLockSat = 79,
+
+        /// <summary>
+        /// If true, the value will not be affected while drawing.
+        /// </summary>
+        DoLockVal = 80
     }
 }

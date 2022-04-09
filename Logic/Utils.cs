@@ -303,11 +303,15 @@ namespace DynamicDraw
             Bitmap dest,
             Bitmap alphaMask,
             Point location,
-            (bool H, bool S, bool V) channelLocks,
+            (bool R, bool G, bool B, bool H, bool S, bool V) channelLocks,
             bool wrapAround,
             bool ditherFilter)
         {
-            if (channelLocks.H && channelLocks.S && channelLocks.V) { return; }
+            if ((channelLocks.R && channelLocks.G && channelLocks.B) ||
+                (channelLocks.H && channelLocks.S && channelLocks.V))
+            {
+                return;
+            }
 
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -394,9 +398,9 @@ namespace DynamicDraw
                             alphaMaskPtr->A);
 
                         alphaFactor = newColor.A / 255f;
-                        destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                        destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                        destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                        if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                        if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                        if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
                         destPtr->A = newColor.A;
 
                         if (!ditherFilter)
@@ -465,11 +469,16 @@ namespace DynamicDraw
             (ColorBgra Color, int MinAlpha) userColor,
             (int Amount, bool H, bool S, bool V)? colorInfluence,
             BlendMode blendMode,
-            (bool A, bool H, bool S, bool V) channelLocks,
+            (bool A, bool R, bool G, bool B, bool H, bool S, bool V) channelLocks,
             bool wrapAround,
             bool ditherFilter)
         {
-            if (channelLocks.H && channelLocks.S && channelLocks.V && channelLocks.A) { return; }
+            if (((channelLocks.H && channelLocks.S && channelLocks.V) ||
+                (channelLocks.R && channelLocks.G && channelLocks.B))
+                && channelLocks.A)
+            {
+                return;
+            }
 
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
@@ -600,9 +609,9 @@ namespace DynamicDraw
                                 ? newColor.A / 255f
                                 : destPtr->A / 255f;
 
-                            destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                            destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                            destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
                             if (!channelLocks.A) { destPtr->A = newColor.A; }
                         }
                         else if (blendMode == BlendMode.Overwrite)
@@ -631,9 +640,9 @@ namespace DynamicDraw
                                 ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
                                 : destCol.A / 255f;
 
-                            destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                            destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                            destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
+                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
                             if (!channelLocks.A) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
                         }
 

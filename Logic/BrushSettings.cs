@@ -185,6 +185,36 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Whether to prevent brush strokes from changing red channel.
+        /// </summary>
+        [DataMember(Name = "DoLockR")]
+        public bool DoLockR
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether to prevent brush strokes from changing green channel.
+        /// </summary>
+        [DataMember(Name = "DoLockG")]
+        public bool DoLockG
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether to prevent brush strokes from changing blue channel.
+        /// </summary>
+        [DataMember(Name = "DoLockB")]
+        public bool DoLockB
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Whether to prevent brush strokes from changing hue or not.
         /// </summary>
         [DataMember(Name = "DoLockHue")]
@@ -625,6 +655,9 @@ namespace DynamicDraw
             ColorInfluenceVal = false;
             DoDitherDraw = false;
             DoLockAlpha = false;
+            DoLockR = false;
+            DoLockG = false;
+            DoLockB = false;
             DoLockHue = false;
             DoLockSat = false;
             DoLockVal = false;
@@ -721,6 +754,9 @@ namespace DynamicDraw
             ColorInfluenceVal = other.ColorInfluenceVal;
             DoDitherDraw = other.DoDitherDraw;
             DoLockAlpha = other.DoLockAlpha;
+            DoLockR = other.DoLockR;
+            DoLockG = other.DoLockG;
+            DoLockB = other.DoLockB;
             DoLockHue = other.DoLockHue;
             DoLockSat = other.DoLockSat;
             DoLockVal = other.DoLockVal;
