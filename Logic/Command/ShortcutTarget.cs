@@ -321,6 +321,11 @@
         /// <summary>
         /// If true, the value will not be affected while drawing.
         /// </summary>
-        DoLockVal = 80
+        DoLockVal = 80,
+
+        /// <summary>
+        /// The brush opacity (or rather, max alpha allowed on the layer). Anything greater truncates to max.
+        /// </summary>
+        BrushOpacity = 81
     }
 }

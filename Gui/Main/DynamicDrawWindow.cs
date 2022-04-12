@@ -71,7 +71,21 @@ namespace DynamicDraw
         /// <summary>
         /// Stores the current drawing in full.
         /// </summary>
-        private Bitmap bmpCurrentDrawing = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+        private Bitmap bmpCommitted = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+
+        /// <summary>
+        /// Stores the current brush stroke. This bitmap is drawn to for all brush strokes, then
+        /// merged down to the committed bitmap and cleared on finishing a brush stroke. Keeping
+        /// a staging layer enables layer-like opacity and all the blend modes that aren't normal
+        /// or overwrite mode. These effects are performed during draw & when committing.
+        /// </summary>
+        private Bitmap bmpStaged = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+
+        /// <summary>
+        /// Stores the merged image of the staged + committed bitmaps. This is used only when drawing the canvas
+        /// visually for the user, because freeing & allocating this memory repeatedly would be extremely slow.
+        /// </summary>
+        private Bitmap bmpMerged = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
 
         /// <summary>
         /// Loads user's custom brush images asynchronously.
@@ -121,9 +135,11 @@ namespace DynamicDraw
 
         /// <summary>
         /// Tracks when the user has begun drawing by pressing down the mouse or applying pressure, and if they
-        /// actually affected the image (which might not happen based on the dynamic brush settings).
+        /// actually affected the image (which might not happen based on the dynamic brush settings), and whether
+        /// changes were made to the staged layer or not (there's a major performance boost for not having to use or
+        /// draw the staged layer because that involves merging two layers in realtime as you draw).
         /// </summary>
-        private (bool started, bool canvasChanged) isUserDrawing = new(false, false);
+        private (bool started, bool canvasChanged, bool stagedChanged) isUserDrawing = new(false, false, false);
 
         private bool isUserPanning = false;
         private bool isWheelZooming = false;
@@ -303,6 +319,8 @@ namespace DynamicDraw
         private CheckBox chkbxColorInfluenceVal;
         private Button bttnBrushColor;
         private ComboBox cmbxBlendMode;
+        private Label txtBrushOpacity;
+        private TrackBar sliderBrushOpacity;
         private Label txtBrushAlpha;
         private TrackBar sliderBrushAlpha;
         private Label txtBrushRotation;
@@ -538,7 +556,20 @@ namespace DynamicDraw
             blendModeOptions = new BindingList<Tuple<string, BlendMode>>
             {
                 new Tuple<string, BlendMode>(Strings.BlendModeNormal, BlendMode.Normal),
-                new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite)
+                new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite),
+                new Tuple<string, BlendMode>(Strings.BlendModeAdditive, BlendMode.Additive),
+                new Tuple<string, BlendMode>(Strings.BlendModeColorBurn, BlendMode.ColorBurn),
+                new Tuple<string, BlendMode>(Strings.BlendModeColorDodge, BlendMode.ColorDodge),
+                new Tuple<string, BlendMode>(Strings.BlendModeDarken, BlendMode.Darken),
+                new Tuple<string, BlendMode>(Strings.BlendModeDifference, BlendMode.Difference),
+                new Tuple<string, BlendMode>(Strings.BlendModeGlow, BlendMode.Glow),
+                new Tuple<string, BlendMode>(Strings.BlendModeLighten, BlendMode.Lighten),
+                new Tuple<string, BlendMode>(Strings.BlendModeMultiply, BlendMode.Multiply),
+                new Tuple<string, BlendMode>(Strings.BlendModeNegation, BlendMode.Negation),
+                new Tuple<string, BlendMode>(Strings.BlendModeOverlay, BlendMode.Overlay),
+                new Tuple<string, BlendMode>(Strings.BlendModeReflect, BlendMode.Reflect),
+                new Tuple<string, BlendMode>(Strings.BlendModeScreen, BlendMode.Screen),
+                new Tuple<string, BlendMode>(Strings.BlendModeXor, BlendMode.Xor)
             };
             cmbxBlendMode.DataSource = blendModeOptions;
             cmbxBlendMode.DisplayMember = "Item1";
@@ -568,6 +599,7 @@ namespace DynamicDraw
             this.sliderCanvasAngle.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderColorInfluence.MouseWheel += IgnoreMouseWheelEvent;
+            this.sliderBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushAlpha.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushSize.MouseWheel += IgnoreMouseWheelEvent;
@@ -799,7 +831,10 @@ namespace DynamicDraw
             canvas.width = EnvironmentParameters.SourceSurface.Size.Width;
             canvas.height = EnvironmentParameters.SourceSurface.Size.Height;
 
-            bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
+            bmpCommitted = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
+            bmpStaged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+            bmpMerged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+
             symmetryOrigin = new PointF(
                 EnvironmentParameters.SourceSurface.Width / 2f,
                 EnvironmentParameters.SourceSurface.Height / 2f);
@@ -818,8 +853,11 @@ namespace DynamicDraw
                 version.Minor + ")";
 
             //Loads globalization texts for regional support.
+            txtBrushOpacity.Text = string.Format("{0} {1}",
+                Strings.BrushOpacity, sliderBrushOpacity.Value);
+
             txtBrushAlpha.Text = string.Format("{0} {1}",
-                Strings.Alpha, sliderBrushAlpha.Value);
+                Strings.BrushFlow, sliderBrushAlpha.Value);
 
             txtBrushDensity.Text = string.Format("{0} {1}",
                 Strings.BrushDensity, sliderBrushDensity.Value);
@@ -918,7 +956,7 @@ namespace DynamicDraw
             chkbxAutomaticBrushDensity.Text = Strings.AutomaticBrushDensity;
 
             cmbxTabPressureBlueJitter.Text = Strings.JitterBlue;
-            cmbxTabPressureBrushAlpha.Text = Strings.Alpha;
+            cmbxTabPressureBrushAlpha.Text = Strings.BrushFlow;
             cmbxTabPressureBrushDensity.Text = Strings.BrushDensity;
             cmbxTabPressureBrushRotation.Text = Strings.Rotation;
             cmbxTabPressureBrushSize.Text = Strings.Size;
@@ -1260,7 +1298,9 @@ namespace DynamicDraw
                 bmpBrush?.Dispose();
                 bmpBrushDownsized?.Dispose();
                 bmpBrushEffects?.Dispose();
-                bmpCurrentDrawing?.Dispose();
+                bmpCommitted?.Dispose();
+                bmpStaged?.Dispose();
+                bmpMerged?.Dispose();
                 bmpBackgroundClipboard?.Dispose();
 
                 displayCanvas.Cursor = Cursors.Default;
@@ -1297,7 +1337,7 @@ namespace DynamicDraw
                 string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
 
                 //Saves the drawing to the file and saves the file path.
-                bmpCurrentDrawing.Save(path);
+                bmpCommitted.Save(path);
                 undoHistory.Push(path);
                 if (!bttnUndo.Enabled)
                 {
@@ -1438,12 +1478,12 @@ namespace DynamicDraw
                 finalRandVertShift != 0)
             {
                 loc.X = loc.X
-                    - bmpCurrentDrawing.Width * (finalRandHorzShift / 200f)
-                    + bmpCurrentDrawing.Width * (random.Next(finalRandHorzShift) / 100f);
+                    - bmpCommitted.Width * (finalRandHorzShift / 200f)
+                    + bmpCommitted.Width * (random.Next(finalRandHorzShift) / 100f);
 
                 loc.Y = loc.Y
-                    - bmpCurrentDrawing.Height * (finalRandVertShift / 200f)
-                    + bmpCurrentDrawing.Height * (random.Next(finalRandVertShift) / 100f);
+                    - bmpCommitted.Height * (finalRandVertShift / 200f)
+                    + bmpCommitted.Height * (random.Next(finalRandVertShift) / 100f);
             }
             #endregion
 
@@ -1620,7 +1660,7 @@ namespace DynamicDraw
                     // newAlpha just mixes the remainder from jitter, which is why it does 255 minus the jitter.
                     // Non-standard blend modes need to use the brush as an alpha mask, so they don't multiply brush
                     // transparency into the brush early on.
-                    float newAlpha = (cmbxBlendMode.SelectedIndex == (int)BlendMode.Normal || activeTool == Tool.Eraser)
+                    float newAlpha = (activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Overwrite)
                         ? Utils.ClampF((255 - newMinAlpha) / 255f, 0, 1)
                         : adjustedColor.A / 255f;
 
@@ -1679,12 +1719,27 @@ namespace DynamicDraw
             }
             #endregion
 
-            // Draws the brush.
-            using (Graphics g = Graphics.FromImage(bmpCurrentDrawing))
+            // The staged bitmap is only needed for layer opacity and layer blend modes, because the brush stroke
+            // opacity becomes important in calculating separately from the regular drawing. The staged bitmap will
+            // be drawn the whole time and when done with the brush stroke, so it's tracked to know when committing to
+            // it is necessary, to save speed. Note that the eraser tool always erases on the committed bitmap.
+            bool drawToStagedBitmap = activeTool != Tool.Eraser &&
+                (BlendModeUtils.BlendModeToUserBlendOp((BlendMode)cmbxBlendMode.SelectedIndex) != null
+                || sliderBrushOpacity.Value != sliderBrushOpacity.Maximum);
+
+            if (drawToStagedBitmap)
             {
-                // Lockbits is needed for blend modes, channel locks, and seamless drawing.
+                isUserDrawing.stagedChanged = true;
+            }
+
+            Bitmap bmpToDrawOn = drawToStagedBitmap ? bmpStaged : bmpCommitted;
+
+            // Draws the brush.
+            using (Graphics g = Graphics.FromImage(bmpToDrawOn))
+            {
+                // Lockbits is needed for overwrite blend mode, channel locks, and seamless drawing.
                 bool useLockbitsDrawing = activeTool == Tool.Eraser
-                    || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal
+                    || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite
                     || chkbxSeamlessDrawing.Checked
                     || chkbxLockAlpha.Checked
                     || chkbxLockR.Checked || chkbxLockG.Checked || chkbxLockB.Checked
@@ -1737,8 +1792,8 @@ namespace DynamicDraw
                 g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[(CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue];
 
                 // Compensate for brush origin being top-left corner instead of center.
-                float drawingOffsetX = bmpCurrentDrawing.Width * 0.5f;
-                float drawingOffsetY = bmpCurrentDrawing.Height * 0.5f;
+                float drawingOffsetX = bmpCommitted.Width * 0.5f;
+                float drawingOffsetY = bmpCommitted.Height * 0.5f;
 
                 // Moves where the brush stroke is applied to match the user's canvas rotation settings.
                 if (!useLockbitsDrawing)
@@ -1775,7 +1830,7 @@ namespace DynamicDraw
                                 {
                                     Utils.OverwriteMasked(
                                         this.EnvironmentParameters.SourceSurface,
-                                        bmpCurrentDrawing,
+                                        bmpCommitted,
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
@@ -1788,7 +1843,7 @@ namespace DynamicDraw
                                 else
                                 {
                                     Utils.DrawMasked(
-                                        bmpCurrentDrawing,
+                                        bmpToDrawOn,
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
@@ -1862,7 +1917,7 @@ namespace DynamicDraw
                                 {
                                     Utils.OverwriteMasked(
                                         this.EnvironmentParameters.SourceSurface,
-                                        bmpCurrentDrawing,
+                                        bmpCommitted,
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
@@ -1875,7 +1930,7 @@ namespace DynamicDraw
                                 else
                                 {
                                     Utils.DrawMasked(
-                                        bmpCurrentDrawing,
+                                        bmpToDrawOn,
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
@@ -1930,7 +1985,7 @@ namespace DynamicDraw
                                     {
                                         Utils.OverwriteMasked(
                                             this.EnvironmentParameters.SourceSurface,
-                                            bmpCurrentDrawing,
+                                            bmpCommitted,
                                             bmpBrushRotScaled,
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
@@ -1943,7 +1998,7 @@ namespace DynamicDraw
                                     else
                                     {
                                         Utils.DrawMasked(
-                                            bmpCurrentDrawing,
+                                            bmpToDrawOn,
                                             bmpBrushRotScaled,
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
@@ -1977,7 +2032,7 @@ namespace DynamicDraw
                     }
 
                     //Draws the brush with radial reflections.
-                    else
+                    else if (cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None)
                     {
                         // Easier not to compute on a rotated canvas.
                         g.ResetTransform();
@@ -2018,35 +2073,35 @@ namespace DynamicDraw
                                     if (activeTool == Tool.Eraser)
                                     {
                                         Utils.OverwriteMasked(
-                                        this.EnvironmentParameters.SourceSurface,
-                                        bmpCurrentDrawing,
-                                        bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
-                                        (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
-                                        chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
-                                        chkbxSeamlessDrawing.Checked,
-                                        chkbxDitherDraw.Checked);
+                                            this.EnvironmentParameters.SourceSurface,
+                                            bmpCommitted,
+                                            bmpBrushRotScaled,
+                                            new Point(
+                                                (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                                (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked);
                                     }
                                     else
                                     {
                                         Utils.DrawMasked(
-                                        bmpCurrentDrawing,
-                                        bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
-                                        (adjustedColor, newMinAlpha),
-                                        chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
-                                            sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
-                                            chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
-                                        (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        (chkbxLockAlpha.Checked,
-                                        chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
-                                        chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
-                                        chkbxSeamlessDrawing.Checked,
-                                        chkbxDitherDraw.Checked);
+                                            bmpToDrawOn,
+                                            bmpBrushRotScaled,
+                                            new Point(
+                                                (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                                (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                            (adjustedColor, newMinAlpha),
+                                            chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
+                                                sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
+                                                chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
+                                            (BlendMode)cmbxBlendMode.SelectedIndex,
+                                            (chkbxLockAlpha.Checked,
+                                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked);
                                     }
 
                                     angle += angleIncrease;
@@ -2242,10 +2297,10 @@ namespace DynamicDraw
                 true, true, false);
 
             if (rotatedLoc.X >= 0 && rotatedLoc.Y >= 0 &&
-                rotatedLoc.X <= bmpCurrentDrawing.Width - 1 &&
-                rotatedLoc.Y <= bmpCurrentDrawing.Height - 1)
+                rotatedLoc.X <= bmpCommitted.Width - 1 &&
+                rotatedLoc.Y <= bmpCommitted.Height - 1)
             {
-                UpdateBrushColor(bmpCurrentDrawing.GetPixel(
+                UpdateBrushColor(bmpCommitted.GetPixel(
                     (int)Math.Round(rotatedLoc.X),
                     (int)Math.Round(rotatedLoc.Y)));
             }
@@ -2528,8 +2583,8 @@ namespace DynamicDraw
                     BttnRedo_Click(null, null);
                     break;
                 case ShortcutTarget.ResetCanvasTransforms:
-                    canvas.width = bmpCurrentDrawing.Width;
-                    canvas.height = bmpCurrentDrawing.Height;
+                    canvas.width = bmpCommitted.Width;
+                    canvas.height = bmpCommitted.Height;
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
                     canvas.y = (displayCanvas.Height - canvas.height) / 2;
                     sliderCanvasAngle.Value = 0;
@@ -2555,6 +2610,12 @@ namespace DynamicDraw
                     break;
                 case ShortcutTarget.SeamlessDrawing:
                     chkbxSeamlessDrawing.Checked = shortcut.GetDataAsBool(chkbxSeamlessDrawing.Checked);
+                    break;
+                case ShortcutTarget.BrushOpacity:
+                    sliderBrushOpacity.Value =
+                        shortcut.GetDataAsInt(sliderBrushOpacity.Value,
+                        sliderBrushOpacity.Minimum,
+                        sliderBrushOpacity.Maximum);
                     break;
             };
         }
@@ -2899,6 +2960,8 @@ namespace DynamicDraw
             this.brushImageLoadProgressBar = new ProgressBar();
             this.bttnBrushColor = new Button();
             this.cmbxBlendMode = new ComboBox();
+            this.txtBrushOpacity = new Label();
+            this.sliderBrushOpacity = new TrackBar();
             this.txtBrushAlpha = new Label();
             this.sliderBrushAlpha = new TrackBar();
             this.txtBrushRotation = new Label();
@@ -3087,6 +3150,7 @@ namespace DynamicDraw
             this.panelBrushAddPickColor.SuspendLayout();
             ((ISupportInitialize)(this.sliderColorInfluence)).BeginInit();
             this.panelColorInfluenceHSV.SuspendLayout();
+            ((ISupportInitialize)(this.sliderBrushOpacity)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushAlpha)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushSize)).BeginInit();
@@ -3373,6 +3437,8 @@ namespace DynamicDraw
             this.panelBrush.Controls.Add(this.sliderColorInfluence);
             this.panelBrush.Controls.Add(this.panelColorInfluenceHSV);
             this.panelBrush.Controls.Add(this.cmbxBlendMode);
+            this.panelBrush.Controls.Add(this.txtBrushOpacity);
+            this.panelBrush.Controls.Add(this.sliderBrushOpacity);
             this.panelBrush.Controls.Add(this.txtBrushAlpha);
             this.panelBrush.Controls.Add(this.sliderBrushAlpha);
             this.panelBrush.Controls.Add(this.txtBrushRotation);
@@ -3553,6 +3619,23 @@ namespace DynamicDraw
             this.cmbxBlendMode.Name = "cmbxBlendMode";
             this.cmbxBlendMode.SelectedIndexChanged += new EventHandler(this.BttnBlendMode_SelectedIndexChanged);
             this.cmbxBlendMode.MouseEnter += new EventHandler(this.BttnBlendMode_MouseEnter);
+            // 
+            // txtBrushOpacity
+            // 
+            resources.ApplyResources(this.txtBrushOpacity, "txtBrushOpacity");
+            this.txtBrushOpacity.BackColor = System.Drawing.Color.Transparent;
+            this.txtBrushOpacity.Name = "txtBrushOpacity";
+            // 
+            // sliderBrushOpacity
+            // 
+            resources.ApplyResources(this.sliderBrushOpacity, "sliderBrushOpacity");
+            this.sliderBrushOpacity.LargeChange = 1;
+            this.sliderBrushOpacity.Maximum = 255;
+            this.sliderBrushOpacity.Name = "sliderBrushOpacity";
+            this.sliderBrushOpacity.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderBrushOpacity.Value = 255;
+            this.sliderBrushOpacity.ValueChanged += new EventHandler(this.SliderBrushOpacity_ValueChanged);
+            this.sliderBrushOpacity.MouseEnter += new EventHandler(this.SliderBrushOpacity_MouseEnter);
             // 
             // txtBrushAlpha
             // 
@@ -5166,6 +5249,7 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderColorInfluence)).EndInit();
             this.panelColorInfluenceHSV.ResumeLayout(false);
             this.panelColorInfluenceHSV.PerformLayout();
+            ((ISupportInitialize)(this.sliderBrushOpacity)).EndInit();
             ((ISupportInitialize)(this.sliderBrushAlpha)).EndInit();
             ((ISupportInitialize)(this.sliderBrushRotation)).EndInit();
             ((ISupportInitialize)(this.sliderBrushSize)).EndInit();
@@ -5339,7 +5423,7 @@ namespace DynamicDraw
                                     // Sets the clipboard background image.
                                     using (Image clipboardImage = Image.FromStream(stream))
                                     {
-                                        bmpBackgroundClipboard = new Bitmap(bmpCurrentDrawing.Width, bmpCurrentDrawing.Height, PixelFormat.Format32bppPArgb);
+                                        bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
                                         using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
                                         {
                                             graphics.CompositingMode = CompositingMode.SourceCopy;
@@ -5481,8 +5565,8 @@ namespace DynamicDraw
 
             // Determines the point's offset from the center of the un-rotated image, then gets its representing vector.
             // Note that if a rotation origin other than center image is set, change width/2 and height/2 to match it.
-            double deltaX = locX - bmpCurrentDrawing.Width / 2;
-            double deltaY = locY - bmpCurrentDrawing.Height / 2;
+            double deltaX = locX - bmpCommitted.Width / 2;
+            double deltaY = locY - bmpCommitted.Height / 2;
             double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
             double angle = Math.Atan2(deltaY, deltaX);
 
@@ -5493,14 +5577,14 @@ namespace DynamicDraw
             {
                 return new PointF(
                     Utils.ClampF((float)(
-                        bmpCurrentDrawing.Width / 2 + Math.Cos(angle) * distance), 0, bmpCurrentDrawing.Width),
+                        bmpCommitted.Width / 2 + Math.Cos(angle) * distance), 0, bmpCommitted.Width),
                     Utils.ClampF((float)(
-                        bmpCurrentDrawing.Height / 2 + Math.Sin(angle) * distance), 0, bmpCurrentDrawing.Height));
+                        bmpCommitted.Height / 2 + Math.Sin(angle) * distance), 0, bmpCommitted.Height));
             }
 
             return new PointF(
-                (float)(bmpCurrentDrawing.Width / 2 + Math.Cos(angle) * distance),
-                (float)(bmpCurrentDrawing.Height / 2 + Math.Sin(angle) * distance));
+                (float)(bmpCommitted.Width / 2 + Math.Cos(angle) * distance),
+                (float)(bmpCommitted.Height / 2 + Math.Sin(angle) * distance));
         }
 
         /// <summary>
@@ -5517,6 +5601,7 @@ namespace DynamicDraw
             tokenSelectedBrushImagePath = settings.BrushImagePath;
 
             //Sets all other fields.
+            sliderBrushOpacity.Value = settings.BrushOpacity;
             sliderBrushAlpha.Value = settings.BrushAlpha;
             sliderBrushDensity.Value = settings.BrushDensity;
             sliderBrushRotation.Value = settings.BrushRotation;
@@ -5664,7 +5749,7 @@ namespace DynamicDraw
 
             //Sets the color and alpha.
             Color setColor = bttnBrushColor.BackColor;
-            float multAlpha = (activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex == BlendMode.Normal)
+            float multAlpha = (activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
                 ? 1 - (finalBrushAlpha / 255f)
                 : 1;
 
@@ -5860,8 +5945,8 @@ namespace DynamicDraw
             }
 
             //Gets the new width and height, adjusted for zooming.
-            float zoomWidth = bmpCurrentDrawing.Width * newZoomFactor;
-            float zoomHeight = bmpCurrentDrawing.Height * newZoomFactor;
+            float zoomWidth = bmpCommitted.Width * newZoomFactor;
+            float zoomHeight = bmpCommitted.Height * newZoomFactor;
 
             PointF zoomingPoint = isWheelZooming
                 ? mouseLoc
@@ -6443,7 +6528,15 @@ namespace DynamicDraw
             isUserPanning = false;
             isUserDrawing.started = false;
             isUserDrawing.canvasChanged = false;
+            isUserDrawing.stagedChanged = false;
             timerRepositionUpdate.Enabled = false;
+
+            // Merge the staged layer down to committed, then clear the staged layer.
+            Utils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
+                new Rectangle(0, 0, bmpCommitted.Width, bmpCommitted.Height),
+                (byte)sliderBrushOpacity.Value, (BlendMode)cmbxBlendMode.SelectedIndex);
+
+            Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
 
             //Lets the user click anywhere to draw again.
             mouseLocBrush = null;
@@ -6522,11 +6615,34 @@ namespace DynamicDraw
             else if (canvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
             else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
 
+            // Merge the staged layer to an intermediate bitmap for drawing when layer settings are in use.
+            if (isUserDrawing.stagedChanged)
+            {
+                if (sliderCanvasAngle.Value == 0)
+                {
+                    Utils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
+                        new Rectangle(
+                            (int)lCutoffUnzoomed,
+                            (int)tCutoffUnzoomed,
+                            (int)Math.Ceiling(EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed),
+                            (int)Math.Ceiling(EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed)),
+                        (byte)sliderBrushOpacity.Value, (BlendMode)cmbxBlendMode.SelectedIndex);
+                }
+                else
+                {
+                    Utils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
+                        new Rectangle(0, 0, bmpMerged.Width, bmpMerged.Height),
+                        (byte)sliderBrushOpacity.Value, (BlendMode)cmbxBlendMode.SelectedIndex);
+                }
+            }
+
             //Draws only the visible portion of the image.
+            Bitmap bmpToDraw = isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
+
             if (sliderCanvasAngle.Value == 0)
             {
                 e.Graphics.DrawImage(
-                    bmpCurrentDrawing,
+                    bmpToDraw,
                     visibleBounds,
                     lCutoffUnzoomed,
                     tCutoffUnzoomed,
@@ -6536,7 +6652,7 @@ namespace DynamicDraw
             }
             else
             {
-                e.Graphics.DrawImage(bmpCurrentDrawing, 0, 0, canvas.width, canvas.height);
+                e.Graphics.DrawImage(bmpToDraw, 0, 0, canvas.width, canvas.height);
             }
 
             //Draws the selection.
@@ -7023,7 +7139,7 @@ namespace DynamicDraw
             //Sets the bitmap to draw. Locks to prevent concurrency.
             lock (RenderSettings.SurfaceToRender)
             {
-                RenderSettings.SurfaceToRender = Surface.CopyFromBitmap(bmpCurrentDrawing);
+                RenderSettings.SurfaceToRender = Surface.CopyFromBitmap(bmpCommitted);
             }
 
             //Updates the saved effect settings and OKs the effect.
@@ -7084,14 +7200,15 @@ namespace DynamicDraw
             {
                 //Saves the drawing to the file for undo.
                 string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
-                bmpCurrentDrawing.Save(path);
+                bmpCommitted.Save(path);
                 undoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
                 using (Bitmap redoBmp = new Bitmap(fileAndPath))
                 {
-                    Utils.OverwriteBits(redoBmp, bmpCurrentDrawing);
+                    Utils.OverwriteBits(redoBmp, bmpCommitted);
+                    Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
                 }
 
                 displayCanvas.Refresh();
@@ -7155,6 +7272,7 @@ namespace DynamicDraw
                     BrushColor = bttnBrushColor.BackColor,
                     BrushDensity = sliderBrushDensity.Value,
                     BrushImagePath = index >= 0 ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name : string.Empty,
+                    BrushOpacity = sliderBrushOpacity.Value,
                     BrushRotation = sliderBrushRotation.Value,
                     BrushSize = sliderBrushSize.Value,
                     ColorInfluence = sliderColorInfluence.Value,
@@ -7328,14 +7446,15 @@ namespace DynamicDraw
             {
                 //Saves the drawing to the file for redo.
                 string path = tempDir.GetTempPathName("HistoryBmp" + redoHistory.Count + ".redo");
-                bmpCurrentDrawing.Save(path);
+                bmpCommitted.Save(path);
                 redoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
                 using (Bitmap undoBmp = new Bitmap(fileAndPath))
                 {
-                    Utils.OverwriteBits(undoBmp, bmpCurrentDrawing);
+                    Utils.OverwriteBits(undoBmp, bmpCommitted);
+                    Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
                 }
 
                 displayCanvas.Refresh();
@@ -7731,6 +7850,20 @@ namespace DynamicDraw
             }
         }
 
+        private void SliderBrushOpacity_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.BrushOpacityTip);
+        }
+
+        private void SliderBrushOpacity_ValueChanged(object sender, EventArgs e)
+        {
+            txtBrushOpacity.Text = String.Format("{0} {1}",
+                Strings.BrushOpacity,
+                sliderBrushOpacity.Value);
+
+            UpdateBrushImage();
+        }
+
         private void SliderBrushAlpha_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.BrushAlphaTip);
@@ -7739,7 +7872,7 @@ namespace DynamicDraw
         private void SliderBrushAlpha_ValueChanged(object sender, EventArgs e)
         {
             txtBrushAlpha.Text = String.Format("{0} {1}",
-                Strings.Alpha,
+                Strings.BrushFlow,
                 sliderBrushAlpha.Value);
 
             UpdateBrushImage();

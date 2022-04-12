@@ -183,6 +183,11 @@ namespace DynamicDraw
         /// </param>
         public static unsafe void OverwriteBits(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
         {
+            if (srcImg == null || dstImg == null)
+            {
+                return;
+            }
+
             //Formats and size must be the same.
             if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
                 dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
@@ -298,6 +303,9 @@ namespace DynamicDraw
         /// <param name="dest">The bitmap to edit.</param>
         /// <param name="alphaMask">The brush used to draw.</param>
         /// <param name="location">The location to draw the brush at.</param>
+        /// <param name="channelLocks">Whether to allow values to change or not (for each channel including HSV).</param>
+        /// <param name="wrapAround">Whether to draw clipped brush parts to the opposite side of the canvas.</param>
+        /// <param name="ditherFilter">Whether to draw only every other pixel to replicate a pixel art dither.</param>
         public static unsafe void OverwriteMasked(
             Surface surface,
             Bitmap dest,
@@ -460,8 +468,9 @@ namespace DynamicDraw
         /// </param>
         /// <param name="colorInfluence">The amount of mixing with the active color to perform, and which HSV channels to affect.</param>
         /// <param name="blendMode">Determines the algorithm uesd to draw the brush on dest.</param>
-        /// <param name="channelLocks">Whether to allow alpha to change or not.</param>
+        /// <param name="channelLocks">Whether to allow values to change or not (for each channel including HSV).</param>
         /// <param name="wrapAround">Whether to draw clipped brush parts to the opposite side of the canvas.</param>
+        /// <param name="ditherFilter">Whether to draw only every other pixel to replicate a pixel art dither.</param>
         public static unsafe void DrawMasked(
             Bitmap dest,
             Bitmap brush,
@@ -578,8 +587,40 @@ namespace DynamicDraw
                             }
                         }
 
-                        // Perform a blend mode op on the pixel.
-                        if (blendMode == BlendMode.Normal)
+                        // Perform a blend mode op on the pixel, specially handling overwrite mode. Blend modes beyond
+                        // normal blending are all handled by the merge image function.
+                        if (blendMode == BlendMode.Overwrite)
+                        {
+                            destCol = destPtr->ConvertFromPremultipliedAlpha();
+
+                            // HSV conversion and channel locks
+                            if (hsvLocksInUse)
+                            {
+                                intermediateHSV = HSVFFromBgra(destCol);
+                                userColorAdjHSV = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
+                                if (channelLocks.H) { userColorAdjHSV.Hue = intermediateHSV.Hue; }
+                                if (channelLocks.S) { userColorAdjHSV.Saturation = intermediateHSV.Saturation; }
+                                if (channelLocks.V) { userColorAdjHSV.Value = intermediateHSV.Value; }
+                                newColor = HSVFToBgra(userColorAdjHSV);
+                            }
+
+                            newColor = ColorBgra.Blend(
+                                destCol,
+                                hsvLocksInUse
+                                    ? newColor
+                                    : colorInfluence == null ? userColorAdj : intermediateBGRA,
+                                brushPtr->A);
+
+                            alphaFactor = (!channelLocks.A)
+                                ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
+                                : destCol.A / 255f;
+
+                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
+                            if (!channelLocks.A) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
+                        }
+                        else
                         {
                             destCol = destPtr->ConvertFromPremultipliedAlpha();
 
@@ -613,37 +654,6 @@ namespace DynamicDraw
                             if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
                             if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
                             if (!channelLocks.A) { destPtr->A = newColor.A; }
-                        }
-                        else if (blendMode == BlendMode.Overwrite)
-                        {
-                            destCol = destPtr->ConvertFromPremultipliedAlpha();
-
-                            // HSV conversion and channel locks
-                            if (hsvLocksInUse)
-                            {
-                                intermediateHSV = HSVFFromBgra(destCol);
-                                userColorAdjHSV = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
-                                if (channelLocks.H) { userColorAdjHSV.Hue = intermediateHSV.Hue; }
-                                if (channelLocks.S) { userColorAdjHSV.Saturation = intermediateHSV.Saturation; }
-                                if (channelLocks.V) { userColorAdjHSV.Value = intermediateHSV.Value; }
-                                newColor = HSVFToBgra(userColorAdjHSV);
-                            }
-
-                            newColor = ColorBgra.Blend(
-                                destCol,
-                                hsvLocksInUse
-                                    ? newColor
-                                    : colorInfluence == null ? userColorAdj : intermediateBGRA,
-                                brushPtr->A);
-
-                            alphaFactor = (!channelLocks.A)
-                                ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
-                                : destCol.A / 255f;
-
-                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
-                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
-                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
-                            if (!channelLocks.A) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
                         }
 
                         if (!ditherFilter)
@@ -686,6 +696,95 @@ namespace DynamicDraw
 
             dest.UnlockBits(destData);
             brush.UnlockBits(brushData);
+        }
+
+        /// <summary>
+        /// Combines the staged bitmap using opacity and blendMode options to the committed bitmap, writing this data
+        /// over the dest bitmap. All layers must be the same width and height. Arguments aren't checked for validity.
+        /// </summary>
+        /// <param name="staged">The layer to merge down, following opacity and blend mode choices.</param>
+        /// <param name="committed">The current changes before merging staged into it.</param>
+        /// <param name="dest">
+        /// The bitmap to make the new changes on, which can be separate or match the staged/committed one.
+        /// </param>
+        /// <param name="regionToAffect">A smaller region to merge.</param>
+        /// <param name="maxOpacityAllowed">
+        /// Limits the final opacity on the staged layer before merging. This effect is similar to opacity in Krita.
+        /// </param>
+        /// <param name="blendModeType">
+        /// The current blend mode. If it corresponds to a paint.net user blend op type, merge is done using that blend
+        /// mode.
+        /// </param>
+        public static unsafe void MergeImage(
+            Bitmap staged,
+            Bitmap committed,
+            Bitmap dest,
+            Rectangle regionToAffect,
+            byte maxOpacityAllowed,
+            BlendMode blendMode)
+        {
+            BitmapData destData = dest.LockBits(
+                regionToAffect,
+                ImageLockMode.ReadWrite,
+                dest.PixelFormat);
+
+            BitmapData stagedData = (dest == staged) ? destData : staged.LockBits(
+                regionToAffect,
+                ImageLockMode.ReadOnly,
+                staged.PixelFormat);
+
+            BitmapData committedData = (dest == committed) ? destData : committed.LockBits(
+                regionToAffect,
+                ImageLockMode.ReadOnly,
+                committed.PixelFormat);
+
+            byte* destRow = (byte*)destData.Scan0;
+            byte* stagedRow = (byte*)stagedData.Scan0;
+            byte* committedRow = (byte*)committedData.Scan0;
+
+            ColorBgra final;
+            float finalAlpha;
+            Type blendType = blendMode != BlendMode.Normal ? BlendModeUtils.BlendModeToUserBlendOp(blendMode) : null;
+            UserBlendOp userBlendOp = blendType != null ? UserBlendOps.CreateBlendOp(blendType) : null;
+
+            for (int y = 0; y < regionToAffect.Height; y++)
+            {
+                ColorBgra* stagedPtr = (ColorBgra*)(stagedRow + (y * stagedData.Stride));
+                ColorBgra* committedPtr = (ColorBgra*)(committedRow + (y * committedData.Stride));
+                ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
+
+                for (int x = 0; x < regionToAffect.Width; x++)
+                {
+                    if (userBlendOp == null)
+                    {
+                        final = ColorBgra.Blend(
+                            committedPtr->ConvertFromPremultipliedAlpha(),
+                            stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(stagedPtr->A + committedPtr->A, 0, 255)),
+                            Math.Min(stagedPtr->A, maxOpacityAllowed));
+                    }
+                    else
+                    {
+                        final = userBlendOp.Apply(
+                            committedPtr->ConvertFromPremultipliedAlpha(),
+                            stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha(Math.Min(stagedPtr->A, maxOpacityAllowed)));
+                    }
+
+                    finalAlpha = final.A / 255f;
+
+                    destPtr->B = (byte)Math.Ceiling(final.B * finalAlpha);
+                    destPtr->G = (byte)Math.Ceiling(final.G * finalAlpha);
+                    destPtr->R = (byte)Math.Ceiling(final.R * finalAlpha);
+                    destPtr->A = final.A;
+
+                    stagedPtr++;
+                    committedPtr++;
+                    destPtr++;
+                }
+            }
+
+            dest.UnlockBits(destData);
+            if (staged != dest) { staged.UnlockBits(stagedData); }
+            if (committed != dest) { committed.UnlockBits(committedData); }
         }
 
         /// <summary>

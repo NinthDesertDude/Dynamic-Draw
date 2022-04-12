@@ -1105,7 +1105,7 @@
     <value>0, 3, 0, 3</value>
   </data>
   <data name="cmbxBlendMode.MaxDropDownItems" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="cmbxBlendMode.Size" type="System.Drawing.Size, System.Drawing">
     <value>153, 21</value>
@@ -1125,6 +1125,75 @@
   <data name="&gt;&gt;cmbxBlendMode.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
+  <data name="txtBrushOpacity.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="txtBrushOpacity.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="txtBrushOpacity.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 522</value>
+  </data>
+  <data name="txtBrushOpacity.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="txtBrushOpacity.Size" type="System.Drawing.Size, System.Drawing">
+    <value>149, 17</value>
+  </data>
+  <data name="txtBrushOpacity.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="txtBrushOpacity.Text" xml:space="preserve">
+    <value>Opacity:</value>
+  </data>
+  <data name="txtBrushOpacity.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleCenter</value>
+  </data>
+  <data name="&gt;&gt;txtBrushOpacity.Name" xml:space="preserve">
+    <value>txtBrushOpacity</value>
+  </data>
+  <data name="&gt;&gt;txtBrushOpacity.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;txtBrushOpacity.Parent" xml:space="preserve">
+    <value>panelBrush</value>
+  </data>
+  <data name="&gt;&gt;txtBrushOpacity.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="sliderBrushOpacity.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="sliderBrushOpacity.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="sliderBrushOpacity.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="sliderBrushOpacity.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 542</value>
+  </data>
+  <data name="sliderBrushOpacity.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="sliderBrushOpacity.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 25</value>
+  </data>
+  <data name="sliderBrushOpacity.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="&gt;&gt;sliderBrushOpacity.Name" xml:space="preserve">
+    <value>sliderBrushOpacity</value>
+  </data>
+  <data name="&gt;&gt;sliderBrushOpacity.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;sliderBrushOpacity.Parent" xml:space="preserve">
+    <value>panelBrush</value>
+  </data>
+  <data name="&gt;&gt;sliderBrushOpacity.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
   <data name="txtBrushAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
@@ -1132,7 +1201,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 522</value>
+    <value>7, 570</value>
   </data>
   <data name="txtBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -1171,7 +1240,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 542</value>
+    <value>6, 590</value>
   </data>
   <data name="sliderBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -1180,7 +1249,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>20</value>
+    <value>21</value>
   </data>
   <data name="&gt;&gt;sliderBrushAlpha.Name" xml:space="preserve">
     <value>sliderBrushAlpha</value>
@@ -1201,7 +1270,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 570</value>
+    <value>7, 618</value>
   </data>
   <data name="txtBrushRotation.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -1240,7 +1309,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 590</value>
+    <value>6, 638</value>
   </data>
   <data name="sliderBrushRotation.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -1249,7 +1318,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushRotation.TabIndex" type="System.Int32, mscorlib">
-    <value>21</value>
+    <value>22</value>
   </data>
   <data name="&gt;&gt;sliderBrushRotation.Name" xml:space="preserve">
     <value>sliderBrushRotation</value>
@@ -1270,7 +1339,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 618</value>
+    <value>7, 666</value>
   </data>
   <data name="txtBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -1309,7 +1378,7 @@
     <value>NoControl</value>
   </data>
   <data name="sliderBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 638</value>
+    <value>6, 686</value>
   </data>
   <data name="sliderBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -1318,7 +1387,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushSize.TabIndex" type="System.Int32, mscorlib">
-    <value>22</value>
+    <value>23</value>
   </data>
   <data name="&gt;&gt;sliderBrushSize.Name" xml:space="preserve">
     <value>sliderBrushSize</value>

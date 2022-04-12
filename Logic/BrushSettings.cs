@@ -85,6 +85,16 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// The brush's opacity.
+        /// </summary>
+        [DataMember(Name = "BrushOpacity")]
+        public int BrushOpacity
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// The brush's orientation in degrees.
         /// </summary>
         [DataMember(Name = "BrushRotation")]
@@ -639,6 +649,7 @@ namespace DynamicDraw
             BrushAlpha = 0;
             BrushColor = UserSettings.userPrimaryColor;
             BrushDensity = 10;
+            BrushOpacity = 255;
             RandMaxAlpha = 0;
             RandMinAlpha = 0;
             RandMaxSize = 0;
@@ -738,6 +749,7 @@ namespace DynamicDraw
             BrushAlpha = other.BrushAlpha;
             BrushColor = other.BrushColor;
             BrushDensity = other.BrushDensity;
+            BrushOpacity = other.BrushOpacity;
             RandMaxAlpha = other.RandMaxAlpha;
             RandMinAlpha = other.RandMinAlpha;
             RandMaxSize = other.RandMaxSize;

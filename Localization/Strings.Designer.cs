@@ -205,15 +205,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush Transparency:.
-        /// </summary>
-        internal static string Alpha {
-            get {
-                return ResourceManager.GetString("Alpha", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Auto manage density.
         /// </summary>
         internal static string AutomaticBrushDensity {
@@ -277,11 +268,101 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blending: Additive.
+        /// </summary>
+        internal static string BlendModeAdditive {
+            get {
+                return ResourceManager.GetString("BlendModeAdditive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Color Burn.
+        /// </summary>
+        internal static string BlendModeColorBurn {
+            get {
+                return ResourceManager.GetString("BlendModeColorBurn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Color Dodge.
+        /// </summary>
+        internal static string BlendModeColorDodge {
+            get {
+                return ResourceManager.GetString("BlendModeColorDodge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Darken.
+        /// </summary>
+        internal static string BlendModeDarken {
+            get {
+                return ResourceManager.GetString("BlendModeDarken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Difference.
+        /// </summary>
+        internal static string BlendModeDifference {
+            get {
+                return ResourceManager.GetString("BlendModeDifference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Glow.
+        /// </summary>
+        internal static string BlendModeGlow {
+            get {
+                return ResourceManager.GetString("BlendModeGlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Lighten.
+        /// </summary>
+        internal static string BlendModeLighten {
+            get {
+                return ResourceManager.GetString("BlendModeLighten", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Multiply.
+        /// </summary>
+        internal static string BlendModeMultiply {
+            get {
+                return ResourceManager.GetString("BlendModeMultiply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Negation.
+        /// </summary>
+        internal static string BlendModeNegation {
+            get {
+                return ResourceManager.GetString("BlendModeNegation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Blending: Normal.
         /// </summary>
         internal static string BlendModeNormal {
             get {
                 return ResourceManager.GetString("BlendModeNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Overlay.
+        /// </summary>
+        internal static string BlendModeOverlay {
+            get {
+                return ResourceManager.GetString("BlendModeOverlay", resourceCulture);
             }
         }
         
@@ -295,6 +376,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blending: Reflect.
+        /// </summary>
+        internal static string BlendModeReflect {
+            get {
+                return ResourceManager.GetString("BlendModeReflect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Screen.
+        /// </summary>
+        internal static string BlendModeScreen {
+            get {
+                return ResourceManager.GetString("BlendModeScreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Blend modes describe how pixels should be edited by the brush stroke.
         ///Normal: brushing draws over the image as usual, never making an image more transparent.
         ///Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set..
@@ -302,6 +401,15 @@ namespace DynamicDraw.Localization {
         internal static string BlendModeTip {
             get {
                 return ResourceManager.GetString("BlendModeTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Xor.
+        /// </summary>
+        internal static string BlendModeXor {
+            get {
+                return ResourceManager.GetString("BlendModeXor", resourceCulture);
             }
         }
         
@@ -351,6 +459,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Flow:.
+        /// </summary>
+        internal static string BrushFlow {
+            get {
+                return ResourceManager.GetString("BrushFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lets you choose another brush image to use..
         /// </summary>
         internal static string BrushImageSelectorTip {
@@ -374,6 +491,24 @@ namespace DynamicDraw.Localization {
         internal static string BrushLocationsTextboxTip {
             get {
                 return ResourceManager.GetString("BrushLocationsTextboxTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Opacity:.
+        /// </summary>
+        internal static string BrushOpacity {
+            get {
+                return ResourceManager.GetString("BrushOpacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sets the brush opacity. Lower values are more transparent..
+        /// </summary>
+        internal static string BrushOpacityTip {
+            get {
+                return ResourceManager.GetString("BrushOpacityTip", resourceCulture);
             }
         }
         
@@ -1647,6 +1782,15 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutBlendMode {
             get {
                 return ResourceManager.GetString("ShortcutBlendMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Opacity.
+        /// </summary>
+        internal static string ShortcutBrushOpacity {
+            get {
+                return ResourceManager.GetString("ShortcutBrushOpacity", resourceCulture);
             }
         }
         

@@ -95,7 +95,8 @@ namespace DynamicDraw
                 { ShortcutTarget.DoLockB, new Setting(Localization.Strings.LockB, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DoLockHue, new Setting(Localization.Strings.LockHue, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DoLockSat, new Setting(Localization.Strings.LockSat, ShortcutTargetDataType.Bool) },
-                { ShortcutTarget.DoLockVal, new Setting(Localization.Strings.LockVal, ShortcutTargetDataType.Bool) }
+                { ShortcutTarget.DoLockVal, new Setting(Localization.Strings.LockVal, ShortcutTargetDataType.Bool) },
+                { ShortcutTarget.BrushOpacity, new Setting(Localization.Strings.ShortcutBrushOpacity, 0, 255) }
             };
         }
 

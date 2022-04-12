@@ -138,8 +138,8 @@
   <data name="AddFoldersTip" xml:space="preserve">
     <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not.</value>
   </data>
-  <data name="Alpha" xml:space="preserve">
-    <value>Brush Transparency:</value>
+  <data name="BrushFlow" xml:space="preserve">
+    <value>Flow:</value>
   </data>
   <data name="BrushAlphaTip" xml:space="preserve">
     <value>Brush transparency shortcut: Ctrl + A + Mouse Wheel. Sets the brush transparency, so it becomes opaque or see-through.</value>
@@ -896,5 +896,53 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="LockRTip" xml:space="preserve">
     <value>Prevents drawing from affecting the redness of the image. Note that bright values have more red and vice versa.</value>
+  </data>
+  <data name="BlendModeAdditive" xml:space="preserve">
+    <value>Blending: Additive</value>
+  </data>
+  <data name="BlendModeColorBurn" xml:space="preserve">
+    <value>Blending: Color Burn</value>
+  </data>
+  <data name="BlendModeColorDodge" xml:space="preserve">
+    <value>Blending: Color Dodge</value>
+  </data>
+  <data name="BlendModeDarken" xml:space="preserve">
+    <value>Blending: Darken</value>
+  </data>
+  <data name="BlendModeDifference" xml:space="preserve">
+    <value>Blending: Difference</value>
+  </data>
+  <data name="BlendModeGlow" xml:space="preserve">
+    <value>Blending: Glow</value>
+  </data>
+  <data name="BlendModeLighten" xml:space="preserve">
+    <value>Blending: Lighten</value>
+  </data>
+  <data name="BlendModeMultiply" xml:space="preserve">
+    <value>Blending: Multiply</value>
+  </data>
+  <data name="BlendModeNegation" xml:space="preserve">
+    <value>Blending: Negation</value>
+  </data>
+  <data name="BlendModeOverlay" xml:space="preserve">
+    <value>Blending: Overlay</value>
+  </data>
+  <data name="BlendModeReflect" xml:space="preserve">
+    <value>Blending: Reflect</value>
+  </data>
+  <data name="BlendModeScreen" xml:space="preserve">
+    <value>Blending: Screen</value>
+  </data>
+  <data name="BlendModeXor" xml:space="preserve">
+    <value>Xor</value>
+  </data>
+  <data name="BrushOpacity" xml:space="preserve">
+    <value>Brush Opacity:</value>
+  </data>
+  <data name="ShortcutBrushOpacity" xml:space="preserve">
+    <value>Brush Opacity</value>
+  </data>
+  <data name="BrushOpacityTip" xml:space="preserve">
+    <value>Sets the brush opacity. Lower values are more transparent.</value>
   </data>
 </root>
