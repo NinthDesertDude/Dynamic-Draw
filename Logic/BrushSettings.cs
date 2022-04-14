@@ -14,16 +14,6 @@ namespace DynamicDraw
     {
         #region Fields
         /// <summary>
-        /// Increments/decrements the alpha by an amount after each stroke.
-        /// </summary>
-        [DataMember(Name = "AlphaChange")]
-        public int AlphaChange
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// When true, the brush density is automatically updated according to the final brush
         /// size, ensuring the brush stroke stays smooth as the size changes.
         /// </summary>
@@ -39,16 +29,6 @@ namespace DynamicDraw
         /// </summary>
         [DataMember(Name = "BlendMode")]
         public BlendMode BlendMode
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The brush's transparency.
-        /// </summary>
-        [DataMember(Name = "BrushAlpha")]
-        public int BrushAlpha
         {
             get;
             set;
@@ -75,6 +55,16 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// The transparency of the brush (multiplied, as opposed to opacity).
+        /// </summary>
+        [DataMember(Name = "BrushFlow")]
+        public int BrushFlow
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// The file path of the active brush. Built-in brushes use their name here instead.
         /// </summary>
         [DataMember(Name = "BrushImagePath")]
@@ -85,7 +75,7 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// The brush's opacity.
+        /// The max opacity allowed for any pixel in a brush stroke. Higher values are set to max.
         /// </summary>
         [DataMember(Name = "BrushOpacity")]
         public int BrushOpacity
@@ -255,10 +245,20 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Randomized maximum brush transparency.
+        /// Increments/decrements the flow by an amount after each stroke.
         /// </summary>
-        [DataMember(Name = "RandMaxAlpha")]
-        public int RandMaxAlpha
+        [DataMember(Name = "FlowChange")]
+        public int FlowChange
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Randomized flow loss.
+        /// </summary>
+        [DataMember(Name = "RandFlowLoss")]
+        public int RandFlowLoss
         {
             get;
             set;
@@ -269,16 +269,6 @@ namespace DynamicDraw
         /// </summary>
         [DataMember(Name = "RandMaxSize")]
         public int RandMaxSize
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Randomized minimum brush transparency.
-        /// </summary>
-        [DataMember(Name = "RandMinAlpha")]
-        public int RandMinAlpha
         {
             get;
             set;
@@ -509,11 +499,14 @@ namespace DynamicDraw
         [DataMember(Name = "Symmetry")]
         public SymmetryMode Symmetry { get; set; }
 
-        [DataMember(Name = "TabPressureBrushAlpha")]
-        public int TabPressureBrushAlpha { get; set; }
-
         [DataMember(Name = "TabPressureBrushDensity")]
         public int TabPressureBrushDensity { get; set; }
+
+        [DataMember(Name = "TabPressureBrushFlow")]
+        public int TabPressureBrushFlow { get; set; }
+
+        [DataMember(Name = "TabPressureBrushOpacity")]
+        public int TabPressureBrushOpacity { get; set; }
 
         [DataMember(Name = "TabPressureBrushRotation")]
         public int TabPressureBrushRotation { get; set; }
@@ -566,8 +559,8 @@ namespace DynamicDraw
         [DataMember(Name = "TabPressureRandMaxSize")]
         public int TabPressureRandMaxSize { get; set; }
 
-        [DataMember(Name = "TabPressureRandMinAlpha")]
-        public int TabPressureRandMinAlpha { get; set; }
+        [DataMember(Name = "TabPressureRandFlowLoss")]
+        public int TabPressureRandFlowLoss { get; set; }
 
         [DataMember(Name = "TabPressureRandMinSize")]
         public int TabPressureRandMinSize { get; set; }
@@ -581,11 +574,14 @@ namespace DynamicDraw
         [DataMember(Name = "TabPressureRandVerShift")]
         public int TabPressureRandVerShift { get; set; }
 
-        [DataMember(Name = "CmbxTabPressureBrushAlpha")]
-        public int CmbxTabPressureBrushAlpha { get; set; }
-
         [DataMember(Name = "CmbxTabPressureBrushDensity")]
         public int CmbxTabPressureBrushDensity { get; set; }
+
+        [DataMember(Name = "CmbxTabPressureBrushFlow")]
+        public int CmbxTabPressureBrushFlow { get; set; }
+
+        [DataMember(Name = "CmbxTabPressureBrushOpacity")]
+        public int CmbxTabPressureBrushOpacity { get; set; }
 
         [DataMember(Name = "CmbxTabPressureBrushRotation")]
         public int CmbxTabPressureBrushRotation { get; set; }
@@ -620,8 +616,8 @@ namespace DynamicDraw
         [DataMember(Name = "CmbxTabPressureRandMaxSize")]
         public int CmbxTabPressureRandMaxSize { get; set; }
 
-        [DataMember(Name = "CmbxTabPressureRandMinAlpha")]
-        public int CmbxTabPressureRandMinAlpha { get; set; }
+        [DataMember(Name = "CmbxTabPressureRandFlowLoss")]
+        public int CmbxTabPressureRandFlowLoss { get; set; }
 
         [DataMember(Name = "CmbxTabPressureRandMinSize")]
         public int CmbxTabPressureRandMinSize { get; set; }
@@ -646,12 +642,11 @@ namespace DynamicDraw
             BrushSize = 2;
             BrushImagePath = Strings.DefaultBrushCircle;
             BrushRotation = 0;
-            BrushAlpha = 0;
             BrushColor = UserSettings.userPrimaryColor;
             BrushDensity = 10;
+            BrushFlow = 0;
             BrushOpacity = 255;
-            RandMaxAlpha = 0;
-            RandMinAlpha = 0;
+            RandFlowLoss = 0;
             RandMaxSize = 0;
             RandMinSize = 0;
             RandRotLeft = 0;
@@ -672,6 +667,7 @@ namespace DynamicDraw
             DoLockHue = false;
             DoLockSat = false;
             DoLockVal = false;
+            FlowChange = 0;
             MinDrawDistance = 0;
             RandMaxR = 0;
             RandMaxG = 0;
@@ -688,11 +684,11 @@ namespace DynamicDraw
             SeamlessDrawing = false;
             SizeChange = 0;
             RotChange = 0;
-            AlphaChange = 0;
             Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
-            CmbxTabPressureBrushAlpha = 0;
             CmbxTabPressureBrushDensity = 0;
+            CmbxTabPressureBrushFlow = 0;
+            CmbxTabPressureBrushOpacity = 0;
             CmbxTabPressureBrushRotation = 0;
             CmbxTabPressureBrushSize = 0;
             CmbxTabPressureBlueJitter = 0;
@@ -702,15 +698,16 @@ namespace DynamicDraw
             CmbxTabPressureRedJitter = 0;
             CmbxTabPressureSatJitter = 0;
             CmbxTabPressureValueJitter = 0;
+            CmbxTabPressureRandFlowLoss = 0;
             CmbxTabPressureRandHorShift = 0;
             CmbxTabPressureRandMaxSize = 0;
-            CmbxTabPressureRandMinAlpha = 0;
             CmbxTabPressureRandMinSize = 0;
             CmbxTabPressureRandRotLeft = 0;
             CmbxTabPressureRandRotRight = 0;
             CmbxTabPressureRandVerShift = 0;
-            TabPressureBrushAlpha = 0;
             TabPressureBrushDensity = 0;
+            TabPressureBrushFlow = 0;
+            TabPressureBrushOpacity = 0;
             TabPressureBrushRotation = 0;
             TabPressureBrushSize = 0;
             TabPressureMaxBlueJitter = 0;
@@ -726,9 +723,9 @@ namespace DynamicDraw
             TabPressureMinRedJitter = 0;
             TabPressureMinSatJitter = 0;
             TabPressureMinValueJitter = 0;
+            TabPressureRandFlowLoss = 0;
             TabPressureRandHorShift = 0;
             TabPressureRandMaxSize = 0;
-            TabPressureRandMinAlpha = 0;
             TabPressureRandMinSize = 0;
             TabPressureRandRotLeft = 0;
             TabPressureRandRotRight = 0;
@@ -746,12 +743,11 @@ namespace DynamicDraw
             BrushSize = other.BrushSize;
             BrushImagePath = other.BrushImagePath;
             BrushRotation = other.BrushRotation;
-            BrushAlpha = other.BrushAlpha;
+            BrushFlow = other.BrushFlow;
             BrushColor = other.BrushColor;
             BrushDensity = other.BrushDensity;
             BrushOpacity = other.BrushOpacity;
-            RandMaxAlpha = other.RandMaxAlpha;
-            RandMinAlpha = other.RandMinAlpha;
+            RandFlowLoss = other.RandFlowLoss;
             RandMaxSize = other.RandMaxSize;
             RandMinSize = other.RandMinSize;
             RandRotLeft = other.RandRotLeft;
@@ -772,6 +768,7 @@ namespace DynamicDraw
             DoLockHue = other.DoLockHue;
             DoLockSat = other.DoLockSat;
             DoLockVal = other.DoLockVal;
+            FlowChange = other.FlowChange;
             MinDrawDistance = other.MinDrawDistance;
             RandMaxR = other.RandMaxR;
             RandMaxG = other.RandMaxG;
@@ -785,8 +782,9 @@ namespace DynamicDraw
             RandMinH = other.RandMinH;
             RandMinS = other.RandMinS;
             RandMinV = other.RandMinV;
-            CmbxTabPressureBrushAlpha = other.CmbxTabPressureBrushAlpha;
             CmbxTabPressureBrushDensity = other.CmbxTabPressureBrushDensity;
+            CmbxTabPressureBrushFlow = other.CmbxTabPressureBrushFlow;
+            CmbxTabPressureBrushOpacity = other.CmbxTabPressureBrushOpacity;
             CmbxTabPressureBrushRotation = other.CmbxTabPressureBrushRotation;
             CmbxTabPressureBrushSize = other.CmbxTabPressureBrushSize;
             CmbxTabPressureBlueJitter = other.CmbxTabPressureBlueJitter;
@@ -796,15 +794,16 @@ namespace DynamicDraw
             CmbxTabPressureRedJitter = other.CmbxTabPressureRedJitter;
             CmbxTabPressureSatJitter = other.CmbxTabPressureSatJitter;
             CmbxTabPressureValueJitter = other.CmbxTabPressureValueJitter;
+            CmbxTabPressureRandFlowLoss = other.CmbxTabPressureRandFlowLoss;
             CmbxTabPressureRandHorShift = other.CmbxTabPressureRandHorShift;
             CmbxTabPressureRandMaxSize = other.CmbxTabPressureRandMaxSize;
-            CmbxTabPressureRandMinAlpha = other.CmbxTabPressureRandMinAlpha;
             CmbxTabPressureRandMinSize = other.CmbxTabPressureRandMinSize;
             CmbxTabPressureRandRotLeft = other.CmbxTabPressureRandRotLeft;
             CmbxTabPressureRandRotRight = other.CmbxTabPressureRandRotRight;
             CmbxTabPressureRandVerShift = other.CmbxTabPressureRandVerShift;
-            TabPressureBrushAlpha = other.TabPressureBrushAlpha;
             TabPressureBrushDensity = other.TabPressureBrushDensity;
+            TabPressureBrushFlow = other.TabPressureBrushFlow;
+            TabPressureBrushOpacity = other.TabPressureBrushOpacity;
             TabPressureBrushRotation = other.TabPressureBrushRotation;
             TabPressureBrushSize = other.TabPressureBrushSize;
             TabPressureMaxBlueJitter = other.TabPressureMaxBlueJitter;
@@ -820,9 +819,9 @@ namespace DynamicDraw
             TabPressureMinRedJitter = other.TabPressureMinRedJitter;
             TabPressureMinSatJitter = other.TabPressureMinSatJitter;
             TabPressureMinValueJitter = other.TabPressureMinValueJitter;
+            TabPressureRandFlowLoss = other.TabPressureRandFlowLoss;
             TabPressureRandHorShift = other.TabPressureRandHorShift;
             TabPressureRandMaxSize = other.TabPressureRandMaxSize;
-            TabPressureRandMinAlpha = other.TabPressureRandMinAlpha;
             TabPressureRandMinSize = other.TabPressureRandMinSize;
             TabPressureRandRotLeft = other.TabPressureRandRotLeft;
             TabPressureRandRotRight = other.TabPressureRandRotRight;
@@ -830,7 +829,6 @@ namespace DynamicDraw
             SeamlessDrawing = other.SeamlessDrawing;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
-            AlphaChange = other.AlphaChange;
             Smoothing = other.Smoothing;
             Symmetry = other.Symmetry;
         }

@@ -1194,73 +1194,73 @@
   <data name="&gt;&gt;sliderBrushOpacity.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
-  <data name="txtBrushAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="txtBrushFlow.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
-  <data name="txtBrushAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="txtBrushFlow.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="txtBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="txtBrushFlow.Location" type="System.Drawing.Point, System.Drawing">
     <value>7, 570</value>
   </data>
-  <data name="txtBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="txtBrushFlow.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
   </data>
-  <data name="txtBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="txtBrushFlow.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
   </data>
-  <data name="txtBrushAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="txtBrushFlow.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="txtBrushAlpha.Text" xml:space="preserve">
+  <data name="txtBrushFlow.Text" xml:space="preserve">
     <value>Brush Transparency:</value>
   </data>
-  <data name="txtBrushAlpha.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="txtBrushFlow.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>
   </data>
-  <data name="&gt;&gt;txtBrushAlpha.Name" xml:space="preserve">
-    <value>txtBrushAlpha</value>
+  <data name="&gt;&gt;txtBrushFlow.Name" xml:space="preserve">
+    <value>txtBrushFlow</value>
   </data>
-  <data name="&gt;&gt;txtBrushAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;txtBrushFlow.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;txtBrushAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;txtBrushFlow.Parent" xml:space="preserve">
     <value>panelBrush</value>
   </data>
-  <data name="&gt;&gt;txtBrushAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;txtBrushFlow.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
-  <data name="sliderBrushAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="sliderBrushFlow.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
-  <data name="sliderBrushAlpha.AutoSize" type="System.Boolean, mscorlib">
+  <data name="sliderBrushFlow.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="sliderBrushAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="sliderBrushFlow.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="sliderBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="sliderBrushFlow.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 590</value>
   </data>
-  <data name="sliderBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="sliderBrushFlow.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
   </data>
-  <data name="sliderBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="sliderBrushFlow.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
   </data>
-  <data name="sliderBrushAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="sliderBrushFlow.TabIndex" type="System.Int32, mscorlib">
     <value>21</value>
   </data>
-  <data name="&gt;&gt;sliderBrushAlpha.Name" xml:space="preserve">
-    <value>sliderBrushAlpha</value>
+  <data name="&gt;&gt;sliderBrushFlow.Name" xml:space="preserve">
+    <value>sliderBrushFlow</value>
   </data>
-  <data name="&gt;&gt;sliderBrushAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;sliderBrushFlow.Type" xml:space="preserve">
     <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;sliderBrushAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;sliderBrushFlow.Parent" xml:space="preserve">
     <value>panelBrush</value>
   </data>
-  <data name="&gt;&gt;sliderBrushAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;sliderBrushFlow.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
   <data name="txtBrushRotation.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
@@ -2331,67 +2331,67 @@
   <data name="&gt;&gt;sliderRandRotRight.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
-  <data name="txtRandMinAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="txtRandFlowLoss.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
-  <data name="txtRandMinAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="txtRandFlowLoss.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="txtRandMinAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="txtRandFlowLoss.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 192</value>
   </data>
-  <data name="txtRandMinAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="txtRandFlowLoss.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
   </data>
-  <data name="txtRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="txtRandFlowLoss.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="txtRandMinAlpha.Text" xml:space="preserve">
-    <value>Random Min Alpha:</value>
+  <data name="txtRandFlowLoss.Text" xml:space="preserve">
+    <value>Random Flow Loss:</value>
   </data>
-  <data name="txtRandMinAlpha.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="txtRandFlowLoss.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>
   </data>
-  <data name="&gt;&gt;txtRandMinAlpha.Name" xml:space="preserve">
-    <value>txtRandMinAlpha</value>
+  <data name="&gt;&gt;txtRandFlowLoss.Name" xml:space="preserve">
+    <value>txtRandFlowLoss</value>
   </data>
-  <data name="&gt;&gt;txtRandMinAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;txtRandFlowLoss.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;txtRandMinAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;txtRandFlowLoss.Parent" xml:space="preserve">
     <value>panelJitterBasics</value>
   </data>
-  <data name="&gt;&gt;txtRandMinAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;txtRandFlowLoss.ZOrder" xml:space="preserve">
     <value>8</value>
   </data>
-  <data name="sliderRandMinAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="sliderRandFlowLoss.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
-  <data name="sliderRandMinAlpha.AutoSize" type="System.Boolean, mscorlib">
+  <data name="sliderRandFlowLoss.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="sliderRandMinAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="sliderRandFlowLoss.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="sliderRandMinAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="sliderRandFlowLoss.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 212</value>
   </data>
-  <data name="sliderRandMinAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="sliderRandFlowLoss.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
   </data>
-  <data name="sliderRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="sliderRandFlowLoss.TabIndex" type="System.Int32, mscorlib">
     <value>33</value>
   </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.Name" xml:space="preserve">
-    <value>sliderRandMinAlpha</value>
+  <data name="&gt;&gt;sliderRandFlowLoss.Name" xml:space="preserve">
+    <value>sliderRandFlowLoss</value>
   </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;sliderRandFlowLoss.Type" xml:space="preserve">
     <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;sliderRandFlowLoss.Parent" xml:space="preserve">
     <value>panelJitterBasics</value>
   </data>
-  <data name="&gt;&gt;sliderRandMinAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;sliderRandFlowLoss.ZOrder" xml:space="preserve">
     <value>9</value>
   </data>
   <data name="txtRandHorzShift.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
@@ -3306,64 +3306,64 @@
   <data name="&gt;&gt;sliderShiftRotation.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="txtShiftAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="txtShiftFlow.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="txtShiftAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="txtShiftFlow.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 96</value>
   </data>
-  <data name="txtShiftAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="txtShiftFlow.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
   </data>
-  <data name="txtShiftAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="txtShiftFlow.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="txtShiftAlpha.Text" xml:space="preserve">
+  <data name="txtShiftFlow.Text" xml:space="preserve">
     <value>Transparency Shift:</value>
   </data>
-  <data name="txtShiftAlpha.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="txtShiftFlow.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>
   </data>
-  <data name="&gt;&gt;txtShiftAlpha.Name" xml:space="preserve">
-    <value>txtShiftAlpha</value>
+  <data name="&gt;&gt;txtShiftFlow.Name" xml:space="preserve">
+    <value>txtShiftFlow</value>
   </data>
-  <data name="&gt;&gt;txtShiftAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;txtShiftFlow.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;txtShiftAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;txtShiftFlow.Parent" xml:space="preserve">
     <value>panelShiftBasics</value>
   </data>
-  <data name="&gt;&gt;txtShiftAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;txtShiftFlow.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
-  <data name="sliderShiftAlpha.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="sliderShiftFlow.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
-  <data name="sliderShiftAlpha.AutoSize" type="System.Boolean, mscorlib">
+  <data name="sliderShiftFlow.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="sliderShiftAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="sliderShiftFlow.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="sliderShiftAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="sliderShiftFlow.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 116</value>
   </data>
-  <data name="sliderShiftAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="sliderShiftFlow.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
   </data>
-  <data name="sliderShiftAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="sliderShiftFlow.TabIndex" type="System.Int32, mscorlib">
     <value>54</value>
   </data>
-  <data name="&gt;&gt;sliderShiftAlpha.Name" xml:space="preserve">
-    <value>sliderShiftAlpha</value>
+  <data name="&gt;&gt;sliderShiftFlow.Name" xml:space="preserve">
+    <value>sliderShiftFlow</value>
   </data>
-  <data name="&gt;&gt;sliderShiftAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;sliderShiftFlow.Type" xml:space="preserve">
     <value>System.Windows.Forms.TrackBar, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;sliderShiftAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;sliderShiftFlow.Parent" xml:space="preserve">
     <value>panelShiftBasics</value>
   </data>
-  <data name="&gt;&gt;sliderShiftAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;sliderShiftFlow.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
   <data name="panelShiftBasics.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
@@ -3432,76 +3432,237 @@
   <data name="panelTabletAssignPressure.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
   </data>
-  <data name="panelTabPressureBrushAlpha.AutoSize" type="System.Boolean, mscorlib">
+
+  <data name="panelTabPressureBrushOpacity.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="panelTabPressureBrushAlpha.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+  <data name="panelTabPressureBrushOpacity.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.AutoSize" type="System.Boolean, mscorlib">
+  <data name="txtTabPressureBrushOpacity.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+  <data name="txtTabPressureBrushOpacity.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Left</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="txtTabPressureBrushOpacity.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="txtTabPressureBrushOpacity.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="txtTabPressureBrushOpacity.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="txtTabPressureBrushOpacity.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="txtTabPressureBrushOpacity.Size" type="System.Drawing.Size, System.Drawing">
     <value>105, 13</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="txtTabPressureBrushOpacity.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="txtTabPressureBrushAlpha.Text" xml:space="preserve">
-    <value>Brush Transparency:</value>
+  <data name="txtTabPressureBrushOpacity.Text" xml:space="preserve">
+    <value>Brush Opacity:</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushAlpha.Name" xml:space="preserve">
-    <value>txtTabPressureBrushAlpha</value>
+  <data name="&gt;&gt;txtTabPressureBrushOpacity.Name" xml:space="preserve">
+    <value>txtTabPressureBrushOpacity</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;txtTabPressureBrushOpacity.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushAlpha.Parent" xml:space="preserve">
-    <value>panel3</value>
+  <data name="&gt;&gt;txtTabPressureBrushOpacity.Parent" xml:space="preserve">
+    <value>panel19</value>
   </data>
-  <data name="&gt;&gt;txtTabPressureBrushAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;txtTabPressureBrushOpacity.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="spinTabPressureBrushAlpha.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+  <data name="spinTabPressureBrushOpacity.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Right</value>
   </data>
-  <data name="spinTabPressureBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="spinTabPressureBrushOpacity.Location" type="System.Drawing.Point, System.Drawing">
     <value>105, 0</value>
   </data>
-  <data name="spinTabPressureBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="spinTabPressureBrushOpacity.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 3, 0, 3</value>
   </data>
-  <data name="spinTabPressureBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="spinTabPressureBrushOpacity.Size" type="System.Drawing.Size, System.Drawing">
     <value>51, 20</value>
   </data>
-  <data name="spinTabPressureBrushAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="spinTabPressureBrushOpacity.TabIndex" type="System.Int32, mscorlib">
     <value>58</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureBrushAlpha.Name" xml:space="preserve">
-    <value>spinTabPressureBrushAlpha</value>
+  <data name="&gt;&gt;spinTabPressureBrushOpacity.Name" xml:space="preserve">
+    <value>spinTabPressureBrushOpacity</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureBrushAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;spinTabPressureBrushOpacity.Type" xml:space="preserve">
     <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureBrushAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;spinTabPressureBrushOpacity.Parent" xml:space="preserve">
+    <value>panel19</value>
+  </data>
+  <data name="&gt;&gt;spinTabPressureBrushOpacity.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="panel19.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 3</value>
+  </data>
+  <data name="panel19.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 0</value>
+  </data>
+  <data name="panel19.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="panel19.TabIndex" type="System.Int32, mscorlib">
+    <value>57</value>
+  </data>
+  <data name="&gt;&gt;panel19.Name" xml:space="preserve">
+    <value>panel19</value>
+  </data>
+  <data name="&gt;&gt;panel19.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panel19.Parent" xml:space="preserve">
+    <value>panelTabPressureBrushOpacity</value>
+  </data>
+  <data name="&gt;&gt;panel19.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.IntegralHeight" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.ItemHeight" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 25</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 3</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.MaxDropDownItems" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 21</value>
+  </data>
+  <data name="cmbxTabPressureBrushOpacity.TabIndex" type="System.Int32, mscorlib">
+    <value>59</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushOpacity.Name" xml:space="preserve">
+    <value>cmbxTabPressureBrushOpacity</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushOpacity.Type" xml:space="preserve">
+    <value>DynamicDraw.Gui.CmbxTabletValueType, DynamicDraw, Version=3.0.0.21904, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushOpacity.Parent" xml:space="preserve">
+    <value>panelTabPressureBrushOpacity</value>
+  </data>
+  <data name="&gt;&gt;cmbxTabPressureBrushOpacity.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="panelTabPressureBrushOpacity.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+    <value>TopDown</value>
+  </data>
+  <data name="panelTabPressureBrushOpacity.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 3</value>
+  </data>
+  <data name="panelTabPressureBrushOpacity.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="panelTabPressureBrushOpacity.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 49</value>
+  </data>
+  <data name="panelTabPressureBrushOpacity.TabIndex" type="System.Int32, mscorlib">
+    <value>60</value>
+  </data>
+  <data name="&gt;&gt;panelTabPressureBrushOpacity.Name" xml:space="preserve">
+    <value>panelTabPressureBrushOpacity</value>
+  </data>
+  <data name="&gt;&gt;panelTabPressureBrushOpacity.Type" xml:space="preserve">
+    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panelTabPressureBrushOpacity.Parent" xml:space="preserve">
+    <value>panelTabletAssignPressure</value>
+  </data>
+  <data name="&gt;&gt;panelTabPressureBrushOpacity.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  
+  <data name="panelTabPressureBrushFlow.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="panelTabPressureBrushFlow.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+    <value>GrowAndShrink</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.Size" type="System.Drawing.Size, System.Drawing">
+    <value>105, 13</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="txtTabPressureBrushFlow.Text" xml:space="preserve">
+    <value>Brush Flow:</value>
+  </data>
+  <data name="&gt;&gt;txtTabPressureBrushFlow.Name" xml:space="preserve">
+    <value>txtTabPressureBrushFlow</value>
+  </data>
+  <data name="&gt;&gt;txtTabPressureBrushFlow.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;txtTabPressureBrushFlow.Parent" xml:space="preserve">
     <value>panel3</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureBrushAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;txtTabPressureBrushFlow.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="spinTabPressureBrushFlow.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="spinTabPressureBrushFlow.Location" type="System.Drawing.Point, System.Drawing">
+    <value>105, 0</value>
+  </data>
+  <data name="spinTabPressureBrushFlow.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 0, 3</value>
+  </data>
+  <data name="spinTabPressureBrushFlow.Size" type="System.Drawing.Size, System.Drawing">
+    <value>51, 20</value>
+  </data>
+  <data name="spinTabPressureBrushFlow.TabIndex" type="System.Int32, mscorlib">
+    <value>58</value>
+  </data>
+  <data name="&gt;&gt;spinTabPressureBrushFlow.Name" xml:space="preserve">
+    <value>spinTabPressureBrushFlow</value>
+  </data>
+  <data name="&gt;&gt;spinTabPressureBrushFlow.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;spinTabPressureBrushFlow.Parent" xml:space="preserve">
+    <value>panel3</value>
+  </data>
+  <data name="&gt;&gt;spinTabPressureBrushFlow.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
   <data name="panel3.Location" type="System.Drawing.Point, System.Drawing">
@@ -3523,72 +3684,72 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;panel3.Parent" xml:space="preserve">
-    <value>panelTabPressureBrushAlpha</value>
+    <value>panelTabPressureBrushFlow</value>
   </data>
   <data name="&gt;&gt;panel3.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="cmbxTabPressureBrushFlow.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.IntegralHeight" type="System.Boolean, mscorlib">
+  <data name="cmbxTabPressureBrushFlow.IntegralHeight" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.ItemHeight" type="System.Int32, mscorlib">
+  <data name="cmbxTabPressureBrushFlow.ItemHeight" type="System.Int32, mscorlib">
     <value>13</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="cmbxTabPressureBrushFlow.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 25</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="cmbxTabPressureBrushFlow.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 3</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.MaxDropDownItems" type="System.Int32, mscorlib">
+  <data name="cmbxTabPressureBrushFlow.MaxDropDownItems" type="System.Int32, mscorlib">
     <value>9</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="cmbxTabPressureBrushFlow.Size" type="System.Drawing.Size, System.Drawing">
     <value>156, 21</value>
   </data>
-  <data name="cmbxTabPressureBrushAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="cmbxTabPressureBrushFlow.TabIndex" type="System.Int32, mscorlib">
     <value>59</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Name" xml:space="preserve">
-    <value>cmbxTabPressureBrushAlpha</value>
+  <data name="&gt;&gt;cmbxTabPressureBrushFlow.Name" xml:space="preserve">
+    <value>cmbxTabPressureBrushFlow</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;cmbxTabPressureBrushFlow.Type" xml:space="preserve">
     <value>DynamicDraw.Gui.CmbxTabletValueType, DynamicDraw, Version=3.0.0.21904, Culture=neutral, PublicKeyToken=null</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushAlpha.Parent" xml:space="preserve">
-    <value>panelTabPressureBrushAlpha</value>
+  <data name="&gt;&gt;cmbxTabPressureBrushFlow.Parent" xml:space="preserve">
+    <value>panelTabPressureBrushFlow</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureBrushAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;cmbxTabPressureBrushFlow.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="panelTabPressureBrushAlpha.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+  <data name="panelTabPressureBrushFlow.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>TopDown</value>
   </data>
-  <data name="panelTabPressureBrushAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 3</value>
+  <data name="panelTabPressureBrushFlow.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 58</value>
   </data>
-  <data name="panelTabPressureBrushAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="panelTabPressureBrushFlow.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
   </data>
-  <data name="panelTabPressureBrushAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="panelTabPressureBrushFlow.Size" type="System.Drawing.Size, System.Drawing">
     <value>156, 49</value>
   </data>
-  <data name="panelTabPressureBrushAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="panelTabPressureBrushFlow.TabIndex" type="System.Int32, mscorlib">
     <value>60</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureBrushAlpha.Name" xml:space="preserve">
-    <value>panelTabPressureBrushAlpha</value>
+  <data name="&gt;&gt;panelTabPressureBrushFlow.Name" xml:space="preserve">
+    <value>panelTabPressureBrushFlow</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureBrushAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;panelTabPressureBrushFlow.Type" xml:space="preserve">
     <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureBrushAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;panelTabPressureBrushFlow.Parent" xml:space="preserve">
     <value>panelTabletAssignPressure</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureBrushAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;panelTabPressureBrushFlow.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <data name="panelTabPressureBrushSize.AutoSize" type="System.Boolean, mscorlib">
@@ -3727,7 +3888,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureBrushSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 58</value>
+    <value>0, 113</value>
   </data>
   <data name="panelTabPressureBrushSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -3886,7 +4047,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureBrushRotation.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 113</value>
+    <value>0, 168</value>
   </data>
   <data name="panelTabPressureBrushRotation.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -4045,7 +4206,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureMinDrawDistance.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 168</value>
+    <value>0, 223</value>
   </data>
   <data name="panelTabPressureMinDrawDistance.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -4204,7 +4365,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureBrushDensity.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 223</value>
+    <value>0, 278</value>
   </data>
   <data name="panelTabPressureBrushDensity.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -4363,7 +4524,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureRandMinSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 278</value>
+    <value>0, 333</value>
   </data>
   <data name="panelTabPressureRandMinSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -4522,7 +4683,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureRandMaxSize.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 333</value>
+    <value>0, 388</value>
   </data>
   <data name="panelTabPressureRandMaxSize.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -4681,7 +4842,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureRandRotLeft.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 388</value>
+    <value>0, 443</value>
   </data>
   <data name="panelTabPressureRandRotLeft.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -4840,7 +5001,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureRandRotRight.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 443</value>
+    <value>0, 498</value>
   </data>
   <data name="panelTabPressureRandRotRight.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -4863,76 +5024,76 @@
   <data name="&gt;&gt;panelTabPressureRandRotRight.ZOrder" xml:space="preserve">
     <value>8</value>
   </data>
-  <data name="panelTabPressureRandMinAlpha.AutoSize" type="System.Boolean, mscorlib">
+  <data name="panelTabPressureRandFlowLoss.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="panelTabPressureRandMinAlpha.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+  <data name="panelTabPressureRandFlowLoss.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.AutoSize" type="System.Boolean, mscorlib">
+  <data name="lblTabPressureRandFlowLoss.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+  <data name="lblTabPressureRandFlowLoss.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Left</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="lblTabPressureRandFlowLoss.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="lblTabPressureRandFlowLoss.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="lblTabPressureRandFlowLoss.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="lblTabPressureRandFlowLoss.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="lblTabPressureRandFlowLoss.Size" type="System.Drawing.Size, System.Drawing">
     <value>100, 13</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="lblTabPressureRandFlowLoss.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="lblTabPressureRandMinAlpha.Text" xml:space="preserve">
-    <value>Random Min Alpha:</value>
+  <data name="lblTabPressureRandFlowLoss.Text" xml:space="preserve">
+    <value>Random Flow Loss:</value>
   </data>
-  <data name="&gt;&gt;lblTabPressureRandMinAlpha.Name" xml:space="preserve">
-    <value>lblTabPressureRandMinAlpha</value>
+  <data name="&gt;&gt;lblTabPressureRandFlowLoss.Name" xml:space="preserve">
+    <value>lblTabPressureRandFlowLoss</value>
   </data>
-  <data name="&gt;&gt;lblTabPressureRandMinAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;lblTabPressureRandFlowLoss.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;lblTabPressureRandMinAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;lblTabPressureRandFlowLoss.Parent" xml:space="preserve">
     <value>panel10</value>
   </data>
-  <data name="&gt;&gt;lblTabPressureRandMinAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;lblTabPressureRandFlowLoss.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="spinTabPressureRandMinAlpha.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+  <data name="spinTabPressureRandFlowLoss.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Right</value>
   </data>
-  <data name="spinTabPressureRandMinAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="spinTabPressureRandFlowLoss.Location" type="System.Drawing.Point, System.Drawing">
     <value>105, 0</value>
   </data>
-  <data name="spinTabPressureRandMinAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="spinTabPressureRandFlowLoss.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 3, 0, 3</value>
   </data>
-  <data name="spinTabPressureRandMinAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="spinTabPressureRandFlowLoss.Size" type="System.Drawing.Size, System.Drawing">
     <value>51, 20</value>
   </data>
-  <data name="spinTabPressureRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="spinTabPressureRandFlowLoss.TabIndex" type="System.Int32, mscorlib">
     <value>93</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureRandMinAlpha.Name" xml:space="preserve">
-    <value>spinTabPressureRandMinAlpha</value>
+  <data name="&gt;&gt;spinTabPressureRandFlowLoss.Name" xml:space="preserve">
+    <value>spinTabPressureRandFlowLoss</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureRandMinAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;spinTabPressureRandFlowLoss.Type" xml:space="preserve">
     <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureRandMinAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;spinTabPressureRandFlowLoss.Parent" xml:space="preserve">
     <value>panel10</value>
   </data>
-  <data name="&gt;&gt;spinTabPressureRandMinAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;spinTabPressureRandFlowLoss.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
   <data name="panel10.Location" type="System.Drawing.Point, System.Drawing">
@@ -4954,72 +5115,72 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;panel10.Parent" xml:space="preserve">
-    <value>panelTabPressureRandMinAlpha</value>
+    <value>panelTabPressureRandFlowLoss</value>
   </data>
   <data name="&gt;&gt;panel10.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="cmbxTabPressureRandFlowLoss.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.IntegralHeight" type="System.Boolean, mscorlib">
+  <data name="cmbxTabPressureRandFlowLoss.IntegralHeight" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.ItemHeight" type="System.Int32, mscorlib">
+  <data name="cmbxTabPressureRandFlowLoss.ItemHeight" type="System.Int32, mscorlib">
     <value>13</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="cmbxTabPressureRandFlowLoss.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 25</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="cmbxTabPressureRandFlowLoss.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 3</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.MaxDropDownItems" type="System.Int32, mscorlib">
+  <data name="cmbxTabPressureRandFlowLoss.MaxDropDownItems" type="System.Int32, mscorlib">
     <value>9</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="cmbxTabPressureRandFlowLoss.Size" type="System.Drawing.Size, System.Drawing">
     <value>156, 21</value>
   </data>
-  <data name="cmbxTabPressureRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="cmbxTabPressureRandFlowLoss.TabIndex" type="System.Int32, mscorlib">
     <value>95</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Name" xml:space="preserve">
-    <value>cmbxTabPressureRandMinAlpha</value>
+  <data name="&gt;&gt;cmbxTabPressureRandFlowLoss.Name" xml:space="preserve">
+    <value>cmbxTabPressureRandFlowLoss</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;cmbxTabPressureRandFlowLoss.Type" xml:space="preserve">
     <value>DynamicDraw.Gui.CmbxTabletValueType, DynamicDraw, Version=3.0.0.21904, Culture=neutral, PublicKeyToken=null</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.Parent" xml:space="preserve">
-    <value>panelTabPressureRandMinAlpha</value>
+  <data name="&gt;&gt;cmbxTabPressureRandFlowLoss.Parent" xml:space="preserve">
+    <value>panelTabPressureRandFlowLoss</value>
   </data>
-  <data name="&gt;&gt;cmbxTabPressureRandMinAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;cmbxTabPressureRandFlowLoss.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="panelTabPressureRandMinAlpha.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+  <data name="panelTabPressureRandFlowLoss.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>TopDown</value>
   </data>
-  <data name="panelTabPressureRandMinAlpha.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 498</value>
+  <data name="panelTabPressureRandFlowLoss.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 553</value>
   </data>
-  <data name="panelTabPressureRandMinAlpha.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="panelTabPressureRandFlowLoss.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
   </data>
-  <data name="panelTabPressureRandMinAlpha.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="panelTabPressureRandFlowLoss.Size" type="System.Drawing.Size, System.Drawing">
     <value>156, 49</value>
   </data>
-  <data name="panelTabPressureRandMinAlpha.TabIndex" type="System.Int32, mscorlib">
+  <data name="panelTabPressureRandFlowLoss.TabIndex" type="System.Int32, mscorlib">
     <value>94</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureRandMinAlpha.Name" xml:space="preserve">
-    <value>panelTabPressureRandMinAlpha</value>
+  <data name="&gt;&gt;panelTabPressureRandFlowLoss.Name" xml:space="preserve">
+    <value>panelTabPressureRandFlowLoss</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureRandMinAlpha.Type" xml:space="preserve">
+  <data name="&gt;&gt;panelTabPressureRandFlowLoss.Type" xml:space="preserve">
     <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureRandMinAlpha.Parent" xml:space="preserve">
+  <data name="&gt;&gt;panelTabPressureRandFlowLoss.Parent" xml:space="preserve">
     <value>panelTabletAssignPressure</value>
   </data>
-  <data name="&gt;&gt;panelTabPressureRandMinAlpha.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;panelTabPressureRandFlowLoss.ZOrder" xml:space="preserve">
     <value>9</value>
   </data>
   <data name="panelTabPressureRandHorShift.AutoSize" type="System.Boolean, mscorlib">
@@ -5158,7 +5319,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureRandHorShift.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 553</value>
+    <value>0, 608</value>
   </data>
   <data name="panelTabPressureRandHorShift.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -5317,7 +5478,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureRandVerShift.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 608</value>
+    <value>0, 663</value>
   </data>
   <data name="panelTabPressureRandVerShift.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -5503,7 +5664,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureRedJitter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 663</value>
+    <value>0, 718</value>
   </data>
   <data name="panelTabPressureRedJitter.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -5689,7 +5850,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureGreenJitter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 718</value>
+    <value>0, 773</value>
   </data>
   <data name="panelTabPressureGreenJitter.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -5875,7 +6036,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureBlueJitter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 773</value>
+    <value>0, 828</value>
   </data>
   <data name="panelTabPressureBlueJitter.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -6061,7 +6222,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureHueJitter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 828</value>
+    <value>0, 883</value>
   </data>
   <data name="panelTabPressureHueJitter.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -6247,7 +6408,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureSatJitter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 883</value>
+    <value>0, 938</value>
   </data>
   <data name="panelTabPressureSatJitter.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>
@@ -6433,7 +6594,7 @@
     <value>TopDown</value>
   </data>
   <data name="panelTabPressureValueJitter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 938</value>
+    <value>0, 993</value>
   </data>
   <data name="panelTabPressureValueJitter.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 3, 0, 3</value>

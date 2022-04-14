@@ -141,8 +141,8 @@
   <data name="BrushFlow" xml:space="preserve">
     <value>Flow:</value>
   </data>
-  <data name="BrushAlphaTip" xml:space="preserve">
-    <value>Brush transparency shortcut: Ctrl + A + Mouse Wheel. Sets the brush transparency, so it becomes opaque or see-through.</value>
+  <data name="BrushFlowTip" xml:space="preserve">
+    <value>Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color "builds up" as you draw. It's a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke.</value>
   </data>
   <data name="BrushColor" xml:space="preserve">
     <value>Color</value>
@@ -172,7 +172,10 @@
     <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>
   </data>
   <data name="BrushSmoothingTip" xml:space="preserve">
-    <value>Determines the smoothing on each brush stroke. Low values are jagged and fast to compute. High values are smooth and slow (and possibly blurry).</value>
+    <value>Determines smoothness at the brush edges while drawing, and the quality of rotation/scaling.
+High: Slowest, best antialiasing. Useful when the brush size is way different than the actual brush image.
+Normal: Good antialiasing. Use in most cases.
+Jagged: Fastest, no antialiasing. Automatically forces all brush images to be perfectly jagged. This is made for pixel art.</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
@@ -299,11 +302,11 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="RandMaxSizeTip" xml:space="preserve">
     <value>While drawing, the size of the brush will randomly jitter so it will sometimes be normal size and sometimes up to this much bigger.</value>
   </data>
-  <data name="RandMinAlpha" xml:space="preserve">
-    <value>Random Min Alpha:</value>
+  <data name="RandFlowLoss" xml:space="preserve">
+    <value>Random Flow Loss:</value>
   </data>
-  <data name="RandMinAlphaTip" xml:space="preserve">
-    <value>While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more transparent.</value>
+  <data name="RandFlowLossTip" xml:space="preserve">
+    <value>While drawing, the flow amount will randomly shift so the brush's rate of accumulation will sometimes be normal and sometimes up to this much less.</value>
   </data>
   <data name="RandMinSize" xml:space="preserve">
     <value>Random Min Size:</value>
@@ -344,10 +347,10 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="SavePreferencesTip" xml:space="preserve">
     <value>Saves all changes in the preferences.</value>
   </data>
-  <data name="ShiftAlpha" xml:space="preserve">
-    <value>Alpha Shift:</value>
+  <data name="ShiftFlow" xml:space="preserve">
+    <value>Flow Shift:</value>
   </data>
-  <data name="ShiftAlphaTip" xml:space="preserve">
+  <data name="ShiftFlowTip" xml:space="preserve">
     <value>Every time a brush stroke is applied, the brush will change transparency by this much.</value>
   </data>
   <data name="ShiftRotation" xml:space="preserve">
@@ -614,11 +617,11 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="SetShortcutText" xml:space="preserve">
     <value>Press new key...</value>
   </data>
-  <data name="ShortcutAlpha" xml:space="preserve">
-    <value>Brush Transparency</value>
+  <data name="ShortcutFlow" xml:space="preserve">
+    <value>Flow</value>
   </data>
-  <data name="ShortcutAlphaShift" xml:space="preserve">
-    <value>Alpha Shift</value>
+  <data name="ShortcutFlowShift" xml:space="preserve">
+    <value>Flow Shift</value>
   </data>
   <data name="ShortcutBrushSmoothing" xml:space="preserve">
     <value>Brush Smoothing</value>
@@ -656,8 +659,8 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="ShortcutJitterMaxSize" xml:space="preserve">
     <value>Random Max Size</value>
   </data>
-  <data name="ShortcutJitterMinAlpha" xml:space="preserve">
-    <value>Random Min Alpha</value>
+  <data name="ShortcutJitterFlowLoss" xml:space="preserve">
+    <value>Random Flow Loss</value>
   </data>
   <data name="ShortcutJitterMinSize" xml:space="preserve">
     <value>Random Min Size</value>
@@ -795,9 +798,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Blending: Overwrite</value>
   </data>
   <data name="BlendModeTip" xml:space="preserve">
-    <value>Blend modes describe how pixels should be edited by the brush stroke.
-Normal: brushing draws over the image as usual, never making an image more transparent.
-Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set.</value>
+    <value>Blending determines how pixels you draw while using a brush are combined with the existing pixels. These modes work the same as in Paint.Net. For more info, see https://www.getpaint.net/doc/latest/BlendModes.html</value>
   </data>
   <data name="ShortcutBlendMode" xml:space="preserve">
     <value>Blend Mode</value>
@@ -943,6 +944,6 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Brush Opacity</value>
   </data>
   <data name="BrushOpacityTip" xml:space="preserve">
-    <value>Sets the brush opacity. Lower values are more transparent.</value>
+    <value>Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here.</value>
   </data>
 </root>

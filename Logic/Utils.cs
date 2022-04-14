@@ -406,6 +406,9 @@ namespace DynamicDraw
                             alphaMaskPtr->A);
 
                         alphaFactor = newColor.A / 255f;
+
+                        // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                        // which avoids a rounding error seen in ConvertToPremultipliedAlpha
                         if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
                         if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
                         if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
@@ -417,7 +420,7 @@ namespace DynamicDraw
                             destPtr++;
                             srcPtr++;
                         }
-                        else
+                        else // dither align
                         {
                             x++;
                             alphaMaskPtr += 2;
@@ -475,7 +478,7 @@ namespace DynamicDraw
             Bitmap dest,
             Bitmap brush,
             Point location,
-            (ColorBgra Color, int MinAlpha) userColor,
+            (ColorBgra Color, int MinAlpha, byte MaxAlpha) userColor,
             (int Amount, bool H, bool S, bool V)? colorInfluence,
             BlendMode blendMode,
             (bool A, bool R, bool G, bool B, bool H, bool S, bool V) channelLocks,
@@ -553,7 +556,8 @@ namespace DynamicDraw
 
                     for (; x < destWidth; x++)
                     {
-                        // HSV shift the pixel according to the color influence when colorize brush is off.
+                        // HSV shift the pixel according to the color influence when colorize brush is off
+                        // don't compute for any locked channels
                         if (colorInfluence != null)
                         {
                             intermediateBGRA = brushPtr->ConvertFromPremultipliedAlpha();
@@ -615,6 +619,8 @@ namespace DynamicDraw
                                 ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
                                 : destCol.A / 255f;
 
+                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
                             if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
                             if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
                             if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
@@ -635,6 +641,10 @@ namespace DynamicDraw
                                 newColor = HSVFToBgra(userColorAdjHSV);
                             }
 
+                            byte strength = colorInfluence == null
+                                ? brushPtr->A
+                                : (byte)Math.Round(brushPtr->A * minAlphaFactor);
+
                             newColor = ColorBgra.Blend(
                                 destCol,
                                 hsvLocksInUse
@@ -644,12 +654,25 @@ namespace DynamicDraw
                                     : colorInfluence == null
                                         ? userColorAdj.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
                                         : intermediateBGRA.NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
-                                colorInfluence == null ? brushPtr->A : (byte)Math.Round(brushPtr->A * minAlphaFactor));
+                                strength);
+
+                            // Limits the alpha to max or dst, in case the max alpha is lowered &
+                            // the user draws over pixels made in the same brush stroke. The need
+                            // to read dst means this mode requires dst to be a staging layer i.e.
+                            // transparent at start of brush stroke.
+                            if (userColor.MaxAlpha != 255)
+                            {
+                                newColor.A = Math.Min(
+                                    newColor.A,
+                                    Math.Max(userColor.MaxAlpha, destCol.A));
+                            }
 
                             alphaFactor = (!channelLocks.A)
                                 ? newColor.A / 255f
                                 : destPtr->A / 255f;
 
+                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
                             if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
                             if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
                             if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
@@ -661,7 +684,7 @@ namespace DynamicDraw
                             brushPtr++;
                             destPtr++;
                         }
-                        else
+                        else // dither align
                         {
                             x++;
                             brushPtr += 2;
@@ -720,7 +743,6 @@ namespace DynamicDraw
             Bitmap committed,
             Bitmap dest,
             Rectangle regionToAffect,
-            byte maxOpacityAllowed,
             BlendMode blendMode)
         {
             BitmapData destData = dest.LockBits(
@@ -760,17 +782,19 @@ namespace DynamicDraw
                         final = ColorBgra.Blend(
                             committedPtr->ConvertFromPremultipliedAlpha(),
                             stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(stagedPtr->A + committedPtr->A, 0, 255)),
-                            Math.Min(stagedPtr->A, maxOpacityAllowed));
+                            stagedPtr->A);
                     }
                     else
                     {
                         final = userBlendOp.Apply(
                             committedPtr->ConvertFromPremultipliedAlpha(),
-                            stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha(Math.Min(stagedPtr->A, maxOpacityAllowed)));
+                            stagedPtr->ConvertFromPremultipliedAlpha());
                     }
 
                     finalAlpha = final.A / 255f;
 
+                    // Overwrite values. Premultiply by hand to use Ceiling(), which avoids a
+                    // rounding error seen in ConvertToPremultipliedAlpha
                     destPtr->B = (byte)Math.Ceiling(final.B * finalAlpha);
                     destPtr->G = (byte)Math.Ceiling(final.G * finalAlpha);
                     destPtr->R = (byte)Math.Ceiling(final.R * finalAlpha);
