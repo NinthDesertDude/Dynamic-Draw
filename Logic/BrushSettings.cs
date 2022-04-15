@@ -633,7 +633,7 @@ namespace DynamicDraw
         #endregion
 
         /// <summary>
-        /// Creates a new list with default brush settings.
+        /// Creates a new brush settings object with defaults.
         /// </summary>
         public BrushSettings()
         {
@@ -644,7 +644,7 @@ namespace DynamicDraw
             BrushRotation = 0;
             BrushColor = UserSettings.userPrimaryColor;
             BrushDensity = 10;
-            BrushFlow = 0;
+            BrushFlow = 255;
             BrushOpacity = 255;
             RandFlowLoss = 0;
             RandMaxSize = 0;

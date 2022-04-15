@@ -88,6 +88,12 @@ namespace DynamicDraw
         private Bitmap bmpMerged = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
 
         /// <summary>
+        /// A performance optimization when using a merge layer. It's easier to add rectangles to
+        /// this list and merge them down only once, vs. merging the entire viewport or image.
+        /// </summary>
+        private readonly List<Rectangle> mergeRegions = new List<Rectangle>();
+
+        /// <summary>
         /// Loads user's custom brush images asynchronously.
         /// </summary>
         private BackgroundWorker brushImageLoadingWorker;
@@ -119,7 +125,7 @@ namespace DynamicDraw
         /// </summary>
         private const float halfPixelOffset = 0.5f;
 
-        private bool isFormClosing;
+        private bool isFormClosing = false;
 
         /// <summary>
         /// Determines the direction of flow shifting, which can be growing
@@ -1761,9 +1767,10 @@ namespace DynamicDraw
                 || BlendModeUtils.BlendModeToUserBlendOp((BlendMode)cmbxBlendMode.SelectedIndex) != null
                 || finalOpacity != sliderBrushOpacity.Maximum);
 
-            if (drawToStagedBitmap)
+            if (drawToStagedBitmap && !isUserDrawing.stagedChanged)
             {
                 isUserDrawing.stagedChanged = true;
+                Utils.OverwriteBits(bmpCommitted, bmpMerged);
             }
 
             Bitmap bmpToDrawOn = drawToStagedBitmap ? bmpStaged : bmpCommitted;
@@ -1888,16 +1895,33 @@ namespace DynamicDraw
                                             sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
+                                        drawToStagedBitmap ? (false, false, false, false, false, false, false) :
                                         (chkbxLockAlpha.Checked,
                                         chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
                                         chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
-                                        chkbxDitherDraw.Checked);
+                                        chkbxDitherDraw.Checked,
+                                        mergeRegions);
                                 }
                             }
                         }
                         else
                         {
+                            if (drawToStagedBitmap)
+                            {
+                                PointF rotatedLoc = loc;
+                                if (sliderCanvasAngle.Value != 0)
+                                {
+                                    rotatedLoc = TransformPoint(loc, true, true, false);
+                                }
+
+                                mergeRegions.Add(new Rectangle(
+                                    (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
+                                    (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f)),
+                                    scaleFactor, scaleFactor
+                                ));
+                            }
+
                             g.DrawImage(
                                 bmpBrushRot,
                                 loc.X - (scaleFactor / 2f),
@@ -1975,16 +1999,27 @@ namespace DynamicDraw
                                             sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
+                                        drawToStagedBitmap ? (false, false, false, false, false, false, false) :
                                         (chkbxLockAlpha.Checked,
                                         chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                         chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
-                                        chkbxDitherDraw.Checked);
+                                        chkbxDitherDraw.Checked,
+                                        mergeRegions);
                                 }
                             }
                         }
                         else
                         {
+                            if (drawToStagedBitmap)
+                            {
+                                mergeRegions.Add(new Rectangle(
+                                    (int)(origin.X + (symmetryX ? -halfScaleFactor + xDist : halfScaleFactor - scaleFactor - xDist)),
+                                    (int)(origin.Y + (symmetryY ? -halfScaleFactor + yDist : halfScaleFactor - scaleFactor - yDist)),
+                                    scaleFactor,
+                                    scaleFactor));
+                            }
+
                             g.DrawImage(
                                 bmpBrushRot,
                                 origin.X + (symmetryX ? -halfScaleFactor + xDist : halfScaleFactor - xDist),
@@ -2025,10 +2060,10 @@ namespace DynamicDraw
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
                                                 (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
-                                        (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
-                                        chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
-                                        chkbxSeamlessDrawing.Checked,
-                                        chkbxDitherDraw.Checked);
+                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked);
                                     }
                                     else
                                     {
@@ -2043,11 +2078,13 @@ namespace DynamicDraw
                                                 sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                                 chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
+                                            drawToStagedBitmap ? (false, false, false, false, false, false, false) :
                                             (chkbxLockAlpha.Checked,
                                             chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
-                                            chkbxDitherDraw.Checked);
+                                            chkbxDitherDraw.Checked,
+                                        mergeRegions);
                                     }
                                 }
                             }
@@ -2056,6 +2093,15 @@ namespace DynamicDraw
                         {
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle(
+                                        (int)(loc.X - scaleFactor / 2f + symmetryOrigins[i].X),
+                                        (int)(loc.Y - scaleFactor / 2f + symmetryOrigins[i].Y),
+                                        scaleFactor,
+                                        scaleFactor));
+                                }
+
                                 g.DrawImage(
                                     bmpBrushRot,
                                     loc.X - scaleFactor / 2f + symmetryOrigins[i].X,
@@ -2132,11 +2178,13 @@ namespace DynamicDraw
                                                 sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                                 chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
+                                            drawToStagedBitmap ? (false, false, false, false, false, false, false) :
                                             (chkbxLockAlpha.Checked,
                                             chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
-                                            chkbxDitherDraw.Checked);
+                                            chkbxDitherDraw.Checked,
+                                            mergeRegions);
                                     }
 
                                     angle += angleIncrease;
@@ -2147,6 +2195,15 @@ namespace DynamicDraw
                         {
                             for (int i = 0; i < numPoints; i++)
                             {
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle(
+                                        (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                        (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle))),
+                                        scaleFactor,
+                                        scaleFactor));
+                                }
+
                                 g.DrawImage(
                                     bmpBrushRot,
                                     origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle)),
@@ -2177,6 +2234,11 @@ namespace DynamicDraw
                     //Draws the whole image and applies colorations and alpha.
                     if (cmbxSymmetry.SelectedIndex < 5)
                     {
+                        if (drawToStagedBitmap)
+                        {
+                            mergeRegions.Add(new Rectangle((int)xPos, (int)yPos, scaleFactor, scaleFactor));
+                        }
+
                         g.DrawImage(
                             bmpBrushRot,
                             destination,
@@ -2231,6 +2293,11 @@ namespace DynamicDraw
                             destination[1] = new PointF(posX + scaleFactor, posY);
                             destination[2] = new PointF(posX, posY + scaleFactor);
 
+                            if (drawToStagedBitmap)
+                            {
+                                mergeRegions.Add(new Rectangle((int)posX, (int)posY, scaleFactor, scaleFactor));
+                            }
+
                             //Draws the whole image and applies colorations and alpha.
                             g.DrawImage(
                                 bmpBrushRot,
@@ -2253,6 +2320,11 @@ namespace DynamicDraw
                                 destination[0] = new PointF(newXPos, newYPos);
                                 destination[1] = new PointF(newXPos + scaleFactor, newYPos);
                                 destination[2] = new PointF(newXPos, newYPos + scaleFactor);
+
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle((int)newXPos, (int)newYPos, scaleFactor, scaleFactor));
+                                }
 
                                 g.DrawImage(
                                     bmpBrushRot,
@@ -2304,6 +2376,11 @@ namespace DynamicDraw
                                 destination[0] = new PointF(posX, posY);
                                 destination[1] = new PointF(posX + scaleFactor, posY);
                                 destination[2] = new PointF(posX, posY + scaleFactor);
+
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle((int)posX, (int)posY, scaleFactor, scaleFactor));
+                                }
 
                                 g.DrawImage(
                                     bmpBrushRot,
@@ -5903,6 +5980,8 @@ namespace DynamicDraw
             bool enableColorInfluence = !chkbxColorizeBrush.Checked && activeTool != Tool.Eraser;
             bool enableColorJitter = activeTool != Tool.Eraser && (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0);
 
+            sliderBrushOpacity.Enabled = ((BlendMode)cmbxBlendMode.SelectedIndex) != BlendMode.Overwrite && activeTool != Tool.Eraser;
+
             chkbxColorizeBrush.Enabled = activeTool != Tool.Eraser;
             txtColorInfluence.Visible = enableColorInfluence;
             sliderColorInfluence.Visible = enableColorInfluence;
@@ -6634,7 +6713,10 @@ namespace DynamicDraw
             {
                 Utils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
                     new Rectangle(0, 0, bmpCommitted.Width, bmpCommitted.Height),
-                    (BlendMode)cmbxBlendMode.SelectedIndex);
+                    (BlendMode)cmbxBlendMode.SelectedIndex,
+                    (chkbxLockAlpha.Checked,
+                    chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
+                    chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
 
                 Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
             }
@@ -6722,24 +6804,23 @@ namespace DynamicDraw
             else if (canvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
             else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
 
-            // Merge the staged layer to an intermediate bitmap for drawing when layer settings are in use.
+            // Draws all merge region rectangles.
             if (isUserDrawing.stagedChanged)
             {
-                if (sliderCanvasAngle.Value == 0)
+                for (int i = mergeRegions.Count - 1; i >= 0; i--)
                 {
-                    Utils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
-                        new Rectangle(
-                            (int)lCutoffUnzoomed,
-                            (int)tCutoffUnzoomed,
-                            (int)Math.Ceiling(EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed),
-                            (int)Math.Ceiling(EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed)),
-                        (BlendMode)cmbxBlendMode.SelectedIndex);
-                }
-                else
-                {
-                    Utils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
-                        new Rectangle(0, 0, bmpMerged.Width, bmpMerged.Height),
-                        (BlendMode)cmbxBlendMode.SelectedIndex);
+                    Rectangle rect = Rectangle.Intersect(new Rectangle(0, 0, bmpCommitted.Width, bmpCommitted.Height), mergeRegions[i]);
+                    mergeRegions.RemoveAt(i);
+
+                    if (rect.Width > 0 && rect.Height > 0)
+                    {
+                        Utils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
+                            rect,
+                            (BlendMode)cmbxBlendMode.SelectedIndex,
+                            (chkbxLockAlpha.Checked,
+                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
+                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
+                    }
                 }
             }
 

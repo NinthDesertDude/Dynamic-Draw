@@ -4,85 +4,26 @@ using System;
 namespace DynamicDraw
 {
     /// <summary>
-    /// Describes the drawing operation to perform per-pixel to combine one image with another.
+    /// Describes the drawing operation to perform per-pixel to combine one image with another. All blend modes match
+    /// Paint.Net blend modes. See PDN documentation for how they work.
     /// </summary>
     public enum BlendMode
     {
-        /// <summary>
-        /// Interpolates towards the brush stroke colors based on opacity. Opacity only increases.
-        /// </summary>
         Normal = 0,
-
-        /// <summary>
-        /// Interpolates towards the brush stroke colors and chosen opacity based on the brush image's opacity.
-        /// Opacity only increases.
-        /// </summary>
-        Overwrite = 1,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
+        Multiply = 1,
         Additive = 2,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
         ColorBurn = 3,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
         ColorDodge = 4,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Darken = 5,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Difference = 6,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Glow = 7,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Lighten = 8,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Multiply = 9,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Negation = 10,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Overlay = 11,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Reflect = 12,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Screen = 13,
-
-        /// <summary>
-        /// Matches the corresponding Paint.Net blend mode.
-        /// </summary>
-        Xor = 14
+        Reflect = 5,
+        Glow = 6,
+        Overlay = 7,
+        Difference = 8,
+        Negation = 9,
+        Lighten = 10,
+        Darken = 11,
+        Screen = 12,
+        Xor = 13,
+        Overwrite = 14
     }
 
     /// <summary>

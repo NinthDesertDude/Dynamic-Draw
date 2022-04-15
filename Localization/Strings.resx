@@ -139,7 +139,7 @@
     <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not.</value>
   </data>
   <data name="BrushFlow" xml:space="preserve">
-    <value>Flow:</value>
+    <value>Brush Flow:</value>
   </data>
   <data name="BrushFlowTip" xml:space="preserve">
     <value>Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color "builds up" as you draw. It's a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke.</value>
@@ -935,7 +935,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Blending: Screen</value>
   </data>
   <data name="BlendModeXor" xml:space="preserve">
-    <value>Xor</value>
+    <value>Blending: Xor</value>
   </data>
   <data name="BrushOpacity" xml:space="preserve">
     <value>Brush Opacity:</value>

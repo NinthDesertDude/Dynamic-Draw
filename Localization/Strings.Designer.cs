@@ -403,7 +403,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Xor.
+        ///   Looks up a localized string similar to Blending: Xor.
         /// </summary>
         internal static string BlendModeXor {
             get {
@@ -448,7 +448,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Flow:.
+        ///   Looks up a localized string similar to Brush Flow:.
         /// </summary>
         internal static string BrushFlow {
             get {
