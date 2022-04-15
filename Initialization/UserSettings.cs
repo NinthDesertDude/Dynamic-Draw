@@ -4,8 +4,7 @@ using System.Drawing;
 namespace DynamicDraw
 {
     /// <summary>
-    /// Stores copies of any number of relevant environment parameters to be
-    /// copied to the dialog.
+    /// Settings passed from paint.net during plugin init
     /// </summary>
     class UserSettings
     {

@@ -3,7 +3,7 @@
 namespace DynamicDraw
 {
     /// <summary>
-    /// Contains information to be passed from the dialog for rendering.
+    /// Settings used to pass the final image to paint.net to apply the plugin when done.
     /// </summary>
     static class RenderSettings
     {
@@ -39,7 +39,7 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Whether to save dialog settings.
+        /// If true, Paint.Net will persist the dialog settings.
         /// </summary>
         public static bool DoApplyEffect
         {

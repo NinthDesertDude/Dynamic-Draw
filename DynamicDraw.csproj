@@ -51,13 +51,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Gui\CmbxTabletValueType.cs">
+    <Compile Update="Gui\Main\CmbxTabletValueType.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Accordion.cs">
+    <Compile Update="Gui\Main\Accordion.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\DoubleBufferedListView.cs">
+    <Compile Update="Gui\Main\DoubleBufferedListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Localization\Strings.Designer.cs">

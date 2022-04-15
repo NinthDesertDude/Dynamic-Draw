@@ -205,15 +205,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush Transparency:.
-        /// </summary>
-        internal static string Alpha {
-            get {
-                return ResourceManager.GetString("Alpha", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Auto manage density.
         /// </summary>
         internal static string AutomaticBrushDensity {
@@ -277,11 +268,101 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blending: Additive.
+        /// </summary>
+        internal static string BlendModeAdditive {
+            get {
+                return ResourceManager.GetString("BlendModeAdditive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Color Burn.
+        /// </summary>
+        internal static string BlendModeColorBurn {
+            get {
+                return ResourceManager.GetString("BlendModeColorBurn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Color Dodge.
+        /// </summary>
+        internal static string BlendModeColorDodge {
+            get {
+                return ResourceManager.GetString("BlendModeColorDodge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Darken.
+        /// </summary>
+        internal static string BlendModeDarken {
+            get {
+                return ResourceManager.GetString("BlendModeDarken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Difference.
+        /// </summary>
+        internal static string BlendModeDifference {
+            get {
+                return ResourceManager.GetString("BlendModeDifference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Glow.
+        /// </summary>
+        internal static string BlendModeGlow {
+            get {
+                return ResourceManager.GetString("BlendModeGlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Lighten.
+        /// </summary>
+        internal static string BlendModeLighten {
+            get {
+                return ResourceManager.GetString("BlendModeLighten", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Multiply.
+        /// </summary>
+        internal static string BlendModeMultiply {
+            get {
+                return ResourceManager.GetString("BlendModeMultiply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Negation.
+        /// </summary>
+        internal static string BlendModeNegation {
+            get {
+                return ResourceManager.GetString("BlendModeNegation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Blending: Normal.
         /// </summary>
         internal static string BlendModeNormal {
             get {
                 return ResourceManager.GetString("BlendModeNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Overlay.
+        /// </summary>
+        internal static string BlendModeOverlay {
+            get {
+                return ResourceManager.GetString("BlendModeOverlay", resourceCulture);
             }
         }
         
@@ -295,9 +376,25 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Blend modes describe how pixels should be edited by the brush stroke.
-        ///Normal: brushing draws over the image as usual, never making an image more transparent.
-        ///Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set..
+        ///   Looks up a localized string similar to Blending: Reflect.
+        /// </summary>
+        internal static string BlendModeReflect {
+            get {
+                return ResourceManager.GetString("BlendModeReflect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending: Screen.
+        /// </summary>
+        internal static string BlendModeScreen {
+            get {
+                return ResourceManager.GetString("BlendModeScreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blending determines how pixels you draw while using a brush are combined with the existing pixels. These modes work the same as in Paint.Net. For more info, see https://www.getpaint.net/doc/latest/BlendModes.html.
         /// </summary>
         internal static string BlendModeTip {
             get {
@@ -306,11 +403,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush transparency shortcut: Ctrl + A + Mouse Wheel. Sets the brush transparency, so it becomes opaque or see-through..
+        ///   Looks up a localized string similar to Blending: Xor.
         /// </summary>
-        internal static string BrushAlphaTip {
+        internal static string BlendModeXor {
             get {
-                return ResourceManager.GetString("BrushAlphaTip", resourceCulture);
+                return ResourceManager.GetString("BlendModeXor", resourceCulture);
             }
         }
         
@@ -351,6 +448,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Brush Flow:.
+        /// </summary>
+        internal static string BrushFlow {
+            get {
+                return ResourceManager.GetString("BrushFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color &quot;builds up&quot; as you draw. It&apos;s a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke..
+        /// </summary>
+        internal static string BrushFlowTip {
+            get {
+                return ResourceManager.GetString("BrushFlowTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lets you choose another brush image to use..
         /// </summary>
         internal static string BrushImageSelectorTip {
@@ -374,6 +489,24 @@ namespace DynamicDraw.Localization {
         internal static string BrushLocationsTextboxTip {
             get {
                 return ResourceManager.GetString("BrushLocationsTextboxTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Opacity:.
+        /// </summary>
+        internal static string BrushOpacity {
+            get {
+                return ResourceManager.GetString("BrushOpacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here..
+        /// </summary>
+        internal static string BrushOpacityTip {
+            get {
+                return ResourceManager.GetString("BrushOpacityTip", resourceCulture);
             }
         }
         
@@ -405,7 +538,10 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Determines the smoothing on each brush stroke. Low values are jagged and fast to compute. High values are smooth and slow (and possibly blurry)..
+        ///   Looks up a localized string similar to Determines smoothness at the brush edges while drawing, and the quality of rotation/scaling.
+        ///High: Slowest, best antialiasing. Useful when the brush size is way different than the actual brush image.
+        ///Normal: Good antialiasing. Use in most cases.
+        ///Jagged: Fastest, no antialiasing. Automatically forces all brush images to be perfectly jagged. This is made for pixel art..
         /// </summary>
         internal static string BrushSmoothingTip {
             get {
@@ -931,6 +1067,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Square.
+        /// </summary>
+        internal static string DefaultBrushSquare {
+            get {
+                return ResourceManager.GetString("DefaultBrushSquare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete Brush.
         /// </summary>
         internal static string DeleteBrush {
@@ -945,6 +1090,24 @@ namespace DynamicDraw.Localization {
         internal static string DeleteBrushTip {
             get {
                 return ResourceManager.GetString("DeleteBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checkerboard Dithering.
+        /// </summary>
+        internal static string DitherDraw {
+            get {
+                return ResourceManager.GetString("DitherDraw", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only draw every other pixel, in a checkerboard pattern. Useful for pixel art..
+        /// </summary>
+        internal static string DitherDrawTip {
+            get {
+                return ResourceManager.GetString("DitherDrawTip", resourceCulture);
             }
         }
         
@@ -967,7 +1130,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue..
+        ///   Looks up a localized string similar to While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue..
         /// </summary>
         internal static string JitterBlueTip {
             get {
@@ -985,7 +1148,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green..
+        ///   Looks up a localized string similar to While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green..
         /// </summary>
         internal static string JitterGreenTip {
             get {
@@ -1003,7 +1166,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush&apos;s hue will randomly shift based on the provided amounts..
+        ///   Looks up a localized string similar to While drawing, the hue will randomly shift based on the provided amounts..
         /// </summary>
         internal static string JitterHueTip {
             get {
@@ -1021,7 +1184,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red..
+        ///   Looks up a localized string similar to While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red..
         /// </summary>
         internal static string JitterRedTip {
             get {
@@ -1039,7 +1202,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush&apos;s grayness will randomly shift based on the provided amounts..
+        ///   Looks up a localized string similar to While drawing, the grayness will randomly shift based on the provided amounts..
         /// </summary>
         internal static string JitterSaturationTip {
             get {
@@ -1057,7 +1220,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush color will randomly shift based on the provided amounts..
+        ///   Looks up a localized string similar to While drawing, the brightness will randomly shift based on the provided amounts..
         /// </summary>
         internal static string JitterValueTip {
             get {
@@ -1093,11 +1256,119 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Preserves transparency so no brush strokes affect the transparency of the pixels..
+        ///   Looks up a localized string similar to Prevents drawing from affecting the transparency of the image..
         /// </summary>
         internal static string LockAlphaTip {
             get {
                 return ResourceManager.GetString("LockAlphaTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to B.
+        /// </summary>
+        internal static string LockB {
+            get {
+                return ResourceManager.GetString("LockB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa..
+        /// </summary>
+        internal static string LockBTip {
+            get {
+                return ResourceManager.GetString("LockBTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to G.
+        /// </summary>
+        internal static string LockG {
+            get {
+                return ResourceManager.GetString("LockG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the greenness of the image. Note that bright values have more green and vice versa..
+        /// </summary>
+        internal static string LockGTip {
+            get {
+                return ResourceManager.GetString("LockGTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to H.
+        /// </summary>
+        internal static string LockHue {
+            get {
+                return ResourceManager.GetString("LockHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results..
+        /// </summary>
+        internal static string LockHueTip {
+            get {
+                return ResourceManager.GetString("LockHueTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to R.
+        /// </summary>
+        internal static string LockR {
+            get {
+                return ResourceManager.GetString("LockR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the redness of the image. Note that bright values have more red and vice versa..
+        /// </summary>
+        internal static string LockRTip {
+            get {
+                return ResourceManager.GetString("LockRTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.
+        /// </summary>
+        internal static string LockSat {
+            get {
+                return ResourceManager.GetString("LockSat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation..
+        /// </summary>
+        internal static string LockSatTip {
+            get {
+                return ResourceManager.GetString("LockSatTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to V.
+        /// </summary>
+        internal static string LockVal {
+            get {
+                return ResourceManager.GetString("LockVal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prevents drawing from affecting the value (brightness) of the image..
+        /// </summary>
+        internal static string LockValTip {
+            get {
+                return ResourceManager.GetString("LockValTip", resourceCulture);
             }
         }
         
@@ -1183,6 +1454,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Random Flow Loss:.
+        /// </summary>
+        internal static string RandFlowLoss {
+            get {
+                return ResourceManager.GetString("RandFlowLoss", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While drawing, the flow amount will randomly shift so the brush&apos;s rate of accumulation will sometimes be normal and sometimes up to this much less..
+        /// </summary>
+        internal static string RandFlowLossTip {
+            get {
+                return ResourceManager.GetString("RandFlowLossTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Horizontal Spray:.
         /// </summary>
         internal static string RandHorzShift {
@@ -1215,24 +1504,6 @@ namespace DynamicDraw.Localization {
         internal static string RandMaxSizeTip {
             get {
                 return ResourceManager.GetString("RandMaxSizeTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Min Alpha:.
-        /// </summary>
-        internal static string RandMinAlpha {
-            get {
-                return ResourceManager.GetString("RandMinAlpha", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more transparent..
-        /// </summary>
-        internal static string RandMinAlphaTip {
-            get {
-                return ResourceManager.GetString("RandMinAlphaTip", resourceCulture);
             }
         }
         
@@ -1435,20 +1706,20 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Alpha Shift:.
+        ///   Looks up a localized string similar to Flow Shift:.
         /// </summary>
-        internal static string ShiftAlpha {
+        internal static string ShiftFlow {
             get {
-                return ResourceManager.GetString("ShiftAlpha", resourceCulture);
+                return ResourceManager.GetString("ShiftFlow", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Every time a brush stroke is applied, the brush will change transparency by this much..
         /// </summary>
-        internal static string ShiftAlphaTip {
+        internal static string ShiftFlowTip {
             get {
-                return ResourceManager.GetString("ShiftAlphaTip", resourceCulture);
+                return ResourceManager.GetString("ShiftFlowTip", resourceCulture);
             }
         }
         
@@ -1489,29 +1760,20 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush Transparency.
-        /// </summary>
-        internal static string ShortcutAlpha {
-            get {
-                return ResourceManager.GetString("ShortcutAlpha", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Alpha Shift.
-        /// </summary>
-        internal static string ShortcutAlphaShift {
-            get {
-                return ResourceManager.GetString("ShortcutAlphaShift", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Blend Mode.
         /// </summary>
         internal static string ShortcutBlendMode {
             get {
                 return ResourceManager.GetString("ShortcutBlendMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush Opacity.
+        /// </summary>
+        internal static string ShortcutBrushOpacity {
+            get {
+                return ResourceManager.GetString("ShortcutBrushOpacity", resourceCulture);
             }
         }
         
@@ -1557,6 +1819,24 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutDensity {
             get {
                 return ResourceManager.GetString("ShortcutDensity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Flow.
+        /// </summary>
+        internal static string ShortcutFlow {
+            get {
+                return ResourceManager.GetString("ShortcutFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Flow Shift.
+        /// </summary>
+        internal static string ShortcutFlowShift {
+            get {
+                return ResourceManager.GetString("ShortcutFlowShift", resourceCulture);
             }
         }
         
@@ -1651,6 +1931,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Random Flow Loss.
+        /// </summary>
+        internal static string ShortcutJitterFlowLoss {
+            get {
+                return ResourceManager.GetString("ShortcutJitterFlowLoss", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Green Jitter Max.
         /// </summary>
         internal static string ShortcutJitterGreenMax {
@@ -1701,15 +1990,6 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutJitterMaxSize {
             get {
                 return ResourceManager.GetString("ShortcutJitterMaxSize", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Random Min Alpha.
-        /// </summary>
-        internal static string ShortcutJitterMinAlpha {
-            get {
-                return ResourceManager.GetString("ShortcutJitterMinAlpha", resourceCulture);
             }
         }
         

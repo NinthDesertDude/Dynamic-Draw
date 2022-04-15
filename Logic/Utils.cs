@@ -1,9 +1,11 @@
 ﻿using DynamicDraw.Gui;
 using PaintDotNet;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 
 namespace DynamicDraw
 {
@@ -183,6 +185,11 @@ namespace DynamicDraw
         /// </param>
         public static unsafe void OverwriteBits(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
         {
+            if (srcImg == null || dstImg == null)
+            {
+                return;
+            }
+
             //Formats and size must be the same.
             if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
                 dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
@@ -298,8 +305,21 @@ namespace DynamicDraw
         /// <param name="dest">The bitmap to edit.</param>
         /// <param name="alphaMask">The brush used to draw.</param>
         /// <param name="location">The location to draw the brush at.</param>
-        public static unsafe void OverwriteMasked(Surface surface, Bitmap dest, Bitmap alphaMask, Point location)
+        /// <param name="channelLocks">Whether to allow values to change or not (for each channel including HSV).</param>
+        /// <param name="wrapAround">Whether to draw clipped brush parts to the opposite side of the canvas.</param>
+        /// <param name="ditherFilter">Whether to draw only every other pixel to replicate a pixel art dither.</param>
+        public static unsafe void OverwriteMasked(
+            Surface surface, Bitmap dest, Bitmap alphaMask,
+            Point location,
+            (bool R, bool G, bool B, bool H, bool S, bool V) channelLocks,
+            bool wrapAround, bool ditherFilter)
         {
+            if ((channelLocks.R && channelLocks.G && channelLocks.B) ||
+                (channelLocks.H && channelLocks.S && channelLocks.V))
+            {
+                return;
+            }
+
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
             int negativeY = location.Y < 0 ? -location.Y : 0;
@@ -322,7 +342,7 @@ namespace DynamicDraw
                 adjHeight);
 
             BitmapData destData = dest.LockBits(
-                adjBounds,
+                new Rectangle(0, 0, dest.Width, dest.Height),
                 ImageLockMode.ReadWrite,
                 dest.PixelFormat);
 
@@ -338,29 +358,99 @@ namespace DynamicDraw
             byte* srcRow = (byte*)surface.Scan0.Pointer;
             float alphaFactor;
 
-            for (int y = 0; y < adjHeight; y++)
+            ColorBgra destCol;
+            ColorBgra newColor = default;
+            HsvColorF srcColorHSV = default;
+            HsvColorF dstColorHSV = default;
+            bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
+
+            void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
-                ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + negativeX * 4 + ((negativeY + y) * alphaMaskData.Stride));
-                ColorBgra* srcPtr = (ColorBgra*)(srcRow + adjBounds.X * 4 + ((adjBounds.Y + y) * surface.Stride));
-                ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride));
-
-                for (int x = 0; x < adjWidth; x++)
+                for (int y = 0; y < destHeight; y++)
                 {
-                    ColorBgra newColor = ColorBgra.Blend(
-                        destPtr->ConvertFromPremultipliedAlpha(),
-                        *srcPtr,
-                        alphaMaskPtr->A);
+                    int x = 0;
+                    ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + brushXOffset * 4 + ((brushYOffset + y) * alphaMaskData.Stride));
+                    ColorBgra* srcPtr = (ColorBgra*)(srcRow + destXOffset * 4 + ((y + destYOffset) * surface.Stride));
+                    ColorBgra* destPtr = (ColorBgra*)(destRow + destXOffset * 4 + ((y + destYOffset) * destData.Stride));
 
-                    alphaFactor = newColor.A / 255f;
-                    destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                    destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                    destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                    destPtr->A = newColor.A;
+                    // Dither align
+                    if (ditherFilter && ((destXOffset + y) % 2 != destYOffset % 2))
+                    {
+                        x++;
+                        alphaMaskPtr++;
+                        destPtr++;
+                        srcPtr++;
+                    }
 
-                    alphaMaskPtr++;
-                    destPtr++;
-                    srcPtr++;
+                    for (; x < destWidth; x++)
+                    {
+                        destCol = destPtr->ConvertFromPremultipliedAlpha();
+
+                        // HSV conversion and channel locks
+                        if (hsvLocksInUse)
+                        {
+                            var srcCol = *srcPtr;
+                            dstColorHSV = HSVFFromBgra(destCol);
+                            srcColorHSV = HSVFFromBgra(srcCol);
+                            if (channelLocks.H) { srcColorHSV.Hue = dstColorHSV.Hue; }
+                            if (channelLocks.S) { srcColorHSV.Saturation = dstColorHSV.Saturation; }
+                            if (channelLocks.V) { srcColorHSV.Value = dstColorHSV.Value; }
+                            newColor = HSVFToBgra(srcColorHSV);
+                            newColor.A = srcCol.A;
+                        }
+
+                        newColor = ColorBgra.Blend(
+                            destCol,
+                            hsvLocksInUse ? newColor : *srcPtr,
+                            alphaMaskPtr->A);
+
+                        alphaFactor = newColor.A / 255f;
+
+                        // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                        // which avoids a rounding error seen in ConvertToPremultipliedAlpha
+                        if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                        if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                        if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
+                        destPtr->A = newColor.A;
+
+                        if (!ditherFilter)
+                        {
+                            alphaMaskPtr++;
+                            destPtr++;
+                            srcPtr++;
+                        }
+                        else // dither align
+                        {
+                            x++;
+                            alphaMaskPtr += 2;
+                            destPtr += 2;
+                            srcPtr += 2;
+                        }
+                    }
                 }
+            }
+
+            // Draw within normal bounds
+            draw(negativeX, negativeY, adjBounds.X, adjBounds.Y, adjBounds.Width, adjBounds.Height);
+
+            // Draw brush cutoffs on the opposite side of the canvas (wrap-around / seamless texture)
+            if (wrapAround)
+            {
+                // The brush is only guaranteed seamless when none of its dimensions are larger than any of the canvas dimensions.
+                // The basic decision to clamp prevents having to copy excess chunks in loops -- it's just much simpler.
+                negativeX = Math.Clamp(negativeX, 0, dest.Width);
+                negativeY = Math.Clamp(negativeY, 0, dest.Height);
+                extraX = Math.Clamp(extraX, 0, Math.Min(alphaMask.Width, dest.Width));
+                extraY = Math.Clamp(extraY, 0, Math.Min(alphaMask.Height, dest.Height));
+
+                draw(0, negativeY, dest.Width - negativeX, adjBounds.Y, negativeX, adjBounds.Height); // left
+                draw(negativeX, 0, adjBounds.X, dest.Height - negativeY, adjBounds.Width, negativeY); // top
+                draw(alphaMask.Width - extraX, negativeY, 0, adjBounds.Y, extraX, adjBounds.Height); // right
+                draw(negativeX, alphaMask.Height - extraY, adjBounds.X, 0, adjBounds.Width, extraY); // bottom
+                draw(0, 0, dest.Width - negativeX, dest.Height - negativeY, negativeX, negativeY); // top left
+                draw(alphaMask.Width - extraX, 0, 0, dest.Height - negativeY, extraX, negativeY); // top right
+                draw(0, alphaMask.Height - extraY, dest.Width - negativeX, 0, negativeX, extraY); // bottom left
+                draw(alphaMask.Width - extraX, alphaMask.Height - extraY, 0, 0, extraX, extraY); // bottom right
             }
 
             dest.UnlockBits(destData);
@@ -374,24 +464,33 @@ namespace DynamicDraw
         /// <param name="brush">The brush image that will be drawn to the destination using custom blending.</param>
         /// <param name="location">The location to draw the brush at.</param>
         /// <param name="userColor">
-        /// The active RGBA color, and the amount of extra reduction in transparency from alpha jitter. This is kept
-        /// separate since the userColor alpha is already computed and the jitter alpha contribution needs to be
-        /// applied separately when the original brush colors are used with alpha jitter.
+        /// The user's chosen color, the brush flow (min alpha), and opacity (max alpha). Min alpha isn't part of
+        /// userColor as usercolor alpha is precomputed and jitter alpha contribution needs to be applied separately
+        /// when the original brush colors are used with it.
         /// </param>
         /// <param name="colorInfluence">The amount of mixing with the active color to perform, and which HSV channels to affect.</param>
         /// <param name="blendMode">Determines the algorithm uesd to draw the brush on dest.</param>
-        /// <param name="lockAlpha">Whether to allow alpha to change or not.</param>
+        /// <param name="channelLocks">Whether to allow values to change or not (for each channel including HSV).</param>
         /// <param name="wrapAround">Whether to draw clipped brush parts to the opposite side of the canvas.</param>
+        /// <param name="ditherFilter">Whether to draw only every other pixel to replicate a pixel art dither.</param>
+        /// <param name="mergeRegionsToMark">Pass-by-ref list of rectangles to add all new draw regions to.</param>
         public static unsafe void DrawMasked(
-            Bitmap dest,
-            Bitmap brush,
+            Bitmap dest, Bitmap brush,
             Point location,
-            (ColorBgra Color, int MinAlpha) userColor,
+            (ColorBgra Color, int MinAlpha, byte MaxAlpha) userColor,
             (int Amount, bool H, bool S, bool V)? colorInfluence,
             BlendMode blendMode,
-            bool lockAlpha,
-            bool wrapAround)
+            (bool A, bool R, bool G, bool B, bool H, bool S, bool V) channelLocks,
+            bool wrapAround, bool ditherFilter,
+            List<Rectangle> mergeRegionsToMark)
         {
+            if (((channelLocks.H && channelLocks.S && channelLocks.V) ||
+                (channelLocks.R && channelLocks.G && channelLocks.B))
+                && channelLocks.A)
+            {
+                return;
+            }
+
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
             int negativeY = location.Y < 0 ? -location.Y : 0;
@@ -427,96 +526,171 @@ namespace DynamicDraw
             float alphaFactor;
 
             ColorBgra userColorAdj = userColor.Color.ConvertFromPremultipliedAlpha();
-            HsvColor userColorAdjHSV = HsvColor.FromColor(userColorAdj);
+            HsvColorF userColorAdjHSV = HSVFFromBgra(userColorAdj);
+
             float minAlphaFactor = (255 - userColor.MinAlpha) / 255f;
             float userColorBlendFactor = colorInfluence != null ? colorInfluence.Value.Amount / 100f : 0;
 
-            ColorBgra newColor, destCol;
-            ColorBgra intermediateBGRA = ColorBgra.Black;
-            HsvColor intermediateHSV;
+            ColorBgra newColor = default;
+            ColorBgra destCol;
+            ColorBgra intermediateBGRA = default;
+            HsvColorF intermediateHSV = default;
+            bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
 
             void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
+                mergeRegionsToMark?.Add(new Rectangle(destXOffset, destYOffset, destWidth, destHeight));
                 for (int y = 0; y < destHeight; y++)
                 {
+                    int x = 0;
                     ColorBgra* brushPtr = (ColorBgra*)(brushRow + brushXOffset * 4 + ((brushYOffset + y) * brushData.Stride));
                     ColorBgra* destPtr = (ColorBgra*)(destRow + destXOffset * 4 + ((y + destYOffset) * destData.Stride));
 
-                    for (int x = 0; x < destWidth; x++)
+                    // Dither align
+                    if (ditherFilter && ((destXOffset + y) % 2 != destYOffset % 2))
                     {
-                        // HSV shift the pixel according to the color influence when colorize brush is off.
+                        x++;
+                        brushPtr++;
+                        destPtr++;
+                    }
+
+                    for (; x < destWidth; x++)
+                    {
+                        // HSV shift the pixel according to the color influence when colorize brush is off
+                        // don't compute for any locked channels
                         if (colorInfluence != null)
                         {
                             intermediateBGRA = brushPtr->ConvertFromPremultipliedAlpha();
 
                             if (colorInfluence.Value.Amount != 0)
                             {
-                                intermediateHSV = HsvColor.FromColor(intermediateBGRA);
+                                intermediateHSV = HSVFFromBgra(intermediateBGRA);
 
-                                if (colorInfluence.Value.H)
+                                if (colorInfluence.Value.H && !channelLocks.H)
                                 {
-                                    intermediateHSV.Hue = (int)Math.Round(intermediateHSV.Hue
-                                        + userColorBlendFactor * (userColorAdjHSV.Hue - intermediateHSV.Hue));
+                                    intermediateHSV.Hue +=
+                                        userColorBlendFactor * (userColorAdjHSV.Hue - intermediateHSV.Hue);
                                 }
-                                if (colorInfluence.Value.S)
+                                if (colorInfluence.Value.S && !channelLocks.S)
                                 {
+                                    intermediateHSV.Saturation +=
+                                        userColorBlendFactor * (userColorAdjHSV.Saturation - intermediateHSV.Saturation);
+                                }
+                                if (colorInfluence.Value.V && !channelLocks.V)
+                                {
+                                    intermediateHSV.Value +=
+                                        userColorBlendFactor * (userColorAdjHSV.Value - intermediateHSV.Value);
+                                }
 
-                                    intermediateHSV.Saturation = (int)Math.Round(intermediateHSV.Saturation
-                                        + userColorBlendFactor * (userColorAdjHSV.Saturation - intermediateHSV.Saturation));
-                                }
-                                if (colorInfluence.Value.V)
+                                if (colorInfluence.Value.Amount != 0)
                                 {
-                                    intermediateHSV.Value = (int)Math.Round(intermediateHSV.Value
-                                        + userColorBlendFactor * (userColorAdjHSV.Value - intermediateHSV.Value));
+                                    byte alpha = intermediateBGRA.A;
+                                    intermediateBGRA = HSVFToBgra(intermediateHSV);
+                                    intermediateBGRA.A = alpha;
                                 }
-
-                                byte alpha = intermediateBGRA.A;
-                                intermediateBGRA = ColorBgra.FromColor(intermediateHSV.ToColor());
-                                intermediateBGRA.A = alpha;
                             }
                         }
 
-                        // Perform a blend mode op on the pixel.
-                        if (blendMode == BlendMode.Normal)
-                        {
-                            newColor = ColorBgra.Blend(
-                                destPtr->ConvertFromPremultipliedAlpha(),
-                                colorInfluence == null
-                                    ? userColorAdj.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
-                                    : intermediateBGRA.NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
-                                colorInfluence == null ? brushPtr->A : (byte)Math.Round(brushPtr->A * minAlphaFactor)
-                            );
-
-                            alphaFactor = (!lockAlpha)
-                                ? newColor.A / 255f
-                                : destPtr->A / 255f;
-
-                            destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                            destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                            destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                            if (!lockAlpha) { destPtr->A = newColor.A; }
-                        }
-                        else if (blendMode == BlendMode.Overwrite)
+                        // Perform a blend mode op on the pixel, specially handling overwrite mode. Blend modes beyond
+                        // normal blending are all handled by the merge image function.
+                        if (blendMode == BlendMode.Overwrite)
                         {
                             destCol = destPtr->ConvertFromPremultipliedAlpha();
+
+                            // HSV conversion and channel locks
+                            if (hsvLocksInUse)
+                            {
+                                intermediateHSV = HSVFFromBgra(destCol);
+                                userColorAdjHSV = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
+                                if (channelLocks.H) { userColorAdjHSV.Hue = intermediateHSV.Hue; }
+                                if (channelLocks.S) { userColorAdjHSV.Saturation = intermediateHSV.Saturation; }
+                                if (channelLocks.V) { userColorAdjHSV.Value = intermediateHSV.Value; }
+                                newColor = HSVFToBgra(userColorAdjHSV);
+                            }
+
                             newColor = ColorBgra.Blend(
                                 destCol,
-                                colorInfluence == null ? userColorAdj : intermediateBGRA,
-                                brushPtr->A
-                            );
+                                hsvLocksInUse
+                                    ? newColor
+                                    : colorInfluence == null ? userColorAdj : intermediateBGRA,
+                                brushPtr->A);
 
-                            alphaFactor = (!lockAlpha)
+                            alphaFactor = (!channelLocks.A)
                                 ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
                                 : destCol.A / 255f;
 
-                            destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor);
-                            destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor);
-                            destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor);
-                            if (!lockAlpha) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
+                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
+                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
+                            if (!channelLocks.A) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
+                        }
+                        else
+                        {
+                            destCol = destPtr->ConvertFromPremultipliedAlpha();
+
+                            // HSV conversion and channel locks
+                            if (hsvLocksInUse)
+                            {
+                                intermediateHSV = HSVFFromBgra(destCol);
+                                userColorAdjHSV = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
+                                if (channelLocks.H) { userColorAdjHSV.Hue = intermediateHSV.Hue; }
+                                if (channelLocks.S) { userColorAdjHSV.Saturation = intermediateHSV.Saturation; }
+                                if (channelLocks.V) { userColorAdjHSV.Value = intermediateHSV.Value; }
+                                newColor = HSVFToBgra(userColorAdjHSV);
+                            }
+
+                            // Brush flow
+                            byte strength = colorInfluence == null
+                                ? brushPtr->A
+                                : (byte)Math.Round(brushPtr->A * minAlphaFactor);
+
+                            newColor = ColorBgra.Blend(
+                                destCol,
+                                hsvLocksInUse
+                                    ? colorInfluence == null
+                                        ? newColor.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
+                                        : newColor.NewAlpha((byte)Math.Clamp(intermediateBGRA.A + destPtr->A, 0, 255))
+                                    : colorInfluence == null
+                                        ? userColorAdj.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
+                                        : intermediateBGRA.NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
+                                strength);
+
+                            // Brush opacity. Limits the alpha to max or dst, in case the max alpha
+                            // is lowered & the user draws over pixels made in the same brush stroke.
+                            // The need to read dst means this mode requires dst to be a staging
+                            // layer i.e. transparent at start of brush stroke.
+                            if (userColor.MaxAlpha != 255)
+                            {
+                                newColor.A = Math.Min(
+                                    newColor.A,
+                                    Math.Max(userColor.MaxAlpha, destCol.A));
+                            }
+
+                            alphaFactor = (!channelLocks.A)
+                                ? newColor.A / 255f
+                                : destPtr->A / 255f;
+
+                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
+                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
+                            if (!channelLocks.A) { destPtr->A = newColor.A; }
                         }
 
-                        brushPtr++;
-                        destPtr++;
+                        if (!ditherFilter)
+                        {
+                            brushPtr++;
+                            destPtr++;
+                        }
+                        else // dither align
+                        {
+                            x++;
+                            brushPtr += 2;
+                            destPtr += 2;
+                        }
                     }
                 }
             }
@@ -546,6 +720,118 @@ namespace DynamicDraw
 
             dest.UnlockBits(destData);
             brush.UnlockBits(brushData);
+        }
+
+        /// <summary>
+        /// Combines the staged bitmap using opacity and blendMode options to the committed bitmap, writing this data
+        /// over the dest bitmap. All layers must be the same width and height. Arguments aren't checked for validity.
+        /// </summary>
+        /// <param name="staged">The layer to merge down, following opacity and blend mode choices.</param>
+        /// <param name="committed">The current changes before merging staged into it.</param>
+        /// <param name="dest">
+        /// The bitmap to make the new changes on, which can be separate or match the staged/committed one.
+        /// </param>
+        /// <param name="regionToAffect">A smaller region to merge.</param>
+        /// <param name="maxOpacityAllowed">
+        /// Limits the final opacity on the staged layer before merging. This effect is similar to opacity in Krita.
+        /// </param>
+        /// <param name="blendModeType">
+        /// The current blend mode. If it corresponds to a paint.net user blend op type, merge is done using that blend
+        /// mode.
+        /// </param>
+        public static unsafe void MergeImage(
+            Bitmap staged, Bitmap committed, Bitmap dest,
+            Rectangle regionToAffect,
+            BlendMode blendMode,
+            (bool A, bool R, bool G, bool B, bool H, bool S, bool V) channelLocks)
+        {
+            if (((channelLocks.H && channelLocks.S && channelLocks.V) ||
+                (channelLocks.R && channelLocks.G && channelLocks.B))
+                && channelLocks.A)
+            {
+                return;
+            }
+
+            BitmapData destData = dest.LockBits(
+                regionToAffect,
+                ImageLockMode.ReadWrite,
+                dest.PixelFormat);
+
+            BitmapData stagedData = (dest == staged) ? destData : staged.LockBits(
+                regionToAffect,
+                ImageLockMode.ReadOnly,
+                staged.PixelFormat);
+
+            BitmapData committedData = (dest == committed) ? destData : committed.LockBits(
+                regionToAffect,
+                ImageLockMode.ReadOnly,
+                committed.PixelFormat);
+
+            Type blendType = blendMode != BlendMode.Normal ? BlendModeUtils.BlendModeToUserBlendOp(blendMode) : null;
+            UserBlendOp userBlendOp = blendType != null ? UserBlendOps.CreateBlendOp(blendType) : null;
+
+            // Basic multithreading for speed.
+            Parallel.For(0, regionToAffect.Height, (i, loopState) =>
+            {
+                byte* destRow = (byte*)destData.Scan0;
+                byte* stagedRow = (byte*)stagedData.Scan0;
+                byte* committedRow = (byte*)committedData.Scan0;
+
+                ColorBgra* stagedPtr = (ColorBgra*)(stagedRow + (i * stagedData.Stride));
+                ColorBgra* committedPtr = (ColorBgra*)(committedRow + (i * committedData.Stride));
+                ColorBgra* destPtr = (ColorBgra*)(destRow + (i * destData.Stride));
+
+                ColorBgra final;
+                float finalAlpha;
+
+                HsvColorF mergedHSV, dstHSV;
+                bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
+
+                for (int x = 0; x < regionToAffect.Width; x++)
+                {
+                    if (userBlendOp == null)
+                    {
+                        final = ColorBgra.Blend(
+                            committedPtr->ConvertFromPremultipliedAlpha(),
+                            stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(stagedPtr->A + committedPtr->A, 0, 255)),
+                            stagedPtr->A);
+                    }
+                    else
+                    {
+                        final = userBlendOp.Apply(
+                            committedPtr->ConvertFromPremultipliedAlpha(),
+                            stagedPtr->ConvertFromPremultipliedAlpha());
+                    }
+
+                    // HSV conversion and channel locks
+                    if (hsvLocksInUse)
+                    {
+                        dstHSV = HSVFFromBgra(destPtr->ConvertFromPremultipliedAlpha());
+                        mergedHSV = HSVFFromBgra(final);
+                        if (channelLocks.H) { mergedHSV.Hue = dstHSV.Hue; }
+                        if (channelLocks.S) { mergedHSV.Saturation = dstHSV.Saturation; }
+                        if (channelLocks.V) { mergedHSV.Value = dstHSV.Value; }
+                        final = HSVFToBgra(mergedHSV);
+                    }
+
+                    finalAlpha = final.A / 255f;
+
+                    // Overwrite values. Premultiply by hand to use Ceiling(), which avoids a
+                    // rounding error seen in ConvertToPremultipliedAlpha
+                    if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(final.B * finalAlpha); }
+                    if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(final.G * finalAlpha); }
+                    if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(final.R * finalAlpha); }
+                    if (!channelLocks.A) { destPtr->A = final.A; }
+
+                    stagedPtr++;
+                    committedPtr++;
+                    destPtr++;
+                }
+            });
+
+            dest.UnlockBits(destData);
+            if (staged != dest) { staged.UnlockBits(stagedData); }
+            if (committed != dest) { committed.UnlockBits(committedData); }
         }
 
         /// <summary>
@@ -683,7 +969,7 @@ namespace DynamicDraw
         /// The image to pad. The original is untouched.
         /// </param>
         public static Bitmap MakeBitmapSquare(Bitmap img)
-        {              
+        {
             //Exits if it's already square.
             if (img.Width == img.Height)
             {
@@ -858,24 +1144,46 @@ namespace DynamicDraw
             int targetValue,
             int maxRange,
             float inputRatio,
-            CmbxTabletValueType.ValueHandlingMethod method)
+            ConstraintValueHandlingMethod method)
         {
             switch (method)
             {
-                case CmbxTabletValueType.ValueHandlingMethod.Add:
+                case ConstraintValueHandlingMethod.Add:
                     return (int)(settingValue + inputRatio * targetValue);
-                case CmbxTabletValueType.ValueHandlingMethod.AddPercent:
+                case ConstraintValueHandlingMethod.AddPercent:
                     return (int)(settingValue + inputRatio * targetValue / 100 * maxRange);
-                case CmbxTabletValueType.ValueHandlingMethod.AddPercentCurrent:
+                case ConstraintValueHandlingMethod.AddPercentCurrent:
                     return (int)(settingValue + inputRatio * targetValue / 100 * settingValue);
-                case CmbxTabletValueType.ValueHandlingMethod.MatchValue:
+                case ConstraintValueHandlingMethod.MatchValue:
                     return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue);
-                case CmbxTabletValueType.ValueHandlingMethod.MatchPercent:
+                case ConstraintValueHandlingMethod.MatchPercent:
                     return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue / 100 * maxRange);
             }
 
             return settingValue;
         }
+        #endregion
+
+        #region Extension Methods
+        /// <summary>
+        /// Lossless conversion from BGRA to HSV. Regular, non-float HSV conversion is lossy across the colorspace.
+        /// </summary>
+        public static HsvColorF HSVFFromBgra(ColorBgra color)
+        {
+            return new RgbColorF(color.R / 255f, color.G / 255f, color.B / 255f).ToHsvColorF();
+        }
+
+        /// <summary>
+        /// Lossless conversion from HSV to BGRA. Regular, non-float RGB  conversion is lossy across the colorspace.
+        /// </summary>
+        public static ColorBgra HSVFToBgra(HsvColorF color)
+        {
+            RgbColorF col = color.ToRgbColorF();
+            return ColorBgra.FromBgr(
+                (byte)Math.Round(col.Blue * 255),
+                (byte)Math.Round(col.Green * 255),
+                (byte)Math.Round(col.Red * 255));
+        }
+        #endregion
     }
-    #endregion
 }

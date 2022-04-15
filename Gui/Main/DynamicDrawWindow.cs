@@ -49,7 +49,7 @@ namespace DynamicDraw
         private Bitmap bmpBackgroundClipboard;
 
         /// <summary>
-        /// Contains the current brush (without modifications like alpha).
+        /// Contains the current brush (without modifications like alpha via flow).
         /// </summary>
         private Bitmap bmpBrush;
 
@@ -63,7 +63,7 @@ namespace DynamicDraw
         /// <summary>
         /// Contains the current brush with all modifications applied. This is
         /// overwritten by the original brush to apply new changes so changes
-        /// are not cumulative. For example, applying 25% alpha repeatedly
+        /// are not cumulative. For example, applying 25% alpha via flow repeatedly
         /// would otherwise make the brush unusable.
         /// </summary>
         private Bitmap bmpBrushEffects;
@@ -71,7 +71,27 @@ namespace DynamicDraw
         /// <summary>
         /// Stores the current drawing in full.
         /// </summary>
-        private Bitmap bmpCurrentDrawing = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+        private Bitmap bmpCommitted = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+
+        /// <summary>
+        /// Stores the current brush stroke. This bitmap is drawn to for all brush strokes, then
+        /// merged down to the committed bitmap and cleared on finishing a brush stroke. Keeping
+        /// a staging layer enables layer-like opacity and all the blend modes that aren't normal
+        /// or overwrite mode. These effects are performed during draw & when committing.
+        /// </summary>
+        private Bitmap bmpStaged = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+
+        /// <summary>
+        /// Stores the merged image of the staged + committed bitmaps. This is used only when drawing the canvas
+        /// visually for the user, because freeing & allocating this memory repeatedly would be extremely slow.
+        /// </summary>
+        private Bitmap bmpMerged = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+
+        /// <summary>
+        /// A performance optimization when using a merge layer. It's easier to add rectangles to
+        /// this list and merge them down only once, vs. merging the entire viewport or image.
+        /// </summary>
+        private readonly List<Rectangle> mergeRegions = new List<Rectangle>();
 
         /// <summary>
         /// Loads user's custom brush images asynchronously.
@@ -98,13 +118,20 @@ namespace DynamicDraw
         /// </summary>
         private bool doReinitializeBrushImages;
 
-        private bool isFormClosing;
+        /// <summary>
+        /// While drawing the canvas, a half-pixel offset avoids visual edge boundary discrepancies. When zoomed in,
+        /// this offset causes the position the user draws at to be incongruent with their mouse location. Subtracting
+        /// half a pixel solves this schism.
+        /// </summary>
+        private const float halfPixelOffset = 0.5f;
+
+        private bool isFormClosing = false;
 
         /// <summary>
-        /// Determines the direction of alpha shifting, which can be growing
-        /// (true) or shrinking (false). Used by the alpha shift slider.
+        /// Determines the direction of flow shifting, which can be growing
+        /// (true) or shrinking (false). Used by the flow shift slider.
         /// </summary>
-        private bool isGrowingAlpha = true;
+        private bool isGrowingFlow = true;
 
         /// <summary>
         /// Determines the direction of size shifting, which can be growing
@@ -112,9 +139,15 @@ namespace DynamicDraw
         /// </summary>
         private bool isGrowingSize = true;
 
-        private (bool started, bool canvasChanged) isUserDrawing = new(false, false);
-        private bool isUserPanning = false;
+        /// <summary>
+        /// Tracks when the user has begun drawing by pressing down the mouse or applying pressure, and if they
+        /// actually affected the image (which might not happen based on the dynamic brush settings), and whether
+        /// changes were made to the staged layer or not (there's a major performance boost for not having to use or
+        /// draw the staged layer because that involves merging two layers in realtime as you draw).
+        /// </summary>
+        private (bool started, bool canvasChanged, bool stagedChanged) isUserDrawing = new(false, false, false);
 
+        private bool isUserPanning = false;
         private bool isWheelZooming = false;
 
         /// <summary>
@@ -292,8 +325,10 @@ namespace DynamicDraw
         private CheckBox chkbxColorInfluenceVal;
         private Button bttnBrushColor;
         private ComboBox cmbxBlendMode;
-        private Label txtBrushAlpha;
-        private TrackBar sliderBrushAlpha;
+        private Label txtBrushOpacity;
+        private TrackBar sliderBrushOpacity;
+        private Label txtBrushFlow;
+        private TrackBar sliderBrushFlow;
         private Label txtBrushRotation;
         private TrackBar sliderBrushRotation;
         private Label txtBrushSize;
@@ -309,7 +344,16 @@ namespace DynamicDraw
         private ComboBox cmbxBrushSmoothing;
         private CheckBox chkbxOrientToMouse;
         private CheckBox chkbxSeamlessDrawing;
+        private CheckBox chkbxDitherDraw;
         private CheckBox chkbxLockAlpha;
+        private Panel panelRGBLocks;
+        private CheckBox chkbxLockR;
+        private CheckBox chkbxLockG;
+        private CheckBox chkbxLockB;
+        private Panel panelHSVLocks;
+        private CheckBox chkbxLockHue;
+        private CheckBox chkbxLockSat;
+        private CheckBox chkbxLockVal;
         private Accordion bttnJitterBasicsControls;
         private FlowLayoutPanel panelJitterBasics;
         private Label txtRandMinSize;
@@ -320,8 +364,8 @@ namespace DynamicDraw
         private TrackBar sliderRandRotLeft;
         private Label txtRandRotRight;
         private TrackBar sliderRandRotRight;
-        private Label txtRandMinAlpha;
-        private TrackBar sliderRandMinAlpha;
+        private Label txtRandFlowLoss;
+        private TrackBar sliderRandFlowLoss;
         private Label txtRandHorzShift;
         private TrackBar sliderRandHorzShift;
         private Label txtRandVertShift;
@@ -352,15 +396,20 @@ namespace DynamicDraw
         private TrackBar sliderShiftSize;
         private Label txtShiftRotation;
         private TrackBar sliderShiftRotation;
-        private Label txtShiftAlpha;
-        private TrackBar sliderShiftAlpha;
+        private Label txtShiftFlow;
+        private TrackBar sliderShiftFlow;
         private Accordion bttnTabAssignPressureControls;
         private FlowLayoutPanel panelTabletAssignPressure;
-        private FlowLayoutPanel panelTabPressureBrushAlpha;
+        private FlowLayoutPanel panelTabPressureBrushOpacity;
+        private Panel panel19;
+        private Label txtTabPressureBrushOpacity;
+        private NumericUpDown spinTabPressureBrushOpacity;
+        private CmbxTabletValueType cmbxTabPressureBrushOpacity;
+        private FlowLayoutPanel panelTabPressureBrushFlow;
         private Panel panel3;
-        private Label txtTabPressureBrushAlpha;
-        private NumericUpDown spinTabPressureBrushAlpha;
-        private CmbxTabletValueType cmbxTabPressureBrushAlpha;
+        private Label txtTabPressureBrushFlow;
+        private NumericUpDown spinTabPressureBrushFlow;
+        private CmbxTabletValueType cmbxTabPressureBrushFlow;
         private FlowLayoutPanel panelTabPressureBrushSize;
         private Panel panel8;
         private Label txtTabPressureBrushSize;
@@ -401,11 +450,11 @@ namespace DynamicDraw
         private Label lblTabPressureRandRotRight;
         private NumericUpDown spinTabPressureRandRotRight;
         private CmbxTabletValueType cmbxTabPressureRandRotRight;
-        private FlowLayoutPanel panelTabPressureRandMinAlpha;
+        private FlowLayoutPanel panelTabPressureRandFlowLoss;
         private Panel panel10;
-        private Label lblTabPressureRandMinAlpha;
-        private NumericUpDown spinTabPressureRandMinAlpha;
-        private CmbxTabletValueType cmbxTabPressureRandMinAlpha;
+        private Label lblTabPressureRandFlowLoss;
+        private NumericUpDown spinTabPressureRandFlowLoss;
+        private CmbxTabletValueType cmbxTabPressureRandFlowLoss;
         private FlowLayoutPanel panelTabPressureRandHorShift;
         private Panel panel12;
         private Label lblTabPressureRandHorShift;
@@ -518,6 +567,19 @@ namespace DynamicDraw
             blendModeOptions = new BindingList<Tuple<string, BlendMode>>
             {
                 new Tuple<string, BlendMode>(Strings.BlendModeNormal, BlendMode.Normal),
+                new Tuple<string, BlendMode>(Strings.BlendModeMultiply, BlendMode.Multiply),
+                new Tuple<string, BlendMode>(Strings.BlendModeAdditive, BlendMode.Additive),
+                new Tuple<string, BlendMode>(Strings.BlendModeColorBurn, BlendMode.ColorBurn),
+                new Tuple<string, BlendMode>(Strings.BlendModeColorDodge, BlendMode.ColorDodge),
+                new Tuple<string, BlendMode>(Strings.BlendModeReflect, BlendMode.Reflect),
+                new Tuple<string, BlendMode>(Strings.BlendModeGlow, BlendMode.Glow),
+                new Tuple<string, BlendMode>(Strings.BlendModeOverlay, BlendMode.Overlay),
+                new Tuple<string, BlendMode>(Strings.BlendModeDifference, BlendMode.Difference),
+                new Tuple<string, BlendMode>(Strings.BlendModeNegation, BlendMode.Negation),
+                new Tuple<string, BlendMode>(Strings.BlendModeLighten, BlendMode.Lighten),
+                new Tuple<string, BlendMode>(Strings.BlendModeDarken, BlendMode.Darken),
+                new Tuple<string, BlendMode>(Strings.BlendModeScreen, BlendMode.Screen),
+                new Tuple<string, BlendMode>(Strings.BlendModeXor, BlendMode.Xor),
                 new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite)
             };
             cmbxBlendMode.DataSource = blendModeOptions;
@@ -527,16 +589,17 @@ namespace DynamicDraw
             // Prevents sliders and comboboxes from handling mouse wheel, so the user can scroll up/down normally.
             // Winforms designer doesn't recognize this event, so it immediately strips it if placed with autogen code.
             this.cmbxTabPressureBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureBrushAlpha.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
+            this.cmbxTabPressureBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
+            this.cmbxTabPressureBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureBrushSize.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureHueJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
+            this.cmbxTabPressureRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureRandHorShift.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandMinAlpha.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
@@ -548,7 +611,8 @@ namespace DynamicDraw
             this.sliderCanvasAngle.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderColorInfluence.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderBrushAlpha.MouseWheel += IgnoreMouseWheelEvent;
+            this.sliderBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
+            this.sliderBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushSize.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
@@ -559,7 +623,7 @@ namespace DynamicDraw
             this.sliderRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandMinAlpha.MouseWheel += IgnoreMouseWheelEvent;
+            this.sliderRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderRandHorzShift.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderRandVertShift.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderJitterMinRed.MouseWheel += IgnoreMouseWheelEvent;
@@ -576,8 +640,9 @@ namespace DynamicDraw
             this.sliderJitterMaxVal.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderShiftSize.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderShiftRotation.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderShiftAlpha.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureBrushAlpha.MouseWheel += IgnoreMouseWheelEvent;
+            this.sliderShiftFlow.MouseWheel += IgnoreMouseWheelEvent;
+            this.spinTabPressureBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
+            this.spinTabPressureBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureBrushSize.MouseWheel += IgnoreMouseWheelEvent;
@@ -596,7 +661,7 @@ namespace DynamicDraw
             this.spinTabPressureMinValueJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureRandHorShift.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandMinAlpha.MouseWheel += IgnoreMouseWheelEvent;
+            this.spinTabPressureRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
             this.spinTabPressureRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
@@ -655,14 +720,9 @@ namespace DynamicDraw
                 keyboardShortcuts.Add(shortcut);
             }
 
-            // BrushColor is always saved opaque except first run, where it's taken from user color. If it's not
-            // opaque, use the user-provided alpha.
-            if (token.CurrentBrushSettings.BrushColor.A != 255)
-            {
-                token.CurrentBrushSettings.BrushAlpha = 255 - token.CurrentBrushSettings.BrushColor.A;
-            }
-
             // Updates brush settings and the current image.
+            token.CurrentBrushSettings.BrushFlow = UserSettings.userPrimaryColor.A;
+            token.CurrentBrushSettings.BrushColor = UserSettings.userPrimaryColor;
             UpdateBrush(token.CurrentBrushSettings);
             UpdateBrushImage();
         }
@@ -680,10 +740,9 @@ namespace DynamicDraw
                 : -1;
 
             token.CustomBrushLocations = loadedBrushImagePaths;
-            token.CurrentBrushSettings.AlphaChange = sliderShiftAlpha.Value;
+            token.CurrentBrushSettings.FlowChange = sliderShiftFlow.Value;
             token.CurrentBrushSettings.BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex;
-            token.CurrentBrushSettings.BrushAlpha = sliderBrushAlpha.Value;
-            token.CurrentBrushSettings.BrushColor = bttnBrushColor.BackColor;
+            // Skipping BrushFlow and BrushColor since they'll be overridden anyway
             token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
             token.CurrentBrushSettings.AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked;
             token.CurrentBrushSettings.BrushImagePath = index >= 0
@@ -696,10 +755,18 @@ namespace DynamicDraw
             token.CurrentBrushSettings.ColorInfluenceSat = chkbxColorInfluenceSat.Checked;
             token.CurrentBrushSettings.ColorInfluenceVal = chkbxColorInfluenceVal.Checked;
             token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
+            token.CurrentBrushSettings.DoDitherDraw = chkbxDitherDraw.Checked;
             token.CurrentBrushSettings.DoLockAlpha = chkbxLockAlpha.Checked;
+            token.CurrentBrushSettings.DoLockR = chkbxLockR.Checked;
+            token.CurrentBrushSettings.DoLockG = chkbxLockG.Checked;
+            token.CurrentBrushSettings.DoLockB = chkbxLockB.Checked;
+            token.CurrentBrushSettings.DoLockHue = chkbxLockHue.Checked;
+            token.CurrentBrushSettings.DoLockSat = chkbxLockSat.Checked;
+            token.CurrentBrushSettings.DoLockVal = chkbxLockVal.Checked;
             token.CurrentBrushSettings.SeamlessDrawing = chkbxSeamlessDrawing.Checked;
             token.CurrentBrushSettings.DoRotateWithMouse = chkbxOrientToMouse.Checked;
             token.CurrentBrushSettings.MinDrawDistance = sliderMinDrawDistance.Value;
+            token.CurrentBrushSettings.RandFlowLoss = sliderRandFlowLoss.Value;
             token.CurrentBrushSettings.RandHorzShift = sliderRandHorzShift.Value;
             token.CurrentBrushSettings.RandMaxB = sliderJitterMaxBlue.Value;
             token.CurrentBrushSettings.RandMaxG = sliderJitterMaxGreen.Value;
@@ -708,7 +775,6 @@ namespace DynamicDraw
             token.CurrentBrushSettings.RandMaxS = sliderJitterMaxSat.Value;
             token.CurrentBrushSettings.RandMaxV = sliderJitterMaxVal.Value;
             token.CurrentBrushSettings.RandMaxSize = sliderRandMaxSize.Value;
-            token.CurrentBrushSettings.RandMinAlpha = sliderRandMinAlpha.Value;
             token.CurrentBrushSettings.RandMinB = sliderJitterMinBlue.Value;
             token.CurrentBrushSettings.RandMinG = sliderJitterMinGreen.Value;
             token.CurrentBrushSettings.RandMinR = sliderJitterMinRed.Value;
@@ -723,8 +789,9 @@ namespace DynamicDraw
             token.CurrentBrushSettings.SizeChange = sliderShiftSize.Value;
             token.CurrentBrushSettings.Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex;
             token.CurrentBrushSettings.Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureBrushFlow = cmbxTabPressureBrushFlow.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureBrushOpacity = cmbxTabPressureBrushOpacity.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex;
@@ -734,15 +801,16 @@ namespace DynamicDraw
             token.CurrentBrushSettings.CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex;
+            token.CurrentBrushSettings.CmbxTabPressureRandFlowLoss = cmbxTabPressureRandFlowLoss.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandMinAlpha = cmbxTabPressureRandMinAlpha.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex;
-            token.CurrentBrushSettings.TabPressureBrushAlpha = (int)spinTabPressureBrushAlpha.Value;
             token.CurrentBrushSettings.TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value;
+            token.CurrentBrushSettings.TabPressureBrushFlow = (int)spinTabPressureBrushFlow.Value;
+            token.CurrentBrushSettings.TabPressureBrushOpacity = (int)spinTabPressureBrushOpacity.Value;
             token.CurrentBrushSettings.TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value;
             token.CurrentBrushSettings.TabPressureBrushSize = (int)spinTabPressureBrushSize.Value;
             token.CurrentBrushSettings.TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value;
@@ -758,9 +826,9 @@ namespace DynamicDraw
             token.CurrentBrushSettings.TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value;
             token.CurrentBrushSettings.TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value;
             token.CurrentBrushSettings.TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value;
+            token.CurrentBrushSettings.TabPressureRandFlowLoss = (int)spinTabPressureRandFlowLoss.Value;
             token.CurrentBrushSettings.TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value;
             token.CurrentBrushSettings.TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value;
-            token.CurrentBrushSettings.TabPressureRandMinAlpha = (int)spinTabPressureRandMinAlpha.Value;
             token.CurrentBrushSettings.TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value;
             token.CurrentBrushSettings.TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value;
             token.CurrentBrushSettings.TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value;
@@ -778,7 +846,10 @@ namespace DynamicDraw
             canvas.width = EnvironmentParameters.SourceSurface.Size.Width;
             canvas.height = EnvironmentParameters.SourceSurface.Size.Height;
 
-            bmpCurrentDrawing = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
+            bmpCommitted = Utils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
+            bmpStaged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+            bmpMerged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+
             symmetryOrigin = new PointF(
                 EnvironmentParameters.SourceSurface.Width / 2f,
                 EnvironmentParameters.SourceSurface.Height / 2f);
@@ -797,8 +868,11 @@ namespace DynamicDraw
                 version.Minor + ")";
 
             //Loads globalization texts for regional support.
-            txtBrushAlpha.Text = string.Format("{0} {1}",
-                Strings.Alpha, sliderBrushAlpha.Value);
+            txtBrushOpacity.Text = string.Format("{0} {1}",
+                Strings.BrushOpacity, sliderBrushOpacity.Value);
+
+            txtBrushFlow.Text = string.Format("{0} {1}",
+                Strings.BrushFlow, sliderBrushFlow.Value);
 
             txtBrushDensity.Text = string.Format("{0} {1}",
                 Strings.BrushDensity, sliderBrushDensity.Value);
@@ -821,6 +895,9 @@ namespace DynamicDraw
             txtMinDrawDistance.Text = string.Format("{0} {1}",
                 Strings.MinDrawDistance, sliderMinDrawDistance.Value);
 
+            txtRandFlowLoss.Text = string.Format("{0} {1}",
+                Strings.RandFlowLoss, sliderRandFlowLoss.Value);
+
             txtRandHorzShift.Text = string.Format("{0} {1}%",
                 Strings.RandHorzShift, sliderRandHorzShift.Value);
 
@@ -835,9 +912,6 @@ namespace DynamicDraw
 
             txtRandRotRight.Text = string.Format("{0} {1}°",
                 Strings.RandRotRight, sliderRandRotRight.Value);
-
-            txtRandMinAlpha.Text = string.Format("{0} {1}",
-                Strings.RandMinAlpha, sliderRandMinAlpha.Value);
 
             txtJitterBlue.Text = string.Format("{0} -{1}%, +{2}%",
                 Strings.JitterBlue, sliderJitterMinBlue.Value, sliderJitterMaxBlue.Value);
@@ -860,8 +934,8 @@ namespace DynamicDraw
             txtRandVertShift.Text = string.Format("{0} {1}%",
                 Strings.RandVertShift, sliderRandVertShift.Value);
 
-            txtShiftAlpha.Text = string.Format("{0} {1}",
-                Strings.ShiftAlpha, sliderShiftAlpha.Value);
+            txtShiftFlow.Text = string.Format("{0} {1}",
+                Strings.ShiftFlow, sliderShiftFlow.Value);
 
             txtShiftRotation.Text = string.Format("{0} {1}°",
                 Strings.ShiftRotation, sliderShiftRotation.Value);
@@ -885,21 +959,29 @@ namespace DynamicDraw
             chkbxColorInfluenceSat.Text = Strings.SatAbbr;
             chkbxColorInfluenceVal.Text = Strings.ValAbbr;
             chkbxLockAlpha.Text = Strings.LockAlpha;
+            chkbxLockR.Text = Strings.LockR;
+            chkbxLockG.Text = Strings.LockG;
+            chkbxLockB.Text = Strings.LockB;
+            chkbxLockHue.Text = Strings.LockHue;
+            chkbxLockSat.Text = Strings.LockSat;
+            chkbxLockVal.Text = Strings.LockVal;
+            chkbxDitherDraw.Text = Strings.DitherDraw;
             chkbxSeamlessDrawing.Text = Strings.SeamlessDrawing;
             chkbxOrientToMouse.Text = Strings.OrientToMouse;
             chkbxAutomaticBrushDensity.Text = Strings.AutomaticBrushDensity;
 
             cmbxTabPressureBlueJitter.Text = Strings.JitterBlue;
-            cmbxTabPressureBrushAlpha.Text = Strings.Alpha;
             cmbxTabPressureBrushDensity.Text = Strings.BrushDensity;
+            cmbxTabPressureBrushFlow.Text = Strings.BrushFlow;
+            cmbxTabPressureBrushOpacity.Text = Strings.BrushOpacity;
             cmbxTabPressureBrushRotation.Text = Strings.Rotation;
             cmbxTabPressureBrushSize.Text = Strings.Size;
             cmbxTabPressureGreenJitter.Text = Strings.JitterGreen;
             cmbxTabPressureHueJitter.Text = Strings.JitterHue;
             cmbxTabPressureMinDrawDistance.Text = Strings.MinDrawDistance;
+            cmbxTabPressureRandFlowLoss.Text = Strings.RandFlowLoss;
             cmbxTabPressureRandHorShift.Text = Strings.RandHorzShift;
             cmbxTabPressureRandMaxSize.Text = Strings.RandMaxSize;
-            cmbxTabPressureRandMinAlpha.Text = Strings.RandMinAlpha;
             cmbxTabPressureRandMinSize.Text = Strings.RandMinSize;
             cmbxTabPressureRandRotLeft.Text = Strings.RandRotLeft;
             cmbxTabPressureRandRotRight.Text = Strings.RandRotRight;
@@ -1006,12 +1088,12 @@ namespace DynamicDraw
             KeyShortcutManager.FireShortcuts(keyboardShortcuts, e.KeyCode, e.Control, e.Shift, e.Alt, contexts);
 
             //Display a hand icon while panning.
-            if (e.Control)
+            if (e.Control || e.KeyCode == Keys.Space)
             {
                 Cursor = Cursors.Hand;
             }
 
-            // [, Ctrl + [ increase rotation, alpha, size. ], Ctrl + ] decrease.
+            // [, Ctrl + [ increase rotation, flow, size. ], Ctrl + ] decrease.
             int amountChange = 0;
 
             if (e.KeyCode == Keys.OemCloseBrackets && !e.Shift)
@@ -1032,12 +1114,19 @@ namespace DynamicDraw
                         sliderBrushRotation.Minimum,
                         sliderBrushRotation.Maximum);
                 }
-                else if (KeyShortcutManager.IsKeyDown(Keys.A))
+                else if (KeyShortcutManager.IsKeyDown(Keys.O))
                 {
-                    sliderBrushAlpha.Value = Utils.Clamp(
-                        sliderBrushAlpha.Value + amountChange,
-                        sliderBrushAlpha.Minimum,
-                        sliderBrushAlpha.Maximum);
+                    sliderBrushOpacity.Value = Utils.Clamp(
+                        sliderBrushOpacity.Value + amountChange,
+                        sliderBrushOpacity.Minimum,
+                        sliderBrushOpacity.Maximum);
+                }
+                else if (KeyShortcutManager.IsKeyDown(Keys.F))
+                {
+                    sliderBrushFlow.Value = Utils.Clamp(
+                        sliderBrushFlow.Value + amountChange,
+                        sliderBrushFlow.Minimum,
+                        sliderBrushFlow.Maximum);
                 }
                 else
                 {
@@ -1060,7 +1149,7 @@ namespace DynamicDraw
         /// </summary>
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            if (!e.Control)
+            if (!e.Control && e.KeyCode != Keys.Space)
             {
                 Cursor = Cursors.Default;
             }
@@ -1111,19 +1200,28 @@ namespace DynamicDraw
                 //Ctrl + R + Wheel: Changes the brush rotation.
                 else if (KeyShortcutManager.IsKeyDown(Keys.R))
                 {
-                    sliderBrushRotation.Value = Utils.Clamp(
-                    sliderBrushRotation.Value + Math.Sign(e.Delta) * 20,
-                    sliderBrushRotation.Minimum,
-                    sliderBrushRotation.Maximum);
+                    int newValue = sliderBrushRotation.Value + Math.Sign(e.Delta) * 20;
+                    while (newValue < -sliderBrushRotation.Maximum) { newValue += sliderBrushRotation.Maximum * 2; }
+                    while (newValue >= sliderBrushRotation.Maximum) { newValue -= sliderBrushRotation.Maximum * 2; }
+                    sliderBrushRotation.Value = newValue;
                 }
 
-                //Ctrl + A + Wheel: Changes the brush alpha.
-                else if (KeyShortcutManager.IsKeyDown(Keys.A))
+                //Ctrl + O + Wheel: Changes the brush opacity.
+                else if (KeyShortcutManager.IsKeyDown(Keys.O))
                 {
-                    sliderBrushAlpha.Value = Utils.Clamp(
-                    sliderBrushAlpha.Value + Math.Sign(e.Delta) * 10,
-                    sliderBrushAlpha.Minimum,
-                    sliderBrushAlpha.Maximum);
+                    sliderBrushOpacity.Value = Utils.Clamp(
+                    sliderBrushOpacity.Value + Math.Sign(e.Delta) * 10,
+                    sliderBrushOpacity.Minimum,
+                    sliderBrushOpacity.Maximum);
+                }
+
+                //Ctrl + F + Wheel: Changes the brush flow.
+                else if (KeyShortcutManager.IsKeyDown(Keys.F))
+                {
+                    sliderBrushFlow.Value = Utils.Clamp(
+                    sliderBrushFlow.Value + Math.Sign(e.Delta) * 10,
+                    sliderBrushFlow.Minimum,
+                    sliderBrushFlow.Maximum);
                 }
 
                 //Ctrl + Wheel: Zooms the canvas in/out.
@@ -1232,7 +1330,9 @@ namespace DynamicDraw
                 bmpBrush?.Dispose();
                 bmpBrushDownsized?.Dispose();
                 bmpBrushEffects?.Dispose();
-                bmpCurrentDrawing?.Dispose();
+                bmpCommitted?.Dispose();
+                bmpStaged?.Dispose();
+                bmpMerged?.Dispose();
                 bmpBackgroundClipboard?.Dispose();
 
                 displayCanvas.Cursor = Cursors.Default;
@@ -1252,7 +1352,7 @@ namespace DynamicDraw
         /// </summary>
         /// <param name="loc">The location to apply the brush.</param>
         /// <param name="radius">The size to draw the brush at.</param>
-        private void DrawBrush(PointF loc, int radius)
+        private void DrawBrush(PointF loc, int radius, float pressure)
         {
             // It's possible to try to draw before the plugin has initialized (indicated by not having the bitmap set).
             if (bmpBrushEffects == null)
@@ -1269,7 +1369,7 @@ namespace DynamicDraw
                 string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
 
                 //Saves the drawing to the file and saves the file path.
-                bmpCurrentDrawing.Save(path);
+                bmpCommitted.Save(path);
                 undoHistory.Push(path);
                 if (!bttnUndo.Enabled)
                 {
@@ -1285,13 +1385,13 @@ namespace DynamicDraw
             int finalRandMinSize = Utils.GetStrengthMappedValue(sliderRandMinSize.Value,
                 (int)spinTabPressureRandMinSize.Value,
                 sliderRandMinSize.Maximum,
-                tabletPressureRatio,
+                pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandMinSize.SelectedItem).ValueMember);
 
             int finalRandMaxSize = Utils.GetStrengthMappedValue(sliderRandMaxSize.Value,
                 (int)spinTabPressureRandMaxSize.Value,
                 sliderRandMaxSize.Maximum,
-                tabletPressureRatio,
+                pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandMaxSize.SelectedItem).ValueMember);
 
             int newRadius = Utils.Clamp(radius
@@ -1300,14 +1400,6 @@ namespace DynamicDraw
             #endregion
 
             #region update brush smoothing mode
-            // Jagged smoothing shouldn't draw at interpolated locations because it breaks up single width lines that fall between pixels.
-            if ((radius == 1 && chkbxAutomaticBrushDensity.Checked) ||
-                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged)
-            {
-                loc.X = (int)loc.X;
-                loc.Y = (int)loc.Y;
-            }
-
             // Update the brush draw rate based on the size.
             UpdateBrushDensity(newRadius);
             #endregion
@@ -1315,7 +1407,7 @@ namespace DynamicDraw
             //Sets the new brush location because the brush stroke succeeded.
             mouseLocBrush = mouseLoc;
 
-            #region apply size/alpha/rotation shift
+            #region apply size/flow/rotation shift
             // Updates the brush size slider (doesn't affect this brush stroke).
             if (sliderShiftSize.Value != 0)
             {
@@ -1343,38 +1435,38 @@ namespace DynamicDraw
                     sliderBrushSize.Minimum, sliderBrushSize.Maximum);
             }
 
-            // Updates the brush alpha (doesn't affect this brush stroke).
-            if (sliderShiftAlpha.Value != 0)
+            // Updates the brush flow (doesn't affect this brush stroke).
+            if (sliderShiftFlow.Value != 0)
             {
-                int tempAlpha = sliderBrushAlpha.Value;
-                if (isGrowingAlpha)
+                int tempFlow = sliderBrushFlow.Value;
+                if (isGrowingFlow)
                 {
-                    tempAlpha += sliderShiftAlpha.Value;
+                    tempFlow += sliderShiftFlow.Value;
                 }
                 else
                 {
-                    tempAlpha -= sliderShiftAlpha.Value;
+                    tempFlow -= sliderShiftFlow.Value;
                 }
-                if (tempAlpha > sliderBrushAlpha.Maximum)
+                if (tempFlow > sliderBrushFlow.Maximum)
                 {
-                    tempAlpha = sliderBrushAlpha.Maximum;
-                    isGrowingAlpha = !isGrowingAlpha; //handles values < 0.
+                    tempFlow = sliderBrushFlow.Maximum;
+                    isGrowingFlow = !isGrowingFlow; //handles values < 0.
                 }
-                else if (tempAlpha < sliderBrushAlpha.Minimum)
+                else if (tempFlow < sliderBrushFlow.Minimum)
                 {
-                    tempAlpha = sliderBrushAlpha.Minimum;
-                    isGrowingAlpha = !isGrowingAlpha;
+                    tempFlow = sliderBrushFlow.Minimum;
+                    isGrowingFlow = !isGrowingFlow;
                 }
 
-                sliderBrushAlpha.Value = Utils.Clamp(tempAlpha,
-                    sliderBrushAlpha.Minimum, sliderBrushAlpha.Maximum);
+                sliderBrushFlow.Value = Utils.Clamp(tempFlow,
+                    sliderBrushFlow.Minimum, sliderBrushFlow.Maximum);
             }
-            else if (tabletPressureRatio > 0 && (
-                (CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushAlpha.SelectedItem).ValueMember
-                != CmbxTabletValueType.ValueHandlingMethod.DoNothing)
+            else if (pressure > 0 && (
+                (CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushFlow.SelectedItem).ValueMember
+                != ConstraintValueHandlingMethod.DoNothing)
             {
-                // If not changing sliderBrushAlpha already by shifting it in the if-statement above, the brush has to
-                // be manually redrawn when modifying brush alpha. This is done to avoid editing sliderBrushAlpha and
+                // If not changing sliderBrushFlow already by shifting it in the if-statement above, the brush has to
+                // be manually redrawn when modifying brush alpha. This is done to avoid editing sliderBrushFlow and
                 // having to use an extra variable to mitigate the cumulative effect it would cause.
                 UpdateBrushImage();
             }
@@ -1401,14 +1493,14 @@ namespace DynamicDraw
             int finalRandHorzShift = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandHorzShift.Value,
                 (int)spinTabPressureRandHorShift.Value,
                 sliderRandHorzShift.Maximum,
-                tabletPressureRatio,
+                pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandHorShift.SelectedItem).ValueMember),
                 0, 100);
 
             int finalRandVertShift = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandVertShift.Value,
                 (int)spinTabPressureRandVerShift.Value,
                 sliderRandVertShift.Maximum,
-                tabletPressureRatio,
+                pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandVerShift.SelectedItem).ValueMember),
                 0, 100);
 
@@ -1418,33 +1510,42 @@ namespace DynamicDraw
                 finalRandVertShift != 0)
             {
                 loc.X = loc.X
-                    - bmpCurrentDrawing.Width * (finalRandHorzShift / 200f)
-                    + bmpCurrentDrawing.Width * (random.Next(finalRandHorzShift) / 100f);
+                    - bmpCommitted.Width * (finalRandHorzShift / 200f)
+                    + bmpCommitted.Width * (random.Next(finalRandHorzShift) / 100f);
 
                 loc.Y = loc.Y
-                    - bmpCurrentDrawing.Height * (finalRandVertShift / 200f)
-                    + bmpCurrentDrawing.Height * (random.Next(finalRandVertShift) / 100f);
+                    - bmpCommitted.Height * (finalRandVertShift / 200f)
+                    + bmpCommitted.Height * (random.Next(finalRandVertShift) / 100f);
             }
             #endregion
+
+            // Avoid subpixel rendering at 1px width since it'd make the line entirely antialiasing.
+            if (radius == 1 &&
+                chkbxAutomaticBrushDensity.Checked &&
+                (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue != CmbxSmoothing.Smoothing.Jagged)
+            {
+                loc.X = (int)Math.Round(loc.X);
+                loc.Y = (int)Math.Round(loc.Y);
+            }
 
             #region apply rotation jitter + rotate with mouse option
             // Calculates the final brush rotation based on all factors. Counters canvas rotation to remain unaffected.
             int finalBrushRotation = Utils.GetStrengthMappedValue(sliderBrushRotation.Value,
                 (int)spinTabPressureBrushRotation.Value,
                 sliderBrushRotation.Maximum,
-                tabletPressureRatio,
+                pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushRotation.SelectedItem).ValueMember);
 
             int finalRandRotLeft = Utils.GetStrengthMappedValue(sliderRandRotLeft.Value,
                 (int)spinTabPressureRandRotLeft.Value,
                 sliderRandRotLeft.Maximum,
-                tabletPressureRatio,
+                pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandRotLeft.SelectedItem).ValueMember);
 
             int finalRandRotRight = Utils.GetStrengthMappedValue(sliderRandRotRight.Value,
                 (int)spinTabPressureRandRotRight.Value,
                 sliderRandRotRight.Maximum,
-                tabletPressureRatio,
+                pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandRotRight.SelectedItem).ValueMember);
 
             int rotation = finalBrushRotation
@@ -1461,26 +1562,26 @@ namespace DynamicDraw
             }
             #endregion
 
-            #region apply alpha jitter
-            int finalRandMinAlpha = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandMinAlpha.Value,
-                (int)spinTabPressureRandMinAlpha.Value,
-                sliderRandMinAlpha.Maximum,
-                tabletPressureRatio,
-                ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandMinAlpha.SelectedItem).ValueMember),
+            #region apply alpha jitter (via flow)
+            int finalRandFlowLoss = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandFlowLoss.Value,
+                (int)spinTabPressureRandFlowLoss.Value,
+                sliderRandFlowLoss.Maximum,
+                pressure,
+                ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandFlowLoss.SelectedItem).ValueMember),
                 0, 255);
             #endregion
 
             #region apply color jitter
             ImageAttributes recolorMatrix = null;
             ColorBgra adjustedColor = bttnBrushColor.BackColor;
-            int newMinAlpha = random.Next(finalRandMinAlpha);
-            adjustedColor.A = (byte)Math.Round(255 - Utils.ClampF(sliderBrushAlpha.Value + newMinAlpha, 0, 255));
+            int newFlowLoss = random.Next(finalRandFlowLoss);
+            adjustedColor.A = (byte)Math.Round(Utils.ClampF(sliderBrushFlow.Value - newFlowLoss, 0, 255));
 
             if (activeTool == Tool.Eraser)
             {
-                if (newMinAlpha != 0)
+                if (newFlowLoss != 0)
                 {
-                    recolorMatrix = Utils.ColorImageAttr(1, 1, 1, (255 - newMinAlpha) / 255f);
+                    recolorMatrix = Utils.ColorImageAttr(1, 1, 1, (255 - newFlowLoss) / 255f);
                 }
             }
             else if (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0 || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
@@ -1488,84 +1589,84 @@ namespace DynamicDraw
                 int finalJitterMaxRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
                     (int)spinTabPressureMaxRedJitter.Value,
                     sliderJitterMaxRed.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRedJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMinRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinRed.Value,
                     (int)spinTabPressureMinRedJitter.Value,
                     sliderJitterMinRed.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRedJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMaxGreen = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxGreen.Value,
                     (int)spinTabPressureMaxGreenJitter.Value,
                     sliderJitterMaxGreen.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureGreenJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMinGreen = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinGreen.Value,
                     (int)spinTabPressureMinGreenJitter.Value,
                     sliderJitterMinGreen.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureGreenJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMaxBlue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxBlue.Value,
                     (int)spinTabPressureMaxBlueJitter.Value,
                     sliderJitterMaxBlue.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBlueJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMinBlue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinBlue.Value,
                     (int)spinTabPressureMinBlueJitter.Value,
                     sliderJitterMinBlue.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBlueJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMaxHue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxHue.Value,
                     (int)spinTabPressureMaxHueJitter.Value,
                     sliderJitterMaxHue.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureHueJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMinHue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinHue.Value,
                     (int)spinTabPressureMinHueJitter.Value,
                     sliderJitterMinHue.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureHueJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMaxSat = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxSat.Value,
                     (int)spinTabPressureMaxSatJitter.Value,
                     sliderJitterMaxSat.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureSatJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMinSat = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinSat.Value,
                     (int)spinTabPressureMinSatJitter.Value,
                     sliderJitterMinSat.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureSatJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMaxVal = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxVal.Value,
                     (int)spinTabPressureMaxValueJitter.Value,
                     sliderJitterMaxVal.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureValueJitter.SelectedItem).ValueMember),
                     0, 100);
 
                 int finalJitterMinVal = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinVal.Value,
                     (int)spinTabPressureMinValueJitter.Value,
                     sliderJitterMinVal.Maximum,
-                    tabletPressureRatio,
+                    pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureValueJitter.SelectedItem).ValueMember),
                     0, 100);
 
@@ -1585,14 +1686,14 @@ namespace DynamicDraw
                     finalJitterMaxVal != 0 ||
                     finalJitterMinVal != 0;
 
-                if (newMinAlpha != 0 || jitterRgb || jitterHsv)
+                if (newFlowLoss != 0 || jitterRgb || jitterHsv)
                 {
-                    // the brush image is already alpha multiplied for speed when the user sets brush transparency, so
+                    // the brush image is already alpha multiplied for speed when the user sets brush flow, so
                     // newAlpha just mixes the remainder from jitter, which is why it does 255 minus the jitter.
                     // Non-standard blend modes need to use the brush as an alpha mask, so they don't multiply brush
                     // transparency into the brush early on.
-                    float newAlpha = (cmbxBlendMode.SelectedIndex == (int)BlendMode.Normal || activeTool == Tool.Eraser)
-                        ? Utils.ClampF((255 - newMinAlpha) / 255f, 0, 1)
+                    float newAlpha = (activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Overwrite)
+                        ? Utils.ClampF((255 - newFlowLoss) / 255f, 0, 1)
                         : adjustedColor.A / 255f;
 
                     float newRed = bttnBrushColor.BackColor.R / 255f;
@@ -1650,16 +1751,51 @@ namespace DynamicDraw
             }
             #endregion
 
-            // Draws the brush.
-            using (Graphics g = Graphics.FromImage(bmpCurrentDrawing))
+            byte finalOpacity = (byte)Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushOpacity.Value,
+                (int)spinTabPressureBrushOpacity.Value,
+                sliderBrushOpacity.Maximum,
+                pressure,
+                ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushOpacity.SelectedItem).ValueMember),
+                0, 255);
+
+            // The staged bitmap is only needed for layer opacity and layer blend modes, because the brush stroke
+            // opacity becomes important in calculating separately from the regular drawing. The staged bitmap will
+            // be drawn the whole time and when done with the brush stroke, so it's tracked to know when committing to
+            // it is necessary, to save speed. Note that the eraser tool always erases on the committed bitmap.
+            bool drawToStagedBitmap = activeTool != Tool.Eraser &&
+                (isUserDrawing.stagedChanged
+                || BlendModeUtils.BlendModeToUserBlendOp((BlendMode)cmbxBlendMode.SelectedIndex) != null
+                || finalOpacity != sliderBrushOpacity.Maximum);
+
+            if (drawToStagedBitmap && !isUserDrawing.stagedChanged)
             {
-                // Lockbits is needed for blend modes, channel locks, and seamless drawing.
+                isUserDrawing.stagedChanged = true;
+                Utils.OverwriteBits(bmpCommitted, bmpMerged);
+            }
+
+            Bitmap bmpToDrawOn = drawToStagedBitmap ? bmpStaged : bmpCommitted;
+
+            // Draws the brush.
+            using (Graphics g = Graphics.FromImage(bmpToDrawOn))
+            {
+                // Lockbits is needed for overwrite blend mode, channel locks, and seamless drawing.
                 bool useLockbitsDrawing = activeTool == Tool.Eraser
-                    || cmbxBlendMode.SelectedIndex != (int)BlendMode.Normal
-                    || chkbxLockAlpha.Checked
+                    || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite
+                    || finalOpacity != sliderBrushOpacity.Maximum
                     || chkbxSeamlessDrawing.Checked
+                    || chkbxLockAlpha.Checked
+                    || chkbxLockR.Checked || chkbxLockG.Checked || chkbxLockB.Checked
+                    || chkbxLockHue.Checked || chkbxLockSat.Checked || chkbxLockVal.Checked
+                    || chkbxDitherDraw.Checked
                     || !chkbxColorizeBrush.Checked
                     || (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex == CmbxSmoothing.Smoothing.Jagged;
+
+                // Adjust to center for pixel perfect drawing.
+                if (useLockbitsDrawing)
+                {
+                    loc.X += halfPixelOffset;
+                    loc.Y += halfPixelOffset;
+                }
 
                 // Overwrite blend mode and uncolorized images don't use the recolor matrix.
                 if (activeTool != Tool.Eraser)
@@ -1698,8 +1834,8 @@ namespace DynamicDraw
                 g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[(CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue];
 
                 // Compensate for brush origin being top-left corner instead of center.
-                float drawingOffsetX = bmpCurrentDrawing.Width * 0.5f;
-                float drawingOffsetY = bmpCurrentDrawing.Height * 0.5f;
+                float drawingOffsetX = bmpCommitted.Width * 0.5f;
+                float drawingOffsetY = bmpCommitted.Height * 0.5f;
 
                 // Moves where the brush stroke is applied to match the user's canvas rotation settings.
                 if (!useLockbitsDrawing)
@@ -1736,32 +1872,56 @@ namespace DynamicDraw
                                 {
                                     Utils.OverwriteMasked(
                                         this.EnvironmentParameters.SourceSurface,
-                                        bmpCurrentDrawing,
-                                        bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
-                                            (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))));
-                                }
-                                else
-                                {
-                                    Utils.DrawMasked(
-                                        bmpCurrentDrawing,
+                                        bmpCommitted,
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
                                             (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))),
-                                        (adjustedColor, newMinAlpha),
+                                        (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
+                                        chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
+                                }
+                                else
+                                {
+                                    Utils.DrawMasked(
+                                        bmpToDrawOn,
+                                        bmpBrushRotScaled,
+                                        new Point(
+                                            (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
+                                            (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))),
+                                        (adjustedColor, newFlowLoss, finalOpacity),
                                         chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
                                             sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked,
-                                        chkbxSeamlessDrawing.Checked);
+                                        drawToStagedBitmap ? (false, false, false, false, false, false, false) :
+                                        (chkbxLockAlpha.Checked,
+                                        chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                        chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked,
+                                        mergeRegions);
                                 }
                             }
                         }
                         else
                         {
+                            if (drawToStagedBitmap)
+                            {
+                                PointF rotatedLoc = loc;
+                                if (sliderCanvasAngle.Value != 0)
+                                {
+                                    rotatedLoc = TransformPoint(loc, true, true, false);
+                                }
+
+                                mergeRegions.Add(new Rectangle(
+                                    (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
+                                    (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f)),
+                                    scaleFactor, scaleFactor
+                                ));
+                            }
+
                             g.DrawImage(
                                 bmpBrushRot,
                                 loc.X - (scaleFactor / 2f),
@@ -1816,33 +1976,50 @@ namespace DynamicDraw
                                 {
                                     Utils.OverwriteMasked(
                                         this.EnvironmentParameters.SourceSurface,
-                                        bmpCurrentDrawing,
-                                        bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
-                                            (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))));
-
-                                }
-                                else
-                                {
-                                    Utils.DrawMasked(
-                                        bmpCurrentDrawing,
+                                        bmpCommitted,
                                         bmpBrushRotScaled,
                                         new Point(
                                             (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
                                             (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
-                                        (adjustedColor, newMinAlpha),
+                                        (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                        chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked);
+                                }
+                                else
+                                {
+                                    Utils.DrawMasked(
+                                        bmpToDrawOn,
+                                        bmpBrushRotScaled,
+                                        new Point(
+                                            (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
+                                            (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
+                                        (adjustedColor, newFlowLoss, finalOpacity),
                                         chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
                                             sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                             chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked,
-                                        chkbxSeamlessDrawing.Checked);
+                                        drawToStagedBitmap ? (false, false, false, false, false, false, false) :
+                                        (chkbxLockAlpha.Checked,
+                                        chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
+                                        chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                        chkbxSeamlessDrawing.Checked,
+                                        chkbxDitherDraw.Checked,
+                                        mergeRegions);
                                 }
                             }
                         }
                         else
                         {
+                            if (drawToStagedBitmap)
+                            {
+                                mergeRegions.Add(new Rectangle(
+                                    (int)(origin.X + (symmetryX ? -halfScaleFactor + xDist : halfScaleFactor - scaleFactor - xDist)),
+                                    (int)(origin.Y + (symmetryY ? -halfScaleFactor + yDist : halfScaleFactor - scaleFactor - yDist)),
+                                    scaleFactor,
+                                    scaleFactor));
+                            }
+
                             g.DrawImage(
                                 bmpBrushRot,
                                 origin.X + (symmetryX ? -halfScaleFactor + xDist : halfScaleFactor - xDist),
@@ -1878,27 +2055,36 @@ namespace DynamicDraw
                                     {
                                         Utils.OverwriteMasked(
                                             this.EnvironmentParameters.SourceSurface,
-                                            bmpCurrentDrawing,
-                                            bmpBrushRotScaled,
-                                            new Point(
-                                                (int)Math.Round(transformedPoint.X - halfScaleFactor),
-                                                (int)Math.Round(transformedPoint.Y - halfScaleFactor)));
-                                    }
-                                    else
-                                    {
-                                        Utils.DrawMasked(
-                                            bmpCurrentDrawing,
+                                            bmpCommitted,
                                             bmpBrushRotScaled,
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
                                                 (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
-                                            (adjustedColor, newMinAlpha),
+                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked);
+                                    }
+                                    else
+                                    {
+                                        Utils.DrawMasked(
+                                            bmpToDrawOn,
+                                            bmpBrushRotScaled,
+                                            new Point(
+                                                (int)Math.Round(transformedPoint.X - halfScaleFactor),
+                                                (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
+                                            (adjustedColor, newFlowLoss, finalOpacity),
                                             chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
                                                 sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
                                                 chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
-                                            chkbxLockAlpha.Checked,
-                                            chkbxSeamlessDrawing.Checked);
+                                            drawToStagedBitmap ? (false, false, false, false, false, false, false) :
+                                            (chkbxLockAlpha.Checked,
+                                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked,
+                                        mergeRegions);
                                     }
                                 }
                             }
@@ -1907,6 +2093,15 @@ namespace DynamicDraw
                         {
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle(
+                                        (int)(loc.X - scaleFactor / 2f + symmetryOrigins[i].X),
+                                        (int)(loc.Y - scaleFactor / 2f + symmetryOrigins[i].Y),
+                                        scaleFactor,
+                                        scaleFactor));
+                                }
+
                                 g.DrawImage(
                                     bmpBrushRot,
                                     loc.X - scaleFactor / 2f + symmetryOrigins[i].X,
@@ -1918,7 +2113,7 @@ namespace DynamicDraw
                     }
 
                     //Draws the brush with radial reflections.
-                    else
+                    else if (cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None)
                     {
                         // Easier not to compute on a rotated canvas.
                         g.ResetTransform();
@@ -1959,28 +2154,37 @@ namespace DynamicDraw
                                     if (activeTool == Tool.Eraser)
                                     {
                                         Utils.OverwriteMasked(
-                                        this.EnvironmentParameters.SourceSurface,
-                                        bmpCurrentDrawing,
-                                        bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))));
+                                            this.EnvironmentParameters.SourceSurface,
+                                            bmpCommitted,
+                                            bmpBrushRotScaled,
+                                            new Point(
+                                                (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                                (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked);
                                     }
                                     else
                                     {
                                         Utils.DrawMasked(
-                                        bmpCurrentDrawing,
-                                        bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
-                                        (adjustedColor, newMinAlpha),
-                                        chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
-                                            sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
-                                            chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
-                                        (BlendMode)cmbxBlendMode.SelectedIndex,
-                                        chkbxLockAlpha.Checked,
-                                        chkbxSeamlessDrawing.Checked);
+                                            bmpToDrawOn,
+                                            bmpBrushRotScaled,
+                                            new Point(
+                                                (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                                (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                            (adjustedColor, newFlowLoss, finalOpacity),
+                                            chkbxColorizeBrush.Checked ? null : sliderColorInfluence.Value == 0 ? (100, false, false, false) : (
+                                                sliderColorInfluence.Value, chkbxColorInfluenceHue.Checked,
+                                                chkbxColorInfluenceSat.Checked, chkbxColorInfluenceVal.Checked),
+                                            (BlendMode)cmbxBlendMode.SelectedIndex,
+                                            drawToStagedBitmap ? (false, false, false, false, false, false, false) :
+                                            (chkbxLockAlpha.Checked,
+                                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
+                                            chkbxSeamlessDrawing.Checked,
+                                            chkbxDitherDraw.Checked,
+                                            mergeRegions);
                                     }
 
                                     angle += angleIncrease;
@@ -1991,6 +2195,15 @@ namespace DynamicDraw
                         {
                             for (int i = 0; i < numPoints; i++)
                             {
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle(
+                                        (int)(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                        (int)(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle))),
+                                        scaleFactor,
+                                        scaleFactor));
+                                }
+
                                 g.DrawImage(
                                     bmpBrushRot,
                                     origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle)),
@@ -2021,6 +2234,11 @@ namespace DynamicDraw
                     //Draws the whole image and applies colorations and alpha.
                     if (cmbxSymmetry.SelectedIndex < 5)
                     {
+                        if (drawToStagedBitmap)
+                        {
+                            mergeRegions.Add(new Rectangle((int)xPos, (int)yPos, scaleFactor, scaleFactor));
+                        }
+
                         g.DrawImage(
                             bmpBrushRot,
                             destination,
@@ -2075,6 +2293,11 @@ namespace DynamicDraw
                             destination[1] = new PointF(posX + scaleFactor, posY);
                             destination[2] = new PointF(posX, posY + scaleFactor);
 
+                            if (drawToStagedBitmap)
+                            {
+                                mergeRegions.Add(new Rectangle((int)posX, (int)posY, scaleFactor, scaleFactor));
+                            }
+
                             //Draws the whole image and applies colorations and alpha.
                             g.DrawImage(
                                 bmpBrushRot,
@@ -2097,6 +2320,11 @@ namespace DynamicDraw
                                 destination[0] = new PointF(newXPos, newYPos);
                                 destination[1] = new PointF(newXPos + scaleFactor, newYPos);
                                 destination[2] = new PointF(newXPos, newYPos + scaleFactor);
+
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle((int)newXPos, (int)newYPos, scaleFactor, scaleFactor));
+                                }
 
                                 g.DrawImage(
                                     bmpBrushRot,
@@ -2149,6 +2377,11 @@ namespace DynamicDraw
                                 destination[1] = new PointF(posX + scaleFactor, posY);
                                 destination[2] = new PointF(posX, posY + scaleFactor);
 
+                                if (drawToStagedBitmap)
+                                {
+                                    mergeRegions.Add(new Rectangle((int)posX, (int)posY, scaleFactor, scaleFactor));
+                                }
+
                                 g.DrawImage(
                                     bmpBrushRot,
                                     destination,
@@ -2171,8 +2404,18 @@ namespace DynamicDraw
         /// <param name="loc">The point to get the color from.</param>
         private void GetColorFromCanvas(Point loc)
         {
-            PointF rotatedLoc = TransformPoint(loc, true, true, false);
-            UpdateBrushColor(bmpCurrentDrawing.GetPixel((int)rotatedLoc.X, (int)rotatedLoc.Y));
+            PointF rotatedLoc = TransformPoint(
+                new PointF(loc.X - halfPixelOffset, loc.Y - halfPixelOffset),
+                true, true, false);
+
+            if (rotatedLoc.X >= 0 && rotatedLoc.Y >= 0 &&
+                rotatedLoc.X <= bmpCommitted.Width - 1 &&
+                rotatedLoc.Y <= bmpCommitted.Height - 1)
+            {
+                UpdateBrushColor(bmpCommitted.GetPixel(
+                    (int)Math.Round(rotatedLoc.X),
+                    (int)Math.Round(rotatedLoc.Y)));
+            }
         }
 
         /// <summary>
@@ -2184,29 +2427,29 @@ namespace DynamicDraw
         {
             switch (shortcut.Target)
             {
-                case ShortcutTarget.Alpha:
-                    sliderBrushAlpha.Value = 
-                        shortcut.GetDataAsInt(sliderBrushAlpha.Value,
-                        sliderBrushAlpha.Minimum,
-                        sliderBrushAlpha.Maximum);
+                case ShortcutTarget.Flow:
+                    sliderBrushFlow.Value =
+                        shortcut.GetDataAsInt(sliderBrushFlow.Value,
+                        sliderBrushFlow.Minimum,
+                        sliderBrushFlow.Maximum);
                     break;
-                case ShortcutTarget.AlphaShift:
-                    sliderBrushAlpha.Value = 
-                        shortcut.GetDataAsInt(sliderBrushAlpha.Value,
-                        sliderBrushAlpha.Minimum,
-                        sliderBrushAlpha.Maximum);
+                case ShortcutTarget.FlowShift:
+                    sliderBrushFlow.Value =
+                        shortcut.GetDataAsInt(sliderBrushFlow.Value,
+                        sliderBrushFlow.Minimum,
+                        sliderBrushFlow.Maximum);
                     break;
                 case ShortcutTarget.AutomaticBrushDensity:
                     chkbxAutomaticBrushDensity.Checked = shortcut.GetDataAsBool(chkbxAutomaticBrushDensity.Checked);
                     break;
                 case ShortcutTarget.BrushStrokeDensity:
-                    sliderBrushDensity.Value = 
+                    sliderBrushDensity.Value =
                         shortcut.GetDataAsInt(sliderBrushDensity.Value,
                         sliderBrushDensity.Minimum,
                         sliderBrushDensity.Maximum);
                     break;
                 case ShortcutTarget.CanvasZoom:
-                    sliderCanvasZoom.Value = 
+                    sliderCanvasZoom.Value =
                         shortcut.GetDataAsInt(sliderCanvasZoom.Value,
                         sliderCanvasZoom.Minimum, sliderCanvasZoom.Maximum);
                     break;
@@ -2231,78 +2474,81 @@ namespace DynamicDraw
                 case ShortcutTarget.ColorInfluenceVal:
                     chkbxColorInfluenceVal.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceVal.Checked);
                     break;
+                case ShortcutTarget.DitherDraw:
+                    chkbxDitherDraw.Checked = shortcut.GetDataAsBool(chkbxDitherDraw.Checked);
+                    break;
                 case ShortcutTarget.JitterBlueMax:
-                    sliderJitterMaxBlue.Value = 
+                    sliderJitterMaxBlue.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxBlue.Value,
                         sliderJitterMaxBlue.Minimum, sliderJitterMaxBlue.Maximum);
                     break;
                 case ShortcutTarget.JitterBlueMin:
-                    sliderJitterMinBlue.Value = 
+                    sliderJitterMinBlue.Value =
                         shortcut.GetDataAsInt(sliderJitterMinBlue.Value,
                         sliderJitterMinBlue.Minimum, sliderJitterMinBlue.Maximum);
                     break;
                 case ShortcutTarget.JitterGreenMax:
-                    sliderJitterMaxGreen.Value = 
+                    sliderJitterMaxGreen.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxGreen.Value,
                         sliderJitterMaxGreen.Minimum, sliderJitterMaxGreen.Maximum);
                     break;
                 case ShortcutTarget.JitterGreenMin:
-                    sliderJitterMinGreen.Value = 
+                    sliderJitterMinGreen.Value =
                         shortcut.GetDataAsInt(sliderJitterMinGreen.Value,
                         sliderJitterMinGreen.Minimum, sliderJitterMinGreen.Maximum);
                     break;
                 case ShortcutTarget.JitterHorSpray:
-                    sliderRandHorzShift.Value = 
+                    sliderRandHorzShift.Value =
                         shortcut.GetDataAsInt(sliderRandHorzShift.Value,
                         sliderRandHorzShift.Minimum, sliderRandHorzShift.Maximum);
                     break;
                 case ShortcutTarget.JitterHueMax:
-                    sliderJitterMaxHue.Value = 
+                    sliderJitterMaxHue.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxHue.Value,
                         sliderJitterMaxHue.Minimum, sliderJitterMaxHue.Maximum);
                     break;
                 case ShortcutTarget.JitterHueMin:
-                    sliderJitterMinHue.Value = 
+                    sliderJitterMinHue.Value =
                         shortcut.GetDataAsInt(sliderJitterMinHue.Value,
                         sliderJitterMinHue.Minimum, sliderJitterMinHue.Maximum);
                     break;
+                case ShortcutTarget.JitterFlowLoss:
+                    sliderRandFlowLoss.Value =
+                        shortcut.GetDataAsInt(sliderRandFlowLoss.Value,
+                        sliderRandFlowLoss.Minimum, sliderRandFlowLoss.Maximum);
+                    break;
                 case ShortcutTarget.JitterMaxSize:
-                    sliderRandMaxSize.Value = 
+                    sliderRandMaxSize.Value =
                         shortcut.GetDataAsInt(sliderRandMaxSize.Value,
                         sliderRandMaxSize.Minimum, sliderRandMaxSize.Maximum);
                     break;
-                case ShortcutTarget.JitterMinAlpha:
-                    sliderRandMinAlpha.Value = 
-                        shortcut.GetDataAsInt(sliderRandMinAlpha.Value,
-                        sliderRandMinAlpha.Minimum, sliderRandMinAlpha.Maximum);
-                    break;
                 case ShortcutTarget.JitterMinSize:
-                    sliderRandMinSize.Value = 
+                    sliderRandMinSize.Value =
                         shortcut.GetDataAsInt(sliderRandMinSize.Value,
                         sliderRandMinSize.Minimum, sliderRandMinSize.Maximum);
                     break;
                 case ShortcutTarget.JitterRedMax:
-                    sliderJitterMaxRed.Value = 
+                    sliderJitterMaxRed.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxRed.Value,
                         sliderJitterMaxRed.Minimum, sliderJitterMaxRed.Maximum);
                     break;
                 case ShortcutTarget.JitterRedMin:
-                    sliderJitterMinRed.Value = 
+                    sliderJitterMinRed.Value =
                         shortcut.GetDataAsInt(sliderJitterMinRed.Value,
                         sliderJitterMinRed.Minimum, sliderJitterMinRed.Maximum);
                     break;
                 case ShortcutTarget.JitterRotLeft:
-                    sliderRandRotLeft.Value = 
+                    sliderRandRotLeft.Value =
                         shortcut.GetDataAsInt(sliderRandRotLeft.Value,
                         sliderRandRotLeft.Minimum, sliderRandRotLeft.Maximum);
                     break;
                 case ShortcutTarget.JitterRotRight:
-                    sliderRandRotRight.Value = 
+                    sliderRandRotRight.Value =
                         shortcut.GetDataAsInt(sliderRandRotRight.Value,
                         sliderRandRotRight.Minimum, sliderRandRotRight.Maximum);
                     break;
                 case ShortcutTarget.JitterSatMax:
-                    sliderJitterMaxSat.Value = 
+                    sliderJitterMaxSat.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxSat.Value,
                         sliderJitterMaxSat.Minimum, sliderJitterMaxSat.Maximum);
                     break;
@@ -2326,8 +2572,26 @@ namespace DynamicDraw
                         shortcut.GetDataAsInt(sliderRandVertShift.Value,
                         sliderRandVertShift.Minimum, sliderRandVertShift.Maximum);
                     break;
-                case ShortcutTarget.LockAlpha:
+                case ShortcutTarget.DoLockAlpha:
                     chkbxLockAlpha.Checked = shortcut.GetDataAsBool(chkbxLockAlpha.Checked);
+                    break;
+                case ShortcutTarget.DoLockR:
+                    chkbxLockR.Checked = shortcut.GetDataAsBool(chkbxLockR.Checked);
+                    break;
+                case ShortcutTarget.DoLockG:
+                    chkbxLockG.Checked = shortcut.GetDataAsBool(chkbxLockG.Checked);
+                    break;
+                case ShortcutTarget.DoLockB:
+                    chkbxLockB.Checked = shortcut.GetDataAsBool(chkbxLockB.Checked);
+                    break;
+                case ShortcutTarget.DoLockHue:
+                    chkbxLockHue.Checked = shortcut.GetDataAsBool(chkbxLockHue.Checked);
+                    break;
+                case ShortcutTarget.DoLockSat:
+                    chkbxLockSat.Checked = shortcut.GetDataAsBool(chkbxLockSat.Checked);
+                    break;
+                case ShortcutTarget.DoLockVal:
+                    chkbxLockVal.Checked = shortcut.GetDataAsBool(chkbxLockVal.Checked);
                     break;
                 case ShortcutTarget.MinDrawDistance:
                     sliderMinDrawDistance.Value =
@@ -2389,6 +2653,8 @@ namespace DynamicDraw
                     Tool newTool = (Tool)shortcut.GetDataAsInt((int)activeTool, 0, Enum.GetValues(typeof(Tool)).Length);
                     SwitchTool(newTool);
 
+                    if (newTool == Tool.PreviousTool) { newTool = lastTool; }
+
                     if (newTool == Tool.SetSymmetryOrigin)
                     {
                         // The origin points could be displayed relative to the center or current mouse. It's more convenient
@@ -2419,7 +2685,7 @@ namespace DynamicDraw
                         0, cmbxBrushSmoothing.Items.Count);
                     break;
                 case ShortcutTarget.SymmetryMode:
-                    cmbxSymmetry.SelectedIndex = 
+                    cmbxSymmetry.SelectedIndex =
                         shortcut.GetDataAsInt((int)cmbxSymmetry.SelectedIndex, 0, cmbxSymmetry.Items.Count);
                     break;
                 case ShortcutTarget.UndoAction:
@@ -2429,8 +2695,8 @@ namespace DynamicDraw
                     BttnRedo_Click(null, null);
                     break;
                 case ShortcutTarget.ResetCanvasTransforms:
-                    canvas.width = bmpCurrentDrawing.Width;
-                    canvas.height = bmpCurrentDrawing.Height;
+                    canvas.width = bmpCommitted.Width;
+                    canvas.height = bmpCommitted.Height;
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
                     canvas.y = (displayCanvas.Height - canvas.height) / 2;
                     sliderCanvasAngle.Value = 0;
@@ -2456,6 +2722,12 @@ namespace DynamicDraw
                     break;
                 case ShortcutTarget.SeamlessDrawing:
                     chkbxSeamlessDrawing.Checked = shortcut.GetDataAsBool(chkbxSeamlessDrawing.Checked);
+                    break;
+                case ShortcutTarget.BrushOpacity:
+                    sliderBrushOpacity.Value =
+                        shortcut.GetDataAsInt(sliderBrushOpacity.Value,
+                        sliderBrushOpacity.Minimum,
+                        sliderBrushOpacity.Maximum);
                     break;
             };
         }
@@ -2594,6 +2866,7 @@ namespace DynamicDraw
                 loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushDirt, Resources.BrDirt));
                 loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCracks, Resources.BrCracks));
                 loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushSpiral, Resources.BrSpiral));
+                loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushSquare, Resources.BrSquare));
                 loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleSegmented, Resources.BrCircleSegmented));
                 loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleSketchy, Resources.BrCircleSketchy));
                 loadedBrushImages.Add(new BrushSelectorItem(Strings.DefaultBrushCircleRough, Resources.BrCircleRough));
@@ -2799,8 +3072,10 @@ namespace DynamicDraw
             this.brushImageLoadProgressBar = new ProgressBar();
             this.bttnBrushColor = new Button();
             this.cmbxBlendMode = new ComboBox();
-            this.txtBrushAlpha = new Label();
-            this.sliderBrushAlpha = new TrackBar();
+            this.txtBrushOpacity = new Label();
+            this.sliderBrushOpacity = new TrackBar();
+            this.txtBrushFlow = new Label();
+            this.sliderBrushFlow = new TrackBar();
             this.txtBrushRotation = new Label();
             this.sliderBrushRotation = new TrackBar();
             this.txtBrushSize = new Label();
@@ -2815,7 +3090,16 @@ namespace DynamicDraw
             this.cmbxBrushSmoothing = new ComboBox();
             this.chkbxSeamlessDrawing = new CheckBox();
             this.chkbxOrientToMouse = new CheckBox();
+            this.chkbxDitherDraw = new CheckBox();
             this.chkbxLockAlpha = new CheckBox();
+            this.panelRGBLocks = new Panel();
+            this.chkbxLockR = new CheckBox();
+            this.chkbxLockG = new CheckBox();
+            this.chkbxLockB = new CheckBox();
+            this.panelHSVLocks = new Panel();
+            this.chkbxLockHue = new CheckBox();
+            this.chkbxLockSat = new CheckBox();
+            this.chkbxLockVal = new CheckBox();
             this.bttnJitterBasicsControls = new Accordion();
             this.panelJitterBasics = new FlowLayoutPanel();
             this.txtRandMinSize = new Label();
@@ -2826,8 +3110,8 @@ namespace DynamicDraw
             this.sliderRandRotLeft = new TrackBar();
             this.txtRandRotRight = new Label();
             this.sliderRandRotRight = new TrackBar();
-            this.txtRandMinAlpha = new Label();
-            this.sliderRandMinAlpha = new TrackBar();
+            this.txtRandFlowLoss = new Label();
+            this.sliderRandFlowLoss = new TrackBar();
             this.txtRandHorzShift = new Label();
             this.sliderRandHorzShift = new TrackBar();
             this.txtRandVertShift = new Label();
@@ -2858,15 +3142,20 @@ namespace DynamicDraw
             this.sliderShiftSize = new TrackBar();
             this.txtShiftRotation = new Label();
             this.sliderShiftRotation = new TrackBar();
-            this.txtShiftAlpha = new Label();
-            this.sliderShiftAlpha = new TrackBar();
+            this.txtShiftFlow = new Label();
+            this.sliderShiftFlow = new TrackBar();
             this.bttnTabAssignPressureControls = new Accordion();
             this.panelTabletAssignPressure = new FlowLayoutPanel();
-            this.panelTabPressureBrushAlpha = new FlowLayoutPanel();
+            this.panelTabPressureBrushOpacity = new FlowLayoutPanel();
+            this.panel19 = new Panel();
+            this.txtTabPressureBrushOpacity = new Label();
+            this.spinTabPressureBrushOpacity = new NumericUpDown();
+            this.cmbxTabPressureBrushOpacity = new CmbxTabletValueType();
+            this.panelTabPressureBrushFlow = new FlowLayoutPanel();
             this.panel3 = new Panel();
-            this.txtTabPressureBrushAlpha = new Label();
-            this.spinTabPressureBrushAlpha = new NumericUpDown();
-            this.cmbxTabPressureBrushAlpha = new CmbxTabletValueType();
+            this.txtTabPressureBrushFlow = new Label();
+            this.spinTabPressureBrushFlow = new NumericUpDown();
+            this.cmbxTabPressureBrushFlow = new CmbxTabletValueType();
             this.panelTabPressureBrushSize = new FlowLayoutPanel();
             this.panel8 = new Panel();
             this.txtTabPressureBrushSize = new Label();
@@ -2907,11 +3196,11 @@ namespace DynamicDraw
             this.lblTabPressureRandRotRight = new Label();
             this.spinTabPressureRandRotRight = new NumericUpDown();
             this.cmbxTabPressureRandRotRight = new CmbxTabletValueType();
-            this.panelTabPressureRandMinAlpha = new FlowLayoutPanel();
+            this.panelTabPressureRandFlowLoss = new FlowLayoutPanel();
             this.panel10 = new Panel();
-            this.lblTabPressureRandMinAlpha = new Label();
-            this.spinTabPressureRandMinAlpha = new NumericUpDown();
-            this.cmbxTabPressureRandMinAlpha = new CmbxTabletValueType();
+            this.lblTabPressureRandFlowLoss = new Label();
+            this.spinTabPressureRandFlowLoss = new NumericUpDown();
+            this.cmbxTabPressureRandFlowLoss = new CmbxTabletValueType();
             this.panelTabPressureRandHorShift = new FlowLayoutPanel();
             this.panel12 = new Panel();
             this.lblTabPressureRandHorShift = new Label();
@@ -2978,10 +3267,13 @@ namespace DynamicDraw
             this.panelBrushAddPickColor.SuspendLayout();
             ((ISupportInitialize)(this.sliderColorInfluence)).BeginInit();
             this.panelColorInfluenceHSV.SuspendLayout();
-            ((ISupportInitialize)(this.sliderBrushAlpha)).BeginInit();
+            ((ISupportInitialize)(this.sliderBrushOpacity)).BeginInit();
+            ((ISupportInitialize)(this.sliderBrushFlow)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushSize)).BeginInit();
             this.panelSpecialSettings.SuspendLayout();
+            this.panelRGBLocks.SuspendLayout();
+            this.panelHSVLocks.SuspendLayout();
             ((ISupportInitialize)(this.sliderMinDrawDistance)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
             this.panelJitterBasics.SuspendLayout();
@@ -2989,7 +3281,7 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderRandMaxSize)).BeginInit();
             ((ISupportInitialize)(this.sliderRandRotLeft)).BeginInit();
             ((ISupportInitialize)(this.sliderRandRotRight)).BeginInit();
-            ((ISupportInitialize)(this.sliderRandMinAlpha)).BeginInit();
+            ((ISupportInitialize)(this.sliderRandFlowLoss)).BeginInit();
             ((ISupportInitialize)(this.sliderRandHorzShift)).BeginInit();
             ((ISupportInitialize)(this.sliderRandVertShift)).BeginInit();
             this.panelJitterColor.SuspendLayout();
@@ -3008,11 +3300,14 @@ namespace DynamicDraw
             this.panelShiftBasics.SuspendLayout();
             ((ISupportInitialize)(this.sliderShiftSize)).BeginInit();
             ((ISupportInitialize)(this.sliderShiftRotation)).BeginInit();
-            ((ISupportInitialize)(this.sliderShiftAlpha)).BeginInit();
+            ((ISupportInitialize)(this.sliderShiftFlow)).BeginInit();
             this.panelTabletAssignPressure.SuspendLayout();
-            this.panelTabPressureBrushAlpha.SuspendLayout();
+            this.panelTabPressureBrushOpacity.SuspendLayout();
+            this.panel19.SuspendLayout();
+            ((ISupportInitialize)(this.spinTabPressureBrushOpacity)).BeginInit();
+            this.panelTabPressureBrushFlow.SuspendLayout();
             this.panel3.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushAlpha)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushFlow)).BeginInit();
             this.panelTabPressureBrushSize.SuspendLayout();
             this.panel8.SuspendLayout();
             ((ISupportInitialize)(this.spinTabPressureBrushSize)).BeginInit();
@@ -3037,9 +3332,9 @@ namespace DynamicDraw
             this.panelTabPressureRandRotRight.SuspendLayout();
             this.panel9.SuspendLayout();
             ((ISupportInitialize)(this.spinTabPressureRandRotRight)).BeginInit();
-            this.panelTabPressureRandMinAlpha.SuspendLayout();
+            this.panelTabPressureRandFlowLoss.SuspendLayout();
             this.panel10.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandMinAlpha)).BeginInit();
+            ((ISupportInitialize)(this.spinTabPressureRandFlowLoss)).BeginInit();
             this.panelTabPressureRandHorShift.SuspendLayout();
             this.panel12.SuspendLayout();
             ((ISupportInitialize)(this.spinTabPressureRandHorShift)).BeginInit();
@@ -3262,8 +3557,10 @@ namespace DynamicDraw
             this.panelBrush.Controls.Add(this.sliderColorInfluence);
             this.panelBrush.Controls.Add(this.panelColorInfluenceHSV);
             this.panelBrush.Controls.Add(this.cmbxBlendMode);
-            this.panelBrush.Controls.Add(this.txtBrushAlpha);
-            this.panelBrush.Controls.Add(this.sliderBrushAlpha);
+            this.panelBrush.Controls.Add(this.txtBrushOpacity);
+            this.panelBrush.Controls.Add(this.sliderBrushOpacity);
+            this.panelBrush.Controls.Add(this.txtBrushFlow);
+            this.panelBrush.Controls.Add(this.sliderBrushFlow);
             this.panelBrush.Controls.Add(this.txtBrushRotation);
             this.panelBrush.Controls.Add(this.sliderBrushRotation);
             this.panelBrush.Controls.Add(this.txtBrushSize);
@@ -3443,21 +3740,39 @@ namespace DynamicDraw
             this.cmbxBlendMode.SelectedIndexChanged += new EventHandler(this.BttnBlendMode_SelectedIndexChanged);
             this.cmbxBlendMode.MouseEnter += new EventHandler(this.BttnBlendMode_MouseEnter);
             // 
-            // txtBrushAlpha
+            // txtBrushOpacity
             // 
-            resources.ApplyResources(this.txtBrushAlpha, "txtBrushAlpha");
-            this.txtBrushAlpha.BackColor = System.Drawing.Color.Transparent;
-            this.txtBrushAlpha.Name = "txtBrushAlpha";
+            resources.ApplyResources(this.txtBrushOpacity, "txtBrushOpacity");
+            this.txtBrushOpacity.BackColor = System.Drawing.Color.Transparent;
+            this.txtBrushOpacity.Name = "txtBrushOpacity";
             // 
-            // sliderBrushAlpha
+            // sliderBrushOpacity
             // 
-            resources.ApplyResources(this.sliderBrushAlpha, "sliderBrushAlpha");
-            this.sliderBrushAlpha.LargeChange = 1;
-            this.sliderBrushAlpha.Maximum = 255;
-            this.sliderBrushAlpha.Name = "sliderBrushAlpha";
-            this.sliderBrushAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushAlpha.ValueChanged += new EventHandler(this.SliderBrushAlpha_ValueChanged);
-            this.sliderBrushAlpha.MouseEnter += new EventHandler(this.SliderBrushAlpha_MouseEnter);
+            resources.ApplyResources(this.sliderBrushOpacity, "sliderBrushOpacity");
+            this.sliderBrushOpacity.LargeChange = 1;
+            this.sliderBrushOpacity.Maximum = 255;
+            this.sliderBrushOpacity.Name = "sliderBrushOpacity";
+            this.sliderBrushOpacity.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderBrushOpacity.Value = 255;
+            this.sliderBrushOpacity.ValueChanged += new EventHandler(this.SliderBrushOpacity_ValueChanged);
+            this.sliderBrushOpacity.MouseEnter += new EventHandler(this.SliderBrushOpacity_MouseEnter);
+            // 
+            // txtBrushFlow
+            // 
+            resources.ApplyResources(this.txtBrushFlow, "txtBrushFlow");
+            this.txtBrushFlow.BackColor = System.Drawing.Color.Transparent;
+            this.txtBrushFlow.Name = "txtBrushFlow";
+            // 
+            // sliderBrushFlow
+            // 
+            resources.ApplyResources(this.sliderBrushFlow, "sliderBrushFlow");
+            this.sliderBrushFlow.LargeChange = 1;
+            this.sliderBrushFlow.Maximum = 255;
+            this.sliderBrushFlow.Name = "sliderBrushFlow";
+            this.sliderBrushFlow.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderBrushFlow.Value = 255;
+            this.sliderBrushFlow.ValueChanged += new EventHandler(this.SliderBrushFlow_ValueChanged);
+            this.sliderBrushFlow.MouseEnter += new EventHandler(this.SliderBrushFlow_MouseEnter);
             // 
             // txtBrushRotation
             // 
@@ -3515,7 +3830,10 @@ namespace DynamicDraw
             this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
             this.panelSpecialSettings.Controls.Add(this.chkbxSeamlessDrawing);
             this.panelSpecialSettings.Controls.Add(this.chkbxOrientToMouse);
+            this.panelSpecialSettings.Controls.Add(this.chkbxDitherDraw);
             this.panelSpecialSettings.Controls.Add(this.chkbxLockAlpha);
+            this.panelSpecialSettings.Controls.Add(this.panelRGBLocks);
+            this.panelSpecialSettings.Controls.Add(this.panelHSVLocks);
             this.panelSpecialSettings.Name = "panelSpecialSettings";
             // 
             // txtMinDrawDistance
@@ -3528,7 +3846,7 @@ namespace DynamicDraw
             // 
             resources.ApplyResources(this.sliderMinDrawDistance, "sliderMinDrawDistance");
             this.sliderMinDrawDistance.LargeChange = 1;
-            this.sliderMinDrawDistance.Maximum = 100;
+            this.sliderMinDrawDistance.Maximum = 500;
             this.sliderMinDrawDistance.Name = "sliderMinDrawDistance";
             this.sliderMinDrawDistance.TickStyle = System.Windows.Forms.TickStyle.None;
             this.sliderMinDrawDistance.ValueChanged += new EventHandler(this.SliderMinDrawDistance_ValueChanged);
@@ -3598,12 +3916,77 @@ namespace DynamicDraw
             this.chkbxOrientToMouse.UseVisualStyleBackColor = true;
             this.chkbxOrientToMouse.MouseEnter += new EventHandler(this.ChkbxOrientToMouse_MouseEnter);
             // 
+            // chkbxDitherDraw
+            // 
+            resources.ApplyResources(this.chkbxDitherDraw, "chkbxDitherDraw");
+            this.chkbxDitherDraw.Name = "chkbxDitherDraw";
+            this.chkbxDitherDraw.UseVisualStyleBackColor = true;
+            this.chkbxDitherDraw.MouseEnter += new EventHandler(this.ChkbxDitherDraw_MouseEnter);
+            // 
+            // panelRGBLocks
+            // 
+            this.panelRGBLocks.Controls.Add(this.chkbxLockR);
+            this.panelRGBLocks.Controls.Add(this.chkbxLockG);
+            this.panelRGBLocks.Controls.Add(this.chkbxLockB);
+            resources.ApplyResources(this.panelRGBLocks, "panelRGBLocks");
+            this.panelRGBLocks.Name = "panelRGBLocks";
+            // 
+            // panelHSVLocks
+            // 
+            this.panelHSVLocks.Controls.Add(this.chkbxLockHue);
+            this.panelHSVLocks.Controls.Add(this.chkbxLockSat);
+            this.panelHSVLocks.Controls.Add(this.chkbxLockVal);
+            resources.ApplyResources(this.panelHSVLocks, "panelHSVLocks");
+            this.panelHSVLocks.Name = "panelHSVLocks";
+            // 
             // chkbxLockAlpha
             // 
             resources.ApplyResources(this.chkbxLockAlpha, "chkbxLockAlpha");
             this.chkbxLockAlpha.Name = "chkbxLockAlpha";
             this.chkbxLockAlpha.UseVisualStyleBackColor = true;
             this.chkbxLockAlpha.MouseEnter += new EventHandler(this.ChkbxLockAlpha_MouseEnter);
+            // 
+            // chkbxLockR
+            // 
+            resources.ApplyResources(this.chkbxLockR, "chkbxLockR");
+            this.chkbxLockR.Name = "chkbxLockR";
+            this.chkbxLockR.UseVisualStyleBackColor = true;
+            this.chkbxLockR.MouseEnter += new EventHandler(this.ChkbxLockR_MouseEnter);
+            // 
+            // chkbxLockG
+            // 
+            resources.ApplyResources(this.chkbxLockG, "chkbxLockG");
+            this.chkbxLockG.Name = "chkbxLockG";
+            this.chkbxLockG.UseVisualStyleBackColor = true;
+            this.chkbxLockG.MouseEnter += new EventHandler(this.ChkbxLockG_MouseEnter);
+            // 
+            // chkbxLockB
+            // 
+            resources.ApplyResources(this.chkbxLockB, "chkbxLockB");
+            this.chkbxLockB.Name = "chkbxLockB";
+            this.chkbxLockB.UseVisualStyleBackColor = true;
+            this.chkbxLockB.MouseEnter += new EventHandler(this.ChkbxLockB_MouseEnter);
+            // 
+            // chkbxLockHue
+            // 
+            resources.ApplyResources(this.chkbxLockHue, "chkbxLockHue");
+            this.chkbxLockHue.Name = "chkbxLockHue";
+            this.chkbxLockHue.UseVisualStyleBackColor = true;
+            this.chkbxLockHue.MouseEnter += new EventHandler(this.ChkbxLockHue_MouseEnter);
+            // 
+            // chkbxLockSat
+            // 
+            resources.ApplyResources(this.chkbxLockSat, "chkbxLockSat");
+            this.chkbxLockSat.Name = "chkbxLockSat";
+            this.chkbxLockSat.UseVisualStyleBackColor = true;
+            this.chkbxLockSat.MouseEnter += new EventHandler(this.ChkbxLockSat_MouseEnter);
+            // 
+            // chkbxLockVal
+            // 
+            resources.ApplyResources(this.chkbxLockVal, "chkbxLockVal");
+            this.chkbxLockVal.Name = "chkbxLockVal";
+            this.chkbxLockVal.UseVisualStyleBackColor = true;
+            this.chkbxLockVal.MouseEnter += new EventHandler(this.ChkbxLockVal_MouseEnter);
             // 
             // bttnJitterBasicsControls
             // 
@@ -3625,8 +4008,8 @@ namespace DynamicDraw
             this.panelJitterBasics.Controls.Add(this.sliderRandRotLeft);
             this.panelJitterBasics.Controls.Add(this.txtRandRotRight);
             this.panelJitterBasics.Controls.Add(this.sliderRandRotRight);
-            this.panelJitterBasics.Controls.Add(this.txtRandMinAlpha);
-            this.panelJitterBasics.Controls.Add(this.sliderRandMinAlpha);
+            this.panelJitterBasics.Controls.Add(this.txtRandFlowLoss);
+            this.panelJitterBasics.Controls.Add(this.sliderRandFlowLoss);
             this.panelJitterBasics.Controls.Add(this.txtRandHorzShift);
             this.panelJitterBasics.Controls.Add(this.sliderRandHorzShift);
             this.panelJitterBasics.Controls.Add(this.txtRandVertShift);
@@ -3697,21 +4080,21 @@ namespace DynamicDraw
             this.sliderRandRotRight.ValueChanged += new EventHandler(this.SliderRandRotRight_ValueChanged);
             this.sliderRandRotRight.MouseEnter += new EventHandler(this.SliderRandRotRight_MouseEnter);
             // 
-            // txtRandMinAlpha
+            // txtRandFlowLoss
             // 
-            resources.ApplyResources(this.txtRandMinAlpha, "txtRandMinAlpha");
-            this.txtRandMinAlpha.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandMinAlpha.Name = "txtRandMinAlpha";
+            resources.ApplyResources(this.txtRandFlowLoss, "txtRandFlowLoss");
+            this.txtRandFlowLoss.BackColor = System.Drawing.Color.Transparent;
+            this.txtRandFlowLoss.Name = "txtRandMinFlowLoss";
             // 
-            // sliderRandMinAlpha
+            // sliderRandFlowLoss
             // 
-            resources.ApplyResources(this.sliderRandMinAlpha, "sliderRandMinAlpha");
-            this.sliderRandMinAlpha.LargeChange = 1;
-            this.sliderRandMinAlpha.Maximum = 255;
-            this.sliderRandMinAlpha.Name = "sliderRandMinAlpha";
-            this.sliderRandMinAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMinAlpha.ValueChanged += new EventHandler(this.SliderRandMinAlpha_ValueChanged);
-            this.sliderRandMinAlpha.MouseEnter += new EventHandler(this.SliderRandMinAlpha_MouseEnter);
+            resources.ApplyResources(this.sliderRandFlowLoss, "sliderRandFlowLoss");
+            this.sliderRandFlowLoss.LargeChange = 1;
+            this.sliderRandFlowLoss.Maximum = 255;
+            this.sliderRandFlowLoss.Name = "sliderRandFlowLoss";
+            this.sliderRandFlowLoss.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderRandFlowLoss.ValueChanged += new EventHandler(this.SliderRandFlowLoss_ValueChanged);
+            this.sliderRandFlowLoss.MouseEnter += new EventHandler(this.SliderRandFlowLoss_MouseEnter);
             // 
             // txtRandHorzShift
             // 
@@ -3950,8 +4333,8 @@ namespace DynamicDraw
             this.panelShiftBasics.Controls.Add(this.sliderShiftSize);
             this.panelShiftBasics.Controls.Add(this.txtShiftRotation);
             this.panelShiftBasics.Controls.Add(this.sliderShiftRotation);
-            this.panelShiftBasics.Controls.Add(this.txtShiftAlpha);
-            this.panelShiftBasics.Controls.Add(this.sliderShiftAlpha);
+            this.panelShiftBasics.Controls.Add(this.txtShiftFlow);
+            this.panelShiftBasics.Controls.Add(this.sliderShiftFlow);
             this.panelShiftBasics.Name = "panelShiftBasics";
             // 
             // txtShiftSize
@@ -3988,22 +4371,22 @@ namespace DynamicDraw
             this.sliderShiftRotation.ValueChanged += new EventHandler(this.SliderShiftRotation_ValueChanged);
             this.sliderShiftRotation.MouseEnter += new EventHandler(this.SliderShiftRotation_MouseEnter);
             // 
-            // txtShiftAlpha
+            // txtShiftFlow
             // 
-            this.txtShiftAlpha.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtShiftAlpha, "txtShiftAlpha");
-            this.txtShiftAlpha.Name = "txtShiftAlpha";
+            this.txtShiftFlow.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.txtShiftFlow, "txtShiftFlow");
+            this.txtShiftFlow.Name = "txtShiftFlow";
             // 
-            // sliderShiftAlpha
+            // sliderShiftFlow
             // 
-            resources.ApplyResources(this.sliderShiftAlpha, "sliderShiftAlpha");
-            this.sliderShiftAlpha.LargeChange = 1;
-            this.sliderShiftAlpha.Maximum = 255;
-            this.sliderShiftAlpha.Minimum = -255;
-            this.sliderShiftAlpha.Name = "sliderShiftAlpha";
-            this.sliderShiftAlpha.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderShiftAlpha.ValueChanged += new EventHandler(this.SliderShiftAlpha_ValueChanged);
-            this.sliderShiftAlpha.MouseEnter += new EventHandler(this.SliderShiftAlpha_MouseEnter);
+            resources.ApplyResources(this.sliderShiftFlow, "sliderShiftFlow");
+            this.sliderShiftFlow.LargeChange = 1;
+            this.sliderShiftFlow.Maximum = 255;
+            this.sliderShiftFlow.Minimum = -255;
+            this.sliderShiftFlow.Name = "sliderShiftFlow";
+            this.sliderShiftFlow.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.sliderShiftFlow.ValueChanged += new EventHandler(this.SliderShiftFlow_ValueChanged);
+            this.sliderShiftFlow.MouseEnter += new EventHandler(this.SliderShiftFlow_MouseEnter);
             // 
             // bttnTabAssignPressureControls
             // 
@@ -4017,7 +4400,8 @@ namespace DynamicDraw
             // 
             resources.ApplyResources(this.panelTabletAssignPressure, "panelTabletAssignPressure");
             this.panelTabletAssignPressure.BackColor = System.Drawing.SystemColors.Control;
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushAlpha);
+            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushOpacity);
+            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushFlow);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushSize);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushRotation);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureMinDrawDistance);
@@ -4026,7 +4410,7 @@ namespace DynamicDraw
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandMaxSize);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandRotLeft);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandRotRight);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandMinAlpha);
+            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandFlowLoss);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandHorShift);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandVerShift);
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRedJitter);
@@ -4037,52 +4421,99 @@ namespace DynamicDraw
             this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureValueJitter);
             this.panelTabletAssignPressure.Name = "panelTabletAssignPressure";
             // 
-            // panelTabPressureBrushAlpha
+            // panelTabPressureBrushOpacity
             // 
-            resources.ApplyResources(this.panelTabPressureBrushAlpha, "panelTabPressureBrushAlpha");
-            this.panelTabPressureBrushAlpha.Controls.Add(this.panel3);
-            this.panelTabPressureBrushAlpha.Controls.Add(this.cmbxTabPressureBrushAlpha);
-            this.panelTabPressureBrushAlpha.Name = "panelTabPressureBrushAlpha";
+            resources.ApplyResources(this.panelTabPressureBrushOpacity, "panelTabPressureBrushOpacity");
+            this.panelTabPressureBrushOpacity.Controls.Add(this.panel19);
+            this.panelTabPressureBrushOpacity.Controls.Add(this.cmbxTabPressureBrushOpacity);
+            this.panelTabPressureBrushOpacity.Name = "panelTabPressureBrushOpacity";
             // 
-            // panel3
+            // panel19
+            //
+            this.panel19.Controls.Add(this.txtTabPressureBrushOpacity);
+            this.panel19.Controls.Add(this.spinTabPressureBrushOpacity);
+            resources.ApplyResources(this.panel19, "panel19");
+            this.panel19.Name = "panel19";
             // 
-            this.panel3.Controls.Add(this.txtTabPressureBrushAlpha);
-            this.panel3.Controls.Add(this.spinTabPressureBrushAlpha);
-            resources.ApplyResources(this.panel3, "panel3");
-            this.panel3.Name = "panel3";
+            // txtTabPressureBrushOpacity
             // 
-            // txtTabPressureBrushAlpha
+            resources.ApplyResources(this.txtTabPressureBrushOpacity, "txtTabPressureBrushOpacity");
+            this.txtTabPressureBrushOpacity.Name = "txtTabPressureBrushOpacity";
             // 
-            resources.ApplyResources(this.txtTabPressureBrushAlpha, "txtTabPressureBrushAlpha");
-            this.txtTabPressureBrushAlpha.Name = "txtTabPressureBrushAlpha";
+            // spinTabPressureBrushOpacity
             // 
-            // spinTabPressureBrushAlpha
-            // 
-            resources.ApplyResources(this.spinTabPressureBrushAlpha, "spinTabPressureBrushAlpha");
-            this.spinTabPressureBrushAlpha.Maximum = new decimal(new int[] {
+            resources.ApplyResources(this.spinTabPressureBrushOpacity, "spinTabPressureBrushOpacity");
+            this.spinTabPressureBrushOpacity.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
-            this.spinTabPressureBrushAlpha.Minimum = new decimal(new int[] {
+            this.spinTabPressureBrushOpacity.Minimum = new decimal(new int[] {
             255,
             0,
             0,
             -2147483648});
-            this.spinTabPressureBrushAlpha.Name = "spinTabPressureBrushAlpha";
+            this.spinTabPressureBrushOpacity.Name = "spinTabPressureBrushOpacity";
             // 
-            // cmbxTabPressureBrushAlpha
+            // cmbxTabPressureBrushOpacity
             // 
-            this.cmbxTabPressureBrushAlpha.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBrushAlpha.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBrushAlpha.DropDownHeight = 140;
-            this.cmbxTabPressureBrushAlpha.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBrushAlpha.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBrushAlpha, "cmbxTabPressureBrushAlpha");
-            this.cmbxTabPressureBrushAlpha.FormattingEnabled = true;
-            this.cmbxTabPressureBrushAlpha.Name = "cmbxTabPressureBrushAlpha";
-            this.cmbxTabPressureBrushAlpha.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushAlpha.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureBrushOpacity.BackColor = System.Drawing.Color.White;
+            this.cmbxTabPressureBrushOpacity.DisplayMember = "DisplayMember";
+            this.cmbxTabPressureBrushOpacity.DropDownHeight = 140;
+            this.cmbxTabPressureBrushOpacity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbxTabPressureBrushOpacity.DropDownWidth = 20;
+            resources.ApplyResources(this.cmbxTabPressureBrushOpacity, "cmbxTabPressureBrushOpacity");
+            this.cmbxTabPressureBrushOpacity.FormattingEnabled = true;
+            this.cmbxTabPressureBrushOpacity.Name = "cmbxTabPressureBrushOpacity";
+            this.cmbxTabPressureBrushOpacity.ValueMember = "ValueMember";
+            this.cmbxTabPressureBrushOpacity.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            //
+            // panelTabPressureBrushFlow
+            // 
+            resources.ApplyResources(this.panelTabPressureBrushFlow, "panelTabPressureBrushFlow");
+            this.panelTabPressureBrushFlow.Controls.Add(this.panel3);
+            this.panelTabPressureBrushFlow.Controls.Add(this.cmbxTabPressureBrushFlow);
+            this.panelTabPressureBrushFlow.Name = "panelTabPressureBrushFlow";
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.txtTabPressureBrushFlow);
+            this.panel3.Controls.Add(this.spinTabPressureBrushFlow);
+            resources.ApplyResources(this.panel3, "panel3");
+            this.panel3.Name = "panel3";
+            // 
+            // txtTabPressureBrushFlow
+            // 
+            resources.ApplyResources(this.txtTabPressureBrushFlow, "txtTabPressureBrushFlow");
+            this.txtTabPressureBrushFlow.Name = "txtTabPressureBrushFlow";
+            // 
+            // spinTabPressureBrushFlow
+            // 
+            resources.ApplyResources(this.spinTabPressureBrushFlow, "spinTabPressureBrushFlow");
+            this.spinTabPressureBrushFlow.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.spinTabPressureBrushFlow.Minimum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            -2147483648});
+            this.spinTabPressureBrushFlow.Name = "spinTabPressureBrushFlow";
+            // 
+            // cmbxTabPressureBrushFlow
+            // 
+            this.cmbxTabPressureBrushFlow.BackColor = System.Drawing.Color.White;
+            this.cmbxTabPressureBrushFlow.DisplayMember = "DisplayMember";
+            this.cmbxTabPressureBrushFlow.DropDownHeight = 140;
+            this.cmbxTabPressureBrushFlow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbxTabPressureBrushFlow.DropDownWidth = 20;
+            resources.ApplyResources(this.cmbxTabPressureBrushFlow, "cmbxTabPressureBrushFlow");
+            this.cmbxTabPressureBrushFlow.FormattingEnabled = true;
+            this.cmbxTabPressureBrushFlow.Name = "cmbxTabPressureBrushFlow";
+            this.cmbxTabPressureBrushFlow.ValueMember = "ValueMember";
+            this.cmbxTabPressureBrushFlow.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushSize
             // 
@@ -4457,47 +4888,47 @@ namespace DynamicDraw
             this.cmbxTabPressureRandRotRight.ValueMember = "ValueMember";
             this.cmbxTabPressureRandRotRight.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
-            // panelTabPressureRandMinAlpha
+            // panelTabPressureRandFlowLoss
             // 
-            resources.ApplyResources(this.panelTabPressureRandMinAlpha, "panelTabPressureRandMinAlpha");
-            this.panelTabPressureRandMinAlpha.Controls.Add(this.panel10);
-            this.panelTabPressureRandMinAlpha.Controls.Add(this.cmbxTabPressureRandMinAlpha);
-            this.panelTabPressureRandMinAlpha.Name = "panelTabPressureRandMinAlpha";
+            resources.ApplyResources(this.panelTabPressureRandFlowLoss, "panelTabPressureRandFlowLoss");
+            this.panelTabPressureRandFlowLoss.Controls.Add(this.panel10);
+            this.panelTabPressureRandFlowLoss.Controls.Add(this.cmbxTabPressureRandFlowLoss);
+            this.panelTabPressureRandFlowLoss.Name = "panelTabPressureRandFlowLoss";
             // 
             // panel10
             // 
-            this.panel10.Controls.Add(this.lblTabPressureRandMinAlpha);
-            this.panel10.Controls.Add(this.spinTabPressureRandMinAlpha);
+            this.panel10.Controls.Add(this.lblTabPressureRandFlowLoss);
+            this.panel10.Controls.Add(this.spinTabPressureRandFlowLoss);
             resources.ApplyResources(this.panel10, "panel10");
             this.panel10.Name = "panel10";
             // 
-            // lblTabPressureRandMinAlpha
+            // lblTabPressureRandFlowLoss
             // 
-            resources.ApplyResources(this.lblTabPressureRandMinAlpha, "lblTabPressureRandMinAlpha");
-            this.lblTabPressureRandMinAlpha.Name = "lblTabPressureRandMinAlpha";
+            resources.ApplyResources(this.lblTabPressureRandFlowLoss, "lblTabPressureRandFlowLoss");
+            this.lblTabPressureRandFlowLoss.Name = "lblTabPressureRandFlowLoss";
             // 
-            // spinTabPressureRandMinAlpha
+            // spinTabPressureRandFlowLoss
             // 
-            resources.ApplyResources(this.spinTabPressureRandMinAlpha, "spinTabPressureRandMinAlpha");
-            this.spinTabPressureRandMinAlpha.Minimum = new decimal(new int[] {
+            resources.ApplyResources(this.spinTabPressureRandFlowLoss, "spinTabPressureRandFlowLoss");
+            this.spinTabPressureRandFlowLoss.Minimum = new decimal(new int[] {
             255,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandMinAlpha.Name = "spinTabPressureRandMinAlpha";
+            this.spinTabPressureRandFlowLoss.Name = "spinTabPressureRandFlowLoss";
             // 
-            // cmbxTabPressureRandMinAlpha
+            // cmbxTabPressureRandFlowLoss
             // 
-            this.cmbxTabPressureRandMinAlpha.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandMinAlpha.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandMinAlpha.DropDownHeight = 140;
-            this.cmbxTabPressureRandMinAlpha.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandMinAlpha.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandMinAlpha, "cmbxTabPressureRandMinAlpha");
-            this.cmbxTabPressureRandMinAlpha.FormattingEnabled = true;
-            this.cmbxTabPressureRandMinAlpha.Name = "cmbxTabPressureRandMinAlpha";
-            this.cmbxTabPressureRandMinAlpha.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandMinAlpha.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            this.cmbxTabPressureRandFlowLoss.BackColor = System.Drawing.Color.White;
+            this.cmbxTabPressureRandFlowLoss.DisplayMember = "DisplayMember";
+            this.cmbxTabPressureRandFlowLoss.DropDownHeight = 140;
+            this.cmbxTabPressureRandFlowLoss.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbxTabPressureRandFlowLoss.DropDownWidth = 20;
+            resources.ApplyResources(this.cmbxTabPressureRandFlowLoss, "cmbxTabPressureRandFlowLoss");
+            this.cmbxTabPressureRandFlowLoss.FormattingEnabled = true;
+            this.cmbxTabPressureRandFlowLoss.Name = "cmbxTabPressureRandFlowLoss";
+            this.cmbxTabPressureRandFlowLoss.ValueMember = "ValueMember";
+            this.cmbxTabPressureRandFlowLoss.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandHorShift
             // 
@@ -4987,11 +5418,16 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderColorInfluence)).EndInit();
             this.panelColorInfluenceHSV.ResumeLayout(false);
             this.panelColorInfluenceHSV.PerformLayout();
-            ((ISupportInitialize)(this.sliderBrushAlpha)).EndInit();
+            ((ISupportInitialize)(this.sliderBrushOpacity)).EndInit();
+            ((ISupportInitialize)(this.sliderBrushFlow)).EndInit();
             ((ISupportInitialize)(this.sliderBrushRotation)).EndInit();
             ((ISupportInitialize)(this.sliderBrushSize)).EndInit();
             this.panelSpecialSettings.ResumeLayout(false);
             this.panelSpecialSettings.PerformLayout();
+            this.panelRGBLocks.ResumeLayout(false);
+            this.panelRGBLocks.PerformLayout();
+            this.panelHSVLocks.ResumeLayout(false);
+            this.panelHSVLocks.PerformLayout();
             ((ISupportInitialize)(this.sliderMinDrawDistance)).EndInit();
             ((ISupportInitialize)(this.sliderBrushDensity)).EndInit();
             this.panelJitterBasics.ResumeLayout(false);
@@ -4999,7 +5435,7 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderRandMaxSize)).EndInit();
             ((ISupportInitialize)(this.sliderRandRotLeft)).EndInit();
             ((ISupportInitialize)(this.sliderRandRotRight)).EndInit();
-            ((ISupportInitialize)(this.sliderRandMinAlpha)).EndInit();
+            ((ISupportInitialize)(this.sliderRandFlowLoss)).EndInit();
             ((ISupportInitialize)(this.sliderRandHorzShift)).EndInit();
             ((ISupportInitialize)(this.sliderRandVertShift)).EndInit();
             this.panelJitterColor.ResumeLayout(false);
@@ -5018,13 +5454,17 @@ namespace DynamicDraw
             this.panelShiftBasics.ResumeLayout(false);
             ((ISupportInitialize)(this.sliderShiftSize)).EndInit();
             ((ISupportInitialize)(this.sliderShiftRotation)).EndInit();
-            ((ISupportInitialize)(this.sliderShiftAlpha)).EndInit();
+            ((ISupportInitialize)(this.sliderShiftFlow)).EndInit();
             this.panelTabletAssignPressure.ResumeLayout(false);
             this.panelTabletAssignPressure.PerformLayout();
-            this.panelTabPressureBrushAlpha.ResumeLayout(false);
+            this.panelTabPressureBrushOpacity.ResumeLayout(false);
+            this.panel19.ResumeLayout(false);
+            this.panel19.PerformLayout();
+            ((ISupportInitialize)(this.spinTabPressureBrushOpacity)).EndInit();
+            this.panelTabPressureBrushFlow.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushAlpha)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureBrushFlow)).EndInit();
             this.panelTabPressureBrushSize.ResumeLayout(false);
             this.panel8.ResumeLayout(false);
             this.panel8.PerformLayout();
@@ -5057,10 +5497,10 @@ namespace DynamicDraw
             this.panel9.ResumeLayout(false);
             this.panel9.PerformLayout();
             ((ISupportInitialize)(this.spinTabPressureRandRotRight)).EndInit();
-            this.panelTabPressureRandMinAlpha.ResumeLayout(false);
+            this.panelTabPressureRandFlowLoss.ResumeLayout(false);
             this.panel10.ResumeLayout(false);
             this.panel10.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandMinAlpha)).EndInit();
+            ((ISupportInitialize)(this.spinTabPressureRandFlowLoss)).EndInit();
             this.panelTabPressureRandHorShift.ResumeLayout(false);
             this.panel12.ResumeLayout(false);
             this.panel12.PerformLayout();
@@ -5156,7 +5596,7 @@ namespace DynamicDraw
                                     // Sets the clipboard background image.
                                     using (Image clipboardImage = Image.FromStream(stream))
                                     {
-                                        bmpBackgroundClipboard = new Bitmap(bmpCurrentDrawing.Width, bmpCurrentDrawing.Height, PixelFormat.Format32bppPArgb);
+                                        bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
                                         using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
                                         {
                                             graphics.CompositingMode = CompositingMode.SourceCopy;
@@ -5219,6 +5659,11 @@ namespace DynamicDraw
         /// <param name="toolToSwitchTo">The tool to switch to.</param>
         private void SwitchTool(Tool toolToSwitchTo)
         {
+            if (toolToSwitchTo == Tool.PreviousTool)
+            {
+                toolToSwitchTo = lastTool;
+            }
+
             bttnToolBrush.BackColor = SystemColors.ButtonFace;
             BttnToolEraser.BackColor = SystemColors.ButtonFace;
             bttnColorPicker.BackColor = SystemColors.ButtonFace;
@@ -5263,6 +5708,12 @@ namespace DynamicDraw
 
             activeTool = toolToSwitchTo;
 
+            // End any brush stroke in progress.
+            if (isUserDrawing.started)
+            {
+                DisplayCanvas_MouseUp(this, null);
+            }
+
             UpdateEnabledControls();
             UpdateBrushImage();
         }
@@ -5293,8 +5744,8 @@ namespace DynamicDraw
 
             // Determines the point's offset from the center of the un-rotated image, then gets its representing vector.
             // Note that if a rotation origin other than center image is set, change width/2 and height/2 to match it.
-            double deltaX = locX - bmpCurrentDrawing.Width / 2;
-            double deltaY = locY - bmpCurrentDrawing.Height / 2;
+            double deltaX = locX - bmpCommitted.Width / 2;
+            double deltaY = locY - bmpCommitted.Height / 2;
             double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
             double angle = Math.Atan2(deltaY, deltaX);
 
@@ -5305,16 +5756,16 @@ namespace DynamicDraw
             {
                 return new PointF(
                     Utils.ClampF((float)(
-                        bmpCurrentDrawing.Width / 2 + Math.Cos(angle) * distance), 0, bmpCurrentDrawing.Width),
+                        bmpCommitted.Width / 2 + Math.Cos(angle) * distance), 0, bmpCommitted.Width),
                     Utils.ClampF((float)(
-                        bmpCurrentDrawing.Height / 2 + Math.Sin(angle) * distance), 0, bmpCurrentDrawing.Height));
+                        bmpCommitted.Height / 2 + Math.Sin(angle) * distance), 0, bmpCommitted.Height));
             }
 
             return new PointF(
-                (float)(bmpCurrentDrawing.Width / 2 + Math.Cos(angle) * distance),
-                (float)(bmpCurrentDrawing.Height / 2 + Math.Sin(angle) * distance));
+                (float)(bmpCommitted.Width / 2 + Math.Cos(angle) * distance),
+                (float)(bmpCommitted.Height / 2 + Math.Sin(angle) * distance));
         }
- 
+
         /// <summary>
         /// Updates all settings based on the currently selected brush.
         /// </summary>
@@ -5329,12 +5780,13 @@ namespace DynamicDraw
             tokenSelectedBrushImagePath = settings.BrushImagePath;
 
             //Sets all other fields.
-            sliderBrushAlpha.Value = settings.BrushAlpha;
+            sliderBrushOpacity.Value = settings.BrushOpacity;
             sliderBrushDensity.Value = settings.BrushDensity;
+            sliderBrushFlow.Value = settings.BrushFlow;
             sliderBrushRotation.Value = settings.BrushRotation;
+            sliderRandFlowLoss.Value = settings.RandFlowLoss;
             sliderRandHorzShift.Value = settings.RandHorzShift;
             sliderRandMaxSize.Value = settings.RandMaxSize;
-            sliderRandMinAlpha.Value = settings.RandMinAlpha;
             sliderRandMinSize.Value = settings.RandMinSize;
             sliderRandRotLeft.Value = settings.RandRotLeft;
             sliderRandRotRight.Value = settings.RandRotRight;
@@ -5347,7 +5799,14 @@ namespace DynamicDraw
             chkbxColorInfluenceHue.Checked = settings.ColorInfluenceHue;
             chkbxColorInfluenceSat.Checked = settings.ColorInfluenceSat;
             chkbxColorInfluenceVal.Checked = settings.ColorInfluenceVal;
+            chkbxDitherDraw.Checked = settings.DoDitherDraw;
             chkbxLockAlpha.Checked = settings.DoLockAlpha;
+            chkbxLockR.Checked = settings.DoLockR;
+            chkbxLockG.Checked = settings.DoLockG;
+            chkbxLockB.Checked = settings.DoLockB;
+            chkbxLockHue.Checked = settings.DoLockHue;
+            chkbxLockSat.Checked = settings.DoLockSat;
+            chkbxLockVal.Checked = settings.DoLockVal;
             sliderMinDrawDistance.Value = settings.MinDrawDistance;
             sliderJitterMaxRed.Value = settings.RandMaxR;
             sliderJitterMaxGreen.Value = settings.RandMaxG;
@@ -5361,11 +5820,12 @@ namespace DynamicDraw
             sliderJitterMinHue.Value = settings.RandMinH;
             sliderJitterMinSat.Value = settings.RandMinS;
             sliderJitterMinVal.Value = settings.RandMinV;
+            sliderShiftFlow.Value = settings.FlowChange;
             sliderShiftSize.Value = settings.SizeChange;
             sliderShiftRotation.Value = settings.RotChange;
-            sliderShiftAlpha.Value = settings.AlphaChange;
-            cmbxTabPressureBrushAlpha.SelectedIndex = settings.CmbxTabPressureBrushAlpha;
             cmbxTabPressureBrushDensity.SelectedIndex = settings.CmbxTabPressureBrushDensity;
+            cmbxTabPressureBrushFlow.SelectedIndex = settings.CmbxTabPressureBrushFlow;
+            cmbxTabPressureBrushOpacity.SelectedIndex = settings.CmbxTabPressureBrushOpacity;
             cmbxTabPressureBrushRotation.SelectedIndex = settings.CmbxTabPressureBrushRotation;
             cmbxTabPressureBrushSize.SelectedIndex = settings.CmbxTabPressureBrushSize;
             cmbxTabPressureBlueJitter.SelectedIndex = settings.CmbxTabPressureBlueJitter;
@@ -5375,15 +5835,16 @@ namespace DynamicDraw
             cmbxTabPressureRedJitter.SelectedIndex = settings.CmbxTabPressureRedJitter;
             cmbxTabPressureSatJitter.SelectedIndex = settings.CmbxTabPressureSatJitter;
             cmbxTabPressureValueJitter.SelectedIndex = settings.CmbxTabPressureValueJitter;
+            cmbxTabPressureRandFlowLoss.SelectedIndex = settings.CmbxTabPressureRandFlowLoss;
             cmbxTabPressureRandHorShift.SelectedIndex = settings.CmbxTabPressureRandHorShift;
             cmbxTabPressureRandMaxSize.SelectedIndex = settings.CmbxTabPressureRandMaxSize;
-            cmbxTabPressureRandMinAlpha.SelectedIndex = settings.CmbxTabPressureRandMinAlpha;
             cmbxTabPressureRandMinSize.SelectedIndex = settings.CmbxTabPressureRandMinSize;
             cmbxTabPressureRandRotLeft.SelectedIndex = settings.CmbxTabPressureRandRotLeft;
             cmbxTabPressureRandRotRight.SelectedIndex = settings.CmbxTabPressureRandRotRight;
             cmbxTabPressureRandVerShift.SelectedIndex = settings.CmbxTabPressureRandVerShift;
-            spinTabPressureBrushAlpha.Value = settings.TabPressureBrushAlpha;
             spinTabPressureBrushDensity.Value = settings.TabPressureBrushDensity;
+            spinTabPressureBrushFlow.Value = settings.TabPressureBrushFlow;
+            spinTabPressureBrushOpacity.Value = settings.TabPressureBrushOpacity;
             spinTabPressureBrushRotation.Value = settings.TabPressureBrushRotation;
             spinTabPressureBrushSize.Value = settings.TabPressureBrushSize;
             spinTabPressureMaxBlueJitter.Value = settings.TabPressureMaxBlueJitter;
@@ -5399,9 +5860,9 @@ namespace DynamicDraw
             spinTabPressureMinRedJitter.Value = settings.TabPressureMinRedJitter;
             spinTabPressureMinSatJitter.Value = settings.TabPressureMinSatJitter;
             spinTabPressureMinValueJitter.Value = settings.TabPressureMinValueJitter;
+            spinTabPressureRandFlowLoss.Value = settings.TabPressureRandFlowLoss;
             spinTabPressureRandHorShift.Value = settings.TabPressureRandHorShift;
             spinTabPressureRandMaxSize.Value = settings.TabPressureRandMaxSize;
-            spinTabPressureRandMinAlpha.Value = settings.TabPressureRandMinAlpha;
             spinTabPressureRandMinSize.Value = settings.TabPressureRandMinSize;
             spinTabPressureRandRotLeft.Value = settings.TabPressureRandRotLeft;
             spinTabPressureRandRotRight.Value = settings.TabPressureRandRotRight;
@@ -5461,16 +5922,16 @@ namespace DynamicDraw
                 return;
             }
 
-            int finalBrushAlpha = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushAlpha.Value,
-                (int)spinTabPressureBrushAlpha.Value,
-                sliderBrushAlpha.Maximum,
+            int finalBrushFlow = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushFlow.Value,
+                (int)spinTabPressureBrushFlow.Value,
+                sliderBrushFlow.Maximum,
                 tabletPressureRatio,
-                ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushAlpha.SelectedItem).ValueMember), 0, 255);
+                ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushFlow.SelectedItem).ValueMember), 0, 255);
 
             //Sets the color and alpha.
             Color setColor = bttnBrushColor.BackColor;
-            float multAlpha = (activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex == BlendMode.Normal)
-                ? 1 - (finalBrushAlpha / 255f)
+            float multAlpha = (activeTool == Tool.Eraser || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
+                ? finalBrushFlow / 255f
                 : 1;
 
             int maxPossibleSize = sliderRandMaxSize.Value
@@ -5518,6 +5979,8 @@ namespace DynamicDraw
         {
             bool enableColorInfluence = !chkbxColorizeBrush.Checked && activeTool != Tool.Eraser;
             bool enableColorJitter = activeTool != Tool.Eraser && (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0);
+
+            sliderBrushOpacity.Enabled = ((BlendMode)cmbxBlendMode.SelectedIndex) != BlendMode.Overwrite && activeTool != Tool.Eraser;
 
             chkbxColorizeBrush.Enabled = activeTool != Tool.Eraser;
             txtColorInfluence.Visible = enableColorInfluence;
@@ -5573,7 +6036,8 @@ namespace DynamicDraw
             if (string.IsNullOrEmpty(newTooltip))
             {
                 txtTooltip.Visible = false;
-            } else
+            }
+            else
             {
                 txtTooltip.Visible = true;
                 txtTooltip.Text = newTooltip;
@@ -5664,8 +6128,8 @@ namespace DynamicDraw
             }
 
             //Gets the new width and height, adjusted for zooming.
-            float zoomWidth = bmpCurrentDrawing.Width * newZoomFactor;
-            float zoomHeight = bmpCurrentDrawing.Height * newZoomFactor;
+            float zoomWidth = bmpCommitted.Width * newZoomFactor;
+            float zoomHeight = bmpCommitted.Height * newZoomFactor;
 
             PointF zoomingPoint = isWheelZooming
                 ? mouseLoc
@@ -5966,24 +6430,6 @@ namespace DynamicDraw
             }
         }
 
-        private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
-        {
-            UpdateTooltip(
-                Strings.ValueInfluenceTip + "\n\n"
-                + Strings.ValueTypeNothingTip + "\n"
-                + Strings.ValueTypeAddTip + "\n"
-                + Strings.ValueTypeAddPercentTip + "\n"
-                + Strings.ValueTypeAddPercentCurrentTip + "\n"
-                + Strings.ValueTypeMatchValueTip + "\n"
-                + Strings.ValueTypeMatchPercentTip);
-        }
-
-        private void CmbxTabPressureBrushSize_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Included in brush size calculation in this function, so needs to be recalculated.
-            UpdateBrushImage();
-        }
-
         /// <summary>
         /// Sets up image panning and drawing to occur with mouse movement.
         /// </summary>
@@ -6026,7 +6472,8 @@ namespace DynamicDraw
 
             //Pans the image.
             else if (e.Button == MouseButtons.Middle ||
-                (e.Button == MouseButtons.Left && KeyShortcutManager.IsKeyDown(Keys.ControlKey)))
+                (e.Button == MouseButtons.Left && KeyShortcutManager.IsKeyDown(Keys.ControlKey)) ||
+                KeyShortcutManager.IsKeyDown(Keys.Space))
             {
                 isUserPanning = true;
                 mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
@@ -6053,17 +6500,17 @@ namespace DynamicDraw
                             ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
 
                         DrawBrush(new PointF(
-                            mouseLocPrev.X / canvasZoom,
-                            mouseLocPrev.Y / canvasZoom),
-                            finalBrushSize);
+                            mouseLocPrev.X / canvasZoom - halfPixelOffset,
+                            mouseLocPrev.Y / canvasZoom - halfPixelOffset),
+                            finalBrushSize, tabletPressureRatio);
                     }
                 }
                 // Grabs the color under the mouse.
                 else if (activeTool == Tool.ColorPicker)
                 {
                     GetColorFromCanvas(new Point(
-                        (int)(mouseLocPrev.X / canvasZoom),
-                        (int)(mouseLocPrev.Y / canvasZoom)));
+                        (int)Math.Round(mouseLocPrev.X / canvasZoom),
+                        (int)Math.Round(mouseLocPrev.Y / canvasZoom)));
 
                     SwitchTool(lastTool);
                 }
@@ -6133,11 +6580,11 @@ namespace DynamicDraw
             else if (isUserDrawing.started)
             {
                 finalMinDrawDistance = Utils.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
-                        (int)spinTabPressureMinDrawDistance.Value,
-                        sliderMinDrawDistance.Maximum,
-                        tabletPressureRatio,
-                        ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureMinDrawDistance.SelectedItem).ValueMember),
-                        0, sliderMinDrawDistance.Maximum);
+                    (int)spinTabPressureMinDrawDistance.Value,
+                    sliderMinDrawDistance.Maximum,
+                    tabletPressureRatio,
+                    ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureMinDrawDistance.SelectedItem).ValueMember),
+                    0, sliderMinDrawDistance.Maximum);
 
                 // Doesn't draw unless the minimum drawing distance is met.
                 if (finalMinDrawDistance != 0)
@@ -6179,9 +6626,9 @@ namespace DynamicDraw
                         if (finalBrushSize > 0)
                         {
                             DrawBrush(new PointF(
-                                mouseLoc.X / canvasZoom,
-                                mouseLoc.Y / canvasZoom),
-                                finalBrushSize);
+                                mouseLoc.X / canvasZoom - halfPixelOffset,
+                                mouseLoc.Y / canvasZoom - halfPixelOffset),
+                                finalBrushSize, tabletPressureRatio);
                         }
 
                         mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
@@ -6204,32 +6651,34 @@ namespace DynamicDraw
                         double angle = Math.Atan2(deltaY, deltaX);
                         double xDist = Math.Cos(angle);
                         double yDist = Math.Sin(angle);
-                        double numIntervals = distance / (Double.IsNaN(brushWidthFrac) ? 1 : brushWidthFrac);
+                        double numIntervals = distance / (double.IsNaN(brushWidthFrac) ? 1 : brushWidthFrac);
+                        float tabletPressure = tabletPressureRatio;
 
                         for (int i = 1; i <= (int)numIntervals; i++)
                         {
                             // lerp between the last and current tablet pressure for smoother lines
                             if (tabletPressureRatioPrev != tabletPressureRatio && spinTabPressureBrushSize.Value != 0)
                             {
+                                tabletPressure = (float)(tabletPressureRatioPrev + i / numIntervals * (tabletPressureRatio - tabletPressureRatioPrev));
                                 finalBrushSize = Utils.GetStrengthMappedValue(sliderBrushSize.Value,
                                     (int)spinTabPressureBrushSize.Value,
                                     sliderBrushSize.Maximum,
-                                    (float)(tabletPressureRatioPrev + i / numIntervals * (tabletPressureRatio - tabletPressureRatioPrev)),
+                                    tabletPressure,
                                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember);
                             }
 
                             DrawBrush(new PointF(
-                                (float)(mouseLocPrev.X / canvasZoom + xDist * brushWidthFrac * i),
-                                (float)(mouseLocPrev.Y / canvasZoom + yDist * brushWidthFrac * i)),
-                                finalBrushSize);
+                                (float)(mouseLocPrev.X / canvasZoom + xDist * brushWidthFrac * i - halfPixelOffset),
+                                (float)(mouseLocPrev.Y / canvasZoom + yDist * brushWidthFrac * i - halfPixelOffset)),
+                                finalBrushSize, tabletPressure);
                         }
 
                         double extraDist = brushWidthFrac * (numIntervals - (int)numIntervals);
 
                         // Same as mouse position except for remainder.
                         mouseLoc = new PointF(
-                            (float)((e.Location.X - canvas.x) - xDist * extraDist * canvasZoom),
-                            (float)((e.Location.Y - canvas.y) - yDist * extraDist * canvasZoom));
+                            (float)(e.Location.X - canvas.x - xDist * extraDist * canvasZoom),
+                            (float)(e.Location.Y - canvas.y - yDist * extraDist * canvasZoom));
                         mouseLocPrev = mouseLoc;
 
                         tabletPressureRatioPrev = tabletPressureRatio;
@@ -6254,14 +6703,28 @@ namespace DynamicDraw
             if (isUserDrawing.started && !isUserDrawing.canvasChanged)
             {
                 DrawBrush(new PointF(
-                    mouseLocPrev.X / canvasZoom,
-                    mouseLocPrev.Y / canvasZoom),
-                    sliderBrushSize.Value); // (no tablet pressure, by definition, on mouse up)
+                    mouseLocPrev.X / canvasZoom - halfPixelOffset,
+                    mouseLocPrev.Y / canvasZoom - halfPixelOffset),
+                    sliderBrushSize.Value, 1); // opinionated: pass as full pressure because this is usually desired.
+            }
+
+            // Merge the staged layer down to committed, then clear the staged layer.
+            if (isUserDrawing.stagedChanged)
+            {
+                Utils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
+                    new Rectangle(0, 0, bmpCommitted.Width, bmpCommitted.Height),
+                    (BlendMode)cmbxBlendMode.SelectedIndex,
+                    (chkbxLockAlpha.Checked,
+                    chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
+                    chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
+
+                Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
             }
 
             isUserPanning = false;
             isUserDrawing.started = false;
             isUserDrawing.canvasChanged = false;
+            isUserDrawing.stagedChanged = false;
             timerRepositionUpdate.Enabled = false;
 
             //Lets the user click anywhere to draw again.
@@ -6279,7 +6742,7 @@ namespace DynamicDraw
 
             float drawingOffsetX = EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom;
             float drawingOffsetY = EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom;
-            
+
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
             e.Graphics.RotateTransform(sliderCanvasAngle.Value);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
@@ -6341,11 +6804,33 @@ namespace DynamicDraw
             else if (canvasZoom < 1) { e.Graphics.InterpolationMode = InterpolationMode.Bilinear; }
             else { e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor; }
 
+            // Draws all merge region rectangles.
+            if (isUserDrawing.stagedChanged)
+            {
+                for (int i = mergeRegions.Count - 1; i >= 0; i--)
+                {
+                    Rectangle rect = Rectangle.Intersect(new Rectangle(0, 0, bmpCommitted.Width, bmpCommitted.Height), mergeRegions[i]);
+                    mergeRegions.RemoveAt(i);
+
+                    if (rect.Width > 0 && rect.Height > 0)
+                    {
+                        Utils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
+                            rect,
+                            (BlendMode)cmbxBlendMode.SelectedIndex,
+                            (chkbxLockAlpha.Checked,
+                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
+                            chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
+                    }
+                }
+            }
+
             //Draws only the visible portion of the image.
+            Bitmap bmpToDraw = isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
+
             if (sliderCanvasAngle.Value == 0)
             {
                 e.Graphics.DrawImage(
-                    bmpCurrentDrawing,
+                    bmpToDraw,
                     visibleBounds,
                     lCutoffUnzoomed,
                     tCutoffUnzoomed,
@@ -6355,7 +6840,7 @@ namespace DynamicDraw
             }
             else
             {
-                e.Graphics.DrawImage(bmpCurrentDrawing, 0, 0, canvas.width, canvas.height);
+                e.Graphics.DrawImage(bmpToDraw, 0, 0, canvas.width, canvas.height);
             }
 
             //Draws the selection.
@@ -6405,21 +6890,25 @@ namespace DynamicDraw
                 //Draws the brush as a rectangle when not drawing by mouse.
                 if (!isUserDrawing.started)
                 {
+                    float halfSize = sliderBrushSize.Value / 2f;
                     int radius = (int)(sliderBrushSize.Value * canvasZoom);
 
-                    e.Graphics.DrawRectangle(
-                        Pens.Black,
-                        mouseLoc.X + canvas.x - (radius / 2f),
-                        mouseLoc.Y + canvas.y - (radius / 2f),
-                        radius,
-                        radius);
+                    float x = sliderBrushSize.Value == 1
+                        ? (int)(mouseLoc.X / canvasZoom) * canvasZoom + canvas.x
+                        : (int)(mouseLoc.X / canvasZoom - halfSize + halfPixelOffset) * canvasZoom + canvas.x;
 
-                    e.Graphics.DrawRectangle(
-                        Pens.White,
-                        mouseLoc.X + canvas.x - (radius / 2f) - 1,
-                        mouseLoc.Y + canvas.y - (radius / 2f) - 1,
-                        radius + 2,
-                        radius + 2);
+                    float y = sliderBrushSize.Value == 1
+                        ? (int)(mouseLoc.Y / canvasZoom) * canvasZoom + canvas.y
+                        : (int)(mouseLoc.Y / canvasZoom - halfSize + halfPixelOffset) * canvasZoom + canvas.y;
+
+                    e.Graphics.TranslateTransform(x + radius / 2f, y + radius / 2f);
+                    e.Graphics.RotateTransform(sliderBrushRotation.Value);
+                    e.Graphics.TranslateTransform(-radius / 2f, -radius / 2f);
+
+                    e.Graphics.DrawRectangle(Pens.Black, 0, 0, radius, radius);
+                    e.Graphics.DrawRectangle(Pens.White, -1, -1, radius + 2, radius + 2);
+
+                    e.Graphics.ResetTransform();
                 }
 
                 // Draws the minimum distance circle if min distance is in use.
@@ -6427,14 +6916,14 @@ namespace DynamicDraw
                 {
                     e.Graphics.TranslateTransform(canvas.x, canvas.y);
 
-                    int radius = (int)(finalMinDrawDistance * 2 * canvasZoom);
+                    int diameter = (int)(finalMinDrawDistance * 2 * canvasZoom);
 
                     e.Graphics.DrawEllipse(
                         Pens.Red,
-                        (mouseLocBrush.HasValue ? mouseLocBrush.Value.X : mouseLoc.X) - (radius / 2f) - 1,
-                        (mouseLocBrush.HasValue ? mouseLocBrush.Value.Y : mouseLoc.Y) - (radius / 2f) - 1,
-                        radius + 2,
-                        radius + 2);
+                        (mouseLocBrush.HasValue ? mouseLocBrush.Value.X : mouseLoc.X) - (diameter / 2f) - 1,
+                        (mouseLocBrush.HasValue ? mouseLocBrush.Value.Y : mouseLoc.Y) - (diameter / 2f) - 1,
+                        diameter + 2,
+                        diameter + 2);
 
                     e.Graphics.TranslateTransform(-canvas.x, -canvas.y);
                 }
@@ -6483,7 +6972,7 @@ namespace DynamicDraw
                                 symmetryOrigin.Y - (sliderBrushSize.Value / 2f),
                                 sliderBrushSize.Value,
                                 sliderBrushSize.Value);
-                            
+
                             e.Graphics.DrawRectangle(
                                 Pens.Black,
                                 transformedMouseLoc.X - (sliderBrushSize.Value / 2f),
@@ -6542,6 +7031,166 @@ namespace DynamicDraw
             }
 
             e.Graphics.ResetTransform();
+        }
+
+        /// <summary>
+        /// Trackbars and comboboxes (among others) handle the mouse wheel event, which makes it hard to scroll across
+        /// the controls in the right-side pane. Since these controls are more traditionally used with left-clicking,
+        /// being able to scroll the window with the mouse wheel is more important. This prevents handling.
+        /// </summary>
+        private void IgnoreMouseWheelEvent(object sender, MouseEventArgs e)
+        {
+            var scroll = panelDockSettingsContainer.VerticalScroll;
+            var mouseEvent = (HandledMouseEventArgs)e;
+            mouseEvent.Handled = true;
+
+            // Stopping the mouse wheel event prevents scrolling the parent container too. This does it manually.
+            scroll.Value = Utils.Clamp(scroll.Value - mouseEvent.Delta, scroll.Minimum, scroll.Maximum);
+            panelDockSettingsContainer.PerformLayout(); // visually update scrollbar since it won't always.
+        }
+
+        /// <summary>
+        /// Called by the tablet drawing service. Reads the packet for x/y and pressure info.
+        /// </summary>
+        /// <param name="packet"></param>
+        private void TabletUpdated(WintabDN.WintabPacket packet)
+        {
+            // Move cursor to stylus. This works since packets are only sent for touch or hover events.
+            Cursor.Position = new Point(packet.pkX, packet.pkY);
+
+            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
+
+            tabletLastPacketId = packet.pkSerialNumber;
+
+            // Gets the current pressure.
+            int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
+            float newPressureRatio = (packet.pkNormalPressure == 0) ? 0 : (float)packet.pkNormalPressure / maxPressure;
+            float deadzone = 0.01f; // Represents the 0 to 1% range of pressure.
+
+            // Simulates the left mouse based on pressure. It must be simulated to avoid special handling for each
+            // button since winforms doesn't support touch events.
+            if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
+            {
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftDown);
+            }
+            else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
+            {
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftUp);
+            }
+
+            // Updates the pressure.
+            tabletPressureRatio = newPressureRatio;
+        }
+
+        /// <summary>
+        /// While drawing, moves the canvas automatically when trying to draw
+        /// past the visible bounds.
+        /// </summary>
+        private void RepositionUpdate_Tick(object sender, EventArgs e)
+        {
+            if (displayCanvas.IsDisposed)
+            {
+                return;
+            }
+
+            // Converts the mouse coordinates on the screen relative to the
+            // canvas such that the top-left corner is (0, 0) up to its
+            // width and height.
+            Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
+
+            //Exits if the user isn't drawing out of the canvas boundary.
+            if (!isUserDrawing.started || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
+            {
+                return;
+            }
+
+            //Amount of space between the display canvas and background.
+            Rectangle range = GetRange();
+
+            //The amount to move the canvas while drawing.
+            int nudge = (int)(canvasZoom * 10);
+            int canvasNewPosX, canvasNewPosY;
+
+            //Nudges the screen horizontally when out of bounds and out of
+            //the drawing region.
+            if (canvas.width >=
+                displayCanvas.ClientRectangle.Width)
+            {
+                if (mouseLocOnBG.X > displayCanvas.ClientRectangle.Width)
+                {
+                    canvasNewPosX = -nudge;
+                }
+                else if (mouseLocOnBG.X < 0)
+                {
+                    canvasNewPosX = nudge;
+                }
+                else
+                {
+                    canvasNewPosX = 0;
+                }
+            }
+            else
+            {
+                canvasNewPosX = 0;
+            }
+
+            //Adds the left corner position to make it relative.
+            if (range.Width != 0)
+            {
+                canvasNewPosX += canvas.x;
+            }
+
+            //Nudges the screen vertically when out of bounds and out of
+            //the drawing region.
+            if (canvas.height >=
+                displayCanvas.ClientRectangle.Height)
+            {
+                if (mouseLocOnBG.Y > displayCanvas.ClientRectangle.Height)
+                {
+                    canvasNewPosY = -nudge;
+                }
+                else if (mouseLocOnBG.Y < 0)
+                {
+                    canvasNewPosY = nudge;
+                }
+                else
+                {
+                    canvasNewPosY = 0;
+                }
+            }
+            else
+            {
+                canvasNewPosY = 0;
+            }
+
+            //Adds the top corner position to make it relative.
+            if (range.Height != 0)
+            {
+                canvasNewPosY += canvas.y;
+            }
+
+            //Clamps all location values.
+            if (canvasNewPosX <= range.Left) { canvasNewPosX = range.Left; }
+            if (canvasNewPosX >= range.Right) { canvasNewPosX = range.Right; }
+            if (canvasNewPosY <= range.Top) { canvasNewPosY = range.Top; }
+            if (canvasNewPosY >= range.Bottom) { canvasNewPosY = range.Bottom; }
+
+            //Updates with the new location and redraws the screen.
+            canvas.x = canvasNewPosX;
+            canvas.y = canvasNewPosY;
+            displayCanvas.Refresh();
+        }
+        #endregion
+
+        #region Methods (button event handlers)
+        private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.AutomaticBrushDensityTip);
+        }
+
+        private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e)
+        {
+            sliderBrushDensity.Enabled = !chkbxAutomaticBrushDensity.Checked;
         }
 
         /// <summary>
@@ -6678,7 +7327,7 @@ namespace DynamicDraw
             //Sets the bitmap to draw. Locks to prevent concurrency.
             lock (RenderSettings.SurfaceToRender)
             {
-                RenderSettings.SurfaceToRender = Surface.CopyFromBitmap(bmpCurrentDrawing);
+                RenderSettings.SurfaceToRender = Surface.CopyFromBitmap(bmpCommitted);
             }
 
             //Updates the saved effect settings and OKs the effect.
@@ -6739,14 +7388,15 @@ namespace DynamicDraw
             {
                 //Saves the drawing to the file for undo.
                 string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
-                bmpCurrentDrawing.Save(path);
+                bmpCommitted.Save(path);
                 undoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
                 using (Bitmap redoBmp = new Bitmap(fileAndPath))
                 {
-                    Utils.OverwriteBits(redoBmp, bmpCurrentDrawing);
+                    Utils.OverwriteBits(redoBmp, bmpCommitted);
+                    Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
                 }
 
                 displayCanvas.Refresh();
@@ -6804,12 +7454,12 @@ namespace DynamicDraw
                 BrushSettings newSettings = new BrushSettings()
                 {
                     AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked,
-                    AlphaChange = sliderShiftAlpha.Value,
                     BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex,
-                    BrushAlpha = sliderBrushAlpha.Value,
                     BrushColor = bttnBrushColor.BackColor,
                     BrushDensity = sliderBrushDensity.Value,
+                    BrushFlow = sliderBrushFlow.Value,
                     BrushImagePath = index >= 0 ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name : string.Empty,
+                    BrushOpacity = sliderBrushOpacity.Value,
                     BrushRotation = sliderBrushRotation.Value,
                     BrushSize = sliderBrushSize.Value,
                     ColorInfluence = sliderColorInfluence.Value,
@@ -6817,10 +7467,19 @@ namespace DynamicDraw
                     ColorInfluenceHue = chkbxColorInfluenceHue.Checked,
                     ColorInfluenceSat = chkbxColorInfluenceSat.Checked,
                     ColorInfluenceVal = chkbxColorInfluenceVal.Checked,
+                    DoDitherDraw = chkbxDitherDraw.Checked,
                     DoLockAlpha = chkbxLockAlpha.Checked,
+                    DoLockR = chkbxLockR.Checked,
+                    DoLockG = chkbxLockG.Checked,
+                    DoLockB = chkbxLockB.Checked,
+                    DoLockHue = chkbxLockHue.Checked,
+                    DoLockSat = chkbxLockSat.Checked,
+                    DoLockVal = chkbxLockVal.Checked,
+                    FlowChange = sliderShiftFlow.Value,
                     SeamlessDrawing = chkbxSeamlessDrawing.Checked,
                     DoRotateWithMouse = chkbxOrientToMouse.Checked,
                     MinDrawDistance = sliderMinDrawDistance.Value,
+                    RandFlowLoss = sliderRandFlowLoss.Value,
                     RandHorzShift = sliderRandHorzShift.Value,
                     RandMaxB = sliderJitterMaxBlue.Value,
                     RandMaxG = sliderJitterMaxGreen.Value,
@@ -6829,7 +7488,6 @@ namespace DynamicDraw
                     RandMaxS = sliderJitterMaxSat.Value,
                     RandMaxV = sliderJitterMaxVal.Value,
                     RandMaxSize = sliderRandMaxSize.Value,
-                    RandMinAlpha = sliderRandMinAlpha.Value,
                     RandMinB = sliderJitterMinBlue.Value,
                     RandMinG = sliderJitterMinGreen.Value,
                     RandMinR = sliderJitterMinRed.Value,
@@ -6844,8 +7502,9 @@ namespace DynamicDraw
                     SizeChange = sliderShiftSize.Value,
                     Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
                     Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
-                    CmbxTabPressureBrushAlpha = cmbxTabPressureBrushAlpha.SelectedIndex,
                     CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex,
+                    CmbxTabPressureBrushFlow = cmbxTabPressureBrushFlow.SelectedIndex,
+                    CmbxTabPressureBrushOpacity = cmbxTabPressureBrushOpacity.SelectedIndex,
                     CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex,
                     CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex,
                     CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex,
@@ -6855,15 +7514,16 @@ namespace DynamicDraw
                     CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex,
                     CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex,
                     CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex,
+                    CmbxTabPressureRandFlowLoss = cmbxTabPressureRandFlowLoss.SelectedIndex,
                     CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex,
                     CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex,
-                    CmbxTabPressureRandMinAlpha = cmbxTabPressureRandMinAlpha.SelectedIndex,
                     CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex,
                     CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex,
                     CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex,
                     CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex,
-                    TabPressureBrushAlpha = (int)spinTabPressureBrushAlpha.Value,
                     TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value,
+                    TabPressureBrushFlow = (int)spinTabPressureBrushFlow.Value,
+                    TabPressureBrushOpacity = (int)spinTabPressureBrushOpacity.Value,
                     TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value,
                     TabPressureBrushSize = (int)spinTabPressureBrushSize.Value,
                     TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value,
@@ -6879,9 +7539,9 @@ namespace DynamicDraw
                     TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value,
                     TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value,
                     TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value,
+                    TabPressureRandFlowLoss = (int)spinTabPressureRandFlowLoss.Value,
                     TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value,
                     TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value,
-                    TabPressureRandMinAlpha = (int)spinTabPressureRandMinAlpha.Value,
                     TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value,
                     TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value,
                     TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value,
@@ -6976,14 +7636,15 @@ namespace DynamicDraw
             {
                 //Saves the drawing to the file for redo.
                 string path = tempDir.GetTempPathName("HistoryBmp" + redoHistory.Count + ".redo");
-                bmpCurrentDrawing.Save(path);
+                bmpCommitted.Save(path);
                 redoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
                 using (Bitmap undoBmp = new Bitmap(fileAndPath))
                 {
-                    Utils.OverwriteBits(undoBmp, bmpCurrentDrawing);
+                    Utils.OverwriteBits(undoBmp, bmpCommitted);
+                    Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
                 }
 
                 displayCanvas.Refresh();
@@ -7010,15 +7671,6 @@ namespace DynamicDraw
             UpdateTooltip(Strings.UndoTip);
         }
 
-        private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.AutomaticBrushDensityTip);
-        }
-
-        private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e) {
-            sliderBrushDensity.Enabled = !chkbxAutomaticBrushDensity.Checked;
-        }
-
         /// <summary>
         /// Resets the brush to reconfigure colorization. Colorization is
         /// applied when the brush is refreshed.
@@ -7032,25 +7684,6 @@ namespace DynamicDraw
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.ColorizeBrushTip);
-        }
-
-        /// <summary>
-        /// Resets the brush to reconfigure colorization. Colorization is
-        /// applied when the brush is refreshed.
-        /// </summary>
-        private void SliderColorInfluence_ValueChanged(object sender, EventArgs e)
-        {
-            txtColorInfluence.Text = String.Format("{0} {1}%",
-                Strings.ColorInfluence,
-                sliderColorInfluence.Value);
-
-            UpdateEnabledControls();
-            UpdateBrushImage();
-        }
-
-        private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.ColorInfluenceTip);
         }
 
         private void ChkbxColorInfluenceHue_MouseEnter(object sender, EventArgs e)
@@ -7068,14 +7701,44 @@ namespace DynamicDraw
             UpdateTooltip(Strings.ColorInfluenceVTip);
         }
 
+        private void ChkbxDitherDraw_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.DitherDrawTip);
+        }
+
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.LockAlphaTip);
         }
 
-        private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
+        private void ChkbxLockR_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.SeamlessDrawingTip);
+            UpdateTooltip(Strings.LockRTip);
+        }
+
+        private void ChkbxLockG_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockGTip);
+        }
+
+        private void ChkbxLockB_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockBTip);
+        }
+
+        private void ChkbxLockHue_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockHueTip);
+        }
+
+        private void ChkbxLockSat_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockSatTip);
+        }
+
+        private void ChkbxLockVal_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.LockValTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
@@ -7083,20 +7746,27 @@ namespace DynamicDraw
             UpdateTooltip(Strings.OrientToMouseTip);
         }
 
-        /// <summary>
-        /// Trackbars and comboboxes (among others) handle the mouse wheel event, which makes it hard to scroll across
-        /// the controls in the right-side pane. Since these controls are more traditionally used with left-clicking,
-        /// being able to scroll the window with the mouse wheel is more important. This prevents handling.
-        /// </summary>
-        private void IgnoreMouseWheelEvent(object sender, MouseEventArgs e)
+        private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
         {
-            var scroll = panelDockSettingsContainer.VerticalScroll;
-            var mouseEvent = (HandledMouseEventArgs)e;
-            mouseEvent.Handled = true;
+            UpdateTooltip(Strings.SeamlessDrawingTip);
+        }
 
-            // Stopping the mouse wheel event prevents scrolling the parent container too. This does it manually.
-            scroll.Value = Utils.Clamp(scroll.Value - mouseEvent.Delta, scroll.Minimum, scroll.Maximum);
-            panelDockSettingsContainer.PerformLayout(); // visually update scrollbar since it won't always.
+        private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
+        {
+            UpdateTooltip(
+                Strings.ValueInfluenceTip + "\n\n"
+                + Strings.ValueTypeNothingTip + "\n"
+                + Strings.ValueTypeAddTip + "\n"
+                + Strings.ValueTypeAddPercentTip + "\n"
+                + Strings.ValueTypeAddPercentCurrentTip + "\n"
+                + Strings.ValueTypeMatchValueTip + "\n"
+                + Strings.ValueTypeMatchPercentTip);
+        }
+
+        private void CmbxTabPressureBrushSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Included in brush size calculation in this function, so needs to be recalculated.
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -7309,7 +7979,8 @@ namespace DynamicDraw
                     if (PersistentSettings.defaultBrushes.ContainsKey(selection.Text))
                     {
                         UpdateBrush(PersistentSettings.defaultBrushes[selection.Text]);
-                    } else
+                    }
+                    else
                     {
                         UpdateBrush(settings.CustomBrushes[selection.Text]);
                     }
@@ -7369,20 +8040,6 @@ namespace DynamicDraw
             }
         }
 
-        private void SliderBrushAlpha_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.BrushAlphaTip);
-        }
-
-        private void SliderBrushAlpha_ValueChanged(object sender, EventArgs e)
-        {
-            txtBrushAlpha.Text = String.Format("{0} {1}",
-                Strings.Alpha,
-                sliderBrushAlpha.Value);
-
-            UpdateBrushImage();
-        }
-
         private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.BrushDensityTip);
@@ -7393,6 +8050,34 @@ namespace DynamicDraw
             txtBrushDensity.Text = String.Format("{0} {1}",
                 Strings.BrushDensity,
                 sliderBrushDensity.Value);
+        }
+
+        private void SliderBrushFlow_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.BrushFlowTip);
+        }
+
+        private void SliderBrushFlow_ValueChanged(object sender, EventArgs e)
+        {
+            txtBrushFlow.Text = String.Format("{0} {1}",
+                Strings.BrushFlow,
+                sliderBrushFlow.Value);
+
+            UpdateBrushImage();
+        }
+
+        private void SliderBrushOpacity_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.BrushOpacityTip);
+        }
+
+        private void SliderBrushOpacity_ValueChanged(object sender, EventArgs e)
+        {
+            txtBrushOpacity.Text = String.Format("{0} {1}",
+                Strings.BrushOpacity,
+                sliderBrushOpacity.Value);
+
+            UpdateBrushImage();
         }
 
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
@@ -7421,6 +8106,12 @@ namespace DynamicDraw
             txtBrushRotation.Text = String.Format("{0} {1}°",
                 Strings.Rotation,
                 sliderBrushRotation.Value);
+
+            // Refreshes the brush indicator (ignore if the indicator wouldn't be shown).
+            if (!isUserDrawing.started)
+            {
+                displayCanvas.Refresh();
+            }
         }
 
         private void SliderCanvasZoom_MouseEnter(object sender, EventArgs e)
@@ -7445,6 +8136,25 @@ namespace DynamicDraw
                 sliderCanvasAngle.Value);
 
             displayCanvas.Refresh();
+        }
+
+        /// <summary>
+        /// Resets the brush to reconfigure colorization. Colorization is
+        /// applied when the brush is refreshed.
+        /// </summary>
+        private void SliderColorInfluence_ValueChanged(object sender, EventArgs e)
+        {
+            txtColorInfluence.Text = String.Format("{0} {1}%",
+                Strings.ColorInfluence,
+                sliderColorInfluence.Value);
+
+            UpdateEnabledControls();
+            UpdateBrushImage();
+        }
+
+        private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ColorInfluenceTip);
         }
 
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
@@ -7510,6 +8220,18 @@ namespace DynamicDraw
                 sliderJitterMaxRed.Value);
         }
 
+        private void SliderRandFlowLoss_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.RandFlowLossTip);
+        }
+
+        private void SliderRandFlowLoss_ValueChanged(object sender, EventArgs e)
+        {
+            txtRandFlowLoss.Text = String.Format("{0} {1}",
+                Strings.RandFlowLoss,
+                sliderRandFlowLoss.Value);
+        }
+
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.RandMaxSizeTip);
@@ -7520,18 +8242,6 @@ namespace DynamicDraw
             txtRandMaxSize.Text = String.Format("{0} {1}",
                 Strings.RandMaxSize,
                 sliderRandMaxSize.Value);
-        }
-
-        private void SliderRandMinAlpha_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.RandMinAlphaTip);
-        }
-
-        private void SliderRandMinAlpha_ValueChanged(object sender, EventArgs e)
-        {
-            txtRandMinAlpha.Text = String.Format("{0} {1}",
-                Strings.RandMinAlpha,
-                sliderRandMinAlpha.Value);
         }
 
         private void SliderJitterMinBlue_MouseEnter(object sender, EventArgs e)
@@ -7699,16 +8409,16 @@ namespace DynamicDraw
                 sliderRandVertShift.Value);
         }
 
-        private void SliderShiftAlpha_MouseEnter(object sender, EventArgs e)
+        private void SliderShiftFlow_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ShiftAlphaTip);
+            UpdateTooltip(Strings.ShiftFlowTip);
         }
 
-        private void SliderShiftAlpha_ValueChanged(object sender, EventArgs e)
+        private void SliderShiftFlow_ValueChanged(object sender, EventArgs e)
         {
-            txtShiftAlpha.Text = String.Format("{0} {1}",
-                Strings.ShiftAlpha,
-                sliderShiftAlpha.Value);
+            txtShiftFlow.Text = String.Format("{0} {1}",
+                Strings.ShiftFlow,
+                sliderShiftFlow.Value);
         }
 
         private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
@@ -7739,138 +8449,10 @@ namespace DynamicDraw
         {
             // Included in brush size calculation in this function when on.
             if (((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushSize.SelectedItem).ValueMember
-                != CmbxTabletValueType.ValueHandlingMethod.DoNothing)
+                != ConstraintValueHandlingMethod.DoNothing)
             {
                 UpdateBrushImage();
             }
-        }
-
-        private void TabletUpdated(WintabDN.WintabPacket packet)
-        {
-            // Move cursor to stylus. This works since packets are only sent for touch or hover events.
-            Cursor.Position = new Point(packet.pkX, packet.pkY);
-
-            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
-
-            tabletLastPacketId = packet.pkSerialNumber;
-
-            // Gets the current pressure.
-            int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
-            float newPressureRatio = (packet.pkNormalPressure == 0) ? 0 : (float)packet.pkNormalPressure / maxPressure;
-            float deadzone = 0.01f; // Represents the 0 to 1% range of pressure.
-
-            // Simulates the left mouse based on pressure. It must be simulated to avoid special handling for each
-            // button since winforms doesn't support touch events.
-            if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
-            {
-                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftDown);
-            }
-            else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
-            {
-                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftUp);
-            }
-
-            // Updates the pressure.
-            tabletPressureRatio = newPressureRatio;
-        }
-
-        /// <summary>
-        /// While drawing, moves the canvas automatically when trying to draw
-        /// past the visible bounds.
-        /// </summary>
-        private void RepositionUpdate_Tick(object sender, EventArgs e)
-        {
-            if (displayCanvas.IsDisposed)
-            {
-                return;
-            }
-
-            // Converts the mouse coordinates on the screen relative to the
-            // canvas such that the top-left corner is (0, 0) up to its
-            // width and height.
-            Point mouseLocOnBG = displayCanvas.PointToClient(MousePosition);
-
-            //Exits if the user isn't drawing out of the canvas boundary.
-            if (!isUserDrawing.started || displayCanvas.ClientRectangle.Contains(mouseLocOnBG))
-            {
-                return;
-            }
-
-            //Amount of space between the display canvas and background.
-            Rectangle range = GetRange();
-
-            //The amount to move the canvas while drawing.
-            int nudge = (int)(canvasZoom * 10);
-            int canvasNewPosX, canvasNewPosY;
-
-            //Nudges the screen horizontally when out of bounds and out of
-            //the drawing region.
-            if (canvas.width >=
-                displayCanvas.ClientRectangle.Width)
-            {
-                if (mouseLocOnBG.X > displayCanvas.ClientRectangle.Width)
-                {
-                    canvasNewPosX = -nudge;
-                }
-                else if (mouseLocOnBG.X < 0)
-                {
-                    canvasNewPosX = nudge;
-                }
-                else
-                {
-                    canvasNewPosX = 0;
-                }
-            }
-            else
-            {
-                canvasNewPosX = 0;
-            }
-
-            //Adds the left corner position to make it relative.
-            if (range.Width != 0)
-            {
-                canvasNewPosX += canvas.x;
-            }
-
-            //Nudges the screen vertically when out of bounds and out of
-            //the drawing region.
-            if (canvas.height >=
-                displayCanvas.ClientRectangle.Height)
-            {
-                if (mouseLocOnBG.Y > displayCanvas.ClientRectangle.Height)
-                {
-                    canvasNewPosY = -nudge;
-                }
-                else if (mouseLocOnBG.Y < 0)
-                {
-                    canvasNewPosY = nudge;
-                }
-                else
-                {
-                    canvasNewPosY = 0;
-                }
-            }
-            else
-            {
-                canvasNewPosY = 0;
-            }
-
-            //Adds the top corner position to make it relative.
-            if (range.Height != 0)
-            {
-                canvasNewPosY += canvas.y;
-            }
-
-            //Clamps all location values.
-            if (canvasNewPosX <= range.Left) { canvasNewPosX = range.Left; }
-            if (canvasNewPosX >= range.Right) { canvasNewPosX = range.Right; }
-            if (canvasNewPosY <= range.Top) { canvasNewPosY = range.Top; }
-            if (canvasNewPosY >= range.Bottom) { canvasNewPosY = range.Bottom; }
-
-            //Updates with the new location and redraws the screen.
-            canvas.x = canvasNewPosX;
-            canvas.y = canvasNewPosY;
-            displayCanvas.Refresh();
         }
         #endregion
     }

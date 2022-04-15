@@ -39,7 +39,7 @@
         /// <summary>
         /// The current brush transparency level.
         /// </summary>
-        Alpha = 6,
+        Flow = 6,
 
         /// <summary>
         /// The angle that the brush is rotated at.
@@ -86,9 +86,9 @@
         RotateWithMouse = 14,
 
         /// <summary>
-        /// If true, the alpha value is left unchanged at the end of a brush stroke.
+        /// If true, the alpha channel will not be affected while drawing.
         /// </summary>
-        LockAlpha = 15,
+        DoLockAlpha = 15,
 
         /// <summary>
         /// The amount the brush randomly shrinks from its normal value on each brush application.
@@ -113,7 +113,7 @@
         /// <summary>
         /// The amount of random transparency over the brush's normal value on each brush application.
         /// </summary>
-        JitterMinAlpha = 20,
+        JitterFlowLoss = 20,
 
         /// <summary>
         /// The amount of random horizontal shift from the brush's normal x-position on each brush application.
@@ -201,9 +201,9 @@
         /// How much the transparency of the brush permanently increases on each application. Transparency reflects
         /// at the range bounds.
         /// </summary>
-        AlphaShift = 37,
+        FlowShift = 37,
 
-        TabPressureAlpha = 38,
+        TabPressureFlow = 38,
         TabPressureSize = 39,
         TabPressureRotation = 40,
         TabPressureMinDrawDistance = 41,
@@ -212,7 +212,7 @@
         TabPressureJitterMaxSize = 44,
         TabPressureJitterRotLeft = 45,
         TabPressureJitterRotRight = 46,
-        TabPressureJitterMinAlpha = 47,
+        TabPressureJitterFlowLoss = 47,
         TabPressureJitterHorShift = 48,
         TabPressureJitterVerShift = 49,
         TabPressureJitterRedMax = 50,
@@ -286,6 +286,46 @@
         /// <summary>
         /// Whether mixing the active color with the brush should affect value when colorize brush is off.
         /// </summary>
-        ColorInfluenceVal = 73
+        ColorInfluenceVal = 73,
+
+        /// <summary>
+        /// Whether to draw in a checkerboard pattern, skipping every other pixel or not.
+        /// </summary>
+        DitherDraw = 74,
+
+        /// <summary>
+        /// If true, the red channel will not be affected while drawing.
+        /// </summary>
+        DoLockR = 75,
+
+        /// <summary>
+        /// If true, the green channel will not be affected while drawing.
+        /// </summary>
+        DoLockG = 76,
+
+        /// <summary>
+        /// If true, the blue channel will not be affected while drawing.
+        /// </summary>
+        DoLockB = 77,
+
+        /// <summary>
+        /// If true, the hue will not be affected while drawing.
+        /// </summary>
+        DoLockHue = 78,
+
+        /// <summary>
+        /// If true, the saturation will not be affected while drawing.
+        /// </summary>
+        DoLockSat = 79,
+
+        /// <summary>
+        /// If true, the value will not be affected while drawing.
+        /// </summary>
+        DoLockVal = 80,
+
+        /// <summary>
+        /// The brush opacity (or rather, max alpha allowed on the layer). Anything greater truncates to max.
+        /// </summary>
+        BrushOpacity = 81
     }
 }

@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AbrBrushNameFallbackFormat" xml:space="preserve">
     <value>Brush {0}</value>
@@ -138,11 +138,11 @@
   <data name="AddFoldersTip" xml:space="preserve">
     <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not.</value>
   </data>
-  <data name="Alpha" xml:space="preserve">
-    <value>Brush Transparency:</value>
+  <data name="BrushFlow" xml:space="preserve">
+    <value>Brush Flow:</value>
   </data>
-  <data name="BrushAlphaTip" xml:space="preserve">
-    <value>Brush transparency shortcut: Ctrl + A + Mouse Wheel. Sets the brush transparency, so it becomes opaque or see-through.</value>
+  <data name="BrushFlowTip" xml:space="preserve">
+    <value>Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color "builds up" as you draw. It's a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke.</value>
   </data>
   <data name="BrushColor" xml:space="preserve">
     <value>Color</value>
@@ -172,7 +172,10 @@
     <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>
   </data>
   <data name="BrushSmoothingTip" xml:space="preserve">
-    <value>Determines the smoothing on each brush stroke. Low values are jagged and fast to compute. High values are smooth and slow (and possibly blurry).</value>
+    <value>Determines smoothness at the brush edges while drawing, and the quality of rotation/scaling.
+High: Slowest, best antialiasing. Useful when the brush size is way different than the actual brush image.
+Normal: Good antialiasing. Use in most cases.
+Jagged: Fastest, no antialiasing. Automatically forces all brush images to be perfectly jagged. This is made for pixel art.</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
@@ -222,37 +225,37 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Blue Jitter:</value>
   </data>
   <data name="JitterBlueTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue.</value>
+    <value>While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more blue.</value>
   </data>
   <data name="JitterGreen" xml:space="preserve">
     <value>Green Jitter:</value>
   </data>
   <data name="JitterGreenTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green.</value>
+    <value>While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more green.</value>
   </data>
   <data name="JitterHue" xml:space="preserve">
     <value>Hue Jitter:</value>
   </data>
   <data name="JitterHueTip" xml:space="preserve">
-    <value>While drawing, the brush's hue will randomly shift based on the provided amounts.</value>
+    <value>While drawing, the hue will randomly shift based on the provided amounts.</value>
   </data>
   <data name="JitterRed" xml:space="preserve">
     <value>Red Jitter:</value>
   </data>
   <data name="JitterRedTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red.</value>
+    <value>While drawing, the color will randomly shift so it will sometimes be normal and sometimes up to this much less or more red.</value>
   </data>
   <data name="JitterSaturation" xml:space="preserve">
     <value>Sat. Jitter:</value>
   </data>
   <data name="JitterSaturationTip" xml:space="preserve">
-    <value>While drawing, the brush's grayness will randomly shift based on the provided amounts.</value>
+    <value>While drawing, the grayness will randomly shift based on the provided amounts.</value>
   </data>
   <data name="JitterValue" xml:space="preserve">
     <value>Value Jitter:</value>
   </data>
   <data name="JitterValueTip" xml:space="preserve">
-    <value>While drawing, the brush color will randomly shift based on the provided amounts.</value>
+    <value>While drawing, the brightness will randomly shift based on the provided amounts.</value>
   </data>
   <data name="LoadDefaultBrushes" xml:space="preserve">
     <value>Load Default Brush Images?</value>
@@ -264,7 +267,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Lock Alpha</value>
   </data>
   <data name="LockAlphaTip" xml:space="preserve">
-    <value>Preserves transparency so no brush strokes affect the transparency of the pixels.</value>
+    <value>Prevents drawing from affecting the transparency of the image.</value>
   </data>
   <data name="MaximizeWindow" xml:space="preserve">
     <value>Maximize window?</value>
@@ -299,11 +302,11 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="RandMaxSizeTip" xml:space="preserve">
     <value>While drawing, the size of the brush will randomly jitter so it will sometimes be normal size and sometimes up to this much bigger.</value>
   </data>
-  <data name="RandMinAlpha" xml:space="preserve">
-    <value>Random Min Alpha:</value>
+  <data name="RandFlowLoss" xml:space="preserve">
+    <value>Random Flow Loss:</value>
   </data>
-  <data name="RandMinAlphaTip" xml:space="preserve">
-    <value>While drawing, the brush transparency will randomly shift so it will sometimes be normal and sometimes up to this much more transparent.</value>
+  <data name="RandFlowLossTip" xml:space="preserve">
+    <value>While drawing, the flow amount will randomly shift so the brush's rate of accumulation will sometimes be normal and sometimes up to this much less.</value>
   </data>
   <data name="RandMinSize" xml:space="preserve">
     <value>Random Min Size:</value>
@@ -344,10 +347,10 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="SavePreferencesTip" xml:space="preserve">
     <value>Saves all changes in the preferences.</value>
   </data>
-  <data name="ShiftAlpha" xml:space="preserve">
-    <value>Alpha Shift:</value>
+  <data name="ShiftFlow" xml:space="preserve">
+    <value>Flow Shift:</value>
   </data>
-  <data name="ShiftAlphaTip" xml:space="preserve">
+  <data name="ShiftFlowTip" xml:space="preserve">
     <value>Every time a brush stroke is applied, the brush will change transparency by this much.</value>
   </data>
   <data name="ShiftRotation" xml:space="preserve">
@@ -614,11 +617,11 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="SetShortcutText" xml:space="preserve">
     <value>Press new key...</value>
   </data>
-  <data name="ShortcutAlpha" xml:space="preserve">
-    <value>Brush Transparency</value>
+  <data name="ShortcutFlow" xml:space="preserve">
+    <value>Flow</value>
   </data>
-  <data name="ShortcutAlphaShift" xml:space="preserve">
-    <value>Alpha Shift</value>
+  <data name="ShortcutFlowShift" xml:space="preserve">
+    <value>Flow Shift</value>
   </data>
   <data name="ShortcutBrushSmoothing" xml:space="preserve">
     <value>Brush Smoothing</value>
@@ -656,8 +659,8 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="ShortcutJitterMaxSize" xml:space="preserve">
     <value>Random Max Size</value>
   </data>
-  <data name="ShortcutJitterMinAlpha" xml:space="preserve">
-    <value>Random Min Alpha</value>
+  <data name="ShortcutJitterFlowLoss" xml:space="preserve">
+    <value>Random Flow Loss</value>
   </data>
   <data name="ShortcutJitterMinSize" xml:space="preserve">
     <value>Random Min Size</value>
@@ -795,9 +798,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Blending: Overwrite</value>
   </data>
   <data name="BlendModeTip" xml:space="preserve">
-    <value>Blend modes describe how pixels should be edited by the brush stroke.
-Normal: brushing draws over the image as usual, never making an image more transparent.
-Overwrite: brushing draws over the image as usual, except it also replaces transparency to whatever is set.</value>
+    <value>Blending determines how pixels you draw while using a brush are combined with the existing pixels. These modes work the same as in Paint.Net. For more info, see https://www.getpaint.net/doc/latest/BlendModes.html</value>
   </data>
   <data name="ShortcutBlendMode" xml:space="preserve">
     <value>Blend Mode</value>
@@ -851,5 +852,98 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="BuiltInBrushRecolor" xml:space="preserve">
     <value>Preset - Recolor</value>
+  </data>
+  <data name="DefaultBrushSquare" xml:space="preserve">
+    <value>Square</value>
+  </data>
+  <data name="DitherDraw" xml:space="preserve">
+    <value>Checkerboard Dithering</value>
+  </data>
+  <data name="DitherDrawTip" xml:space="preserve">
+    <value>Only draw every other pixel, in a checkerboard pattern. Useful for pixel art.</value>
+  </data>
+  <data name="LockHue" xml:space="preserve">
+    <value>H</value>
+  </data>
+  <data name="LockHueTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results.</value>
+  </data>
+  <data name="LockSat" xml:space="preserve">
+    <value>S</value>
+  </data>
+  <data name="LockSatTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation.</value>
+  </data>
+  <data name="LockVal" xml:space="preserve">
+    <value>V</value>
+  </data>
+  <data name="LockValTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the value (brightness) of the image.</value>
+  </data>
+  <data name="LockB" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="LockBTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa.</value>
+  </data>
+  <data name="LockG" xml:space="preserve">
+    <value>G</value>
+  </data>
+  <data name="LockGTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the greenness of the image. Note that bright values have more green and vice versa.</value>
+  </data>
+  <data name="LockR" xml:space="preserve">
+    <value>R</value>
+  </data>
+  <data name="LockRTip" xml:space="preserve">
+    <value>Prevents drawing from affecting the redness of the image. Note that bright values have more red and vice versa.</value>
+  </data>
+  <data name="BlendModeAdditive" xml:space="preserve">
+    <value>Blending: Additive</value>
+  </data>
+  <data name="BlendModeColorBurn" xml:space="preserve">
+    <value>Blending: Color Burn</value>
+  </data>
+  <data name="BlendModeColorDodge" xml:space="preserve">
+    <value>Blending: Color Dodge</value>
+  </data>
+  <data name="BlendModeDarken" xml:space="preserve">
+    <value>Blending: Darken</value>
+  </data>
+  <data name="BlendModeDifference" xml:space="preserve">
+    <value>Blending: Difference</value>
+  </data>
+  <data name="BlendModeGlow" xml:space="preserve">
+    <value>Blending: Glow</value>
+  </data>
+  <data name="BlendModeLighten" xml:space="preserve">
+    <value>Blending: Lighten</value>
+  </data>
+  <data name="BlendModeMultiply" xml:space="preserve">
+    <value>Blending: Multiply</value>
+  </data>
+  <data name="BlendModeNegation" xml:space="preserve">
+    <value>Blending: Negation</value>
+  </data>
+  <data name="BlendModeOverlay" xml:space="preserve">
+    <value>Blending: Overlay</value>
+  </data>
+  <data name="BlendModeReflect" xml:space="preserve">
+    <value>Blending: Reflect</value>
+  </data>
+  <data name="BlendModeScreen" xml:space="preserve">
+    <value>Blending: Screen</value>
+  </data>
+  <data name="BlendModeXor" xml:space="preserve">
+    <value>Blending: Xor</value>
+  </data>
+  <data name="BrushOpacity" xml:space="preserve">
+    <value>Brush Opacity:</value>
+  </data>
+  <data name="ShortcutBrushOpacity" xml:space="preserve">
+    <value>Brush Opacity</value>
+  </data>
+  <data name="BrushOpacityTip" xml:space="preserve">
+    <value>Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here.</value>
   </data>
 </root>
