@@ -179,10 +179,12 @@ namespace DynamicDraw
                 Strings.BuiltInBrushAirbrush,
                 new BrushSettings()
                 {
-                    BrushImagePath = Strings.DefaultBrushCircle,
-                    CmbxTabPressureBrushOpacity = (int)ConstraintValueHandlingMethod.MatchValue,
-                    TabPressureBrushOpacity = 255,
-                    BrushSize = 20
+                    BrushImagePath = Strings.DefaultBrushBigDots,
+                    BrushSize = 9,
+                    RandRotLeft = 180,
+                    RandRotRight = 180,
+                    RandHorzShift = 3,
+                    RandVertShift = 3
                 }
             },
             {
