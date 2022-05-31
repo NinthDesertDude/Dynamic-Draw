@@ -689,6 +689,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit the settings for the chosen effect..
+        /// </summary>
+        internal static string ChooseEffectSettingsTip {
+            get {
+                return ResourceManager.GetString("ChooseEffectSettingsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When an effect is chosen, it&apos;ll be applied in brush strokes according to its settings..
+        /// </summary>
+        internal static string ChosenEffectTip {
+            get {
+                return ResourceManager.GetString("ChosenEffectTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Clear Current Brush Settings.
         /// </summary>
         internal static string ClearSettings {

@@ -173,6 +173,18 @@ namespace DynamicDraw
         private string currentBrushPath = null;
 
         /// <summary>
+        /// If set and using the brush tool (not eraser), the effect and its settings will be
+        /// applied to the staged bmp when first starting to draw, and copied to committed bmp as
+        /// the user draws.
+        /// </summary>
+        (Effect effect, EffectConfigToken settings) effectToDraw = (null, null);
+
+        /// <summary>
+        /// Contains the list of all available effects to use while drawing.
+        /// </summary>
+        BindingList<Tuple<string, IEffectInfo>> effectOptions;
+
+        /// <summary>
         /// The calculated minimum draw distance including factors such as pressure sensitivity.
         /// This is specially tracked as a top-level variable since it's set in the MouseMove
         /// event and must be read in the Paint event.
@@ -324,6 +336,9 @@ namespace DynamicDraw
         private CheckBox chkbxColorInfluenceSat;
         private CheckBox chkbxColorInfluenceVal;
         private Button bttnBrushColor;
+        private Panel panelChosenEffect;
+        private ComboBox cmbxChosenEffect;
+        private Button bttnChooseEffectSettings;
         private ComboBox cmbxBlendMode;
         private Label txtBrushOpacity;
         private TrackBar sliderBrushOpacity;
@@ -563,6 +578,16 @@ namespace DynamicDraw
             cmbxSymmetry.DisplayMember = "Item1";
             cmbxSymmetry.ValueMember = "Item2";
 
+            // Fetches and populates the available effects for the effect chooser combobox.
+            effectOptions = new BindingList<Tuple<string, IEffectInfo>>()
+            {
+                new Tuple<string, IEffectInfo>("None", null) // TODO: localize
+            };
+
+            cmbxChosenEffect.DataSource = effectOptions;
+            cmbxChosenEffect.DisplayMember = "Item1";
+            cmbxChosenEffect.ValueMember = "Item2";
+
             // Configures items the blend mode options combobox.
             blendModeOptions = new BindingList<Tuple<string, BlendMode>>
             {
@@ -610,6 +635,7 @@ namespace DynamicDraw
             this.sliderCanvasZoom.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderCanvasAngle.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
+            this.cmbxChosenEffect.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderColorInfluence.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
@@ -725,6 +751,21 @@ namespace DynamicDraw
             token.CurrentBrushSettings.BrushColor = UserSettings.userPrimaryColor;
             UpdateBrush(token.CurrentBrushSettings);
             UpdateBrushImage();
+
+            // Fetches and populates the available effects for the effect chooser combobox.
+            IEffectsService effectsService = this.Services?.GetService<IEffectsService>();
+            if (effectOptions.Count == 1)
+            {
+                for (int i = 0; i < effectsService?.EffectInfos.Count; i++)
+                {
+                    if (effectsService.EffectInfos[i].Category != EffectCategory.DoNotDisplay)
+                    {
+                        effectOptions.Add(new Tuple<string, IEffectInfo>(
+                            effectsService.EffectInfos[i].Name,
+                            effectsService.EffectInfos[i]));
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -789,6 +830,7 @@ namespace DynamicDraw
             token.CurrentBrushSettings.SizeChange = sliderShiftSize.Value;
             token.CurrentBrushSettings.Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex;
             token.CurrentBrushSettings.Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex;
+            token.CurrentBrushSettings.CmbxChosenEffect = cmbxChosenEffect.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushFlow = cmbxTabPressureBrushFlow.SelectedIndex;
             token.CurrentBrushSettings.CmbxTabPressureBrushOpacity = cmbxTabPressureBrushOpacity.SelectedIndex;
@@ -1109,28 +1151,28 @@ namespace DynamicDraw
             {
                 if (KeyShortcutManager.IsKeyDown(Keys.R))
                 {
-                    sliderBrushRotation.Value = Utils.Clamp(
+                    sliderBrushRotation.Value = Math.Clamp(
                         sliderBrushRotation.Value + amountChange,
                         sliderBrushRotation.Minimum,
                         sliderBrushRotation.Maximum);
                 }
                 else if (KeyShortcutManager.IsKeyDown(Keys.O))
                 {
-                    sliderBrushOpacity.Value = Utils.Clamp(
+                    sliderBrushOpacity.Value = Math.Clamp(
                         sliderBrushOpacity.Value + amountChange,
                         sliderBrushOpacity.Minimum,
                         sliderBrushOpacity.Maximum);
                 }
                 else if (KeyShortcutManager.IsKeyDown(Keys.F))
                 {
-                    sliderBrushFlow.Value = Utils.Clamp(
+                    sliderBrushFlow.Value = Math.Clamp(
                         sliderBrushFlow.Value + amountChange,
                         sliderBrushFlow.Minimum,
                         sliderBrushFlow.Maximum);
                 }
                 else
                 {
-                    sliderBrushSize.Value = Utils.Clamp(
+                    sliderBrushSize.Value = Math.Clamp(
                         sliderBrushSize.Value + amountChange,
                         sliderBrushSize.Minimum,
                         sliderBrushSize.Maximum);
@@ -1191,7 +1233,7 @@ namespace DynamicDraw
                         changeFactor = 20;
                     }
 
-                    sliderBrushSize.Value = Utils.Clamp(
+                    sliderBrushSize.Value = Math.Clamp(
                     sliderBrushSize.Value + Math.Sign(e.Delta) * changeFactor,
                     sliderBrushSize.Minimum,
                     sliderBrushSize.Maximum);
@@ -1209,7 +1251,7 @@ namespace DynamicDraw
                 //Ctrl + O + Wheel: Changes the brush opacity.
                 else if (KeyShortcutManager.IsKeyDown(Keys.O))
                 {
-                    sliderBrushOpacity.Value = Utils.Clamp(
+                    sliderBrushOpacity.Value = Math.Clamp(
                     sliderBrushOpacity.Value + Math.Sign(e.Delta) * 10,
                     sliderBrushOpacity.Minimum,
                     sliderBrushOpacity.Maximum);
@@ -1218,7 +1260,7 @@ namespace DynamicDraw
                 //Ctrl + F + Wheel: Changes the brush flow.
                 else if (KeyShortcutManager.IsKeyDown(Keys.F))
                 {
-                    sliderBrushFlow.Value = Utils.Clamp(
+                    sliderBrushFlow.Value = Math.Clamp(
                     sliderBrushFlow.Value + Math.Sign(e.Delta) * 10,
                     sliderBrushFlow.Minimum,
                     sliderBrushFlow.Maximum);
@@ -1337,6 +1379,7 @@ namespace DynamicDraw
 
                 displayCanvas.Cursor = Cursors.Default;
                 cursorColorPicker?.Dispose();
+                selectionOutline?.Dispose();
 
                 tabletService?.Dispose();
             }
@@ -1394,7 +1437,7 @@ namespace DynamicDraw
                 pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandMaxSize.SelectedItem).ValueMember);
 
-            int newRadius = Utils.Clamp(radius
+            int newRadius = Math.Clamp(radius
                 - random.Next(finalRandMinSize)
                 + random.Next(finalRandMaxSize), 0, int.MaxValue);
             #endregion
@@ -1431,7 +1474,7 @@ namespace DynamicDraw
                     isGrowingSize = !isGrowingSize;
                 }
 
-                sliderBrushSize.Value = Utils.Clamp(tempSize,
+                sliderBrushSize.Value = Math.Clamp(tempSize,
                     sliderBrushSize.Minimum, sliderBrushSize.Maximum);
             }
 
@@ -1458,7 +1501,7 @@ namespace DynamicDraw
                     isGrowingFlow = !isGrowingFlow;
                 }
 
-                sliderBrushFlow.Value = Utils.Clamp(tempFlow,
+                sliderBrushFlow.Value = Math.Clamp(tempFlow,
                     sliderBrushFlow.Minimum, sliderBrushFlow.Maximum);
             }
             else if (pressure > 0 && (
@@ -1484,20 +1527,20 @@ namespace DynamicDraw
                     tempRot += (2 * sliderBrushRotation.Maximum) - Math.Abs(tempRot);
                 }
 
-                sliderBrushRotation.Value = Utils.Clamp(tempRot,
+                sliderBrushRotation.Value = Math.Clamp(tempRot,
                     sliderBrushRotation.Minimum, sliderBrushRotation.Maximum);
             }
             #endregion
 
             #region apply position jitter
-            int finalRandHorzShift = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandHorzShift.Value,
+            int finalRandHorzShift = Math.Clamp(Utils.GetStrengthMappedValue(sliderRandHorzShift.Value,
                 (int)spinTabPressureRandHorShift.Value,
                 sliderRandHorzShift.Maximum,
                 pressure,
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRandHorShift.SelectedItem).ValueMember),
                 0, 100);
 
-            int finalRandVertShift = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandVertShift.Value,
+            int finalRandVertShift = Math.Clamp(Utils.GetStrengthMappedValue(sliderRandVertShift.Value,
                 (int)spinTabPressureRandVerShift.Value,
                 sliderRandVertShift.Maximum,
                 pressure,
@@ -1563,7 +1606,7 @@ namespace DynamicDraw
             #endregion
 
             #region apply alpha jitter (via flow)
-            int finalRandFlowLoss = Utils.Clamp(Utils.GetStrengthMappedValue(sliderRandFlowLoss.Value,
+            int finalRandFlowLoss = Math.Clamp(Utils.GetStrengthMappedValue(sliderRandFlowLoss.Value,
                 (int)spinTabPressureRandFlowLoss.Value,
                 sliderRandFlowLoss.Maximum,
                 pressure,
@@ -1575,7 +1618,7 @@ namespace DynamicDraw
             ImageAttributes recolorMatrix = null;
             ColorBgra adjustedColor = bttnBrushColor.BackColor;
             int newFlowLoss = random.Next(finalRandFlowLoss);
-            adjustedColor.A = (byte)Math.Round(Utils.ClampF(sliderBrushFlow.Value - newFlowLoss, 0, 255));
+            adjustedColor.A = (byte)Math.Round(Math.Clamp(sliderBrushFlow.Value - newFlowLoss, 0f, 255f));
 
             if (activeTool == Tool.Eraser)
             {
@@ -1586,84 +1629,84 @@ namespace DynamicDraw
             }
             else if (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0 || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
             {
-                int finalJitterMaxRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
+                int finalJitterMaxRed = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxRed.Value,
                     (int)spinTabPressureMaxRedJitter.Value,
                     sliderJitterMaxRed.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRedJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMinRed = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinRed.Value,
+                int finalJitterMinRed = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinRed.Value,
                     (int)spinTabPressureMinRedJitter.Value,
                     sliderJitterMinRed.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureRedJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMaxGreen = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxGreen.Value,
+                int finalJitterMaxGreen = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxGreen.Value,
                     (int)spinTabPressureMaxGreenJitter.Value,
                     sliderJitterMaxGreen.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureGreenJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMinGreen = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinGreen.Value,
+                int finalJitterMinGreen = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinGreen.Value,
                     (int)spinTabPressureMinGreenJitter.Value,
                     sliderJitterMinGreen.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureGreenJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMaxBlue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxBlue.Value,
+                int finalJitterMaxBlue = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxBlue.Value,
                     (int)spinTabPressureMaxBlueJitter.Value,
                     sliderJitterMaxBlue.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBlueJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMinBlue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinBlue.Value,
+                int finalJitterMinBlue = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinBlue.Value,
                     (int)spinTabPressureMinBlueJitter.Value,
                     sliderJitterMinBlue.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBlueJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMaxHue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxHue.Value,
+                int finalJitterMaxHue = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxHue.Value,
                     (int)spinTabPressureMaxHueJitter.Value,
                     sliderJitterMaxHue.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureHueJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMinHue = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinHue.Value,
+                int finalJitterMinHue = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinHue.Value,
                     (int)spinTabPressureMinHueJitter.Value,
                     sliderJitterMinHue.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureHueJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMaxSat = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxSat.Value,
+                int finalJitterMaxSat = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxSat.Value,
                     (int)spinTabPressureMaxSatJitter.Value,
                     sliderJitterMaxSat.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureSatJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMinSat = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinSat.Value,
+                int finalJitterMinSat = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinSat.Value,
                     (int)spinTabPressureMinSatJitter.Value,
                     sliderJitterMinSat.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureSatJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMaxVal = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxVal.Value,
+                int finalJitterMaxVal = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMaxVal.Value,
                     (int)spinTabPressureMaxValueJitter.Value,
                     sliderJitterMaxVal.Maximum,
                     pressure,
                     ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureValueJitter.SelectedItem).ValueMember),
                     0, 100);
 
-                int finalJitterMinVal = Utils.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinVal.Value,
+                int finalJitterMinVal = Math.Clamp(Utils.GetStrengthMappedValue(sliderJitterMinVal.Value,
                     (int)spinTabPressureMinValueJitter.Value,
                     sliderJitterMinVal.Maximum,
                     pressure,
@@ -1693,7 +1736,7 @@ namespace DynamicDraw
                     // Non-standard blend modes need to use the brush as an alpha mask, so they don't multiply brush
                     // transparency into the brush early on.
                     float newAlpha = (activeTool == Tool.Eraser || cmbxBlendMode.SelectedIndex != (int)BlendMode.Overwrite)
-                        ? Utils.ClampF((255 - newFlowLoss) / 255f, 0, 1)
+                        ? Math.Clamp((255 - newFlowLoss) / 255f, 0f, 1f)
                         : adjustedColor.A / 255f;
 
                     float newRed = bttnBrushColor.BackColor.R / 255f;
@@ -1703,15 +1746,15 @@ namespace DynamicDraw
                     //Sets RGB color jitter.
                     if (jitterRgb)
                     {
-                        newBlue = Utils.ClampF((bttnBrushColor.BackColor.B / 2.55f
+                        newBlue = Math.Clamp((bttnBrushColor.BackColor.B / 2.55f
                             - random.Next(finalJitterMinBlue)
                             + random.Next(finalJitterMaxBlue)) / 100f, 0, 1);
 
-                        newGreen = Utils.ClampF((bttnBrushColor.BackColor.G / 2.55f
+                        newGreen = Math.Clamp((bttnBrushColor.BackColor.G / 2.55f
                             - random.Next(finalJitterMinGreen)
                             + random.Next(finalJitterMaxGreen)) / 100f, 0, 1);
 
-                        newRed = Utils.ClampF((bttnBrushColor.BackColor.R / 2.55f
+                        newRed = Math.Clamp((bttnBrushColor.BackColor.R / 2.55f
                             - random.Next(finalJitterMinRed)
                             + random.Next(finalJitterMaxRed)) / 100f, 0, 1);
                     }
@@ -1722,15 +1765,15 @@ namespace DynamicDraw
                         HsvColor colorHsv = new RgbColor((int)(newRed * 255f), (int)(newGreen * 255f), (int)(newBlue * 255f))
                             .ToHsv();
 
-                        int newHue = (int)Utils.ClampF(colorHsv.Hue
+                        int newHue = Math.Clamp(colorHsv.Hue
                             - random.Next((int)(finalJitterMinHue * 3.6f))
                             + random.Next((int)(finalJitterMaxHue * 3.6f)), 0, 360);
 
-                        int newSat = (int)Utils.ClampF(colorHsv.Saturation
+                        int newSat = Math.Clamp(colorHsv.Saturation
                             - random.Next(finalJitterMinSat)
                             + random.Next(finalJitterMaxSat), 0, 100);
 
-                        int newVal = (int)Utils.ClampF(colorHsv.Value
+                        int newVal = Math.Clamp(colorHsv.Value
                             - random.Next(finalJitterMinVal)
                             + random.Next(finalJitterMaxVal), 0, 100);
 
@@ -1751,7 +1794,7 @@ namespace DynamicDraw
             }
             #endregion
 
-            byte finalOpacity = (byte)Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushOpacity.Value,
+            byte finalOpacity = (byte)Math.Clamp(Utils.GetStrengthMappedValue(sliderBrushOpacity.Value,
                 (int)spinTabPressureBrushOpacity.Value,
                 sliderBrushOpacity.Maximum,
                 pressure,
@@ -1817,9 +1860,13 @@ namespace DynamicDraw
                     rotation -= sliderCanvasAngle.Value;
                 }
 
-                Bitmap bmpBrushRot = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedValue == CmbxSmoothing.Smoothing.Jagged
-                    ? Utils.RotateImage(bmpBrushEffects, rotation, adjustedColor.A)
-                    : Utils.RotateImage(bmpBrushEffects, rotation);
+                Bitmap bmpBrushRot = bmpBrushEffects;
+                if (rotation != 0 || (adjustedColor.A != 255 && cmbxBrushSmoothing.SelectedIndex != (int)CmbxSmoothing.Smoothing.Jagged))
+                {
+                    bmpBrushRot = cmbxBrushSmoothing.SelectedIndex != (int)CmbxSmoothing.Smoothing.Jagged
+                        ? Utils.RotateImage(bmpBrushEffects, rotation, adjustedColor.A)
+                        : Utils.RotateImage(bmpBrushEffects, rotation);
+                }
 
                 //Rotating the brush increases image bounds, so brush space
                 //must increase to avoid making it visually shrink.
@@ -2239,12 +2286,7 @@ namespace DynamicDraw
                             mergeRegions.Add(new Rectangle((int)xPos, (int)yPos, scaleFactor, scaleFactor));
                         }
 
-                        g.DrawImage(
-                            bmpBrushRot,
-                            destination,
-                            new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
-                            GraphicsUnit.Pixel,
-                            recolorMatrix);
+                        g.DrawImage(bmpBrushRot, destination, bmpBrushRot.GetBounds(), GraphicsUnit.Pixel, recolorMatrix);
                     }
 
                     //Handles drawing reflections.
@@ -2298,21 +2340,13 @@ namespace DynamicDraw
                                 mergeRegions.Add(new Rectangle((int)posX, (int)posY, scaleFactor, scaleFactor));
                             }
 
-                            //Draws the whole image and applies colorations and alpha.
-                            g.DrawImage(
-                                bmpBrushRot,
-                                destination,
-                                new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height),
-                                GraphicsUnit.Pixel,
-                                recolorMatrix);
+                            g.DrawImage(bmpBrushRot, destination, bmpBrushRot.GetBounds(), GraphicsUnit.Pixel, recolorMatrix);
                         }
 
                         // Draws at defined offset locations.
                         else if (cmbxSymmetry.SelectedIndex ==
                             (int)SymmetryMode.SetPoints)
                         {
-                            Rectangle bmpSizeRect = new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height);
-
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
                                 float newXPos = xPos + symmetryOrigins[i].X;
@@ -2326,12 +2360,7 @@ namespace DynamicDraw
                                     mergeRegions.Add(new Rectangle((int)newXPos, (int)newYPos, scaleFactor, scaleFactor));
                                 }
 
-                                g.DrawImage(
-                                    bmpBrushRot,
-                                    destination,
-                                    bmpSizeRect,
-                                    GraphicsUnit.Pixel,
-                                    recolorMatrix);
+                                g.DrawImage(bmpBrushRot, destination, bmpBrushRot.GetBounds(), GraphicsUnit.Pixel, recolorMatrix);
                             }
                         }
 
@@ -2366,7 +2395,6 @@ namespace DynamicDraw
                             int numPoints = cmbxSymmetry.SelectedIndex - 2;
                             double angleIncrease = (2 * Math.PI) / numPoints;
                             float halfScaleFactor = scaleFactor / 2f;
-                            Rectangle bmpBrushRotBounds = new Rectangle(0, 0, bmpBrushRot.Width, bmpBrushRot.Height);
 
                             for (int i = 0; i < numPoints; i++)
                             {
@@ -2382,20 +2410,21 @@ namespace DynamicDraw
                                     mergeRegions.Add(new Rectangle((int)posX, (int)posY, scaleFactor, scaleFactor));
                                 }
 
-                                g.DrawImage(
-                                    bmpBrushRot,
-                                    destination,
-                                    bmpBrushRotBounds,
-                                    GraphicsUnit.Pixel,
-                                    recolorMatrix);
-
+                                g.DrawImage(bmpBrushRot, destination, bmpBrushRot.GetBounds(), GraphicsUnit.Pixel, recolorMatrix);
                                 angle += angleIncrease;
                             }
                         }
                     }
                 }
                 #endregion
+
+                if (bmpBrushRot != bmpBrushEffects)
+                {
+                    bmpBrushRot?.Dispose();
+                }
             }
+
+            recolorMatrix?.Dispose();
         }
 
         /// <summary>
@@ -2728,6 +2757,10 @@ namespace DynamicDraw
                         shortcut.GetDataAsInt(sliderBrushOpacity.Value,
                         sliderBrushOpacity.Minimum,
                         sliderBrushOpacity.Maximum);
+                    break;
+                case ShortcutTarget.ChosenEffect:
+                    cmbxChosenEffect.SelectedIndex =
+                        shortcut.GetDataAsInt(cmbxChosenEffect.SelectedIndex, 0, cmbxChosenEffect.Items.Count);
                     break;
             };
         }
@@ -3082,6 +3115,9 @@ namespace DynamicDraw
             this.sliderBrushSize = new TrackBar();
             this.bttnSpecialSettings = new Accordion();
             this.panelSpecialSettings = new FlowLayoutPanel();
+            this.panelChosenEffect = new Panel();
+            this.cmbxChosenEffect = new ComboBox();
+            this.bttnChooseEffectSettings = new Button();
             this.txtMinDrawDistance = new Label();
             this.sliderMinDrawDistance = new TrackBar();
             this.txtBrushDensity = new Label();
@@ -3272,6 +3308,7 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
             ((ISupportInitialize)(this.sliderBrushSize)).BeginInit();
             this.panelSpecialSettings.SuspendLayout();
+            this.panelChosenEffect.SuspendLayout();
             this.panelRGBLocks.SuspendLayout();
             this.panelHSVLocks.SuspendLayout();
             ((ISupportInitialize)(this.sliderMinDrawDistance)).BeginInit();
@@ -3643,6 +3680,15 @@ namespace DynamicDraw
             this.panelBrushAddPickColor.Controls.Add(this.bttnBrushColor);
             this.panelBrushAddPickColor.Name = "panelBrushAddPickColor";
             // 
+            // bttnChooseEffectSettings
+            // 
+            this.bttnChooseEffectSettings.Text = "⚙";
+            resources.ApplyResources(this.bttnChooseEffectSettings, "bttnChooseEffectSettings");
+            this.bttnChooseEffectSettings.Name = "bttnChooseEffectSettings";
+            this.bttnChooseEffectSettings.UseVisualStyleBackColor = true;
+            this.bttnChooseEffectSettings.Click += new EventHandler(this.BttnChooseEffectSettings_Click);
+            this.bttnChooseEffectSettings.MouseEnter += new EventHandler(this.BttnChooseEffectSettings_MouseEnter);
+            // 
             // chkbxColorizeBrush
             // 
             resources.ApplyResources(this.chkbxColorizeBrush, "chkbxColorizeBrush");
@@ -3821,6 +3867,7 @@ namespace DynamicDraw
             // 
             resources.ApplyResources(this.panelSpecialSettings, "panelSpecialSettings");
             this.panelSpecialSettings.BackColor = System.Drawing.SystemColors.Control;
+            this.panelSpecialSettings.Controls.Add(this.panelChosenEffect);
             this.panelSpecialSettings.Controls.Add(this.txtMinDrawDistance);
             this.panelSpecialSettings.Controls.Add(this.sliderMinDrawDistance);
             this.panelSpecialSettings.Controls.Add(this.chkbxAutomaticBrushDensity);
@@ -3835,6 +3882,25 @@ namespace DynamicDraw
             this.panelSpecialSettings.Controls.Add(this.panelRGBLocks);
             this.panelSpecialSettings.Controls.Add(this.panelHSVLocks);
             this.panelSpecialSettings.Name = "panelSpecialSettings";
+            // 
+            // panelChosenEffect
+            // 
+            this.panelChosenEffect.Controls.Add(this.cmbxChosenEffect);
+            this.panelChosenEffect.Controls.Add(this.bttnChooseEffectSettings);
+            resources.ApplyResources(this.panelChosenEffect, "panelChosenEffect");
+            this.panelChosenEffect.Name = "panelChosenEffect";
+            // 
+            // cmbxChosenEffect
+            // 
+            resources.ApplyResources(this.cmbxChosenEffect, "cmbxChosenEffect");
+            this.cmbxChosenEffect.BackColor = System.Drawing.Color.White;
+            this.cmbxChosenEffect.DropDownHeight = 140;
+            this.cmbxChosenEffect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbxChosenEffect.DropDownWidth = 20;
+            this.cmbxChosenEffect.FormattingEnabled = true;
+            this.cmbxChosenEffect.Name = "cmbxChosenEffect";
+            this.cmbxChosenEffect.MouseEnter += new EventHandler(this.CmbxChosenEffect_MouseEnter);
+            this.cmbxChosenEffect.SelectedIndexChanged += new EventHandler(this.CmbxChosenEffect_SelectedIndexChanged);
             // 
             // txtMinDrawDistance
             // 
@@ -5424,6 +5490,8 @@ namespace DynamicDraw
             ((ISupportInitialize)(this.sliderBrushSize)).EndInit();
             this.panelSpecialSettings.ResumeLayout(false);
             this.panelSpecialSettings.PerformLayout();
+            this.panelChosenEffect.ResumeLayout(false);
+            this.panelChosenEffect.PerformLayout();
             this.panelRGBLocks.ResumeLayout(false);
             this.panelRGBLocks.PerformLayout();
             this.panelHSVLocks.ResumeLayout(false);
@@ -5755,15 +5823,15 @@ namespace DynamicDraw
             if (doClamp)
             {
                 return new PointF(
-                    Utils.ClampF((float)(
-                        bmpCommitted.Width / 2 + Math.Cos(angle) * distance), 0, bmpCommitted.Width),
-                    Utils.ClampF((float)(
-                        bmpCommitted.Height / 2 + Math.Sin(angle) * distance), 0, bmpCommitted.Height));
+                    (float)Math.Clamp(
+                        bmpCommitted.Width / 2f + Math.Cos(angle) * distance, 0, bmpCommitted.Width),
+                    (float)Math.Clamp(
+                        bmpCommitted.Height / 2f + Math.Sin(angle) * distance, 0, bmpCommitted.Height));
             }
 
             return new PointF(
-                (float)(bmpCommitted.Width / 2 + Math.Cos(angle) * distance),
-                (float)(bmpCommitted.Height / 2 + Math.Sin(angle) * distance));
+                (float)(bmpCommitted.Width / 2f + Math.Cos(angle) * distance),
+                (float)(bmpCommitted.Height / 2f + Math.Sin(angle) * distance));
         }
 
         /// <summary>
@@ -5823,6 +5891,7 @@ namespace DynamicDraw
             sliderShiftFlow.Value = settings.FlowChange;
             sliderShiftSize.Value = settings.SizeChange;
             sliderShiftRotation.Value = settings.RotChange;
+            cmbxChosenEffect.SelectedIndex = settings.CmbxChosenEffect;
             cmbxTabPressureBrushDensity.SelectedIndex = settings.CmbxTabPressureBrushDensity;
             cmbxTabPressureBrushFlow.SelectedIndex = settings.CmbxTabPressureBrushFlow;
             cmbxTabPressureBrushOpacity.SelectedIndex = settings.CmbxTabPressureBrushOpacity;
@@ -5922,7 +5991,7 @@ namespace DynamicDraw
                 return;
             }
 
-            int finalBrushFlow = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushFlow.Value,
+            int finalBrushFlow = Math.Clamp(Utils.GetStrengthMappedValue(sliderBrushFlow.Value,
                 (int)spinTabPressureBrushFlow.Value,
                 sliderBrushFlow.Maximum,
                 tabletPressureRatio,
@@ -5958,6 +6027,7 @@ namespace DynamicDraw
             if (bmpBrushDownsized != null || bmpBrush != null)
             {
                 //Applies the color and alpha changes.
+                bmpBrushEffects?.Dispose();
                 bmpBrushEffects = Utils.FormatImage(bmpBrushDownsized ?? bmpBrush, PixelFormat.Format32bppPArgb);
 
                 // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
@@ -6099,7 +6169,7 @@ namespace DynamicDraw
                 zoom *= Math.Sign(mouseWheelDetents);
 
                 //Updates the corresponding slider as well (within its range).
-                sliderCanvasZoom.Value = Utils.Clamp(
+                sliderCanvasZoom.Value = Math.Clamp(
                 sliderCanvasZoom.Value + zoom,
                 sliderCanvasZoom.Minimum,
                 sliderCanvasZoom.Maximum);
@@ -6138,8 +6208,8 @@ namespace DynamicDraw
                     displayCanvas.ClientSize.Height / 2f - canvas.y);
 
             // Clamp the zooming point at the edges of the canvas.
-            zoomingPoint.X = Utils.ClampF(zoomingPoint.X, 0, canvas.width);
-            zoomingPoint.Y = Utils.ClampF(zoomingPoint.Y, 0, canvas.height);
+            zoomingPoint.X = Math.Clamp(zoomingPoint.X, 0, canvas.width);
+            zoomingPoint.Y = Math.Clamp(zoomingPoint.Y, 0, canvas.height);
 
             int zoomX = (int)(canvas.x + zoomingPoint.X -
                 zoomingPoint.X * zoomWidth / canvas.width);
@@ -6235,8 +6305,9 @@ namespace DynamicDraw
                                         //Pads the image to be square if needed, makes fully
                                         //opaque images use intensity for alpha, and draws the
                                         //altered loaded bitmap to the brush image.
-                                        Utils.OverwriteBits(Utils.MakeBitmapSquare(
-                                            Utils.MakeTransparent(scaledBrushImage ?? item.Image)), brushImage);
+                                        using Bitmap newBmp = Utils.MakeTransparent(scaledBrushImage ?? item.Image);
+                                        using Bitmap newBmp2 = Utils.MakeBitmapSquare(newBmp);
+                                        Utils.OverwriteBits(newBmp2, brushImage);
 
                                         if (scaledBrushImage != null)
                                         {
@@ -6301,8 +6372,9 @@ namespace DynamicDraw
                                 //Pads the image to be square if needed, makes fully
                                 //opaque images use intensity for alpha, and draws the
                                 //altered loaded bitmap to the brush.
-                                Utils.OverwriteBits(Utils.MakeBitmapSquare(
-                                    Utils.MakeTransparent(scaledBrush ?? bmp)), brushImage);
+                                using Bitmap newBmp = Utils.MakeTransparent(scaledBrush ?? bmp);
+                                using Bitmap newBmp2 = Utils.MakeBitmapSquare(newBmp);
+                                Utils.OverwriteBits(newBmp2, brushImage);
 
                                 if (scaledBrush != null)
                                 {
@@ -6579,7 +6651,7 @@ namespace DynamicDraw
 
             else if (isUserDrawing.started)
             {
-                finalMinDrawDistance = Utils.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
+                finalMinDrawDistance = Math.Clamp(Utils.GetStrengthMappedValue(sliderMinDrawDistance.Value,
                     (int)spinTabPressureMinDrawDistance.Value,
                     sliderMinDrawDistance.Maximum,
                     tabletPressureRatio,
@@ -6607,7 +6679,7 @@ namespace DynamicDraw
 
                 if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
                 {
-                    int finalBrushDensity = Utils.Clamp(Utils.GetStrengthMappedValue(sliderBrushDensity.Value,
+                    int finalBrushDensity = Math.Clamp(Utils.GetStrengthMappedValue(sliderBrushDensity.Value,
                         (int)spinTabPressureBrushDensity.Value,
                         sliderBrushDensity.Maximum,
                         tabletPressureRatio,
@@ -6712,7 +6784,7 @@ namespace DynamicDraw
             if (isUserDrawing.stagedChanged)
             {
                 Utils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
-                    new Rectangle(0, 0, bmpCommitted.Width, bmpCommitted.Height),
+                    bmpCommitted.GetBounds(),
                     (BlendMode)cmbxBlendMode.SelectedIndex,
                     (chkbxLockAlpha.Checked,
                     chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
@@ -6809,7 +6881,7 @@ namespace DynamicDraw
             {
                 for (int i = mergeRegions.Count - 1; i >= 0; i--)
                 {
-                    Rectangle rect = Rectangle.Intersect(new Rectangle(0, 0, bmpCommitted.Width, bmpCommitted.Height), mergeRegions[i]);
+                    Rectangle rect = Rectangle.Intersect(bmpCommitted.GetBounds(), mergeRegions[i]);
                     mergeRegions.RemoveAt(i);
 
                     if (rect.Width > 0 && rect.Height > 0)
@@ -6825,7 +6897,9 @@ namespace DynamicDraw
             }
 
             //Draws only the visible portion of the image.
-            Bitmap bmpToDraw = isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
+            Bitmap bmpToDraw = 
+                effectToDraw.effect != null ? bmpStaged :
+                isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
 
             if (sliderCanvasAngle.Value == 0)
             {
@@ -6844,10 +6918,11 @@ namespace DynamicDraw
             }
 
             //Draws the selection.
-            var selection = EnvironmentParameters.GetSelectionAsPdnRegion();
-            long area = selection.GetArea64();
+            PdnRegion selection = EnvironmentParameters.GetSelectionAsPdnRegion();
+            Region selectionRegion = selection?.GetRegionReadOnly();
 
-            if (selection?.GetRegionReadOnly() != null)
+            long area = selection.GetArea64();
+            if (selectionRegion != null)
             {
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
@@ -6866,9 +6941,9 @@ namespace DynamicDraw
                 e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
 
                 //Creates the inverted region of the selection.
-                var drawingArea = new Region(new Rectangle
+                using var drawingArea = new Region(new Rectangle
                     (0, 0, EnvironmentParameters.SourceSurface.Width, EnvironmentParameters.SourceSurface.Height));
-                drawingArea.Exclude(selection.GetRegionReadOnly());
+                drawingArea.Exclude(selectionRegion);
 
                 //Draws the region as a darkening over unselected pixels.
                 e.Graphics.FillRegion(
@@ -6879,7 +6954,7 @@ namespace DynamicDraw
                 {
                     e.Graphics.FillRegion(
                         SystemBrushes.Highlight,
-                        selectionOutline.GetRegionReadOnly());
+                        selectionRegion);
                 }
             }
 
@@ -7045,7 +7120,7 @@ namespace DynamicDraw
             mouseEvent.Handled = true;
 
             // Stopping the mouse wheel event prevents scrolling the parent container too. This does it manually.
-            scroll.Value = Utils.Clamp(scroll.Value - mouseEvent.Delta, scroll.Minimum, scroll.Maximum);
+            scroll.Value = Math.Clamp(scroll.Value - mouseEvent.Delta, scroll.Minimum, scroll.Maximum);
             panelDockSettingsContainer.PerformLayout(); // visually update scrollbar since it won't always.
         }
 
@@ -7206,6 +7281,65 @@ namespace DynamicDraw
             UpdateTooltip(Strings.AddBrushImagesTip);
         }
 
+        private void StageEffect()
+        {
+            if (effectToDraw.effect == null)
+            {
+                return;
+            }
+
+            // Runs the effect.
+            using Surface fromStagedSurf = Surface.CopyFromBitmap(bmpStaged);
+            using Surface fromCommittedSurf = Surface.CopyFromBitmap(bmpCommitted);
+            using RenderArgs fromStaged = new RenderArgs(fromStagedSurf);
+            using RenderArgs fromCommitted = new RenderArgs(fromCommittedSurf);
+
+            effectToDraw.effect.Render(
+                effectToDraw.settings,
+                fromStaged,
+                fromCommitted,
+                Utils.GetRois(bmpCommitted.Width, bmpCommitted.Height));
+
+            Utils.OverwriteBits(fromStagedSurf, bmpStaged);
+        }
+
+        /// <summary>
+        /// Displays a dialog allowing the user to edit effect settings.
+        /// </summary>
+        private void BttnChooseEffectSettings_Click(object sender, EventArgs e)
+        {
+            var effect = effectOptions[cmbxChosenEffect.SelectedIndex];
+
+            if (effectToDraw.effect != null && effectToDraw.settings != null)
+            {
+                using EffectConfigDialog dialog = effectToDraw.effect.CreateConfigDialog();
+                using Timer repaintTimer = new Timer() { Interval = 100, Enabled = false };
+                dialog.EffectToken = effectToDraw.settings;
+
+                dialog.EffectTokenChanged += (a, b) =>
+                {
+                    repaintTimer.Stop();
+                    repaintTimer.Start();
+                };
+                repaintTimer.Tick += (a, b) =>
+                {
+                    repaintTimer.Stop();
+                    StageEffect();
+                };
+
+                var dlgResult = dialog.ShowDialog();
+                if (dlgResult == DialogResult.OK || dlgResult == DialogResult.Yes || dlgResult == DialogResult.Continue)
+                {
+                    StageEffect();
+                }
+            }
+        }
+
+        private void BttnChooseEffectSettings_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ChooseEffectSettingsTip);
+        }
+
         private void BttnBlendMode_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.BlendModeTip);
@@ -7239,6 +7373,29 @@ namespace DynamicDraw
         private void BttnBrushColor_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.BrushColorTip);
+        }
+
+        private void CmbxChosenEffect_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ChosenEffectTip);
+        }
+
+        private void CmbxChosenEffect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var effect = effectOptions[cmbxChosenEffect.SelectedIndex];
+            if (effect.Item2 == null)
+            {
+                effectToDraw = new(null, null);
+            }
+            else
+            {
+                using Effect effectInstance = effect.Item2.CreateInstance();
+                using EffectConfigDialog dialog = effectInstance.CreateConfigDialog();
+                effectToDraw = new(effectInstance, dialog?.EffectToken);
+            }
+
+            Utils.ColorImage(bmpStaged, ColorBgra.Black, 0f);
+            StageEffect();
         }
 
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
@@ -7502,6 +7659,7 @@ namespace DynamicDraw
                     SizeChange = sliderShiftSize.Value,
                     Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
                     Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
+                    CmbxChosenEffect = cmbxChosenEffect.SelectedIndex,
                     CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex,
                     CmbxTabPressureBrushFlow = cmbxTabPressureBrushFlow.SelectedIndex,
                     CmbxTabPressureBrushOpacity = cmbxTabPressureBrushOpacity.SelectedIndex,

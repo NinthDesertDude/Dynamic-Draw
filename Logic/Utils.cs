@@ -1,5 +1,4 @@
-﻿using DynamicDraw.Gui;
-using PaintDotNet;
+﻿using PaintDotNet;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,41 +13,51 @@ namespace DynamicDraw
     /// </summary>
     static class Utils
     {
-        #region Methods
+        #region Utility bitmap operations
         /// <summary>
-        /// If the given value is out of range, it's clamped to the nearest
-        /// bound (low or high). Example: 104 in range 0 - 100 becomes 100.
+        /// Edits alpha to be 0 or a set maximum for all pixels in the given image.
         /// </summary>
-        public static int Clamp(int value, int low, int high)
+        /// <param name="bmp">
+        /// The affected image.
+        /// </param>
+        /// <param name="maxAlpha">
+        /// The maximum alpha (usually 255, but can be lower for when alpha is pre-applied to an image).
+        /// </param>
+        public static unsafe void AliasImage(Bitmap bmp, byte maxAlpha)
         {
-            if (value < low)
-            {
-                value = low;
-            }
-            else if (value > high)
-            {
-                value = high;
-            }
+            BitmapData bmpData = bmp.LockBits(
+                bmp.GetBounds(),
+                ImageLockMode.ReadOnly,
+                bmp.PixelFormat);
 
-            return value;
-        }
+            byte* row = (byte*)bmpData.Scan0;
+            byte halfAlpha = (byte)(maxAlpha / 2);
 
-        /// <summary>
-        /// If the given value is out of range, it's clamped to the nearest
-        /// bound (low or high). Example: -0.1 in range 0 - 1 becomes 0.
-        /// </summary>
-        public static float ClampF(float value, float low, float high)
-        {
-            if (value < low)
+            Rectangle[] rois = GetRois(bmp.Width, bmp.Height);
+            Parallel.For(0, rois.Length, (i, loopState) =>
             {
-                value = low;
-            }
-            else if (value > high)
-            {
-                value = high;
-            }
+                Rectangle roi = rois[i];
 
-            return value;
+                ColorBgra pixel;
+                ColorBgra unmultipliedPixel;
+
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                {
+                    ColorBgra* dstPtr = (ColorBgra*)(row + (y * bmpData.Stride) + (roi.X * 4));
+
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
+                    {
+                        unmultipliedPixel = dstPtr->ConvertFromPremultipliedAlpha();
+                        unmultipliedPixel.A = (byte)(unmultipliedPixel.A >= halfAlpha ? maxAlpha : 0);
+                        pixel = unmultipliedPixel.ConvertToPremultipliedAlpha();
+
+                        *dstPtr = pixel;
+                        dstPtr++;
+                    }
+                }
+            });
+
+            bmp.UnlockBits(bmpData);
         }
 
         /// <summary>
@@ -62,206 +71,51 @@ namespace DynamicDraw
         public static unsafe void ColorImage(Bitmap img, Color? col, float alpha)
         {
             BitmapData bmpData = img.LockBits(
-                new Rectangle(0, 0,
-                    img.Width,
-                    img.Height),
+                img.GetBounds(),
                 ImageLockMode.ReadOnly,
                 img.PixelFormat);
 
             byte* row = (byte*)bmpData.Scan0;
             Color color = col ?? default;
-            ColorBgra pixel;
 
-            for (int y = 0; y < img.Height; y++)
+            Rectangle[] rois = GetRois(img.Width, img.Height);
+            //Rectangle[] rois = new Rectangle[] { img.GetBounds() };
+            Parallel.For(0, rois.Length, (i, loopState) =>
             {
-                for (int x = 0; x < img.Width; x++)
+                Rectangle roi = rois[i];
+                ColorBgra pixel;
+
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                 {
-                    int ptr = y * bmpData.Stride + x * 4;
+                    ColorBgra* dstPtr = (ColorBgra*)(row + (y * bmpData.Stride) + (roi.X * 4));
 
-                    if (col != null)
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
                     {
-                        pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(row[ptr + 3] * alpha)).ConvertToPremultipliedAlpha();
-                    }
-                    else
-                    {
-                        ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
-                        unmultipliedPixel.A = (byte)(unmultipliedPixel.A * alpha);
-                        pixel = unmultipliedPixel.ConvertToPremultipliedAlpha();
-                    }
-
-                    row[ptr + 3] = pixel.A;
-                    row[ptr + 2] = pixel.R;
-                    row[ptr + 1] = pixel.G;
-                    row[ptr] = pixel.B;
-                }
-            }
-
-            img.UnlockBits(bmpData);
-        }
-
-        /// <summary>
-        /// Edits alpha to be 0 or a set maximum for all pixels in the given image.
-        /// </summary>
-        /// <param name="img">
-        /// The affected image.
-        /// </param>
-        /// <param name="maxAlpha">
-        /// The maximum alpha (usually 255, but can be lower for when alpha is pre-applied to an image).
-        /// </param>
-        public static unsafe void AliasImage(Bitmap img, byte maxAlpha)
-        {
-            BitmapData bmpData = img.LockBits(
-                new Rectangle(0, 0,
-                    img.Width,
-                    img.Height),
-                ImageLockMode.ReadOnly,
-                img.PixelFormat);
-
-            byte* row = (byte*)bmpData.Scan0;
-            byte halfAlpha = (byte)(maxAlpha / 2);
-            ColorBgra pixel;
-
-            for (int y = 0; y < img.Height; y++)
-            {
-                for (int x = 0; x < img.Width; x++)
-                {
-                    int ptr = y * bmpData.Stride + x * 4;
-
-                    ColorBgra unmultipliedPixel = ColorBgra.FromBgra(row[ptr], row[ptr + 1], row[ptr + 2], row[ptr + 3]).ConvertFromPremultipliedAlpha();
-                    unmultipliedPixel.A = (byte)(unmultipliedPixel.A >= halfAlpha ? maxAlpha : 0);
-                    pixel = unmultipliedPixel.ConvertToPremultipliedAlpha();
-
-                    row[ptr + 3] = pixel.A;
-                    row[ptr + 2] = pixel.R;
-                    row[ptr + 1] = pixel.G;
-                    row[ptr] = pixel.B;
-                }
-            }
-
-            img.UnlockBits(bmpData);
-        }
-
-        /// <summary>
-        /// Returns an ImageAttributes object containing info to set the
-        /// RGB channels and multiply alpha. All values should be decimals
-        /// between 0 and 1, inclusive.
-        /// </summary>
-        public static ImageAttributes ColorImageAttr(
-            float r,
-            float g,
-            float b,
-            float a)
-        {
-            //Creates an RGBAw matrix to multiply all the color channels by.
-            //The last channel should be [0,0,0,0,1] to function properly.
-            float[][] matrixAlpha =
-            {
-                new float[] {0, 0, 0, 0, 0},
-                new float[] {0, 0, 0, 0, 0},
-                new float[] {0, 0, 0, 0, 0},
-                new float[] {0, 0, 0, a, 0},
-                new float[] {r, g, b, 0, 1}
-            };
-
-            //Sets up an image attributes object.
-            ImageAttributes recolorSettings = new ImageAttributes();
-            recolorSettings.SetColorMatrix(
-                new ColorMatrix(matrixAlpha),
-                ColorMatrixFlag.Default,
-                ColorAdjustType.Bitmap);
-
-            return recolorSettings;
-        }
-
-        /// <summary>
-        /// Strictly copies all data from one bitmap over the other. They
-        /// must have the same size and pixel format. Returns success.
-        /// </summary>
-        /// <param name="srcImg">
-        /// The image to copy from.
-        /// </param>
-        /// <param name="dstImg">
-        /// The image to be overwritten.
-        /// </param>
-        public static unsafe void OverwriteBits(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
-        {
-            if (srcImg == null || dstImg == null)
-            {
-                return;
-            }
-
-            //Formats and size must be the same.
-            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
-                dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
-                srcImg.Width != dstImg.Width ||
-                srcImg.Height != dstImg.Height)
-            {
-                return;
-            }
-
-            BitmapData srcData = srcImg.LockBits(
-                new Rectangle(0, 0,
-                    srcImg.Width,
-                    srcImg.Height),
-                ImageLockMode.ReadOnly,
-                srcImg.PixelFormat);
-
-            BitmapData destData = dstImg.LockBits(
-                new Rectangle(0, 0,
-                    dstImg.Width,
-                    dstImg.Height),
-                ImageLockMode.WriteOnly,
-                dstImg.PixelFormat);
-
-            bool premultiplySrc = srcImg.PixelFormat == PixelFormat.Format32bppArgb;
-
-            //Copies each pixel.
-            byte* srcRow = (byte*)srcData.Scan0;
-            byte* dstRow = (byte*)destData.Scan0;
-            float alphaFactor;
-            for (int y = 0; y < srcImg.Height; y++)
-            {
-                ColorBgra* src = (ColorBgra*)(srcRow + (y * srcData.Stride));
-                ColorBgra* dst = (ColorBgra*)(dstRow + (y * destData.Stride));
-
-                for (int x = 0; x < srcImg.Width; x++)
-                {
-                    alphaFactor = src->A / 255f;
-
-                    if (alphaOnly)
-                    {
-                        dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
-                        dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
-                        dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
-                        dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
-                        dst->A = src->A;
-                    }
-                    else
-                    {
-                        if (premultiplySrc)
+                        if (col != null)
                         {
-                            dst->B = (byte)Math.Ceiling(src->B * alphaFactor);
-                            dst->G = (byte)Math.Ceiling(src->G * alphaFactor);
-                            dst->R = (byte)Math.Ceiling(src->R * alphaFactor);
-                            dst->A = src->A;
+                            pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(dstPtr->A * alpha)).ConvertToPremultipliedAlpha();
                         }
                         else
                         {
-                            dst->Bgra = src->Bgra;
+                            ColorBgra unmultipliedPixel = dstPtr->ConvertFromPremultipliedAlpha();
+                            pixel = ColorBgra.FromBgra(
+                                (byte)Math.Ceiling(unmultipliedPixel.B * alpha),
+                                (byte)Math.Ceiling(unmultipliedPixel.G * alpha),
+                                (byte)Math.Ceiling(unmultipliedPixel.R * alpha),
+                                (byte)(unmultipliedPixel.A * alpha));
                         }
+
+                        *dstPtr = pixel;
+                        dstPtr++;
                     }
-
-                    src++;
-                    dst++;
                 }
-            }
+            });
 
-            srcImg.UnlockBits(srcData);
-            dstImg.UnlockBits(destData);
+            img.UnlockBits(bmpData);
         }
 
         /// <summary>
-        /// Create a GDI+ bitmap from the specified Paint.NET surface.
+        /// Returns a new GDI+ bitmap from the specified Paint.Net surface.
         /// </summary>
         /// <param name="surface">The surface.</param>
         /// <returns>The created bitmap.</returns>
@@ -270,7 +124,7 @@ namespace DynamicDraw
             Bitmap image = new Bitmap(surface.Width, surface.Height, PixelFormat.Format32bppPArgb);
 
             BitmapData bitmapData = image.LockBits(
-                new Rectangle(0, 0, image.Width, image.Height),
+                image.GetBounds(),
                 ImageLockMode.WriteOnly,
                 image.PixelFormat);
 
@@ -296,6 +150,384 @@ namespace DynamicDraw
             image.UnlockBits(bitmapData);
 
             return image;
+        }
+
+        /// <summary>
+        /// Returns a new bitmap that resembles the original, but in the given format.
+        /// </summary>
+        public static Bitmap FormatImage(Bitmap img, PixelFormat format)
+        {
+            Bitmap clone = new Bitmap(img.Width, img.Height, format);
+            using (Graphics gr = Graphics.FromImage(clone))
+            {
+                gr.PixelOffsetMode = PixelOffsetMode.Half;
+                gr.SmoothingMode = SmoothingMode.None;
+                gr.DrawImage(img, 0, 0, img.Width, img.Height);
+            }
+
+            return clone;
+        }
+
+        /// <summary>
+        /// Returns a new bitmap that's padded to be square.
+        /// </summary>
+        /// <param name="img">
+        /// The image to pad. The original is untouched.
+        /// </param>
+        public static Bitmap MakeBitmapSquare(Bitmap img)
+        {
+            //Exits if it's already square.
+            if (img.Width == img.Height)
+            {
+                return new Bitmap(img);
+            }
+
+            //Creates a new bitmap with the minimum square size.
+            int size = Math.Max(img.Height, img.Width);
+            Bitmap newImg = new Bitmap(size, size, PixelFormat.Format32bppPArgb);
+
+            using (Graphics graphics = Graphics.FromImage(newImg))
+            {
+                graphics.SmoothingMode = SmoothingMode.None;
+                graphics.PixelOffsetMode = PixelOffsetMode.None;
+
+                graphics.DrawImage(img,
+                    (size - img.Width) / 2f,
+                    (size - img.Height) / 2f,
+                    img.Width, img.Height);
+            }
+
+            return newImg;
+        }
+
+        /// <summary>
+        /// Overwrites the alpha channel of the image using each pixel's
+        /// brightness after testing to see the alpha is always opaque.
+        /// </summary>
+        /// <param name="img">
+        /// The affected image.
+        /// </param>
+        /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
+        public static unsafe Bitmap MakeTransparent(Bitmap img)
+        {
+            Bitmap image = FormatImage(img, PixelFormat.Format32bppPArgb);
+
+            BitmapData bmpData = image.LockBits(
+                image.GetBounds(),
+                ImageLockMode.ReadWrite,
+                image.PixelFormat);
+
+            //The top left pixel's address, from which the rest can be found.
+            byte* row = (byte*)bmpData.Scan0;
+
+            //Iterates through each pixel and tests if the image is
+            //transparent. A transparent image won't be converted.
+            bool isTransparent = false;
+
+            Rectangle[] rois = GetRois(image.Width, image.Height);
+            Parallel.For(0, rois.Length, (i, loopState) =>
+            {
+                Rectangle roi = rois[i];
+
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                {
+                    ColorBgra* dstPtr = (ColorBgra*)(row + (y * bmpData.Stride) + (roi.X * 4));
+
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
+                    {
+                        if (dstPtr->A != 255)
+                        {
+                            isTransparent = true;
+                            loopState.Stop();
+                            return;
+                        }
+
+                        dstPtr++;
+                    }
+                }
+            });
+
+            if (isTransparent)
+            {
+                image.UnlockBits(bmpData);
+                return img;
+            }
+
+            //Iterates through each pixel to apply the change.
+            Parallel.For(0, rois.Length, (i, loopState) =>
+            {
+                Rectangle roi = rois[i];
+
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                {
+                    ColorBgra* dst = (ColorBgra*)(row + (y * bmpData.Stride) + (roi.X * 4));
+
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
+                    {
+                        byte newAlpha = (byte)Math.Ceiling((dst->R + dst->G + dst->B) / 3d);
+                        float alphaFactor = newAlpha / 255f;
+
+                        //Sets the alpha channel based on its intensity.
+                        dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
+                        dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
+                        dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
+                        dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
+                        dst->A = newAlpha;
+
+                        dst++;
+                    }
+                }
+            });
+
+            image.UnlockBits(bmpData);
+            return image;
+        }
+
+        /// <summary>
+        /// Returns a copy of the image, rotated about its center.
+        /// </summary>
+        /// <param name="origBmp">
+        /// The image to clone and change.
+        /// </param>
+        /// <param name="angle">
+        /// The angle in degrees; positive or negative.
+        /// </param>
+        /// <param name="maxAliasedAlpha">
+        /// If provided, aliasing will be manually performed by snapping all alpha values to 0 or the specified value,
+        /// based on whether they're more/less transparent than half the given max.
+        /// </param>
+        public static Bitmap RotateImage(Bitmap origBmp, float angle, byte? maxAliasedAlpha = null)
+        {
+            //Places the angle in the range 0 <= x < 360.
+            while (angle < 0)
+            {
+                angle += 360;
+            }
+            while (angle >= 360)
+            {
+                angle -= 360;
+            }
+
+            //Calculates the new bounds of the image with trigonometry.
+            double radAngle = angle * Math.PI / 180;
+            double cos = Math.Abs(Math.Cos(radAngle));
+            double sin = Math.Abs(Math.Sin(radAngle));
+            int newWidth = (int)Math.Ceiling(origBmp.Width * cos + origBmp.Height * sin);
+            int newHeight = (int)Math.Ceiling(origBmp.Width * sin + origBmp.Height * cos);
+
+            //Creates the new image and a graphic canvas to draw the rotation.
+            Bitmap newBmp = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppPArgb);
+            using (Graphics g = Graphics.FromImage(newBmp))
+            {
+                g.PixelOffsetMode = PixelOffsetMode.Half;
+
+                //Uses matrices to centrally-rotate the original image.
+                g.TranslateTransform(
+                    (newWidth - origBmp.Width) / 2f,
+                    (newHeight - origBmp.Height) / 2f);
+
+                g.TranslateTransform(
+                    origBmp.Width / 2f,
+                    origBmp.Height / 2f);
+
+                g.RotateTransform(angle);
+
+                //Undoes the transform.
+                g.TranslateTransform(-origBmp.Width / 2f, -origBmp.Height / 2f);
+
+                //Draws the image.
+                g.DrawImage(origBmp, 0, 0, origBmp.Width, origBmp.Height);
+            }
+
+            // Manual aliasing after transform, since there's no way to turn off rotation anti-aliasing in GDI+
+            if (maxAliasedAlpha != null)
+            {
+                AliasImage(newBmp, maxAliasedAlpha.Value);
+            }
+
+            return newBmp;
+        }
+
+        /// <summary>
+        /// Creates a new bitmap copy of the image, scaled to the given size, optionally flipped and with color info.
+        /// </summary>
+        /// <param name="origBmp">The image to clone and scale.</param>
+        /// <param name="newSize">The new width and height of the image.</param>
+        /// <param name="flipX">Whether to flip the image horizontally.</param>
+        /// <param name="flipY">Whether to flip the image vertically.</param>
+        /// <param name="attr">If supplied, the recolor matrix will also be applied.</param>
+        /// <param name="smoothing">If supplied, the smoothing to be used.</param>
+        public static Bitmap ScaleImage(
+            Bitmap origBmp,
+            Size newSize,
+            bool flipX = false,
+            bool flipY = false,
+            ImageAttributes attr = null,
+            CmbxSmoothing.Smoothing smoothing = CmbxSmoothing.Smoothing.Normal)
+        {
+            //Creates the new image and a graphic canvas to draw the rotation.
+            Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
+            using (Graphics g = Graphics.FromImage(newBmp))
+            {
+                g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[smoothing];
+                g.PixelOffsetMode = PixelOffsetMode.Half;
+
+                if (attr != null)
+                {
+                    g.DrawImage(
+                        origBmp,
+                        new Rectangle(
+                        flipX ? newSize.Width : 0,
+                        flipY ? newSize.Height : 0,
+                        flipX ? -newSize.Width : newSize.Width,
+                        flipY ? -newSize.Height : newSize.Height),
+                        0, 0, origBmp.Width, origBmp.Height, GraphicsUnit.Pixel, attr);
+                }
+                else
+                {
+                    g.DrawImage(
+                        origBmp,
+                        flipX ? newSize.Width : 0,
+                        flipY ? newSize.Height : 0,
+                        flipX ? -newSize.Width : newSize.Width,
+                        flipY ? -newSize.Height : newSize.Height);
+                }
+
+                return newBmp;
+            }
+        }
+        #endregion
+
+        #region Drawing methods
+        /// <summary>
+        /// Strictly copies all data from one bitmap over the other. They
+        /// must have the same size and pixel format.
+        /// </summary>
+        /// <param name="srcImg">
+        /// The image to copy from.
+        /// </param>
+        /// <param name="dstImg">
+        /// The image to be overwritten.
+        /// </param>
+        public static unsafe void OverwriteBits(Bitmap srcImg, Bitmap dstImg, bool alphaOnly = false)
+        {
+            if (srcImg == null || dstImg == null)
+            {
+                return;
+            }
+
+            //Formats and size must be the same.
+            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
+                dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
+                srcImg.Width != dstImg.Width ||
+                srcImg.Height != dstImg.Height)
+            {
+                return;
+            }
+
+            BitmapData srcData = srcImg.LockBits(
+                srcImg.GetBounds(),
+                ImageLockMode.ReadOnly,
+                srcImg.PixelFormat);
+
+            BitmapData destData = dstImg.LockBits(
+                dstImg.GetBounds(),
+                ImageLockMode.WriteOnly,
+                dstImg.PixelFormat);
+
+            bool premultiplySrc = srcImg.PixelFormat == PixelFormat.Format32bppArgb;
+
+            //Copies each pixel.
+            byte* srcRow = (byte*)srcData.Scan0;
+            byte* dstRow = (byte*)destData.Scan0;
+            float alphaFactor;
+
+            Rectangle[] rois = GetRois(srcImg.Width, srcImg.Height);
+            Parallel.For(0, rois.Length, (i, loopState) =>
+            {
+                Rectangle roi = rois[i];
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                {
+                    ColorBgra* src = (ColorBgra*)(srcRow + (y * srcData.Stride) + (roi.X * 4));
+                    ColorBgra* dst = (ColorBgra*)(dstRow + (y * destData.Stride) + (roi.X * 4));
+
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
+                    {
+                        alphaFactor = src->A / 255f;
+
+                        if (alphaOnly)
+                        {
+                            dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
+                            dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
+                            dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
+                            dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
+                            dst->A = src->A;
+                        }
+                        else
+                        {
+                            if (premultiplySrc)
+                            {
+                                dst->B = (byte)Math.Ceiling(src->B * alphaFactor);
+                                dst->G = (byte)Math.Ceiling(src->G * alphaFactor);
+                                dst->R = (byte)Math.Ceiling(src->R * alphaFactor);
+                                dst->A = src->A;
+                            }
+                            else
+                            {
+                                dst->Bgra = src->Bgra;
+                            }
+                        }
+
+                        src++;
+                        dst++;
+                    }
+                }
+            });
+
+            srcImg.UnlockBits(srcData);
+            dstImg.UnlockBits(destData);
+        }
+
+        /// <summary>
+        /// Overwrites the surface to the given bitmap without creating an intermediate bitmap. They
+        /// must have the same size and both be premultiplied ARGB.
+        /// </summary>
+        /// <param name="surface">The surface contains the source bitmap. It will be drawn to dest.</param>
+        /// <param name="dest">The bitmap to overwrite.</param>
+        public static unsafe void OverwriteBits(Surface surface, Bitmap dest)
+        {
+            if (surface.Width != dest.Width || surface.Height != dest.Height)
+            {
+                return;
+            }
+
+            BitmapData destData = dest.LockBits(
+                dest.GetBounds(),
+                ImageLockMode.ReadWrite,
+                dest.PixelFormat);
+
+            byte* destRow = (byte*)destData.Scan0;
+            byte* srcRow = (byte*)surface.Scan0.Pointer;
+
+            Rectangle[] rois = GetRois(dest.Width, dest.Height);
+            Parallel.For(0, rois.Length, (i, loopState) =>
+            {
+                Rectangle roi = rois[i];
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                {
+                    ColorBgra* srcPtr = (ColorBgra*)(srcRow + (y * surface.Stride) + (roi.X * 4));
+                    ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride) + (roi.X * 4));
+
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
+                    {
+                        *destPtr = *srcPtr;
+                        destPtr++;
+                        srcPtr++;
+                    }
+                }
+            });
+
+            dest.UnlockBits(destData);
         }
 
         /// <summary>
@@ -342,14 +574,12 @@ namespace DynamicDraw
                 adjHeight);
 
             BitmapData destData = dest.LockBits(
-                new Rectangle(0, 0, dest.Width, dest.Height),
+                dest.GetBounds(),
                 ImageLockMode.ReadWrite,
                 dest.PixelFormat);
 
             BitmapData alphaMaskData = alphaMask.LockBits(
-                new Rectangle(0, 0,
-                alphaMask.Width,
-                alphaMask.Height),
+                alphaMask.GetBounds(),
                 ImageLockMode.ReadOnly,
                 alphaMask.PixelFormat);
 
@@ -358,76 +588,83 @@ namespace DynamicDraw
             byte* srcRow = (byte*)surface.Scan0.Pointer;
             float alphaFactor;
 
-            ColorBgra destCol;
-            ColorBgra newColor = default;
-            HsvColorF srcColorHSV = default;
-            HsvColorF dstColorHSV = default;
             bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
 
             void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
-                for (int y = 0; y < destHeight; y++)
+                Rectangle[] rois = GetRois(destWidth, destHeight);
+                Parallel.For(0, rois.Length, (i, loopState) =>
                 {
-                    int x = 0;
-                    ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + brushXOffset * 4 + ((brushYOffset + y) * alphaMaskData.Stride));
-                    ColorBgra* srcPtr = (ColorBgra*)(srcRow + destXOffset * 4 + ((y + destYOffset) * surface.Stride));
-                    ColorBgra* destPtr = (ColorBgra*)(destRow + destXOffset * 4 + ((y + destYOffset) * destData.Stride));
+                    Rectangle roi = rois[i];
 
-                    // Dither align
-                    if (ditherFilter && ((destXOffset + y) % 2 != destYOffset % 2))
+                    ColorBgra destCol;
+                    ColorBgra newColor = default;
+                    HsvColorF srcColorHSV;
+                    HsvColorF dstColorHSV;
+
+                    for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                     {
-                        x++;
-                        alphaMaskPtr++;
-                        destPtr++;
-                        srcPtr++;
-                    }
+                        int x = roi.X;
+                        ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + (roi.X * 4) + (brushXOffset * 4) + ((brushYOffset + y) * alphaMaskData.Stride));
+                        ColorBgra* srcPtr = (ColorBgra*)(srcRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * surface.Stride));
+                        ColorBgra* destPtr = (ColorBgra*)(destRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * destData.Stride));
 
-                    for (; x < destWidth; x++)
-                    {
-                        destCol = destPtr->ConvertFromPremultipliedAlpha();
-
-                        // HSV conversion and channel locks
-                        if (hsvLocksInUse)
+                        // Dither align
+                        if (ditherFilter && ((roi.X + destXOffset + y) % 2 != destYOffset % 2))
                         {
-                            var srcCol = *srcPtr;
-                            dstColorHSV = HSVFFromBgra(destCol);
-                            srcColorHSV = HSVFFromBgra(srcCol);
-                            if (channelLocks.H) { srcColorHSV.Hue = dstColorHSV.Hue; }
-                            if (channelLocks.S) { srcColorHSV.Saturation = dstColorHSV.Saturation; }
-                            if (channelLocks.V) { srcColorHSV.Value = dstColorHSV.Value; }
-                            newColor = HSVFToBgra(srcColorHSV);
-                            newColor.A = srcCol.A;
-                        }
-
-                        newColor = ColorBgra.Blend(
-                            destCol,
-                            hsvLocksInUse ? newColor : *srcPtr,
-                            alphaMaskPtr->A);
-
-                        alphaFactor = newColor.A / 255f;
-
-                        // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
-                        // which avoids a rounding error seen in ConvertToPremultipliedAlpha
-                        if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
-                        if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
-                        if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
-                        destPtr->A = newColor.A;
-
-                        if (!ditherFilter)
-                        {
+                            x++;
                             alphaMaskPtr++;
                             destPtr++;
                             srcPtr++;
                         }
-                        else // dither align
+
+                        for (; x < roi.X + roi.Width; x++)
                         {
-                            x++;
-                            alphaMaskPtr += 2;
-                            destPtr += 2;
-                            srcPtr += 2;
+                            destCol = destPtr->ConvertFromPremultipliedAlpha();
+
+                            // HSV conversion and channel locks
+                            if (hsvLocksInUse)
+                            {
+                                var srcCol = *srcPtr;
+                                dstColorHSV = HSVFFromBgra(destCol);
+                                srcColorHSV = HSVFFromBgra(srcCol);
+                                if (channelLocks.H) { srcColorHSV.Hue = dstColorHSV.Hue; }
+                                if (channelLocks.S) { srcColorHSV.Saturation = dstColorHSV.Saturation; }
+                                if (channelLocks.V) { srcColorHSV.Value = dstColorHSV.Value; }
+                                newColor = HSVFToBgra(srcColorHSV);
+                                newColor.A = srcCol.A;
+                            }
+
+                            newColor = ColorBgra.Blend(
+                                destCol,
+                                hsvLocksInUse ? newColor : *srcPtr,
+                                alphaMaskPtr->A);
+
+                            alphaFactor = newColor.A / 255f;
+
+                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
+                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
+                            destPtr->A = newColor.A;
+
+                            if (!ditherFilter)
+                            {
+                                alphaMaskPtr++;
+                                destPtr++;
+                                srcPtr++;
+                            }
+                            else // dither align
+                            {
+                                x++;
+                                alphaMaskPtr += 2;
+                                destPtr += 2;
+                                srcPtr += 2;
+                            }
                         }
                     }
-                }
+                });
             }
 
             // Draw within normal bounds
@@ -512,12 +749,12 @@ namespace DynamicDraw
                 adjHeight);
 
             BitmapData destData = dest.LockBits(
-                new Rectangle(0, 0, dest.Width, dest.Height),
+                dest.GetBounds(),
                 ImageLockMode.ReadWrite,
                 dest.PixelFormat);
 
             BitmapData brushData = brush.LockBits(
-                new Rectangle(0, 0, brush.Width, brush.Height),
+                brush.GetBounds(),
                 ImageLockMode.ReadOnly,
                 brush.PixelFormat);
 
@@ -530,169 +767,177 @@ namespace DynamicDraw
 
             float minAlphaFactor = (255 - userColor.MinAlpha) / 255f;
             float userColorBlendFactor = colorInfluence != null ? colorInfluence.Value.Amount / 100f : 0;
-
-            ColorBgra newColor = default;
-            ColorBgra destCol;
-            ColorBgra intermediateBGRA = default;
-            HsvColorF intermediateHSV = default;
             bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
 
             void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
                 mergeRegionsToMark?.Add(new Rectangle(destXOffset, destYOffset, destWidth, destHeight));
-                for (int y = 0; y < destHeight; y++)
+
+                Rectangle[] rois = GetRois(destWidth, destHeight);
+                Parallel.For(0, rois.Length, (i, loopState) =>
                 {
-                    int x = 0;
-                    ColorBgra* brushPtr = (ColorBgra*)(brushRow + brushXOffset * 4 + ((brushYOffset + y) * brushData.Stride));
-                    ColorBgra* destPtr = (ColorBgra*)(destRow + destXOffset * 4 + ((y + destYOffset) * destData.Stride));
+                    Rectangle roi = rois[i];
 
-                    // Dither align
-                    if (ditherFilter && ((destXOffset + y) % 2 != destYOffset % 2))
+                    ColorBgra newColor = default;
+                    ColorBgra destCol;
+                    ColorBgra intermediateBGRA = default;
+                    HsvColorF intermediateHSV;
+                    HsvColorF intermediateHSV2;
+
+                    for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                     {
-                        x++;
-                        brushPtr++;
-                        destPtr++;
-                    }
+                        int x = roi.X;
+                        ColorBgra* brushPtr = (ColorBgra*)(brushRow + (roi.X * 4) + (brushXOffset * 4) + ((brushYOffset + y) * brushData.Stride));
+                        ColorBgra* destPtr = (ColorBgra*)(destRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * destData.Stride));
 
-                    for (; x < destWidth; x++)
-                    {
-                        // HSV shift the pixel according to the color influence when colorize brush is off
-                        // don't compute for any locked channels
-                        if (colorInfluence != null)
+                        // Dither align
+                        if (ditherFilter && ((roi.X + destXOffset + y) % 2 != destYOffset % 2))
                         {
-                            intermediateBGRA = brushPtr->ConvertFromPremultipliedAlpha();
-
-                            if (colorInfluence.Value.Amount != 0)
-                            {
-                                intermediateHSV = HSVFFromBgra(intermediateBGRA);
-
-                                if (colorInfluence.Value.H && !channelLocks.H)
-                                {
-                                    intermediateHSV.Hue +=
-                                        userColorBlendFactor * (userColorAdjHSV.Hue - intermediateHSV.Hue);
-                                }
-                                if (colorInfluence.Value.S && !channelLocks.S)
-                                {
-                                    intermediateHSV.Saturation +=
-                                        userColorBlendFactor * (userColorAdjHSV.Saturation - intermediateHSV.Saturation);
-                                }
-                                if (colorInfluence.Value.V && !channelLocks.V)
-                                {
-                                    intermediateHSV.Value +=
-                                        userColorBlendFactor * (userColorAdjHSV.Value - intermediateHSV.Value);
-                                }
-
-                                if (colorInfluence.Value.Amount != 0)
-                                {
-                                    byte alpha = intermediateBGRA.A;
-                                    intermediateBGRA = HSVFToBgra(intermediateHSV);
-                                    intermediateBGRA.A = alpha;
-                                }
-                            }
-                        }
-
-                        // Perform a blend mode op on the pixel, specially handling overwrite mode. Blend modes beyond
-                        // normal blending are all handled by the merge image function.
-                        if (blendMode == BlendMode.Overwrite)
-                        {
-                            destCol = destPtr->ConvertFromPremultipliedAlpha();
-
-                            // HSV conversion and channel locks
-                            if (hsvLocksInUse)
-                            {
-                                intermediateHSV = HSVFFromBgra(destCol);
-                                userColorAdjHSV = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
-                                if (channelLocks.H) { userColorAdjHSV.Hue = intermediateHSV.Hue; }
-                                if (channelLocks.S) { userColorAdjHSV.Saturation = intermediateHSV.Saturation; }
-                                if (channelLocks.V) { userColorAdjHSV.Value = intermediateHSV.Value; }
-                                newColor = HSVFToBgra(userColorAdjHSV);
-                            }
-
-                            newColor = ColorBgra.Blend(
-                                destCol,
-                                hsvLocksInUse
-                                    ? newColor
-                                    : colorInfluence == null ? userColorAdj : intermediateBGRA,
-                                brushPtr->A);
-
-                            alphaFactor = (!channelLocks.A)
-                                ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
-                                : destCol.A / 255f;
-
-                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
-                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
-                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
-                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
-                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
-                            if (!channelLocks.A) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
-                        }
-                        else
-                        {
-                            destCol = destPtr->ConvertFromPremultipliedAlpha();
-
-                            // HSV conversion and channel locks
-                            if (hsvLocksInUse)
-                            {
-                                intermediateHSV = HSVFFromBgra(destCol);
-                                userColorAdjHSV = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
-                                if (channelLocks.H) { userColorAdjHSV.Hue = intermediateHSV.Hue; }
-                                if (channelLocks.S) { userColorAdjHSV.Saturation = intermediateHSV.Saturation; }
-                                if (channelLocks.V) { userColorAdjHSV.Value = intermediateHSV.Value; }
-                                newColor = HSVFToBgra(userColorAdjHSV);
-                            }
-
-                            // Brush flow
-                            byte strength = colorInfluence == null
-                                ? brushPtr->A
-                                : (byte)Math.Round(brushPtr->A * minAlphaFactor);
-
-                            newColor = ColorBgra.Blend(
-                                destCol,
-                                hsvLocksInUse
-                                    ? colorInfluence == null
-                                        ? newColor.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
-                                        : newColor.NewAlpha((byte)Math.Clamp(intermediateBGRA.A + destPtr->A, 0, 255))
-                                    : colorInfluence == null
-                                        ? userColorAdj.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
-                                        : intermediateBGRA.NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
-                                strength);
-
-                            // Brush opacity. Limits the alpha to max or dst, in case the max alpha
-                            // is lowered & the user draws over pixels made in the same brush stroke.
-                            // The need to read dst means this mode requires dst to be a staging
-                            // layer i.e. transparent at start of brush stroke.
-                            if (userColor.MaxAlpha != 255)
-                            {
-                                newColor.A = Math.Min(
-                                    newColor.A,
-                                    Math.Max(userColor.MaxAlpha, destCol.A));
-                            }
-
-                            alphaFactor = (!channelLocks.A)
-                                ? newColor.A / 255f
-                                : destPtr->A / 255f;
-
-                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
-                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
-                            if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
-                            if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
-                            if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
-                            if (!channelLocks.A) { destPtr->A = newColor.A; }
-                        }
-
-                        if (!ditherFilter)
-                        {
+                            x++;
                             brushPtr++;
                             destPtr++;
                         }
-                        else // dither align
+
+                        for (; x < roi.X + roi.Width; x++)
                         {
-                            x++;
-                            brushPtr += 2;
-                            destPtr += 2;
+                            // HSV shift the pixel according to the color influence when colorize brush is off
+                            // don't compute for any locked channels
+                            if (colorInfluence != null)
+                            {
+                                intermediateBGRA = brushPtr->ConvertFromPremultipliedAlpha();
+
+                                if (colorInfluence.Value.Amount != 0)
+                                {
+                                    intermediateHSV = HSVFFromBgra(intermediateBGRA);
+
+                                    if (colorInfluence.Value.H && !channelLocks.H)
+                                    {
+                                        intermediateHSV.Hue +=
+                                            userColorBlendFactor * (userColorAdjHSV.Hue - intermediateHSV.Hue);
+                                    }
+                                    if (colorInfluence.Value.S && !channelLocks.S)
+                                    {
+                                        intermediateHSV.Saturation +=
+                                            userColorBlendFactor * (userColorAdjHSV.Saturation - intermediateHSV.Saturation);
+                                    }
+                                    if (colorInfluence.Value.V && !channelLocks.V)
+                                    {
+                                        intermediateHSV.Value +=
+                                            userColorBlendFactor * (userColorAdjHSV.Value - intermediateHSV.Value);
+                                    }
+
+                                    if (colorInfluence.Value.Amount != 0)
+                                    {
+                                        byte alpha = intermediateBGRA.A;
+                                        intermediateBGRA = HSVFToBgra(intermediateHSV);
+                                        intermediateBGRA.A = alpha;
+                                    }
+                                }
+                            }
+
+                            // Perform a blend mode op on the pixel, specially handling overwrite mode. Blend modes beyond
+                            // normal blending are all handled by the merge image function.
+                            if (blendMode == BlendMode.Overwrite)
+                            {
+                                destCol = destPtr->ConvertFromPremultipliedAlpha();
+
+                                // HSV conversion and channel locks
+                                if (hsvLocksInUse)
+                                {
+                                    intermediateHSV = HSVFFromBgra(destCol);
+                                    intermediateHSV2 = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
+                                    if (channelLocks.H) { intermediateHSV2.Hue = intermediateHSV.Hue; }
+                                    if (channelLocks.S) { intermediateHSV2.Saturation = intermediateHSV.Saturation; }
+                                    if (channelLocks.V) { intermediateHSV2.Value = intermediateHSV.Value; }
+                                    newColor = HSVFToBgra(userColorAdjHSV);
+                                }
+
+                                newColor = ColorBgra.Blend(
+                                    destCol,
+                                    hsvLocksInUse
+                                        ? newColor
+                                        : colorInfluence == null ? userColorAdj : intermediateBGRA,
+                                    brushPtr->A);
+
+                                alphaFactor = (!channelLocks.A)
+                                    ? (destCol.A + brushPtr->A / 255f * (userColorAdj.A - destCol.A)) / 255f
+                                    : destCol.A / 255f;
+
+                                // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                                // which avoids a rounding error seen in ConvertToPremultipliedAlpha
+                                if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                                if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                                if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
+                                if (!channelLocks.A) { destPtr->A = (byte)Math.Ceiling(alphaFactor * 255); }
+                            }
+                            else
+                            {
+                                destCol = destPtr->ConvertFromPremultipliedAlpha();
+
+                                // HSV conversion and channel locks
+                                if (hsvLocksInUse)
+                                {
+                                    intermediateHSV = HSVFFromBgra(destCol);
+                                    intermediateHSV2 = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
+                                    if (channelLocks.H) { intermediateHSV2.Hue = intermediateHSV.Hue; }
+                                    if (channelLocks.S) { intermediateHSV2.Saturation = intermediateHSV.Saturation; }
+                                    if (channelLocks.V) { intermediateHSV2.Value = intermediateHSV.Value; }
+                                    newColor = HSVFToBgra(intermediateHSV2);
+                                }
+
+                                // Brush flow
+                                byte strength = colorInfluence == null
+                                    ? brushPtr->A
+                                    : (byte)Math.Round(brushPtr->A * minAlphaFactor);
+
+                                newColor = ColorBgra.Blend(
+                                    destCol,
+                                    hsvLocksInUse
+                                        ? colorInfluence == null
+                                            ? newColor.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
+                                            : newColor.NewAlpha((byte)Math.Clamp(intermediateBGRA.A + destPtr->A, 0, 255))
+                                        : colorInfluence == null
+                                            ? userColorAdj.NewAlpha((byte)Math.Clamp(userColorAdj.A + destPtr->A, 0, 255))
+                                            : intermediateBGRA.NewAlpha((byte)Math.Clamp(brushPtr->A + destPtr->A, 0, 255)),
+                                    strength);
+
+                                // Brush opacity. Limits the alpha to max or dst, in case the max alpha
+                                // is lowered & the user draws over pixels made in the same brush stroke.
+                                // The need to read dst means this mode requires dst to be a staging
+                                // layer i.e. transparent at start of brush stroke.
+                                if (userColor.MaxAlpha != 255)
+                                {
+                                    newColor.A = Math.Min(
+                                        newColor.A,
+                                        Math.Max(userColor.MaxAlpha, destCol.A));
+                                }
+
+                                alphaFactor = (!channelLocks.A)
+                                    ? newColor.A / 255f
+                                    : destPtr->A / 255f;
+
+                                // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                                // which avoids a rounding error seen in ConvertToPremultipliedAlpha
+                                if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(newColor.B * alphaFactor); }
+                                if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(newColor.G * alphaFactor); }
+                                if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(newColor.R * alphaFactor); }
+                                if (!channelLocks.A) { destPtr->A = newColor.A; }
+                            }
+
+                            if (!ditherFilter)
+                            {
+                                brushPtr++;
+                                destPtr++;
+                            }
+                            else // dither align
+                            {
+                                x++;
+                                brushPtr += 2;
+                                destPtr += 2;
+                            }
                         }
                     }
-                }
+                });
             }
 
             // Draw within normal bounds
@@ -767,65 +1012,69 @@ namespace DynamicDraw
                 ImageLockMode.ReadOnly,
                 committed.PixelFormat);
 
+            byte* destRow = (byte*)destData.Scan0;
+            byte* stagedRow = (byte*)stagedData.Scan0;
+            byte* committedRow = (byte*)committedData.Scan0;
+
+            bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
+
             Type blendType = blendMode != BlendMode.Normal ? BlendModeUtils.BlendModeToUserBlendOp(blendMode) : null;
             UserBlendOp userBlendOp = blendType != null ? UserBlendOps.CreateBlendOp(blendType) : null;
 
-            // Basic multithreading for speed.
-            Parallel.For(0, regionToAffect.Height, (i, loopState) =>
+            Rectangle[] rois = GetRois(regionToAffect.Width, regionToAffect.Height);
+            Parallel.For(0, rois.Length, (i, loopState) =>
             {
-                byte* destRow = (byte*)destData.Scan0;
-                byte* stagedRow = (byte*)stagedData.Scan0;
-                byte* committedRow = (byte*)committedData.Scan0;
-
-                ColorBgra* stagedPtr = (ColorBgra*)(stagedRow + (i * stagedData.Stride));
-                ColorBgra* committedPtr = (ColorBgra*)(committedRow + (i * committedData.Stride));
-                ColorBgra* destPtr = (ColorBgra*)(destRow + (i * destData.Stride));
-
-                ColorBgra final;
-                float finalAlpha;
-
-                HsvColorF mergedHSV, dstHSV;
-                bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
-
-                for (int x = 0; x < regionToAffect.Width; x++)
+                Rectangle roi = rois[i];
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                 {
-                    if (userBlendOp == null)
+                    ColorBgra* stagedPtr = (ColorBgra*)(stagedRow + (roi.X * 4) + (y * stagedData.Stride));
+                    ColorBgra* committedPtr = (ColorBgra*)(committedRow + (roi.X * 4) + (y * committedData.Stride));
+                    ColorBgra* destPtr = (ColorBgra*)(destRow + (roi.X * 4) + (y * destData.Stride));
+
+                    ColorBgra final;
+                    float finalAlpha;
+                    HsvColorF mergedHSV, dstHSV;
+                    
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
                     {
-                        final = ColorBgra.Blend(
-                            committedPtr->ConvertFromPremultipliedAlpha(),
-                            stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(stagedPtr->A + committedPtr->A, 0, 255)),
-                            stagedPtr->A);
+                        if (userBlendOp == null)
+                        {
+                            final = ColorBgra.Blend(
+                                committedPtr->ConvertFromPremultipliedAlpha(),
+                                stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(stagedPtr->A + committedPtr->A, 0, 255)),
+                                stagedPtr->A);
+                        }
+                        else
+                        {
+                            final = userBlendOp.Apply(
+                                committedPtr->ConvertFromPremultipliedAlpha(),
+                                stagedPtr->ConvertFromPremultipliedAlpha());
+                        }
+
+                        // HSV conversion and channel locks
+                        if (hsvLocksInUse)
+                        {
+                            dstHSV = HSVFFromBgra(destPtr->ConvertFromPremultipliedAlpha());
+                            mergedHSV = HSVFFromBgra(final);
+                            if (channelLocks.H) { mergedHSV.Hue = dstHSV.Hue; }
+                            if (channelLocks.S) { mergedHSV.Saturation = dstHSV.Saturation; }
+                            if (channelLocks.V) { mergedHSV.Value = dstHSV.Value; }
+                            final = HSVFToBgra(mergedHSV);
+                        }
+
+                        finalAlpha = final.A / 255f;
+
+                        // Overwrite values. Premultiply by hand to use Ceiling(), which avoids a
+                        // rounding error seen in ConvertToPremultipliedAlpha
+                        if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(final.B * finalAlpha); }
+                        if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(final.G * finalAlpha); }
+                        if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(final.R * finalAlpha); }
+                        if (!channelLocks.A) { destPtr->A = final.A; }
+
+                        stagedPtr++;
+                        committedPtr++;
+                        destPtr++;
                     }
-                    else
-                    {
-                        final = userBlendOp.Apply(
-                            committedPtr->ConvertFromPremultipliedAlpha(),
-                            stagedPtr->ConvertFromPremultipliedAlpha());
-                    }
-
-                    // HSV conversion and channel locks
-                    if (hsvLocksInUse)
-                    {
-                        dstHSV = HSVFFromBgra(destPtr->ConvertFromPremultipliedAlpha());
-                        mergedHSV = HSVFFromBgra(final);
-                        if (channelLocks.H) { mergedHSV.Hue = dstHSV.Hue; }
-                        if (channelLocks.S) { mergedHSV.Saturation = dstHSV.Saturation; }
-                        if (channelLocks.V) { mergedHSV.Value = dstHSV.Value; }
-                        final = HSVFToBgra(mergedHSV);
-                    }
-
-                    finalAlpha = final.A / 255f;
-
-                    // Overwrite values. Premultiply by hand to use Ceiling(), which avoids a
-                    // rounding error seen in ConvertToPremultipliedAlpha
-                    if (!channelLocks.B) { destPtr->B = (byte)Math.Ceiling(final.B * finalAlpha); }
-                    if (!channelLocks.G) { destPtr->G = (byte)Math.Ceiling(final.G * finalAlpha); }
-                    if (!channelLocks.R) { destPtr->R = (byte)Math.Ceiling(final.R * finalAlpha); }
-                    if (!channelLocks.A) { destPtr->A = final.A; }
-
-                    stagedPtr++;
-                    committedPtr++;
-                    destPtr++;
                 }
             });
 
@@ -833,21 +1082,51 @@ namespace DynamicDraw
             if (staged != dest) { staged.UnlockBits(stagedData); }
             if (committed != dest) { committed.UnlockBits(committedData); }
         }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Returns an ImageAttributes object containing info to set the
+        /// RGB channels and multiply alpha. All values should be decimals
+        /// between 0 and 1, inclusive.
+        /// </summary>
+        public static ImageAttributes ColorImageAttr(float r, float g, float b, float a)
+        {
+            //Creates an RGBAw matrix to multiply all the color channels by.
+            //The last channel should be [0,0,0,0,1] to function properly.
+            float[][] matrixAlpha =
+            {
+                new float[] {0, 0, 0, 0, 0},
+                new float[] {0, 0, 0, 0, 0},
+                new float[] {0, 0, 0, 0, 0},
+                new float[] {0, 0, 0, a, 0},
+                new float[] {r, g, b, 0, 1}
+            };
+
+            //Sets up an image attributes object.
+            ImageAttributes recolorSettings = new ImageAttributes();
+            recolorSettings.SetColorMatrix(
+                new ColorMatrix(matrixAlpha),
+                ColorMatrixFlag.Default,
+                ColorAdjustType.Bitmap);
+
+            return recolorSettings;
+        }
 
         /// <summary>
-        /// Returns the original bitmap data in another format by drawing it.
+        /// Computes the new brush size ratio given the dimensions and desired
+        /// size of the longest dimension.
         /// </summary>
-        public static Bitmap FormatImage(Bitmap img, PixelFormat format)
+        public static Size ComputeBrushSize(int origWidth, int origHeight, int maxDimensionSize)
         {
-            Bitmap clone = new Bitmap(img.Width, img.Height, format);
-            using (Graphics gr = Graphics.FromImage(clone))
+            if (origWidth == 0 || origHeight == 0)
             {
-                gr.PixelOffsetMode = PixelOffsetMode.Half;
-                gr.SmoothingMode = SmoothingMode.None;
-                gr.DrawImage(img, 0, 0, img.Width, img.Height);
+                return new Size(1, 1);
             }
 
-            return clone;
+            double scaleRatio = Math.Min((double)maxDimensionSize / origWidth, (double)maxDimensionSize / origHeight);
+
+            return new Size((int)Math.Round(origWidth * scaleRatio), (int)Math.Round(origHeight * scaleRatio));
         }
 
         /// <summary>
@@ -868,11 +1147,11 @@ namespace DynamicDraw
             RectangleF bounds,
             float scalingMultiplier)
         {
-            GraphicsPath path = new GraphicsPath();
-            PdnRegion newRegion = region.Clone();
+            using GraphicsPath path = new GraphicsPath();
+            using PdnRegion newRegion = region.Clone();
 
             //The size to scale the region by.
-            Matrix scalematrix = new Matrix(
+            using Matrix scalematrix = new Matrix(
                 bounds,
                 new PointF[]{
                     new PointF(bounds.Left, bounds.Top),
@@ -896,237 +1175,49 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Overwrites the alpha channel of the image using each pixel's
-        /// brightness after testing to see the alpha is always opaque.
+        /// Convenience extension method for bitmaps to return pixel-based bounds info as a rectangle.
         /// </summary>
-        /// <param name="img">
-        /// The affected image.
-        /// </param>
-        /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
-        public static unsafe Bitmap MakeTransparent(Bitmap img)
+        public static Rectangle GetBounds(this Bitmap bmp)
         {
-            Bitmap image = FormatImage(img, PixelFormat.Format32bppPArgb);
-
-            BitmapData bmpData = image.LockBits(
-                new Rectangle(0, 0,
-                    image.Width,
-                    image.Height),
-                ImageLockMode.ReadWrite,
-                image.PixelFormat);
-
-            //The top left pixel's address, from which the rest can be found.
-            byte* row = (byte*)bmpData.Scan0;
-
-            //Iterates through each pixel and tests if the image is
-            //transparent. A transparent image won't be converted.
-            for (int y = 0; y < image.Height; y++)
-            {
-                for (int x = 0; x < image.Width; x++)
-                {
-                    int pos = y * bmpData.Stride + x * 4;
-                    if (row[pos + 3] != 255)
-                    {
-                        //Exits if the image is transparent.
-                        image.UnlockBits(bmpData);
-                        return img;
-                    }
-                }
-            }
-
-            //Iterates through each pixel to apply the change.
-            ColorBgra temp;
-            for (int y = 0; y < image.Height; y++)
-            {
-                ColorBgra* dst = (ColorBgra*)(row + (y * bmpData.Stride));
-
-                for (int x = 0; x < image.Width; x++)
-                {
-                    int pos = y * bmpData.Stride + x * 4;
-
-                    temp = dst->ConvertFromPremultipliedAlpha();
-                    byte newAlpha = (byte)Math.Ceiling((dst->R + dst->G + dst->B) / 3d);
-                    float alphaFactor = newAlpha / 255f;
-
-                    //Sets the alpha channel based on its intensity.
-                    dst->Bgra = temp.Bgra;
-                    dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
-                    dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
-                    dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
-                    dst->A = newAlpha;
-
-                    dst++;
-                }
-            }
-
-            image.UnlockBits(bmpData);
-            return image;
+            return new Rectangle(0, 0, bmp.Width, bmp.Height);
         }
 
         /// <summary>
-        /// Pads the given bitmap to be square.
+        /// Separates the rectangle defined by width and height into squares of the given size.
+        /// The square size is determined by the original bounds given. The remainder is added
+        /// afterwards as 2 separate rectangles. This is used for parallel rendering.
         /// </summary>
-        /// <param name="img">
-        /// The image to pad. The original is untouched.
-        /// </param>
-        public static Bitmap MakeBitmapSquare(Bitmap img)
+        public static Rectangle[] GetRois(int width, int height)
         {
-            //Exits if it's already square.
-            if (img.Width == img.Height)
+            List<Rectangle> rois = new List<Rectangle>();
+            int squareSize;
+
+            if (width >= 384 && height >= 384) { squareSize = 128; } // 9+ chunks
+            else if (width >= 128 && height >= 128) { squareSize = 64; } // 9-36 chunks
+            else if (width >= 48 && height >= 48) { squareSize = 32; } // 3-16 chunks
+            else
             {
-                return new Bitmap(img);
+                // not worth parallelizing regions < 48x48, so return whole rect.
+                return new Rectangle[] { new Rectangle(0, 0, width, height) };
             }
 
-            //Creates a new bitmap with the minimum square size.
-            int size = Math.Max(img.Height, img.Width);
-            Bitmap newImg = new Bitmap(size, size, PixelFormat.Format32bppPArgb);
+            int chunksX = width / squareSize;
+            int chunksY = height / squareSize;
+            int chunkXRem = width % squareSize;
+            int chunkYRem = height % squareSize;
 
-            using (Graphics graphics = Graphics.FromImage(newImg))
+            for (int y = 0; y < chunksY; y++)
             {
-                graphics.SmoothingMode = SmoothingMode.None;
-                graphics.PixelOffsetMode = PixelOffsetMode.None;
-
-                graphics.DrawImage(img,
-                    (size - img.Width) / 2f,
-                    (size - img.Height) / 2f,
-                    img.Width, img.Height);
-            }
-
-            return newImg;
-        }
-
-        /// <summary>
-        /// Returns a copy of the image, rotated about its center.
-        /// </summary>
-        /// <param name="origBmp">
-        /// The image to clone and change.
-        /// </param>
-        /// <param name="angle">
-        /// The angle in degrees; positive or negative.
-        /// </param>
-        /// <param name="maxAliasedAlpha">
-        /// If provided, aliasing will be manually performed by snapping all alpha values to 0 or the specified value,
-        /// based on whether they're more/less transparent than half the given max.
-        /// </param>
-        public static Bitmap RotateImage(Bitmap origBmp, float angle, byte? maxAliasedAlpha = null)
-        {
-            //Performs nothing if there is no need.
-            if (angle == 0 && maxAliasedAlpha == null)
-            {
-                return origBmp;
-            }
-
-            //Places the angle in the range 0 <= x < 360.
-            while (angle < 0)
-            {
-                angle += 360;
-            }
-            while (angle >= 360)
-            {
-                angle -= 360;
-            }
-
-            //Calculates the new bounds of the image with trigonometry.
-            double radAngle = angle * Math.PI / 180;
-            double cos = Math.Abs(Math.Cos(radAngle));
-            double sin = Math.Abs(Math.Sin(radAngle));
-            int newWidth = (int)Math.Ceiling(origBmp.Width * cos + origBmp.Height * sin);
-            int newHeight = (int)Math.Ceiling(origBmp.Width * sin + origBmp.Height * cos);
-
-            //Creates the new image and a graphic canvas to draw the rotation.
-            Bitmap newBmp = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppPArgb);
-            using (Graphics g = Graphics.FromImage(newBmp))
-            {
-                g.PixelOffsetMode = PixelOffsetMode.Half;
-
-                //Uses matrices to centrally-rotate the original image.
-                g.TranslateTransform(
-                    (newWidth - origBmp.Width) / 2f,
-                    (newHeight - origBmp.Height) / 2f);
-
-                g.TranslateTransform(
-                    origBmp.Width / 2f,
-                    origBmp.Height / 2f);
-
-                g.RotateTransform(angle);
-
-                //Undoes the transform.
-                g.TranslateTransform(-origBmp.Width / 2f, -origBmp.Height / 2f);
-
-                //Draws the image.
-                g.DrawImage(origBmp, 0, 0, origBmp.Width, origBmp.Height);
-            }
-
-            // Manual aliasing after transform, since there's no way to turn off rotation anti-aliasing in GDI+
-            if (maxAliasedAlpha != null)
-            {
-                AliasImage(newBmp, maxAliasedAlpha.Value);
-            }
-
-            return newBmp;
-        }
-
-        /// <summary>
-        /// Computes the new brush size ratio given the dimensions and desired
-        /// size of the longest dimension.
-        /// </summary>
-        public static Size ComputeBrushSize(int origWidth, int origHeight, int maxDimensionSize)
-        {
-            if (origWidth == 0 || origHeight == 0)
-            {
-                return new Size(1, 1);
-            }
-
-            double scaleRatio = Math.Min((double)maxDimensionSize / origWidth, (double)maxDimensionSize / origHeight);
-
-            return new Size((int)Math.Round(origWidth * scaleRatio), (int)Math.Round(origHeight * scaleRatio));
-        }
-
-        /// <summary>
-        /// Returns a copy of the image scaled to the given size, optionally flipped and with color information applied.
-        /// </summary>
-        /// <param name="origBmp">The image to clone and scale.</param>
-        /// <param name="newSize">The new width and height of the image.</param>
-        /// <param name="flipX">Whether to flip the image horizontally.</param>
-        /// <param name="flipY">Whether to flip the image vertically.</param>
-        /// <param name="attr">If supplied, the recolor matrix will also be applied.</param>
-        public static Bitmap ScaleImage(
-            Bitmap origBmp,
-            Size newSize,
-            bool flipX = false,
-            bool flipY = false,
-            ImageAttributes attr = null,
-            CmbxSmoothing.Smoothing smoothing = CmbxSmoothing.Smoothing.Normal)
-        {
-            //Creates the new image and a graphic canvas to draw the rotation.
-            Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
-            using (Graphics g = Graphics.FromImage(newBmp))
-            {
-                g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[smoothing];
-                g.PixelOffsetMode = PixelOffsetMode.Half;
-
-                if (attr != null)
+                for (int x = 0; x < chunksX; x++)
                 {
-                    g.DrawImage(
-                        origBmp,
-                        new Rectangle(
-                        flipX ? newSize.Width : 0,
-                        flipY ? newSize.Height : 0,
-                        flipX ? -newSize.Width : newSize.Width,
-                        flipY ? -newSize.Height : newSize.Height),
-                        0, 0, origBmp.Width, origBmp.Height, GraphicsUnit.Pixel, attr);
+                    rois.Add(new Rectangle(x * squareSize, y * squareSize, squareSize, squareSize));
                 }
-                else
-                {
-                    g.DrawImage(
-                        origBmp,
-                        flipX ? newSize.Width : 0,
-                        flipY ? newSize.Height : 0,
-                        flipX ? -newSize.Width : newSize.Width,
-                        flipY ? -newSize.Height : newSize.Height);
-                }
-
-                return newBmp;
             }
+
+            if (chunkYRem > 0) { rois.Add(new Rectangle(0, chunksY * squareSize, width, chunkYRem)); }
+            if (chunkXRem > 0) { rois.Add(new Rectangle(chunksX * squareSize, 0, chunkXRem, height - chunkYRem)); }
+
+            return rois.ToArray();
         }
 
         /// <summary>
@@ -1162,9 +1253,7 @@ namespace DynamicDraw
 
             return settingValue;
         }
-        #endregion
 
-        #region Extension Methods
         /// <summary>
         /// Lossless conversion from BGRA to HSV. Regular, non-float HSV conversion is lossy across the colorspace.
         /// </summary>
