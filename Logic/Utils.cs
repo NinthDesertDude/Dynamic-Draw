@@ -13,9 +13,14 @@ namespace DynamicDraw
     /// </summary>
     static class Utils
     {
+        /// <summary>
+        /// Caches ROIs for fast lookup since it's constantly used.
+        /// </summary>
+        private static Dictionary<(int, int), Rectangle[]> cachedRois = new Dictionary<(int, int), Rectangle[]>();
+
         #region Utility bitmap operations
         /// <summary>
-        /// Edits alpha to be 0 or a set maximum for all pixels in the given image.
+        /// Caps alpha to a max value, rounding everything below half maxAlpha to 0.
         /// </summary>
         /// <param name="bmp">
         /// The affected image.
@@ -37,8 +42,6 @@ namespace DynamicDraw
             Parallel.For(0, rois.Length, (i, loopState) =>
             {
                 Rectangle roi = rois[i];
-
-                ColorBgra pixel;
                 ColorBgra unmultipliedPixel;
 
                 for (int y = roi.Y; y < roi.Y + roi.Height; y++)
@@ -49,15 +52,85 @@ namespace DynamicDraw
                     {
                         unmultipliedPixel = dstPtr->ConvertFromPremultipliedAlpha();
                         unmultipliedPixel.A = (byte)(unmultipliedPixel.A >= halfAlpha ? maxAlpha : 0);
-                        pixel = unmultipliedPixel.ConvertToPremultipliedAlpha();
 
-                        *dstPtr = pixel;
+                        float alphaFactor = unmultipliedPixel.A / 255f;
+
+                        *dstPtr = ColorBgra.FromBgra(
+                            (byte)Math.Ceiling(unmultipliedPixel.B * alphaFactor),
+                            (byte)Math.Ceiling(unmultipliedPixel.G * alphaFactor),
+                            (byte)Math.Ceiling(unmultipliedPixel.R * alphaFactor),
+                            unmultipliedPixel.A);
+
                         dstPtr++;
                     }
                 }
             });
 
             bmp.UnlockBits(bmpData);
+        }
+
+        /// <summary>
+        /// Creates a modified copy of the given bitmap with the alpha capped to a max value, rounding everything below
+        /// half maxAlpha to 0.
+        /// </summary>
+        /// <param name="bmp">
+        /// The affected image.
+        /// </param>
+        /// <param name="maxAlpha">
+        /// The maximum alpha (usually 255, but can be lower for when alpha is pre-applied to an image).
+        /// </param>
+        public static unsafe Bitmap AliasImageCopy(Bitmap bmp, byte maxAlpha)
+        {
+            Bitmap newBmp = new Bitmap(bmp.Width, bmp.Height, bmp.PixelFormat);
+
+            BitmapData bmpData = bmp.LockBits(
+                bmp.GetBounds(),
+                ImageLockMode.ReadOnly,
+                bmp.PixelFormat);
+
+            BitmapData newBmpData = newBmp.LockBits(
+                newBmp.GetBounds(),
+                ImageLockMode.WriteOnly,
+                newBmp.PixelFormat);
+
+            byte* srcRow = (byte*)bmpData.Scan0;
+            byte* dstRow = (byte*)newBmpData.Scan0;
+            byte halfAlpha = (byte)(maxAlpha / 2);
+
+            Rectangle[] rois = GetRois(bmp.Width, bmp.Height);
+            Parallel.For(0, rois.Length, (i, loopState) =>
+            {
+                Rectangle roi = rois[i];
+                ColorBgra unmultipliedPixel;
+
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                {
+                    ColorBgra* srcPtr = (ColorBgra*)(srcRow + (y * bmpData.Stride) + (roi.X * 4));
+                    ColorBgra* dstPtr = (ColorBgra*)(dstRow + (y * bmpData.Stride) + (roi.X * 4));
+
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
+                    {
+                        unmultipliedPixel = srcPtr->ConvertFromPremultipliedAlpha();
+                        unmultipliedPixel.A = (byte)(unmultipliedPixel.A >= halfAlpha ? maxAlpha : 0);
+
+                        float alphaFactor = unmultipliedPixel.A / 255f;
+
+                        *dstPtr = ColorBgra.FromBgra(
+                            (byte)Math.Ceiling(unmultipliedPixel.B * alphaFactor),
+                            (byte)Math.Ceiling(unmultipliedPixel.G * alphaFactor),
+                            (byte)Math.Ceiling(unmultipliedPixel.R * alphaFactor),
+                            unmultipliedPixel.A);
+
+                        srcPtr++;
+                        dstPtr++;
+                    }
+                }
+            });
+
+            bmp.UnlockBits(bmpData);
+            newBmp.UnlockBits(newBmpData);
+
+            return newBmp;
         }
 
         /// <summary>
@@ -79,11 +152,11 @@ namespace DynamicDraw
             Color color = col ?? default;
 
             Rectangle[] rois = GetRois(img.Width, img.Height);
-            //Rectangle[] rois = new Rectangle[] { img.GetBounds() };
             Parallel.For(0, rois.Length, (i, loopState) =>
             {
                 Rectangle roi = rois[i];
                 ColorBgra pixel;
+                ColorBgra unmultipliedPixel;
 
                 for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                 {
@@ -97,7 +170,7 @@ namespace DynamicDraw
                         }
                         else
                         {
-                            ColorBgra unmultipliedPixel = dstPtr->ConvertFromPremultipliedAlpha();
+                            unmultipliedPixel = dstPtr->ConvertFromPremultipliedAlpha();
                             pixel = ColorBgra.FromBgra(
                                 (byte)Math.Ceiling(unmultipliedPixel.B * alpha),
                                 (byte)Math.Ceiling(unmultipliedPixel.G * alpha),
@@ -269,6 +342,9 @@ namespace DynamicDraw
 
                         //Sets the alpha channel based on its intensity.
                         dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
+
+                        // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                        // which avoids a rounding error seen in ConvertToPremultipliedAlpha
                         dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
                         dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
                         dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
@@ -342,7 +418,7 @@ namespace DynamicDraw
             // Manual aliasing after transform, since there's no way to turn off rotation anti-aliasing in GDI+
             if (maxAliasedAlpha != null)
             {
-                AliasImage(newBmp, maxAliasedAlpha.Value);
+                AliasImage(newBmp, maxAliasedAlpha ?? byte.MaxValue);
             }
 
             return newBmp;
@@ -458,6 +534,9 @@ namespace DynamicDraw
                         if (alphaOnly)
                         {
                             dst->Bgra = dst->ConvertFromPremultipliedAlpha().Bgra;
+
+                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
                             dst->B = (byte)Math.Ceiling(dst->B * alphaFactor);
                             dst->G = (byte)Math.Ceiling(dst->G * alphaFactor);
                             dst->R = (byte)Math.Ceiling(dst->R * alphaFactor);
@@ -467,6 +546,8 @@ namespace DynamicDraw
                         {
                             if (premultiplySrc)
                             {
+                                // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                                // which avoids a rounding error seen in ConvertToPremultipliedAlpha
                                 dst->B = (byte)Math.Ceiling(src->B * alphaFactor);
                                 dst->G = (byte)Math.Ceiling(src->G * alphaFactor);
                                 dst->R = (byte)Math.Ceiling(src->R * alphaFactor);
@@ -760,7 +841,6 @@ namespace DynamicDraw
 
             byte* destRow = (byte*)destData.Scan0;
             byte* brushRow = (byte*)brushData.Scan0;
-            float alphaFactor;
 
             ColorBgra userColorAdj = userColor.Color.ConvertFromPremultipliedAlpha();
             HsvColorF userColorAdjHSV = HSVFFromBgra(userColorAdj);
@@ -777,14 +857,17 @@ namespace DynamicDraw
                 Parallel.For(0, rois.Length, (i, loopState) =>
                 {
                     Rectangle roi = rois[i];
+                    int roiX2 = roi.X + roi.Width;
+                    int roiY2 = roi.Y + roi.Height;
 
+                    float alphaFactor;
                     ColorBgra newColor = default;
                     ColorBgra destCol;
                     ColorBgra intermediateBGRA = default;
                     HsvColorF intermediateHSV;
                     HsvColorF intermediateHSV2;
 
-                    for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                    for (int y = roi.Y; y < roiY2; y++)
                     {
                         int x = roi.X;
                         ColorBgra* brushPtr = (ColorBgra*)(brushRow + (roi.X * 4) + (brushXOffset * 4) + ((brushYOffset + y) * brushData.Stride));
@@ -798,7 +881,7 @@ namespace DynamicDraw
                             destPtr++;
                         }
 
-                        for (; x < roi.X + roi.Width; x++)
+                        for (; x < roiX2; x++)
                         {
                             // HSV shift the pixel according to the color influence when colorize brush is off
                             // don't compute for any locked channels
@@ -1189,6 +1272,29 @@ namespace DynamicDraw
         /// </summary>
         public static Rectangle[] GetRois(int width, int height)
         {
+            if (cachedRois.ContainsKey((width, height)))
+            {
+                return cachedRois[(width, height)];
+            }
+
+            // Don't want unlimited amounts of entries, so remove the 10 oldest at a time when needed.
+            if (cachedRois.Count == 110)
+            {
+                int i = 0;
+
+                foreach ((int, int) key in cachedRois.Keys)
+                {
+                    i++;
+
+                    cachedRois.Remove(key);
+
+                    if (i >= 10)
+                    {
+                        break;
+                    }
+                }
+            }
+
             List<Rectangle> rois = new List<Rectangle>();
             int squareSize;
 
@@ -1198,7 +1304,8 @@ namespace DynamicDraw
             else
             {
                 // not worth parallelizing regions < 48x48, so return whole rect.
-                return new Rectangle[] { new Rectangle(0, 0, width, height) };
+                cachedRois.Add((width, height), new Rectangle[] { new Rectangle(0, 0, width, height) });
+                return cachedRois[(width, height)];
             }
 
             int chunksX = width / squareSize;
@@ -1217,7 +1324,8 @@ namespace DynamicDraw
             if (chunkYRem > 0) { rois.Add(new Rectangle(0, chunksY * squareSize, width, chunkYRem)); }
             if (chunkXRem > 0) { rois.Add(new Rectangle(chunksX * squareSize, 0, chunkXRem, height - chunkYRem)); }
 
-            return rois.ToArray();
+            cachedRois.Add((width, height), rois.ToArray());
+            return cachedRois[(width, height)];
         }
 
         /// <summary>

@@ -1861,11 +1861,16 @@ namespace DynamicDraw
                 }
 
                 Bitmap bmpBrushRot = bmpBrushEffects;
-                if (rotation != 0 || (adjustedColor.A != 255 && cmbxBrushSmoothing.SelectedIndex != (int)CmbxSmoothing.Smoothing.Jagged))
+                bool isJagged = cmbxBrushSmoothing.SelectedIndex == (int)CmbxSmoothing.Smoothing.Jagged;
+                if (rotation != 0 || adjustedColor.A != 255)
                 {
-                    bmpBrushRot = cmbxBrushSmoothing.SelectedIndex != (int)CmbxSmoothing.Smoothing.Jagged
+                    bmpBrushRot = isJagged
                         ? Utils.RotateImage(bmpBrushEffects, rotation, adjustedColor.A)
                         : Utils.RotateImage(bmpBrushEffects, rotation);
+                }
+                else if (isJagged)
+                {
+                    bmpBrushRot = Utils.AliasImageCopy(bmpBrushEffects, 255);
                 }
 
                 //Rotating the brush increases image bounds, so brush space
@@ -7318,7 +7323,7 @@ namespace DynamicDraw
 
                 dialog.EffectTokenChanged += (a, b) =>
                 {
-                    repaintTimer.Stop();
+                    repaintTimer.Stop(); // resets
                     repaintTimer.Start();
                 };
                 repaintTimer.Tick += (a, b) =>
@@ -7385,13 +7390,31 @@ namespace DynamicDraw
             var effect = effectOptions[cmbxChosenEffect.SelectedIndex];
             if (effect.Item2 == null)
             {
+                bttnChooseEffectSettings.Enabled = false;
                 effectToDraw = new(null, null);
             }
             else
             {
                 using Effect effectInstance = effect.Item2.CreateInstance();
-                using EffectConfigDialog dialog = effectInstance.CreateConfigDialog();
-                effectToDraw = new(effectInstance, dialog?.EffectToken);
+
+                if (effect.Item2.Options.Flags.HasFlag(EffectFlags.Configurable))
+                {
+                    bttnChooseEffectSettings.Enabled = true;
+                    using EffectConfigDialog dialog = effectInstance.CreateConfigDialog();
+                    effectToDraw = new(effectInstance, dialog?.EffectToken);
+                }
+                else
+                {
+                    bttnChooseEffectSettings.Enabled = false;
+                    effectToDraw = new(effectInstance, null);
+                }
+            }
+
+            // Open the configuration dialog when changing the chosen effect.
+            bttnChooseEffectSettings.Enabled = effect.Item2?.Options.Flags == EffectFlags.Configurable;
+            if (bttnChooseEffectSettings.Enabled)
+            {
+                BttnChooseEffectSettings_Click(this, null);
             }
 
             Utils.ColorImage(bmpStaged, ColorBgra.Black, 0f);
