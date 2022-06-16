@@ -457,6 +457,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Alpha:.
+        /// </summary>
+        internal static string BrushFlowAlpha {
+            get {
+                return ResourceManager.GetString("BrushFlowAlpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color &quot;builds up&quot; as you draw. It&apos;s a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke..
         /// </summary>
         internal static string BrushFlowTip {
@@ -689,7 +698,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit the settings for the chosen effect..
+        ///   Looks up a localized string similar to Edit the settings for the chosen effect. When an effect is chosen, hovering here will preview the effect..
         /// </summary>
         internal static string ChooseEffectSettingsTip {
             get {
@@ -1126,6 +1135,42 @@ namespace DynamicDraw.Localization {
         internal static string DitherDrawTip {
             get {
                 return ResourceManager.GetString("DitherDrawTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No effect chosen.
+        /// </summary>
+        internal static string EffectDefaultNone {
+            get {
+                return ResourceManager.GetString("EffectDefaultNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Effect failed to work (generic error with effect)..
+        /// </summary>
+        internal static string EffectFailedExternalError {
+            get {
+                return ResourceManager.GetString("EffectFailedExternalError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Effect failed to work (couldn&apos;t start)..
+        /// </summary>
+        internal static string EffectFailedToStartError {
+            get {
+                return ResourceManager.GetString("EffectFailedToStartError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Effect failed to work (couldn&apos;t open the dialog)..
+        /// </summary>
+        internal static string EffectFailedToWorkError {
+            get {
+                return ResourceManager.GetString("EffectFailedToWorkError", resourceCulture);
             }
         }
         

@@ -156,7 +156,7 @@ namespace DynamicDraw
             {
                 Rectangle roi = rois[i];
                 ColorBgra pixel;
-                ColorBgra unmultipliedPixel;
+                float alphaFactor;
 
                 for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                 {
@@ -166,19 +166,21 @@ namespace DynamicDraw
                     {
                         if (col != null)
                         {
-                            pixel = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(dstPtr->A * alpha)).ConvertToPremultipliedAlpha();
+                            *dstPtr = ColorBgra.FromBgra(color.B, color.G, color.R, (byte)(dstPtr->A * alpha)).ConvertToPremultipliedAlpha();
                         }
                         else
                         {
-                            unmultipliedPixel = dstPtr->ConvertFromPremultipliedAlpha();
-                            pixel = ColorBgra.FromBgra(
-                                (byte)Math.Ceiling(unmultipliedPixel.B * alpha),
-                                (byte)Math.Ceiling(unmultipliedPixel.G * alpha),
-                                (byte)Math.Ceiling(unmultipliedPixel.R * alpha),
-                                (byte)(unmultipliedPixel.A * alpha));
+                            alphaFactor = (dstPtr->A / 255f) * alpha;
+                            pixel = dstPtr->ConvertFromPremultipliedAlpha();
+
+                            // Overwrite values (except for locked channels). Premultiply by hand to use Ceiling(),
+                            // which avoids a rounding error seen in ConvertToPremultipliedAlpha
+                            dstPtr->B = (byte)Math.Ceiling(pixel.B * alphaFactor);
+                            dstPtr->G = (byte)Math.Ceiling(pixel.G * alphaFactor);
+                            dstPtr->R = (byte)Math.Ceiling(pixel.R * alphaFactor);
+                            dstPtr->A = pixel.A;
                         }
 
-                        *dstPtr = pixel;
                         dstPtr++;
                     }
                 }
@@ -406,7 +408,10 @@ namespace DynamicDraw
                     origBmp.Width / 2f,
                     origBmp.Height / 2f);
 
-                g.RotateTransform(angle);
+                if (angle != 0)
+                {
+                    g.RotateTransform(angle);
+                }
 
                 //Undoes the transform.
                 g.TranslateTransform(-origBmp.Width / 2f, -origBmp.Height / 2f);
@@ -516,12 +521,13 @@ namespace DynamicDraw
             //Copies each pixel.
             byte* srcRow = (byte*)srcData.Scan0;
             byte* dstRow = (byte*)destData.Scan0;
-            float alphaFactor;
 
             Rectangle[] rois = GetRois(srcImg.Width, srcImg.Height);
             Parallel.For(0, rois.Length, (i, loopState) =>
             {
                 Rectangle roi = rois[i];
+                float alphaFactor;
+
                 for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                 {
                     ColorBgra* src = (ColorBgra*)(srcRow + (y * srcData.Stride) + (roi.X * 4));
@@ -577,7 +583,7 @@ namespace DynamicDraw
         /// <param name="dest">The bitmap to overwrite.</param>
         public static unsafe void OverwriteBits(Surface surface, Bitmap dest)
         {
-            if (surface.Width != dest.Width || surface.Height != dest.Height)
+            if (surface.Width != dest.Width || surface.Height != dest.Height || surface.Scan0 == null)
             {
                 return;
             }
@@ -614,7 +620,7 @@ namespace DynamicDraw
         /// <summary>
         /// Replaces a portion of the destination bitmap with the surface bitmap using a brush as an alpha mask.
         /// </summary>
-        /// <param name="surface">The surface contains the source bitmap. It will be drawn to dest.</param>
+        /// <param name="src">A bitmap-containing surface or a bitmap. It will be drawn to dest.</param>
         /// <param name="dest">The bitmap to edit.</param>
         /// <param name="alphaMask">The brush used to draw.</param>
         /// <param name="location">The location to draw the brush at.</param>
@@ -622,13 +628,15 @@ namespace DynamicDraw
         /// <param name="wrapAround">Whether to draw clipped brush parts to the opposite side of the canvas.</param>
         /// <param name="ditherFilter">Whether to draw only every other pixel to replicate a pixel art dither.</param>
         public static unsafe void OverwriteMasked(
-            Surface surface, Bitmap dest, Bitmap alphaMask,
+            (Surface surface, Bitmap bmp) src, Bitmap dest, Bitmap alphaMask,
             Point location,
             (bool R, bool G, bool B, bool H, bool S, bool V) channelLocks,
             bool wrapAround, bool ditherFilter)
         {
             if ((channelLocks.R && channelLocks.G && channelLocks.B) ||
-                (channelLocks.H && channelLocks.S && channelLocks.V))
+                (channelLocks.H && channelLocks.S && channelLocks.V) ||
+                (src.surface == null && src.bmp == null) ||
+                (src.surface != null && src.bmp != null))
             {
                 return;
             }
@@ -636,14 +644,16 @@ namespace DynamicDraw
             // Calculates the brush regions outside the bounding area of the surface.
             int negativeX = location.X < 0 ? -location.X : 0;
             int negativeY = location.Y < 0 ? -location.Y : 0;
-            int extraX = Math.Max(location.X + alphaMask.Width - surface.Width, 0);
-            int extraY = Math.Max(location.Y + alphaMask.Height - surface.Height, 0);
+            int extraX = Math.Max(location.X + alphaMask.Width - (src.surface?.Width ?? src.bmp.Width), 0);
+            int extraY = Math.Max(location.Y + alphaMask.Height - (src.surface?.Height ?? src.bmp.Height), 0);
 
             int adjWidth = alphaMask.Width - negativeX - extraX;
             int adjHeight = alphaMask.Height - negativeY - extraY;
 
             if (adjWidth < 1 || adjHeight < 1 ||
-                surface.Width != dest.Width || surface.Height != dest.Height)
+                (src.surface?.Width != dest.Width && src.bmp.Width != dest.Width) ||
+                (src.surface?.Height != dest.Height && src.bmp.Height != dest.Height) ||
+                (src.surface != null && src.surface.Scan0 == null))
             {
                 return;
             }
@@ -664,10 +674,14 @@ namespace DynamicDraw
                 ImageLockMode.ReadOnly,
                 alphaMask.PixelFormat);
 
+            BitmapData srcData = src.bmp?.LockBits(
+                    src.bmp.GetBounds(),
+                    ImageLockMode.ReadOnly,
+                    src.bmp.PixelFormat);
+
             byte* destRow = (byte*)destData.Scan0;
             byte* alphaMaskRow = (byte*)alphaMaskData.Scan0;
-            byte* srcRow = (byte*)surface.Scan0.Pointer;
-            float alphaFactor;
+            byte* srcRow = (byte*)(src.surface?.Scan0.Pointer ?? srcData.Scan0);
 
             bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
 
@@ -677,6 +691,7 @@ namespace DynamicDraw
                 Parallel.For(0, rois.Length, (i, loopState) =>
                 {
                     Rectangle roi = rois[i];
+                    float alphaFactor;
 
                     ColorBgra destCol;
                     ColorBgra newColor = default;
@@ -687,7 +702,7 @@ namespace DynamicDraw
                     {
                         int x = roi.X;
                         ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + (roi.X * 4) + (brushXOffset * 4) + ((brushYOffset + y) * alphaMaskData.Stride));
-                        ColorBgra* srcPtr = (ColorBgra*)(srcRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * surface.Stride));
+                        ColorBgra* srcPtr = (ColorBgra*)(srcRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * (src.surface?.Stride ?? srcData.Stride)));
                         ColorBgra* destPtr = (ColorBgra*)(destRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * destData.Stride));
 
                         // Dither align
@@ -771,6 +786,7 @@ namespace DynamicDraw
                 draw(alphaMask.Width - extraX, alphaMask.Height - extraY, 0, 0, extraX, extraY); // bottom right
             }
 
+            src.bmp?.UnlockBits(srcData);
             dest.UnlockBits(destData);
             alphaMask.UnlockBits(alphaMaskData);
         }
