@@ -576,48 +576,6 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Overwrites the surface to the given bitmap without creating an intermediate bitmap. They
-        /// must have the same size and both be premultiplied ARGB.
-        /// </summary>
-        /// <param name="surface">The surface contains the source bitmap. It will be drawn to dest.</param>
-        /// <param name="dest">The bitmap to overwrite.</param>
-        public static unsafe void OverwriteBits(Surface surface, Bitmap dest)
-        {
-            if (surface.Width != dest.Width || surface.Height != dest.Height || surface.Scan0 == null)
-            {
-                return;
-            }
-
-            BitmapData destData = dest.LockBits(
-                dest.GetBounds(),
-                ImageLockMode.ReadWrite,
-                dest.PixelFormat);
-
-            byte* destRow = (byte*)destData.Scan0;
-            byte* srcRow = (byte*)surface.Scan0.Pointer;
-
-            Rectangle[] rois = GetRois(dest.Width, dest.Height);
-            Parallel.For(0, rois.Length, (i, loopState) =>
-            {
-                Rectangle roi = rois[i];
-                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
-                {
-                    ColorBgra* srcPtr = (ColorBgra*)(srcRow + (y * surface.Stride) + (roi.X * 4));
-                    ColorBgra* destPtr = (ColorBgra*)(destRow + (y * destData.Stride) + (roi.X * 4));
-
-                    for (int x = roi.X; x < roi.X + roi.Width; x++)
-                    {
-                        *destPtr = *srcPtr;
-                        destPtr++;
-                        srcPtr++;
-                    }
-                }
-            });
-
-            dest.UnlockBits(destData);
-        }
-
-        /// <summary>
         /// Replaces a portion of the destination bitmap with the surface bitmap using a brush as an alpha mask.
         /// </summary>
         /// <param name="src">A bitmap-containing surface or a bitmap. It will be drawn to dest.</param>
@@ -693,6 +651,7 @@ namespace DynamicDraw
                     Rectangle roi = rois[i];
                     float alphaFactor;
 
+                    ColorBgra srcCol;
                     ColorBgra destCol;
                     ColorBgra newColor = default;
                     HsvColorF srcColorHSV;
@@ -717,11 +676,13 @@ namespace DynamicDraw
                         for (; x < roi.X + roi.Width; x++)
                         {
                             destCol = destPtr->ConvertFromPremultipliedAlpha();
+                            srcCol = (src.bmp?.PixelFormat == PixelFormat.Format32bppPArgb)
+                                    ? srcPtr->ConvertFromPremultipliedAlpha()
+                                    : *srcPtr;
 
                             // HSV conversion and channel locks
                             if (hsvLocksInUse)
                             {
-                                var srcCol = *srcPtr;
                                 dstColorHSV = HSVFFromBgra(destCol);
                                 srcColorHSV = HSVFFromBgra(srcCol);
                                 if (channelLocks.H) { srcColorHSV.Hue = dstColorHSV.Hue; }
@@ -733,7 +694,7 @@ namespace DynamicDraw
 
                             newColor = ColorBgra.Blend(
                                 destCol,
-                                hsvLocksInUse ? newColor : *srcPtr,
+                                hsvLocksInUse ? newColor : srcCol,
                                 alphaMaskPtr->A);
 
                             alphaFactor = newColor.A / 255f;
