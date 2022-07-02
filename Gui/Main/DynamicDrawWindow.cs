@@ -1433,6 +1433,245 @@ namespace DynamicDraw
 
         #region Methods (not event handlers)
         /// <summary>
+        /// Renders a chosen effect, returning whether an error occurred or not. The effect is rendered on the
+        /// bmpStaged bitmap. See <see cref="ActiveEffectPrepareAndPreview"/> for context.
+        /// </summary>
+        /// <param name="changedToken">
+        /// Uses the given token for effect config settings instead of reading the active effect. This allows the live
+        /// preview dialog shown by <see cref="ActiveEffectPrepareAndPreview"/> to render without changing the active
+        /// effect settings, in case the user cancels.
+        /// </param>
+        private bool ActiveEffectRender(EffectConfigToken changedToken = null)
+        {
+            // Clears the staging surface if the effect fails and continues to call render.
+            if (effectToDraw.Effect == null)
+            {
+                Utils.ColorImage(bmpStaged, ColorBgra.Black, 0f);
+                return false;
+            }
+
+            // Sets some surfaces & ensures the source surface is exact.
+            if (effectToDraw.SrcArgs == null)
+            {
+                Surface fromStagedSurf = Surface.CopyFromBitmap(bmpCommitted);
+                Surface fromCommittedSurf = Surface.CopyFromBitmap(bmpCommitted);
+                RenderArgs fromStaged = new RenderArgs(fromStagedSurf);
+                RenderArgs fromCommitted = new RenderArgs(fromCommittedSurf);
+                effectToDraw.SrcArgs = fromCommitted;
+                effectToDraw.DstArgs = fromStaged;
+            }
+            else
+            {
+                effectToDraw.DstArgs.Surface.CopyFromGdipBitmap(bmpCommitted);
+                effectToDraw.SrcArgs.Surface.CopyFromGdipBitmap(bmpCommitted);
+            }
+
+            var envParams = effectToDraw.Effect.EnvironmentParameters;
+            effectToDraw.Effect.EnvironmentParameters = effectToDraw.Effect.EnvironmentParameters
+                .CloneWithDifferentSourceSurface(effectToDraw.SrcArgs.Surface);
+            envParams?.Dispose();
+
+            // Runs the effect.
+            try
+            {
+                effectToDraw.Effect.SetRenderInfo(changedToken ?? effectToDraw.Settings, effectToDraw.DstArgs, effectToDraw.SrcArgs);
+                effectToDraw.Effect.Render(
+                    changedToken ?? effectToDraw.Settings,
+                    effectToDraw.DstArgs,
+                    effectToDraw.SrcArgs,
+                    Utils.GetRois(bmpCommitted.Width, bmpCommitted.Height));
+            }
+            catch
+            {
+                MessageBox.Show(Strings.EffectFailedToWorkError);
+                cmbxChosenEffect.SelectedIndex = 0; // corresponds to no effect chosen.
+                isPreviewingEffect = (false, false);
+                return false;
+            }
+
+            Utils.OverwriteBits(effectToDraw.DstArgs.Bitmap, bmpStaged);
+            return true;
+        }
+
+        /// <summary>
+        /// It's possible for a user to apply an effect on the bmpStaged surface and draw it using a brush stroke,
+        /// similar to how erasing to the original surface works. This instantiates and sets up the metadata for a
+        /// chosen effect, then creates the dialog for it (if the effect has configuration options), maintaining a live
+        /// preview until the user applied or cancels.
+        /// 
+        /// Effect settings are persisted for when the user wants to change the effect config, or when the user reopens
+        /// the plugin if it had an effect active last time they used it. In both cases, the effect info is passed. In
+        /// the first case, the user invokes the dialog (so previewRestoredEffect is true) while in the latter case,
+        /// it's a poor experience to show the dialog as soon as the plugin starts, so it's hidden
+        /// (previewRestoredEffect is false).
+        /// </summary>
+        /// <param name="restoreEffect">
+        /// When passed in, the settings will be copied to the new effect instance so it has the same config options.
+        /// </param>
+        /// <param name="previewRestoredEffect">
+        /// When passing in effect info, this determines whether a live preview dialog will be shown.
+        /// </param>
+        private void ActiveEffectPrepareAndPreview(CustomEffect restoreEffect = null, bool previewRestoredEffect = false)
+        {
+            // Effect options haven't populated yet, so the effect can't be prepared.
+            if (cmbxChosenEffect.SelectedIndex >= effectOptions.Count)
+            {
+                return;
+            }
+
+            if (effectOptions[cmbxChosenEffect.SelectedIndex] == null)
+            {
+                return;
+            }
+
+            // Clears the active effect if it lacks effectInfo, e.g. the special "no effect selected" option.
+            if (effectOptions[cmbxChosenEffect.SelectedIndex].Item2 == null)
+            {
+                if (effectToDraw != restoreEffect)
+                {
+                    effectToDraw?.Dispose();
+                }
+                effectToDraw = new CustomEffect();
+                bttnChooseEffectSettings.Enabled = false;
+                UpdateEnabledControls();
+                return;
+            }
+
+            // Instantiates the effect and prepares all metadata for it.
+            var effectInfo = effectOptions[cmbxChosenEffect.SelectedIndex].Item2;
+            effectToDraw.Effect = effectInfo.CreateInstance();
+            effectToDraw.SrcArgs = null;
+            effectToDraw.DstArgs = null;
+
+            if (restoreEffect != null)
+            {
+                effectToDraw.Settings = restoreEffect.Settings;
+                effectToDraw.PropertySettings = restoreEffect.PropertySettings;
+            }
+
+            if (effectToDraw.Effect == null)
+            {
+                MessageBox.Show(Strings.EffectFailedToStartError);
+                UpdateEnabledControls();
+                return;
+            }
+
+            bool isEffectPropertyBased = effectToDraw.Effect is PropertyBasedEffect;
+            bool isEffectConfigurable = effectToDraw.Effect.Options.Flags.HasFlag(EffectFlags.Configurable);
+
+            bttnChooseEffectSettings.Enabled = isEffectConfigurable;
+            UpdateEnabledControls();
+
+            effectToDraw.Effect.Services = this.Services;
+            effectToDraw.Effect.EnvironmentParameters = new EffectEnvironmentParameters(
+                bttnBrushColor.BackColor,
+                Color.Black,
+                sliderBrushSize.Value,
+                EnvironmentParameters.DocumentResolution,
+                new PdnRegion(EnvironmentParameters.GetSelectionAsPdnRegion().GetRegionData()),
+                Surface.CopyFromBitmap(bmpCommitted));
+
+            // Applies the restored effect immediately under current settings without preview ing.
+            if (restoreEffect != null && !previewRestoredEffect)
+            {
+                ActiveEffectRender();
+                displayCanvas.Refresh();
+                return;
+            }
+
+            if (restoreEffect == null)
+            {
+                effectToDraw.PropertySettings = isEffectPropertyBased
+                    ? ((PropertyBasedEffect)effectToDraw.Effect).CreatePropertyCollection()
+                    : null;
+            }
+
+            // For effects with no dialog, apply the effect immediately.
+            if (!isEffectConfigurable)
+            {
+                effectToDraw.Settings = null;
+                ActiveEffectRender();
+                displayCanvas.Refresh();
+                return;
+            }
+
+            // Opens the effect dialog, updating a live preview of it every 200ms, and applies when done.
+            try
+            {
+                using Timer repaintTimer = new Timer() { Interval = 150, Enabled = false };
+                using EffectConfigDialog dialog = effectToDraw.Effect.CreateConfigDialog();
+
+                if (dialog == null)
+                {
+                    MessageBox.Show(Strings.EffectFailedToStartError);
+                    return;
+                }
+
+                dialog.Effect = effectToDraw.Effect;
+
+                if (isEffectPropertyBased)
+                {
+                    dialog.EffectToken = new PropertyBasedEffectConfigToken(effectToDraw.PropertySettings);
+                }
+
+                effectToDraw.Settings = dialog.EffectToken;
+
+                // Reset/start a short delay before refreshing the effect preview.
+                // Delays until a short duration passes without changing the UI.
+                dialog.EffectTokenChanged += (a, b) =>
+                {
+                    repaintTimer.Stop();
+                    repaintTimer.Start();
+                };
+
+                // Refresh the effect preview after a short delay.
+                repaintTimer.Tick += (a, b) =>
+                {
+                    repaintTimer.Stop();
+
+                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
+                    if (!effectSuccessfullyExecuted)
+                    {
+                        MessageBox.Show(Strings.EffectFailedToStartError);
+                        dialog.Close();
+                    }
+
+                    displayCanvas.Refresh();
+                };
+
+                isPreviewingEffect.settingsOpen = true;
+
+                dialog.Owner = this;
+                var dlgResult = dialog.ShowDialog();
+
+                if (repaintTimer.Enabled)
+                {
+                    repaintTimer.Stop();
+                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
+                    if (!effectSuccessfullyExecuted)
+                    {
+                        MessageBox.Show(Strings.EffectFailedToStartError);
+                        dialog.Close();
+                    }
+                }
+
+                if (isEffectPropertyBased)
+                {
+                    effectToDraw.PropertySettings = (dialog.EffectToken as PropertyBasedEffectConfigToken)?.Properties;
+                }
+
+                effectToDraw.Settings = dialog.EffectToken;
+
+                isPreviewingEffect = (false, false);
+                displayCanvas.Refresh();
+            }
+            catch
+            {
+                MessageBox.Show(Strings.EffectFailedToStartError);
+            }
+        }
+
+        /// <summary>
         /// Applies the brush to the drawing region at the given location
         /// with the given radius. The brush is assumed square.
         /// </summary>
@@ -6868,6 +7107,11 @@ namespace DynamicDraw
                 Utils.ColorImage(bmpStaged, ColorBgra.Black, 0);
             }
 
+            if (isUserDrawing.canvasChanged && effectToDraw.Effect != null)
+            {
+                ActiveEffectRender();
+            }
+
             isUserPanning = false;
             isUserDrawing.started = false;
             isUserDrawing.canvasChanged = false;
@@ -6876,11 +7120,6 @@ namespace DynamicDraw
 
             //Lets the user click anywhere to draw again.
             mouseLocBrush = null;
-
-            if (effectToDraw.Effect != null)
-            {
-                ActiveEffectRender();
-            }
         }
 
         /// <summary>
@@ -7359,218 +7598,6 @@ namespace DynamicDraw
         private void BttnAddBrushImages_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.AddBrushImagesTip);
-        }
-
-        private bool ActiveEffectRender(EffectConfigToken changedToken = null)
-        {
-            // Clears the staging surface if the effect fails and continues to call render.
-            if (effectToDraw.Effect == null)
-            {
-                Utils.ColorImage(bmpStaged, ColorBgra.Black, 0f);
-                return false;
-            }
-
-            // Sets some surfaces & ensures the source surface is exact.
-            if (effectToDraw.SrcArgs == null)
-            {
-                Surface fromStagedSurf = Surface.CopyFromBitmap(bmpCommitted);
-                Surface fromCommittedSurf = Surface.CopyFromBitmap(bmpCommitted);
-                RenderArgs fromStaged = new RenderArgs(fromStagedSurf);
-                RenderArgs fromCommitted = new RenderArgs(fromCommittedSurf);
-                effectToDraw.SrcArgs = fromCommitted;
-                effectToDraw.DstArgs = fromStaged;
-            }
-            else
-            {
-                effectToDraw.DstArgs.Surface.CopyFromGdipBitmap(bmpCommitted);
-                effectToDraw.SrcArgs.Surface.CopyFromGdipBitmap(bmpCommitted);
-            }
-
-            var envParams = effectToDraw.Effect.EnvironmentParameters;
-            effectToDraw.Effect.EnvironmentParameters = effectToDraw.Effect.EnvironmentParameters
-                .CloneWithDifferentSourceSurface(effectToDraw.SrcArgs.Surface);
-            envParams?.Dispose();
-
-            // Runs the effect.
-            try
-            {
-                effectToDraw.Effect.SetRenderInfo(changedToken ?? effectToDraw.Settings, effectToDraw.DstArgs, effectToDraw.SrcArgs);
-                effectToDraw.Effect.Render(
-                    changedToken ?? effectToDraw.Settings,
-                    effectToDraw.DstArgs,
-                    effectToDraw.SrcArgs,
-                    Utils.GetRois(bmpCommitted.Width, bmpCommitted.Height));
-            }
-            catch
-            {
-                MessageBox.Show(Strings.EffectFailedToWorkError);
-                cmbxChosenEffect.SelectedIndex = 0; // corresponds to no effect chosen.
-                isPreviewingEffect = (false, false);
-                return false;
-            }
-
-            Utils.OverwriteBits(effectToDraw.DstArgs.Bitmap, bmpStaged);
-            return true;
-        }
-
-        private void ActiveEffectPrepareAndPreview(CustomEffect restoreEffect = null, bool previewRestoredEffect = false)
-        {
-            // Effect options haven't populated yet, so the effect can't be prepared.
-            if (cmbxChosenEffect.SelectedIndex >= effectOptions.Count)
-            {
-                return;
-            }
-
-            if (effectOptions[cmbxChosenEffect.SelectedIndex] == null)
-            {
-                return;
-            }
-
-            // Clears the active effect if it lacks effectInfo, e.g. the special "no effect selected" option.
-            if (effectOptions[cmbxChosenEffect.SelectedIndex].Item2 == null)
-            {
-                if (effectToDraw != restoreEffect)
-                {
-                    effectToDraw?.Dispose();
-                }
-                effectToDraw = new CustomEffect();
-                bttnChooseEffectSettings.Enabled = false;
-                UpdateEnabledControls();
-                return;
-            }
-
-            // Instantiates the effect and prepares all metadata for it.
-            var effectInfo = effectOptions[cmbxChosenEffect.SelectedIndex].Item2;
-            effectToDraw.Effect = effectInfo.CreateInstance();
-            effectToDraw.SrcArgs = null;
-            effectToDraw.DstArgs = null;
-
-            if (restoreEffect != null)
-            {
-                effectToDraw.Settings = restoreEffect.Settings;
-                effectToDraw.PropertySettings = restoreEffect.PropertySettings;
-            }
-
-            if (effectToDraw.Effect == null)
-            {
-                MessageBox.Show(Strings.EffectFailedToStartError);
-                UpdateEnabledControls();
-                return;
-            }
-
-            bool isEffectPropertyBased = effectToDraw.Effect is PropertyBasedEffect;
-            bool isEffectConfigurable = effectToDraw.Effect.Options.Flags.HasFlag(EffectFlags.Configurable);
-
-            bttnChooseEffectSettings.Enabled = isEffectConfigurable;
-            UpdateEnabledControls();
-
-            effectToDraw.Effect.Services = this.Services;
-            effectToDraw.Effect.EnvironmentParameters = new EffectEnvironmentParameters(
-                bttnBrushColor.BackColor,
-                Color.Black,
-                sliderBrushSize.Value,
-                EnvironmentParameters.DocumentResolution,
-                new PdnRegion(EnvironmentParameters.GetSelectionAsPdnRegion().GetRegionData()),
-                Surface.CopyFromBitmap(bmpCommitted));
-
-            // Applies the restored effect immediately under current settings without preview ing.
-            if (restoreEffect != null && !previewRestoredEffect)
-            {
-                ActiveEffectRender();
-                displayCanvas.Refresh();
-                return;
-            }
-
-            if (restoreEffect == null)
-            {
-                effectToDraw.PropertySettings = isEffectPropertyBased
-                    ? ((PropertyBasedEffect)effectToDraw.Effect).CreatePropertyCollection()
-                    : null;
-            }
-
-            // For effects with no dialog, apply the effect immediately.
-            if (!isEffectConfigurable)
-            {
-                effectToDraw.Settings = null;
-                ActiveEffectRender();
-                displayCanvas.Refresh();
-                return;
-            }
-
-            // Opens the effect dialog, updating a live preview of it every 200ms, and applies when done.
-            try
-            {
-                using Timer repaintTimer = new Timer() { Interval = 150, Enabled = false };
-                using EffectConfigDialog dialog = effectToDraw.Effect.CreateConfigDialog();
-
-                if (dialog == null)
-                {
-                    MessageBox.Show(Strings.EffectFailedToStartError);
-                    return;
-                }
-
-                dialog.Effect = effectToDraw.Effect;
-
-                if (isEffectPropertyBased)
-                {
-                    dialog.EffectToken = new PropertyBasedEffectConfigToken(effectToDraw.PropertySettings);
-                }
-                
-                effectToDraw.Settings = dialog.EffectToken;
-
-                // Reset/start a short delay before refreshing the effect preview.
-                // Delays until a short duration passes without changing the UI.
-                dialog.EffectTokenChanged += (a, b) =>
-                {
-                    repaintTimer.Stop();
-                    repaintTimer.Start();
-                };
-
-                // Refresh the effect preview after a short delay.
-                repaintTimer.Tick += (a, b) =>
-                {
-                    repaintTimer.Stop();
-
-                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
-                    if (!effectSuccessfullyExecuted)
-                    {
-                        MessageBox.Show(Strings.EffectFailedToStartError);
-                        dialog.Close();
-                    }
-
-                    displayCanvas.Refresh();
-                };
-
-                isPreviewingEffect.settingsOpen = true;
-
-                dialog.Owner = this;
-                var dlgResult = dialog.ShowDialog();
-
-                if (repaintTimer.Enabled)
-                {
-                    repaintTimer.Stop();
-                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
-                    if (!effectSuccessfullyExecuted)
-                    {
-                        MessageBox.Show(Strings.EffectFailedToStartError);
-                        dialog.Close();
-                    }
-                }
-
-                if (isEffectPropertyBased)
-                {
-                    effectToDraw.PropertySettings = (dialog.EffectToken as PropertyBasedEffectConfigToken)?.Properties;
-                }
-                
-                effectToDraw.Settings = dialog.EffectToken;
-
-                isPreviewingEffect = (false, false);
-                displayCanvas.Refresh();
-            }
-            catch
-            {
-                MessageBox.Show(Strings.EffectFailedToStartError);
-            }
         }
 
         /// <summary>

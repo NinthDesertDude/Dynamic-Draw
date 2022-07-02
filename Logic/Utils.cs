@@ -645,7 +645,10 @@ namespace DynamicDraw
 
             void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
-                Rectangle[] rois = GetRois(destWidth, destHeight);
+                Rectangle[] rois = (src.surface != null)
+                    ? GetRois(destWidth, destHeight)
+                    : new Rectangle[] { new Rectangle(0, 0, destWidth, destHeight ) }; // TODO: use full ROIs instead.
+
                 Parallel.For(0, rois.Length, (i, loopState) =>
                 {
                     Rectangle roi = rois[i];
@@ -677,8 +680,8 @@ namespace DynamicDraw
                         {
                             destCol = destPtr->ConvertFromPremultipliedAlpha();
                             srcCol = (src.bmp?.PixelFormat == PixelFormat.Format32bppPArgb)
-                                    ? srcPtr->ConvertFromPremultipliedAlpha()
-                                    : *srcPtr;
+                                ? srcPtr->ConvertFromPremultipliedAlpha()
+                                : *srcPtr;
 
                             // HSV conversion and channel locks
                             if (hsvLocksInUse)
