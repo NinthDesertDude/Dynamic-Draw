@@ -1467,6 +1467,96 @@
   <data name="panelSpecialSettings.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
   </data>
+  <data name="panelChosenEffect.Location" type="System.Drawing.Point, System.Drawing">
+	<value>0, 3</value>
+  </data>
+  <data name="panelChosenEffect.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 0</value>
+  </data>
+  <data name="panelChosenEffect.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 33</value>
+  </data>
+  <data name="panelChosenEffect.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="&gt;&gt;panelChosenEffect.Name" xml:space="preserve">
+    <value>panelChosenEffect</value>
+  </data>
+  <data name="&gt;&gt;panelChosenEffect.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;panelChosenEffect.Parent" xml:space="preserve">
+    <value>panelSpecialSettings</value>
+  </data>
+  <data name="&gt;&gt;panelChosenEffect.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="cmbxChosenEffect.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="cmbxChosenEffect.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="cmbxChosenEffect.IntegralHeight" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="cmbxChosenEffect.ItemHeight" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="cmbxChosenEffect.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 0</value>
+  </data>
+  <data name="cmbxChosenEffect.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 3, 0, 3</value>
+  </data>
+  <data name="cmbxChosenEffect.MaxDropDownItems" type="System.Int32, mscorlib">
+    <value>100</value>
+  </data>
+  <data name="cmbxChosenEffect.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 21</value>
+  </data>
+  <data name="cmbxChosenEffect.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;cmbxChosenEffect.Name" xml:space="preserve">
+    <value>cmbxChosenEffect</value>
+  </data>
+  <data name="&gt;&gt;cmbxChosenEffect.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;cmbxChosenEffect.Parent" xml:space="preserve">
+    <value>panelChosenEffect</value>
+  </data>
+  <data name="&gt;&gt;cmbxChosenEffect.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="bttnChooseEffectSettings.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="bttnChooseEffectSettings.Location" type="System.Drawing.Point, System.Drawing">
+    <value>123, 0</value>
+  </data>
+  <data name="bttnChooseEffectSettings.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="bttnChooseEffectSettings.Size" type="System.Drawing.Size, System.Drawing">
+    <value>30, 30</value>
+  </data>
+  <data name="bttnChooseEffectSettings.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;bttnChooseEffectSettings.Name" xml:space="preserve">
+    <value>bttnChooseEffectSettings</value>
+  </data>
+  <data name="&gt;&gt;bttnChooseEffectSettings.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;bttnChooseEffectSettings.Parent" xml:space="preserve">
+    <value>panelChosenEffect</value>
+  </data>
+  <data name="&gt;&gt;bttnChooseEffectSettings.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
   <data name="txtMinDrawDistance.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
   </data>
@@ -1474,7 +1564,7 @@
     <value>NoControl</value>
   </data>
   <data name="txtMinDrawDistance.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 0</value>
+    <value>4, 32</value>
   </data>
   <data name="txtMinDrawDistance.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 17</value>
@@ -1510,13 +1600,13 @@
     <value>NoControl</value>
   </data>
   <data name="sliderMinDrawDistance.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 20</value>
+    <value>3, 52</value>
   </data>
   <data name="sliderMinDrawDistance.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 25</value>
   </data>
   <data name="sliderMinDrawDistance.TabIndex" type="System.Int32, mscorlib">
-    <value>20</value>
+    <value>21</value>
   </data>
   <data name="&gt;&gt;sliderMinDrawDistance.Name" xml:space="preserve">
     <value>sliderMinDrawDistance</value>
@@ -1579,7 +1669,7 @@
     <value>150, 25</value>
   </data>
   <data name="sliderBrushDensity.TabIndex" type="System.Int32, mscorlib">
-    <value>21</value>
+    <value>22</value>
   </data>
   <data name="&gt;&gt;sliderBrushDensity.Name" xml:space="preserve">
     <value>sliderBrushDensity</value>
@@ -1618,7 +1708,7 @@
     <value>153, 21</value>
   </data>
   <data name="cmbxSymmetry.TabIndex" type="System.Int32, mscorlib">
-    <value>23</value>
+    <value>24</value>
   </data>
   <data name="&gt;&gt;cmbxSymmetry.Name" xml:space="preserve">
     <value>cmbxSymmetry</value>
@@ -1657,7 +1747,7 @@
     <value>153, 21</value>
   </data>
   <data name="cmbxBrushSmoothing.TabIndex" type="System.Int32, mscorlib">
-    <value>22</value>
+    <value>23</value>
   </data>
   <data name="&gt;&gt;cmbxBrushSmoothing.Name" xml:space="preserve">
     <value>cmbxBrushSmoothing</value>
@@ -1684,7 +1774,7 @@
     <value>118, 17</value>
   </data>
   <data name="chkbxSeamlessDrawing.TabIndex" type="System.Int32, mscorlib">
-    <value>24</value>
+    <value>25</value>
   </data>
   <data name="chkbxSeamlessDrawing.Text" xml:space="preserve">
     <value>Seamless Drawing</value>
@@ -1714,7 +1804,7 @@
     <value>118, 17</value>
   </data>
   <data name="chkbxOrientToMouse.TabIndex" type="System.Int32, mscorlib">
-    <value>25</value>
+    <value>26</value>
   </data>
   <data name="chkbxOrientToMouse.Text" xml:space="preserve">
     <value>Rotate With Mouse</value>
@@ -1744,7 +1834,7 @@
     <value>80, 17</value>
   </data>
   <data name="chkbxDitherDraw.TabIndex" type="System.Int32, mscorlib">
-    <value>26</value>
+    <value>27</value>
   </data>
   <data name="chkbxDitherDraw.Text" xml:space="preserve">
     <value>Use dither</value>
@@ -1774,7 +1864,7 @@
     <value>80, 17</value>
   </data>
   <data name="chkbxLockAlpha.TabIndex" type="System.Int32, mscorlib">
-    <value>27</value>
+    <value>28</value>
   </data>
   <data name="chkbxLockAlpha.Text" xml:space="preserve">
     <value>Lock Alpha</value>
@@ -1801,7 +1891,7 @@
     <value>156, 22</value>
   </data>
   <data name="panelRGBLocks.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
+    <value>29</value>
   </data>
   <data name="&gt;&gt;panelRGBLocks.Name" xml:space="preserve">
     <value>panelRGBLocks</value>
@@ -1915,7 +2005,7 @@
     <value>156, 22</value>
   </data>
   <data name="panelHSVLocks.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
+    <value>30</value>
   </data>
   <data name="&gt;&gt;panelHSVLocks.Name" xml:space="preserve">
     <value>panelHSVLocks</value>
@@ -2019,6 +2109,19 @@
   <data name="&gt;&gt;chkbxLockVal.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
   <data name="panelSpecialSettings.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>TopDown</value>
   </data>

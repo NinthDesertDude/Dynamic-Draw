@@ -946,4 +946,25 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="BrushOpacityTip" xml:space="preserve">
     <value>Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here.</value>
   </data>
+  <data name="ChosenEffectTip" xml:space="preserve">
+    <value>When an effect is chosen, it'll be applied in brush strokes according to its settings.</value>
+  </data>
+  <data name="ChooseEffectSettingsTip" xml:space="preserve">
+    <value>Edit the settings for the chosen effect. When an effect is chosen, hovering here will preview the effect.</value>
+  </data>
+  <data name="EffectDefaultNone" xml:space="preserve">
+    <value>No effect chosen</value>
+  </data>
+  <data name="EffectFailedToStartError" xml:space="preserve">
+    <value>Effect failed to work (couldn't start).</value>
+  </data>
+  <data name="EffectFailedToWorkError" xml:space="preserve">
+    <value>Effect failed to work (couldn't open the dialog).</value>
+  </data>
+  <data name="EffectFailedExternalError" xml:space="preserve">
+    <value>Effect failed to work (generic error with effect).</value>
+  </data>
+  <data name="BrushFlowAlpha" xml:space="preserve">
+    <value>Alpha:</value>
+  </data>
 </root>

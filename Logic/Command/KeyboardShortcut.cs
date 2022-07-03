@@ -245,7 +245,7 @@ namespace DynamicDraw.Logic
                         throw new Exception("Was expecting setting to contain purely numeric data with comma delimiters.");
                     }
 
-                    numbers.Add(Utils.ClampF(result, minValue, maxValue));
+                    numbers.Add(Math.Clamp(result, minValue, maxValue));
                 }
 
                 if (numbers.Count == 0)
@@ -297,23 +297,23 @@ namespace DynamicDraw.Logic
 
             if (chunks[1].Equals("set"))
             {
-                value = Utils.ClampF(value, minValue, maxValue);
+                value = Math.Clamp(value, minValue, maxValue);
             }
             else if (chunks[1].Equals("add"))
             {
-                value = Utils.ClampF(origValue + value, minValue, maxValue);
+                value = Math.Clamp(origValue + value, minValue, maxValue);
             }
             else if (chunks[1].Equals("sub"))
             {
-                value = Utils.ClampF(origValue - value, minValue, maxValue);
+                value = Math.Clamp(origValue - value, minValue, maxValue);
             }
             else if (chunks[1].Equals("mul"))
             {
-                value = Utils.ClampF(origValue * value, minValue, maxValue);
+                value = Math.Clamp(origValue * value, minValue, maxValue);
             }
             else if (chunks[1].Equals("div"))
             {
-                value = Utils.ClampF(value == 0 ? maxValue : origValue / value, minValue, maxValue);
+                value = Math.Clamp(value == 0 ? maxValue : origValue / value, minValue, maxValue);
             }
             else if (chunks[1].Equals("add-wrap"))
             {
@@ -321,7 +321,7 @@ namespace DynamicDraw.Logic
                 while (val < minValue) { val += maxValue; }
                 while (val > maxValue) { val -= maxValue; }
 
-                value = Utils.ClampF(val, minValue, maxValue);
+                value = Math.Clamp(val, minValue, maxValue);
             }
             else if (chunks[1].Equals("sub-wrap"))
             {
@@ -329,7 +329,7 @@ namespace DynamicDraw.Logic
                 while (val < minValue) { val += maxValue; }
                 while (val > maxValue) { val -= maxValue; }
 
-                value = Utils.ClampF(val, minValue, maxValue);
+                value = Math.Clamp(val, minValue, maxValue);
             }
             else
             {

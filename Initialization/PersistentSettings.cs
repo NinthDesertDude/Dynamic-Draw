@@ -222,6 +222,11 @@ namespace DynamicDraw
 
         #region Fields
         /// <summary>
+        /// A chosen effect the user can render and draw on the canvas, and the combobox index for it.
+        /// </summary>
+        public (int index, CustomEffect effect) ActiveEffect { get; set; }
+
+        /// <summary>
         /// The last used brush settings the user had.
         /// </summary>
         public BrushSettings CurrentBrushSettings { get; set; }
@@ -247,6 +252,7 @@ namespace DynamicDraw
         /// </summary>
         public PersistentSettings()
         {
+            ActiveEffect = new(0, null);
             CurrentBrushSettings = new BrushSettings(defaultBrushes[Strings.BuiltInBrushPencil]);
             CustomBrushLocations = new HashSet<string>();
             KeyboardShortcuts = new HashSet<KeyboardShortcut>(defaultShortcuts);
@@ -258,6 +264,7 @@ namespace DynamicDraw
         protected PersistentSettings(PersistentSettings other)
             : base(other)
         {
+            ActiveEffect = new(other.ActiveEffect.index, new CustomEffect(other.ActiveEffect.effect));
             CurrentBrushSettings = new BrushSettings(other.CurrentBrushSettings);
             CustomBrushLocations = new HashSet<string>(
                 other.CustomBrushLocations,

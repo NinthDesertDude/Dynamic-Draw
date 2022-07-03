@@ -326,6 +326,11 @@
         /// <summary>
         /// The brush opacity (or rather, max alpha allowed on the layer). Anything greater truncates to max.
         /// </summary>
-        BrushOpacity = 81
+        BrushOpacity = 81,
+
+        /// <summary>
+        /// The chosen effect to draw with, if set.
+        /// </summary>
+        ChosenEffect = 82
     }
 }

@@ -574,6 +574,9 @@ namespace DynamicDraw
         [DataMember(Name = "TabPressureRandVerShift")]
         public int TabPressureRandVerShift { get; set; }
 
+        [DataMember(Name = "CmbxChosenEffect")]
+        public int CmbxChosenEffect { get; set; }
+
         [DataMember(Name = "CmbxTabPressureBrushDensity")]
         public int CmbxTabPressureBrushDensity { get; set; }
 
@@ -686,6 +689,7 @@ namespace DynamicDraw
             RotChange = 0;
             Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
+            CmbxChosenEffect = 0;
             CmbxTabPressureBrushDensity = 0;
             CmbxTabPressureBrushFlow = 0;
             CmbxTabPressureBrushOpacity = 0;
@@ -782,6 +786,7 @@ namespace DynamicDraw
             RandMinH = other.RandMinH;
             RandMinS = other.RandMinS;
             RandMinV = other.RandMinV;
+            CmbxChosenEffect = other.CmbxChosenEffect;
             CmbxTabPressureBrushDensity = other.CmbxTabPressureBrushDensity;
             CmbxTabPressureBrushFlow = other.CmbxTabPressureBrushFlow;
             CmbxTabPressureBrushOpacity = other.CmbxTabPressureBrushOpacity;
