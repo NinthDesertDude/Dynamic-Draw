@@ -770,9 +770,15 @@ namespace DynamicDraw
 
                     foreach (IEffectInfo effectInfo in effectInfos)
                     {
-                        // Never add this plugin as an effect because using it is unnecessary and will crash by modifying
-                        // shared static variables e.g. the undo/redo stack.
+                        // No reason to use this plugin inside itself and reusing shared state causes it to crash.
                         if (effectInfo.Name == EffectPlugin.StaticName)
+                        {
+                            continue;
+                        }
+
+                        // Blacklists known problematic effects.
+                        if (KnownEffectCompatibilities.KnownCustomEffects.ContainsKey(effectInfo.Name) &&
+                            effectInfo.AssemblyLocation.EndsWith(KnownEffectCompatibilities.KnownCustomEffects[effectInfo.Name].effectAssembly))
                         {
                             continue;
                         }
