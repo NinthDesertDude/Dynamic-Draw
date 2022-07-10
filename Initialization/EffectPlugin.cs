@@ -75,7 +75,7 @@ namespace DynamicDraw
         public override EffectConfigDialog CreateConfigDialog()
         {
             //Copies necessary user variables for dialog access.
-            UserSettings.userPrimaryColor = EnvironmentParameters.PrimaryColor;
+            PdnUserSettings.userPrimaryColor = EnvironmentParameters.PrimaryColor;
 
             //Static variables are remembered between plugin calls, so clear them.
             RenderSettings.Clear();

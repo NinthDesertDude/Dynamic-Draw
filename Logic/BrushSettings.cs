@@ -645,7 +645,7 @@ namespace DynamicDraw
             BrushSize = 2;
             BrushImagePath = Strings.DefaultBrushCircle;
             BrushRotation = 0;
-            BrushColor = UserSettings.userPrimaryColor;
+            BrushColor = PdnUserSettings.userPrimaryColor;
             BrushDensity = 10;
             BrushFlow = 255;
             BrushOpacity = 255;

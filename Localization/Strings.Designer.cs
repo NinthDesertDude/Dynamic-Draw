@@ -160,7 +160,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings)..
+        ///   Looks up a localized string similar to Select additional brush images to permanently add. They can be removed later from the options menu..
         /// </summary>
         internal static string AddBrushImagesTip {
             get {
@@ -493,7 +493,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Places to look for brush images appear here. Type a new address or use &apos;add folder&apos; to add your own..
+        ///   Looks up a localized string similar to Places to look for brush images appear here. Type a new address or use the add folders/files buttons to add your own..
         /// </summary>
         internal static string BrushLocationsTextboxTip {
             get {
@@ -622,11 +622,20 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your custom brush images couldn&apos;t be loaded. You can try defining them again..
+        ///   Looks up a localized string similar to Settings/preferences and custom brushes couldn&apos;t be loaded..
         /// </summary>
         internal static string CannotLoadSettingsError {
             get {
                 return ResourceManager.GetString("CannotLoadSettingsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Any changes to settings/preferences couldn&apos;t be saved..
+        /// </summary>
+        internal static string CannotSaveSettingsError {
+            get {
+                return ResourceManager.GetString("CannotSaveSettingsError", resourceCulture);
             }
         }
         
@@ -865,24 +874,6 @@ namespace DynamicDraw.Localization {
         internal static string CustomBrushDialogTitle {
             get {
                 return ResourceManager.GetString("CustomBrushDialogTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Brush Image Locations.
-        /// </summary>
-        internal static string CustomBrushImageLocations {
-            get {
-                return ResourceManager.GetString("CustomBrushImageLocations", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Define where to look for brush images when this plugin loads..
-        /// </summary>
-        internal static string CustomBrushImageLocationsTip {
-            get {
-                return ResourceManager.GetString("CustomBrushImageLocationsTip", resourceCulture);
             }
         }
         
@@ -1148,25 +1139,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Effect failed to work (generic error with effect)..
-        /// </summary>
-        internal static string EffectFailedExternalError {
-            get {
-                return ResourceManager.GetString("EffectFailedExternalError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Effect failed to work (couldn&apos;t start)..
-        /// </summary>
-        internal static string EffectFailedToStartError {
-            get {
-                return ResourceManager.GetString("EffectFailedToStartError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Effect failed to work (couldn&apos;t open the dialog)..
+        ///   Looks up a localized string similar to Couldn&apos;t apply the chosen effect..
         /// </summary>
         internal static string EffectFailedToWorkError {
             get {
@@ -2467,6 +2440,24 @@ namespace DynamicDraw.Localization {
         internal static string UndoTip {
             get {
                 return ResourceManager.GetString("UndoTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Current Brush.
+        /// </summary>
+        internal static string UpdateCurrentBrush {
+            get {
+                return ResourceManager.GetString("UpdateCurrentBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Writes any changes in the current settings over the most recently selected brush..
+        /// </summary>
+        internal static string UpdateCurrentBrushTip {
+            get {
+                return ResourceManager.GetString("UpdateCurrentBrushTip", resourceCulture);
             }
         }
         

@@ -163,6 +163,9 @@ namespace DynamicDraw
             }
         };
 
+        /// <summary>
+        /// The default list of brushes available.
+        /// </summary>
         public static readonly Dictionary<string, BrushSettings> defaultBrushes = new()
         {
             {
@@ -245,6 +248,11 @@ namespace DynamicDraw
         /// Contains a list of all keyboard shortcuts.
         /// </summary>
         public HashSet<KeyboardShortcut> KeyboardShortcuts { get; set; }
+
+        /// <summary>
+        /// The user's program preferences.
+        /// </summary>
+        public UserSettings UserSettings { get; set; }
         #endregion
 
         /// <summary>
@@ -256,6 +264,7 @@ namespace DynamicDraw
             CurrentBrushSettings = new BrushSettings(defaultBrushes[Strings.BuiltInBrushPencil]);
             CustomBrushLocations = new HashSet<string>();
             KeyboardShortcuts = new HashSet<KeyboardShortcut>(defaultShortcuts);
+            UserSettings = new UserSettings();
         }
 
         /// <summary>
@@ -270,6 +279,7 @@ namespace DynamicDraw
                 other.CustomBrushLocations,
                 other.CustomBrushLocations.Comparer);
             KeyboardShortcuts = new HashSet<KeyboardShortcut>(other.KeyboardShortcuts);
+            UserSettings = new UserSettings(other.UserSettings);
         }
 
         /// <summary>

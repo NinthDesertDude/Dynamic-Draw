@@ -10,12 +10,10 @@ namespace DynamicDraw
     /// <summary>
     /// Implements the loading and saving of the settings.
     /// </summary>
-    /// <seealso cref="IDynamicDrawSettings" />
     [DataContract(Name = "DynamicDrawSettings", Namespace = "")]
-    internal sealed class DynamicDrawSettings : IDynamicDrawSettings
+    internal sealed class SettingsSerialization
     {
         private readonly string settingsPath;
-        private bool changed;
         private bool createUserFilesDir;
         private bool deleteMigratedRegistrySettings;
         private bool loadedSettings;
@@ -23,28 +21,21 @@ namespace DynamicDraw
         private HashSet<string> customBrushDirectories;
         private Dictionary<string, BrushSettings> customBrushes;
         private HashSet<KeyboardShortcut> keyboardShortcuts;
+        private UserSettings preferences;
         private bool useDefaultBrushes;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicDrawSettings"/> class.
+        /// Initializes a new instance of the <see cref="SettingsSerialization"/> class.
         /// </summary>
         /// <param name="path">The setting file path.</param>
-        public DynamicDrawSettings(string path)
+        public SettingsSerialization(string path)
         {
             settingsPath = path;
-            changed = false;
             createUserFilesDir = false;
             deleteMigratedRegistrySettings = false;
             InitializeDefaultSettings();
         }
 
-        /// <summary>
-        /// Gets or sets the custom brush directories.
-        /// </summary>
-        /// <value>
-        /// The custom brush directories.
-        /// </value>
-        /// <exception cref="ArgumentNullException">value is null.</exception>
         [DataMember(Name = "CustomBrushDirectories")]
         public HashSet<string> CustomBrushImageDirectories
         {
@@ -56,13 +47,12 @@ namespace DynamicDraw
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 if (!customBrushDirectories.SetEquals(value))
                 {
                     customBrushDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
-                    changed = true;
                 }
             }
         }
@@ -75,7 +65,6 @@ namespace DynamicDraw
                 }
 
                 customBrushes = new Dictionary<string, BrushSettings>(value);
-                changed = true;
             } }
 
         /// <summary>
@@ -93,7 +82,6 @@ namespace DynamicDraw
                 if (keyboardShortcuts != value)
                 {
                     keyboardShortcuts = value;
-                    changed = true;
                 }
             }
         }
@@ -116,8 +104,23 @@ namespace DynamicDraw
                 if (useDefaultBrushes != value)
                 {
                     useDefaultBrushes = value;
-                    changed = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the program preferences of the user.
+        /// </summary>
+        [DataMember(Name = "Preferences")]
+        public UserSettings Preferences
+        {
+            get
+            {
+                return preferences;
+            }
+            set
+            {
+                preferences = new UserSettings(value);
             }
         }
 
@@ -140,13 +143,13 @@ namespace DynamicDraw
                     using (FileStream stream = new FileStream(settingsPath, FileMode.Open, FileAccess.Read))
                     {
                         string rootPath = Path.GetFileNameWithoutExtension(settingsPath);
-                        DataContractSerializer serializer = new DataContractSerializer(typeof(DynamicDrawSettings), rootPath, "");
-                        DynamicDrawSettings savedSettings = (DynamicDrawSettings)serializer.ReadObject(stream);
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(SettingsSerialization), rootPath, "");
+                        SettingsSerialization savedSettings = (SettingsSerialization)serializer.ReadObject(stream);
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
                         customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
+                        preferences = new UserSettings(savedSettings.Preferences);
                         useDefaultBrushes = savedSettings.UseDefaultBrushes;
-                        changed = false;
                     }
                 }
                 catch (DirectoryNotFoundException)
@@ -154,13 +157,11 @@ namespace DynamicDraw
                     // The Paint.NET User Files directory does not exist, it will be created when the file is saved.
                     createUserFilesDir = true;
                     MigrateSettingsFromRegistry();
-                    changed = true;
                 }
                 catch (FileNotFoundException)
                 {
                     // Migrate the settings from the registry or save the default settings.
                     MigrateSettingsFromRegistry();
-                    changed = true;
                 }
             }
         }
@@ -170,15 +171,11 @@ namespace DynamicDraw
         /// </summary>
         public void SaveChangedSettings()
         {
-            if (changed)
-            {
-                Save();
-                changed = false;
+            Save();
 
-                if (deleteMigratedRegistrySettings)
-                {
-                    Registry.CurrentUser.DeleteSubKey(@"SOFTWARE\paint.net_brushfactory");
-                }
+            if (deleteMigratedRegistrySettings)
+            {
+                Registry.CurrentUser.DeleteSubKey(@"SOFTWARE\paint.net_brushfactory");
             }
         }
 
@@ -189,16 +186,8 @@ namespace DynamicDraw
         {
             customBrushDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             customBrushes = new Dictionary<string, BrushSettings>();
+            preferences = new UserSettings();
             useDefaultBrushes = true;
-        }
-
-        /// <summary>
-        /// Explicitly marks settings as changed so they'll be serialized to file. Use this only when modifying items in
-        /// collections; collections and primitive settings do this for direct assignment already.
-        /// </summary>
-        public void MarkSettingsChanged()
-        {
-            changed = true;
         }
 
         /// <summary>
@@ -267,7 +256,7 @@ namespace DynamicDraw
 
             using (FileStream stream = new FileStream(settingsPath, FileMode.Create, FileAccess.Write))
             {
-                DataContractSerializer serializer = new DataContractSerializer(typeof(DynamicDrawSettings));
+                DataContractSerializer serializer = new DataContractSerializer(typeof(SettingsSerialization));
                 serializer.WriteObject(stream, this);
             }
         }

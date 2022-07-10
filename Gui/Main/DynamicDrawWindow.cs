@@ -8,7 +8,6 @@ using DynamicDraw.TabletSupport;
 using PaintDotNet;
 using PaintDotNet.AppModel;
 using PaintDotNet.Effects;
-using PaintDotNet.PropertySystem;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,18 +33,14 @@ namespace DynamicDraw
         private Tool activeTool = Tool.Brush;
 
         /// <summary>
-        /// Determines how to fill the transparent area under the user's image, if any.
-        /// </summary>
-        private BackgroundDisplayMode backgroundDisplayMode = BackgroundDisplayMode.Transparent;
-
-        /// <summary>
         /// Contains the list of all blend mode options for brush strokes.
         /// </summary>
         readonly BindingList<Tuple<string, BlendMode>> blendModeOptions;
 
         /// <summary>
-        /// If <see cref="BackgroundDisplayMode.Clipboard"/> is used, this will contain the image that was copied to
-        /// the clipboard.
+        /// If <see cref="BackgroundDisplayMode.ClipboardFit"/> or
+        /// <see cref="BackgroundDisplayMode.ClipboardOnlyIfFits"/> is used, this will contain the image that was
+        /// copied to the clipboard.
         /// </summary>
         private Bitmap bmpBackgroundClipboard;
 
@@ -93,6 +88,12 @@ namespace DynamicDraw
         /// this list and merge them down only once, vs. merging the entire viewport or image.
         /// </summary>
         private readonly List<Rectangle> mergeRegions = new List<Rectangle>();
+
+        /// <summary>
+        /// The last directory that brushes were imported from via the add brushes button, by the user during this run
+        /// of the plugin.
+        /// </summary>
+        private string importBrushesLastDirectory = null;
 
         /// <summary>
         /// Loads user's custom brush images asynchronously.
@@ -150,6 +151,14 @@ namespace DynamicDraw
 
         private bool isUserPanning = false;
         private bool isWheelZooming = false;
+
+        /// <summary>
+        /// Indicates whether the plugin has finished loading basic elements. This includes the form component init,
+        /// the token initialization by paint.net, the canvas/bitmap elements and the default brush being set, as well
+        /// as the chosen effect being applied (if any was active from before). It does not guarantee that all brushes
+        /// have finished loading, both default and custom ones.
+        /// </summary>
+        private bool pluginHasLoaded = false;
 
         /// <summary>
         /// Creates the list of brushes used by the brush selector.
@@ -218,7 +227,26 @@ namespace DynamicDraw
         /// All user settings including custom brushes / brush image locations and the previous brush settings from
         /// the last time the effect was ran.
         /// </summary>
-        private DynamicDrawSettings settings;
+        private SettingsSerialization settings;
+
+        /// <summary>
+        /// Settings deserialize asynchronously (and can fail sometimes). This returns that object if it exists, else
+        /// it returns a copy of the program defaults (so any changes are discarded).
+        /// </summary>
+        private UserSettings UserSettings
+        {
+            get
+            {
+                return settings?.Preferences ?? new UserSettings();
+            }
+            set
+            {
+                if (settings?.Preferences != null)
+                {
+                    settings.Preferences = value;
+                }
+            }
+        }
 
         /// <summary>
         /// The outline of the user's selection.
@@ -311,11 +339,29 @@ namespace DynamicDraw
         private IContainer components;
         internal PictureBox displayCanvas;
 
+        private FlowLayoutPanel topMenu;
+        private Button menuOptions;
+        private ToolStripMenuItem menuResetCanvas, menuSetCanvasBackground, menuDisplaySettings;
+        private ToolStripMenuItem menuSetCanvasBgImage, menuSetCanvasBgImageFit, menuSetCanvasBgImageOnlyIfFits;
+        private ToolStripMenuItem menuSetCanvasBgTransparent, menuSetCanvasBgGray, menuSetCanvasBgWhite, menuSetCanvasBgBlack;
+        private ToolStripMenuItem menuBrushIndicator, menuBrushIndicatorSquare, menuBrushIndicatorPreview;
+        private ToolStripMenuItem menuShowSymmetryLinesInUse, menuShowMinDistanceInUse;
+        private ToolStripMenuItem menuPrefsBrushImageDirectories;
+        private ToolStripMenuItem menuPrefsColorPickerIncludesAlpha, menuPrefsColorPickerSwitchesToPrevTool;
+        private ToolStripMenuItem menuPrefsRemoveUnfoundImagePaths, menuPrefsConfirmCloseSave;
+
         /// <summary>
         /// Tracks when the user draws out-of-bounds and moves the canvas to
         /// accomodate them.
         /// </summary>
         private Timer timerRepositionUpdate;
+
+        /// <summary>
+        /// Periodically checks if the user has PNG data on the clipboard and updates the bitmap copy used by this
+        /// plugin when it changes, if the user is set to use the clipboard image when available.
+        /// </summary>
+        private Timer timerClipboardDataCheck;
+
         private FlowLayoutPanel panelUndoRedoOkCancel;
         private Button bttnColorPicker;
         private Panel panelAllSettingsContainer;
@@ -525,7 +571,7 @@ namespace DynamicDraw
         private CmbxTabletValueType cmbxTabPressureValueJitter;
         private Accordion bttnSettings;
         private FlowLayoutPanel panelSettings;
-        private Button bttnCustomBrushImageLocations;
+        private Button bttnUpdateCurrentBrush;
         private Button bttnClearSettings;
         private ListView listviewBrushPicker;
         private Button bttnSaveBrush;
@@ -541,7 +587,7 @@ namespace DynamicDraw
         {
             InitializeComponent();
 
-            // Handles the application directory.
+            // The temp directory is used to store undo/redo images.
             TempDirectory.CleanupPreviousDirectories();
             tempDir = new TempDirectory();
 
@@ -718,6 +764,50 @@ namespace DynamicDraw
 
         #region Methods (overridden)
         /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing">
+        /// <c>true</c> to release both managed and unmanaged resources;
+        /// <c>false</c> to release only unmanaged resources.
+        /// </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (loadedBrushImages != null)
+                {
+                    loadedBrushImages.Dispose();
+                    loadedBrushImages = null;
+                }
+                if (tempDir != null)
+                {
+                    tempDir.Dispose();
+                    tempDir = null;
+                }
+
+                timerRepositionUpdate?.Dispose();
+                timerClipboardDataCheck?.Dispose();
+
+                bmpBrush?.Dispose();
+                bmpBrushDownsized?.Dispose();
+                bmpBrushEffects?.Dispose();
+                bmpCommitted?.Dispose();
+                bmpStaged?.Dispose();
+                bmpMerged?.Dispose();
+                bmpBackgroundClipboard?.Dispose();
+
+                displayCanvas.Cursor = Cursors.Default;
+                cursorColorPicker?.Dispose();
+                selectionOutline?.Dispose();
+                effectToDraw.Effect?.Dispose();
+
+                tabletService?.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
         /// Configures settings so they can be stored between consecutive
         /// calls of the effect.
         /// </summary>
@@ -732,7 +822,7 @@ namespace DynamicDraw
         /// </summary>
         protected override void InitDialogFromToken(EffectConfigToken effectToken)
         {
-            //Copies GUI values from the settings.
+            // Copies GUI values from the settings.
             PersistentSettings token = (PersistentSettings)effectToken;
 
             // Loads custom brush images if possible, but skips duplicates. This method is called twice by Paint.NET,
@@ -753,8 +843,8 @@ namespace DynamicDraw
                 keyboardShortcuts.Add(shortcut);
             }
 
-            token.CurrentBrushSettings.BrushFlow = UserSettings.userPrimaryColor.A;
-            token.CurrentBrushSettings.BrushColor = UserSettings.userPrimaryColor;
+            token.CurrentBrushSettings.BrushFlow = PdnUserSettings.userPrimaryColor.A;
+            token.CurrentBrushSettings.BrushColor = PdnUserSettings.userPrimaryColor;
 
             // Fetches and populates the available effects for the effect chooser combobox.
             if (effectOptions.Count == 1)
@@ -804,108 +894,58 @@ namespace DynamicDraw
         /// </summary>
         protected override void InitTokenFromDialog()
         {
-            var token = (PersistentSettings)EffectToken;
-
-            int index = listviewBrushImagePicker.SelectedIndices.Count > 0
-                ? listviewBrushImagePicker.SelectedIndices[0]
-                : -1;
-
+            PersistentSettings token = (PersistentSettings)EffectToken;
+            token.UserSettings = UserSettings;
             token.CustomBrushLocations = loadedBrushImagePaths;
-            token.CurrentBrushSettings.FlowChange = sliderShiftFlow.Value;
-            token.CurrentBrushSettings.BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex;
-            // Skipping BrushFlow and BrushColor since they'll be overridden anyway
-            token.CurrentBrushSettings.BrushDensity = sliderBrushDensity.Value;
-            token.CurrentBrushSettings.AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked;
-            token.CurrentBrushSettings.BrushImagePath = index >= 0
-                ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name
-                : Strings.DefaultBrushCircle;
-            token.CurrentBrushSettings.BrushRotation = sliderBrushRotation.Value;
-            token.CurrentBrushSettings.BrushSize = sliderBrushSize.Value;
-            token.CurrentBrushSettings.ColorInfluence = sliderColorInfluence.Value;
-            token.CurrentBrushSettings.ColorInfluenceHue = chkbxColorInfluenceHue.Checked;
-            token.CurrentBrushSettings.ColorInfluenceSat = chkbxColorInfluenceSat.Checked;
-            token.CurrentBrushSettings.ColorInfluenceVal = chkbxColorInfluenceVal.Checked;
-            token.CurrentBrushSettings.DoColorizeBrush = chkbxColorizeBrush.Checked;
-            token.CurrentBrushSettings.DoDitherDraw = chkbxDitherDraw.Checked;
-            token.CurrentBrushSettings.DoLockAlpha = chkbxLockAlpha.Checked;
-            token.CurrentBrushSettings.DoLockR = chkbxLockR.Checked;
-            token.CurrentBrushSettings.DoLockG = chkbxLockG.Checked;
-            token.CurrentBrushSettings.DoLockB = chkbxLockB.Checked;
-            token.CurrentBrushSettings.DoLockHue = chkbxLockHue.Checked;
-            token.CurrentBrushSettings.DoLockSat = chkbxLockSat.Checked;
-            token.CurrentBrushSettings.DoLockVal = chkbxLockVal.Checked;
-            token.CurrentBrushSettings.SeamlessDrawing = chkbxSeamlessDrawing.Checked;
-            token.CurrentBrushSettings.DoRotateWithMouse = chkbxOrientToMouse.Checked;
-            token.CurrentBrushSettings.MinDrawDistance = sliderMinDrawDistance.Value;
-            token.CurrentBrushSettings.RandFlowLoss = sliderRandFlowLoss.Value;
-            token.CurrentBrushSettings.RandHorzShift = sliderRandHorzShift.Value;
-            token.CurrentBrushSettings.RandMaxB = sliderJitterMaxBlue.Value;
-            token.CurrentBrushSettings.RandMaxG = sliderJitterMaxGreen.Value;
-            token.CurrentBrushSettings.RandMaxR = sliderJitterMaxRed.Value;
-            token.CurrentBrushSettings.RandMaxH = sliderJitterMaxHue.Value;
-            token.CurrentBrushSettings.RandMaxS = sliderJitterMaxSat.Value;
-            token.CurrentBrushSettings.RandMaxV = sliderJitterMaxVal.Value;
-            token.CurrentBrushSettings.RandMaxSize = sliderRandMaxSize.Value;
-            token.CurrentBrushSettings.RandMinB = sliderJitterMinBlue.Value;
-            token.CurrentBrushSettings.RandMinG = sliderJitterMinGreen.Value;
-            token.CurrentBrushSettings.RandMinR = sliderJitterMinRed.Value;
-            token.CurrentBrushSettings.RandMinH = sliderJitterMinHue.Value;
-            token.CurrentBrushSettings.RandMinS = sliderJitterMinSat.Value;
-            token.CurrentBrushSettings.RandMinV = sliderJitterMinVal.Value;
-            token.CurrentBrushSettings.RandMinSize = sliderRandMinSize.Value;
-            token.CurrentBrushSettings.RandRotLeft = sliderRandRotLeft.Value;
-            token.CurrentBrushSettings.RandRotRight = sliderRandRotRight.Value;
-            token.CurrentBrushSettings.RandVertShift = sliderRandVertShift.Value;
-            token.CurrentBrushSettings.RotChange = sliderShiftRotation.Value;
-            token.CurrentBrushSettings.SizeChange = sliderShiftSize.Value;
-            token.CurrentBrushSettings.Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex;
-            token.CurrentBrushSettings.Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex;
-            token.CurrentBrushSettings.CmbxChosenEffect = cmbxChosenEffect.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureBrushFlow = cmbxTabPressureBrushFlow.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureBrushOpacity = cmbxTabPressureBrushOpacity.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureGreenJitter = cmbxTabPressureGreenJitter.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureHueJitter = cmbxTabPressureHueJitter.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureMinDrawDistance = cmbxTabPressureMinDrawDistance.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandFlowLoss = cmbxTabPressureRandFlowLoss.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex;
-            token.CurrentBrushSettings.CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex;
-            token.CurrentBrushSettings.TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value;
-            token.CurrentBrushSettings.TabPressureBrushFlow = (int)spinTabPressureBrushFlow.Value;
-            token.CurrentBrushSettings.TabPressureBrushOpacity = (int)spinTabPressureBrushOpacity.Value;
-            token.CurrentBrushSettings.TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value;
-            token.CurrentBrushSettings.TabPressureBrushSize = (int)spinTabPressureBrushSize.Value;
-            token.CurrentBrushSettings.TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value;
-            token.CurrentBrushSettings.TabPressureMaxGreenJitter = (int)spinTabPressureMaxGreenJitter.Value;
-            token.CurrentBrushSettings.TabPressureMaxHueJitter = (int)spinTabPressureMaxHueJitter.Value;
-            token.CurrentBrushSettings.TabPressureMaxRedJitter = (int)spinTabPressureMaxRedJitter.Value;
-            token.CurrentBrushSettings.TabPressureMaxSatJitter = (int)spinTabPressureMaxSatJitter.Value;
-            token.CurrentBrushSettings.TabPressureMaxValueJitter = (int)spinTabPressureMaxValueJitter.Value;
-            token.CurrentBrushSettings.TabPressureMinBlueJitter = (int)spinTabPressureMinBlueJitter.Value;
-            token.CurrentBrushSettings.TabPressureMinDrawDistance = (int)spinTabPressureMinDrawDistance.Value;
-            token.CurrentBrushSettings.TabPressureMinGreenJitter = (int)spinTabPressureMinGreenJitter.Value;
-            token.CurrentBrushSettings.TabPressureMinHueJitter = (int)spinTabPressureMinHueJitter.Value;
-            token.CurrentBrushSettings.TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value;
-            token.CurrentBrushSettings.TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value;
-            token.CurrentBrushSettings.TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value;
-            token.CurrentBrushSettings.TabPressureRandFlowLoss = (int)spinTabPressureRandFlowLoss.Value;
-            token.CurrentBrushSettings.TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value;
-            token.CurrentBrushSettings.TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value;
-            token.CurrentBrushSettings.TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value;
-            token.CurrentBrushSettings.TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value;
-            token.CurrentBrushSettings.TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value;
-            token.CurrentBrushSettings.TabPressureRandVerShift = (int)spinTabPressureRandVerShift.Value;
+            token.CurrentBrushSettings = CreateSettingsObjectFromCurrentSettings(true);
             token.ActiveEffect = new(cmbxChosenEffect.SelectedIndex, new CustomEffect(effectToDraw, false));
+        }
+
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing" /> event.
+        /// </summary>
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (DialogResult == DialogResult.None)
+            {
+                e.Cancel = true;
+            }
+
+            base.OnFormClosing(e);
+
+            if (brushImageLoadingWorker.IsBusy)
+            {
+                e.Cancel = true;
+                if (DialogResult == DialogResult.Cancel)
+                {
+                    isFormClosing = true;
+                    brushImageLoadingWorker.CancelAsync();
+                }
+            }
+
+            if (!e.Cancel)
+            {
+                try
+                {
+                    settings.SaveChangedSettings();
+                }
+                catch (Exception ex)
+                {
+                    if (ex is NullReferenceException)
+                    {
+                        // settings can't be saved. Hide the error since the user already saw it.
+                    }
+                    else if (ex is IOException || ex is UnauthorizedAccessException)
+                    {
+                        MessageBox.Show(Strings.CannotSaveSettingsError,
+                            Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1039,9 +1079,9 @@ namespace DynamicDraw
             bttnBrushColor.Text = Strings.BrushColor;
             bttnCancel.Text = Strings.Cancel;
             bttnClearSettings.Text = Strings.ClearSettings;
-            bttnCustomBrushImageLocations.Text = Strings.CustomBrushImageLocations;
             bttnOk.Text = Strings.Ok;
             bttnUndo.Text = Strings.Undo;
+            bttnUpdateCurrentBrush.Text = Strings.UpdateCurrentBrush;
             bttnRedo.Text = Strings.Redo;
 
             chkbxColorizeBrush.Text = Strings.ColorizeBrush;
@@ -1079,89 +1119,8 @@ namespace DynamicDraw
 
             bttnDeleteBrush.Text = Strings.DeleteBrush;
             bttnSaveBrush.Text = Strings.SaveNewBrush;
-        }
 
-        /// <summary>
-        /// Sets the form resize restrictions.
-        /// </summary>
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-
-            try
-            {
-                IUserFilesService userFilesService =
-                (IUserFilesService)Services.GetService(typeof(IUserFilesService));
-
-                // userFilesService.UserFilesPath has been reported null before, so if it is, try to guess at the path.
-                string basePath = userFilesService.UserFilesPath ??
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files");
-
-                string path = Path.Combine(basePath, "DynamicDrawSettings.xml");
-                settings = new DynamicDrawSettings(path);
-
-                if (!File.Exists(path))
-                {
-                    // Migrate settings from the old settings filepath.
-                    string legacyPath = Path.Combine(basePath, "BrushFactorySettings.xml");
-                    if (File.Exists(legacyPath))
-                    {
-                        var legacySettings = new DynamicDrawSettings(legacyPath);
-                        legacySettings.LoadSavedSettings();
-                        settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
-                        settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
-                    }
-
-                    settings.Save(true);
-
-                    // Delete the old settings file if present, after migration.
-                    if (File.Exists(legacyPath))
-                    {
-                        File.Delete(legacyPath);
-                    }
-                }
-
-                // Loading the settings is split into a separate method to allow the defaults
-                // to be used if an error occurs.
-                settings.LoadSavedSettings();
-
-                // Populates the brush picker with saved brush names, which will be used to look up the settings later.
-                if (listviewBrushPicker.Items.Count == 0)
-                {
-                    foreach (var keyValPair in PersistentSettings.defaultBrushes)
-                    {
-                        listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
-                    }
-                    foreach (var keyValPair in settings.CustomBrushes)
-                    {
-                        listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
-                    }
-
-                    listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is NullReferenceException)
-                {
-                    MessageBox.Show(Strings.SettingsUnavailableError,
-                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else if (ex is IOException || ex is UnauthorizedAccessException)
-                {
-                    MessageBox.Show(Strings.CannotLoadSettingsError,
-                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            InitBrushes();
-
-            MinimumSize = new Size(835, 580);
-            MaximumSize = Size;
+            pluginHasLoaded = true;
         }
 
         /// <summary>
@@ -1349,91 +1308,58 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing" /> event.
+        /// Sets the form resize restrictions.
         /// </summary>
-        protected override void OnFormClosing(FormClosingEventArgs e)
+        protected override void OnShown(EventArgs e)
         {
-            if (DialogResult == DialogResult.None)
-            {
-                e.Cancel = true;
-            }
+            base.OnShown(e);
 
-            base.OnFormClosing(e);
-
-            if (brushImageLoadingWorker.IsBusy)
+            try
             {
-                e.Cancel = true;
-                if (DialogResult == DialogResult.Cancel)
-                {
-                    isFormClosing = true;
-                    brushImageLoadingWorker.CancelAsync();
-                }
-            }
+                MigrateLegacySettings();
 
-            if (!e.Cancel)
-            {
-                try
+                // Loading the settings is split into a separate method to allow the defaults
+                // to be used if an error occurs.
+                settings.LoadSavedSettings();
+                UpdateTopMenuState();
+
+                // Populates the brush picker with saved brush names, which will be used to look up the settings later.
+                if (listviewBrushPicker.Items.Count == 0)
                 {
-                    settings.SaveChangedSettings();
-                }
-                catch (Exception ex)
-                {
-                    if (ex is NullReferenceException)
+                    foreach (var keyValPair in PersistentSettings.defaultBrushes)
                     {
-                        // settings can't be saved. Hide the error since the user already saw it.
+                        listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
                     }
-                    else if (ex is IOException || ex is UnauthorizedAccessException)
+                    foreach (var keyValPair in settings.CustomBrushes)
                     {
-                        MessageBox.Show(Strings.CannotLoadSettingsError,
-                            Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        listviewBrushPicker.Items.Add(new ListViewItem(keyValPair.Key));
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
                 }
             }
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing">
-        /// <c>true</c> to release both managed and unmanaged resources;
-        /// <c>false</c> to release only unmanaged resources.
-        /// </param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            catch (Exception ex)
             {
-                if (loadedBrushImages != null)
+                if (ex is NullReferenceException)
                 {
-                    loadedBrushImages.Dispose();
-                    loadedBrushImages = null;
+                    MessageBox.Show(Strings.SettingsUnavailableError,
+                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                if (tempDir != null)
+                else if (ex is IOException || ex is UnauthorizedAccessException)
                 {
-                    tempDir.Dispose();
-                    tempDir = null;
+                    MessageBox.Show(Strings.CannotLoadSettingsError,
+                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
-                bmpBrush?.Dispose();
-                bmpBrushDownsized?.Dispose();
-                bmpBrushEffects?.Dispose();
-                bmpCommitted?.Dispose();
-                bmpStaged?.Dispose();
-                bmpMerged?.Dispose();
-                bmpBackgroundClipboard?.Dispose();
-
-                displayCanvas.Cursor = Cursors.Default;
-                cursorColorPicker?.Dispose();
-                selectionOutline?.Dispose();
-                effectToDraw.Effect?.Dispose();
-
-                tabletService?.Dispose();
+                else
+                {
+                    throw;
+                }
             }
 
-            base.Dispose(disposing);
+            InitBrushes();
+
+            MinimumSize = new Size(835, 580);
+            MaximumSize = Size;
         }
         #endregion
 
@@ -1557,7 +1483,7 @@ namespace DynamicDraw
 
             if (effectToDraw.Effect == null)
             {
-                MessageBox.Show(Strings.EffectFailedToStartError);
+                MessageBox.Show(Strings.EffectFailedToWorkError);
                 UpdateEnabledControls();
                 return;
             }
@@ -1609,7 +1535,7 @@ namespace DynamicDraw
 
                 if (dialog == null)
                 {
-                    MessageBox.Show(Strings.EffectFailedToStartError);
+                    MessageBox.Show(Strings.EffectFailedToWorkError);
                     return;
                 }
 
@@ -1638,7 +1564,7 @@ namespace DynamicDraw
                     bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
                     if (!effectSuccessfullyExecuted)
                     {
-                        MessageBox.Show(Strings.EffectFailedToStartError);
+                        MessageBox.Show(Strings.EffectFailedToWorkError);
                         dialog.Close();
                     }
 
@@ -1656,7 +1582,7 @@ namespace DynamicDraw
                     bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
                     if (!effectSuccessfullyExecuted)
                     {
-                        MessageBox.Show(Strings.EffectFailedToStartError);
+                        MessageBox.Show(Strings.EffectFailedToWorkError);
                         dialog.Close();
                     }
                 }
@@ -1673,8 +1599,120 @@ namespace DynamicDraw
             }
             catch
             {
-                MessageBox.Show(Strings.EffectFailedToStartError);
+                MessageBox.Show(Strings.EffectFailedToWorkError);
             }
+        }
+
+        /// <summary>
+        /// Returns a new brush settings object using all current settings values.
+        /// </summary>
+        private BrushSettings CreateSettingsObjectFromCurrentSettings(bool fallbackToCircleBrushPath = false)
+        {
+            int index = listviewBrushImagePicker.SelectedIndices.Count > 0
+                ? listviewBrushImagePicker.SelectedIndices[0]
+                : -1;
+
+            BrushSettings newSettings = new BrushSettings()
+            {
+                AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked,
+                BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex,
+                BrushColor = bttnBrushColor.BackColor,
+                BrushDensity = sliderBrushDensity.Value,
+                BrushFlow = sliderBrushFlow.Value,
+                BrushImagePath = index >= 0
+                    ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name
+                    : fallbackToCircleBrushPath ? Strings.DefaultBrushCircle : string.Empty,
+                BrushOpacity = sliderBrushOpacity.Value,
+                BrushRotation = sliderBrushRotation.Value,
+                BrushSize = sliderBrushSize.Value,
+                ColorInfluence = sliderColorInfluence.Value,
+                DoColorizeBrush = chkbxColorizeBrush.Checked,
+                ColorInfluenceHue = chkbxColorInfluenceHue.Checked,
+                ColorInfluenceSat = chkbxColorInfluenceSat.Checked,
+                ColorInfluenceVal = chkbxColorInfluenceVal.Checked,
+                DoDitherDraw = chkbxDitherDraw.Checked,
+                DoLockAlpha = chkbxLockAlpha.Checked,
+                DoLockR = chkbxLockR.Checked,
+                DoLockG = chkbxLockG.Checked,
+                DoLockB = chkbxLockB.Checked,
+                DoLockHue = chkbxLockHue.Checked,
+                DoLockSat = chkbxLockSat.Checked,
+                DoLockVal = chkbxLockVal.Checked,
+                FlowChange = sliderShiftFlow.Value,
+                SeamlessDrawing = chkbxSeamlessDrawing.Checked,
+                DoRotateWithMouse = chkbxOrientToMouse.Checked,
+                MinDrawDistance = sliderMinDrawDistance.Value,
+                RandFlowLoss = sliderRandFlowLoss.Value,
+                RandHorzShift = sliderRandHorzShift.Value,
+                RandMaxB = sliderJitterMaxBlue.Value,
+                RandMaxG = sliderJitterMaxGreen.Value,
+                RandMaxR = sliderJitterMaxRed.Value,
+                RandMaxH = sliderJitterMaxHue.Value,
+                RandMaxS = sliderJitterMaxSat.Value,
+                RandMaxV = sliderJitterMaxVal.Value,
+                RandMaxSize = sliderRandMaxSize.Value,
+                RandMinB = sliderJitterMinBlue.Value,
+                RandMinG = sliderJitterMinGreen.Value,
+                RandMinR = sliderJitterMinRed.Value,
+                RandMinH = sliderJitterMinHue.Value,
+                RandMinS = sliderJitterMinSat.Value,
+                RandMinV = sliderJitterMinVal.Value,
+                RandMinSize = sliderRandMinSize.Value,
+                RandRotLeft = sliderRandRotLeft.Value,
+                RandRotRight = sliderRandRotRight.Value,
+                RandVertShift = sliderRandVertShift.Value,
+                RotChange = sliderShiftRotation.Value,
+                SizeChange = sliderShiftSize.Value,
+                Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
+                Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
+                CmbxChosenEffect = cmbxChosenEffect.SelectedIndex,
+                CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex,
+                CmbxTabPressureBrushFlow = cmbxTabPressureBrushFlow.SelectedIndex,
+                CmbxTabPressureBrushOpacity = cmbxTabPressureBrushOpacity.SelectedIndex,
+                CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex,
+                CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex,
+                CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex,
+                CmbxTabPressureGreenJitter = cmbxTabPressureGreenJitter.SelectedIndex,
+                CmbxTabPressureHueJitter = cmbxTabPressureHueJitter.SelectedIndex,
+                CmbxTabPressureMinDrawDistance = cmbxTabPressureMinDrawDistance.SelectedIndex,
+                CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex,
+                CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex,
+                CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex,
+                CmbxTabPressureRandFlowLoss = cmbxTabPressureRandFlowLoss.SelectedIndex,
+                CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex,
+                CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex,
+                CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex,
+                CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex,
+                CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex,
+                CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex,
+                TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value,
+                TabPressureBrushFlow = (int)spinTabPressureBrushFlow.Value,
+                TabPressureBrushOpacity = (int)spinTabPressureBrushOpacity.Value,
+                TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value,
+                TabPressureBrushSize = (int)spinTabPressureBrushSize.Value,
+                TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value,
+                TabPressureMaxGreenJitter = (int)spinTabPressureMaxGreenJitter.Value,
+                TabPressureMaxHueJitter = (int)spinTabPressureMaxHueJitter.Value,
+                TabPressureMaxRedJitter = (int)spinTabPressureMaxRedJitter.Value,
+                TabPressureMaxSatJitter = (int)spinTabPressureMaxSatJitter.Value,
+                TabPressureMaxValueJitter = (int)spinTabPressureMaxValueJitter.Value,
+                TabPressureMinBlueJitter = (int)spinTabPressureMinBlueJitter.Value,
+                TabPressureMinDrawDistance = (int)spinTabPressureMinDrawDistance.Value,
+                TabPressureMinGreenJitter = (int)spinTabPressureMinGreenJitter.Value,
+                TabPressureMinHueJitter = (int)spinTabPressureMinHueJitter.Value,
+                TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value,
+                TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value,
+                TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value,
+                TabPressureRandFlowLoss = (int)spinTabPressureRandFlowLoss.Value,
+                TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value,
+                TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value,
+                TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value,
+                TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value,
+                TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value,
+                TabPressureRandVerShift = (int)spinTabPressureRandVerShift.Value
+            };
+
+            return newSettings;
         }
 
         /// <summary>
@@ -1685,8 +1723,7 @@ namespace DynamicDraw
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(PointF loc, int radius, float pressure)
         {
-            // It's possible to try to draw before the plugin has initialized (indicated by not having the bitmap set).
-            if (bmpBrushEffects == null)
+            if (!pluginHasLoaded || bmpBrushEffects == null)
             {
                 return;
             }
@@ -2251,7 +2288,7 @@ namespace DynamicDraw
                                         (BlendMode)cmbxBlendMode.SelectedIndex,
                                         drawToStagedBitmap ? (false, false, false, false, false, false, false) :
                                         (chkbxLockAlpha.Checked,
-                                        chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                        chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                         chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked,
@@ -2335,7 +2372,7 @@ namespace DynamicDraw
                                         new Point(
                                             (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
                                             (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
-                                        (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                        (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                         chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
                                         chkbxDitherDraw.Checked);
@@ -2414,7 +2451,7 @@ namespace DynamicDraw
                                             new Point(
                                                 (int)Math.Round(transformedPoint.X - halfScaleFactor),
                                                 (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
-                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
                                             chkbxDitherDraw.Checked);
@@ -2434,7 +2471,7 @@ namespace DynamicDraw
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
                                             drawToStagedBitmap ? (false, false, false, false, false, false, false) :
                                             (chkbxLockAlpha.Checked,
-                                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
                                             chkbxDitherDraw.Checked,
@@ -2514,7 +2551,7 @@ namespace DynamicDraw
                                             new Point(
                                                 (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
                                                 (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
-                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
                                             chkbxDitherDraw.Checked);
@@ -2534,7 +2571,7 @@ namespace DynamicDraw
                                             (BlendMode)cmbxBlendMode.SelectedIndex,
                                             drawToStagedBitmap ? (false, false, false, false, false, false, false) :
                                             (chkbxLockAlpha.Checked,
-                                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked, 
+                                            chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
                                             chkbxDitherDraw.Checked,
@@ -2735,6 +2772,89 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Returns a list of files in the given directories. Any invalid
+        /// or non-directory path is ignored.
+        /// </summary>
+        /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
+        private IReadOnlyCollection<string> FilesInDirectory(IEnumerable<string> localUris, BackgroundWorker backgroundWorker)
+        {
+            List<string> pathsToReturn = new List<string>();
+
+            foreach (string pathFromUser in localUris)
+            {
+                try
+                {
+                    // Gets and verifies the file uri is valid.
+                    string localUri = Path.GetFullPath(new Uri(pathFromUser).LocalPath)
+                       ?.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       ?.ToLower();
+
+                    bool isDirectory = Directory.Exists(localUri);
+                    bool isFile = File.Exists(localUri);
+
+                    if (isFile)
+                    {
+                        if (localUri.EndsWith("png") || localUri.EndsWith("bmp") || localUri.EndsWith("jpg") ||
+                            localUri.EndsWith("gif") || localUri.EndsWith("tif") || localUri.EndsWith("exif") ||
+                            localUri.EndsWith("jpeg") || localUri.EndsWith("tiff") || localUri.EndsWith(".abr"))
+                        {
+                            if (!pathsToReturn.Contains(localUri))
+                            {
+                                pathsToReturn.Add(localUri);
+                            }
+                        }
+                    }
+                    else if (isDirectory)
+                    {
+                        foreach (string str in Directory.GetFiles(localUri))
+                        {
+                            if (backgroundWorker.CancellationPending)
+                            {
+                                throw new OperationCanceledException();
+                            }
+
+                            if (str.EndsWith("png") || str.EndsWith("bmp") || str.EndsWith("jpg") ||
+                                str.EndsWith("gif") || str.EndsWith("tif") || str.EndsWith("exif") ||
+                                str.EndsWith("jpeg") || str.EndsWith("tiff") || str.EndsWith(".abr"))
+                            {
+                                if (!pathsToReturn.Contains(str))
+                                {
+                                    pathsToReturn.Add(str);
+                                }
+                            }
+                        }
+                    }
+                    else if (UserSettings.RemoveBrushImagePathsWhenNotFound)
+                    {
+                        settings.CustomBrushImageDirectories.Remove(pathFromUser);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Remove gibberish entries (according to user preference).
+                    if (ex is UriFormatException)
+                    {
+                        if (UserSettings.RemoveBrushImagePathsWhenNotFound)
+                        {
+                            settings.CustomBrushImageDirectories.Remove(pathFromUser);
+                        }
+                    }
+
+                    // All these exceptions are run-of-the-mill issues with File I/O and can just be swallowed.
+                    else if (!(ex is ArgumentException ||
+                        ex is IOException ||
+                        ex is SecurityException ||
+                        ex is UnauthorizedAccessException))
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return pathsToReturn;
+        }
+
+        /// <summary>
         /// Sets the active color based on the color from the canvas at the given point.
         /// </summary>
         /// <param name="loc">The point to get the color from.</param>
@@ -2748,10 +2868,83 @@ namespace DynamicDraw
                 rotatedLoc.X <= bmpCommitted.Width - 1 &&
                 rotatedLoc.Y <= bmpCommitted.Height - 1)
             {
-                UpdateBrushColor(bmpCommitted.GetPixel(
+                var pixel = bmpCommitted.GetPixel(
                     (int)Math.Round(rotatedLoc.X),
-                    (int)Math.Round(rotatedLoc.Y)));
+                    (int)Math.Round(rotatedLoc.Y));
+
+                if (UserSettings.ColorPickerIncludesAlpha)
+                {
+                    sliderBrushOpacity.Value = pixel.A;
+                }
+
+                UpdateBrushColor(pixel);
             }
+        }
+
+        /// <summary>
+        /// Returns the height of one thumbnail in the list view, which is
+        /// used to compute the number on screen.
+        /// </summary>
+        private int GetListViewItemHeight()
+        {
+            if (listviewBrushImagePicker.VirtualListSize == 0)
+            {
+                // Suspend the ListView painting while the dummy item is added and removed.
+                listviewBrushImagePicker.BeginUpdate();
+
+                // Add and remove a dummy item to get the ListView item height.
+                loadedBrushImages.Add(new BrushSelectorItem("Dummy", Resources.BrCircle));
+                listviewBrushImagePicker.VirtualListSize = 1;
+
+                int itemHeight = listviewBrushImagePicker.GetItemRect(0, ItemBoundsPortion.Entire).Height;
+
+                listviewBrushImagePicker.VirtualListSize = 0;
+                loadedBrushImages.Clear();
+
+                listviewBrushImagePicker.EndUpdate();
+
+                return itemHeight;
+            }
+            else
+            {
+                return listviewBrushImagePicker.GetItemRect(0, ItemBoundsPortion.Entire).Height;
+            }
+        }
+
+        /// <summary>
+        /// Returns the amount of space between the display canvas and
+        /// the display canvas background.
+        /// </summary>
+        private Rectangle GetRange()
+        {
+            //Gets the full region.
+            Rectangle range = new Rectangle(canvas.x, canvas.y, canvas.width, canvas.height);
+
+            //Calculates width.
+            if (canvas.width >= displayCanvas.ClientRectangle.Width)
+            {
+                range.X = displayCanvas.ClientRectangle.Width - canvas.width;
+                range.Width = canvas.width - displayCanvas.ClientRectangle.Width;
+            }
+            else
+            {
+                range.X = (displayCanvas.ClientRectangle.Width - canvas.width) / 2;
+                range.Width = 0;
+            }
+
+            //Calculates height.
+            if (canvas.height >= displayCanvas.ClientRectangle.Height)
+            {
+                range.Y = displayCanvas.ClientRectangle.Height - canvas.height;
+                range.Height = canvas.height - displayCanvas.ClientRectangle.Height;
+            }
+            else
+            {
+                range.Y = (displayCanvas.ClientRectangle.Height - canvas.height) / 2;
+                range.Height = 0;
+            }
+
+            return range;
         }
 
         /// <summary>
@@ -3086,7 +3279,7 @@ namespace DynamicDraw
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             string defPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            openFileDialog.InitialDirectory = defPath;
+            openFileDialog.InitialDirectory = importBrushesLastDirectory ?? defPath;
             openFileDialog.Multiselect = true;
             openFileDialog.Title = Strings.CustomBrushImagesDirectoryTitle;
             openFileDialog.Filter = Strings.CustomBrushImagesDirectoryFilter +
@@ -3095,6 +3288,7 @@ namespace DynamicDraw
             //Displays the dialog. Loads the files if it worked.
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
+                importBrushesLastDirectory = Path.GetDirectoryName(openFileDialog.FileName);
                 ImportBrushImagesFromFiles(openFileDialog.FileNames, true);
 
                 // Permanently adds brushes.
@@ -3110,6 +3304,28 @@ namespace DynamicDraw
 
                     settings.Save(true);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Attempts to load any brush image files from the specified directories and add them as custom
+        /// brush images. This does not interact with the user.
+        /// </summary>
+        /// <param name="directories">
+        /// The search directories.
+        /// </param>
+        private void ImportBrushImagesFromDirectories(IEnumerable<string> directories)
+        {
+            if (!brushImageLoadingWorker.IsBusy)
+            {
+                int listViewItemHeight = GetListViewItemHeight();
+                int maxBrushSize = sliderBrushSize.Maximum;
+
+                BrushImageLoadingSettings workerArgs = new BrushImageLoadingSettings(directories, listViewItemHeight, maxBrushSize);
+                bttnAddBrushImages.Visible = false;
+                brushImageLoadProgressBar.Visible = true;
+
+                brushImageLoadingWorker.RunWorkerAsync(workerArgs);
             }
         }
 
@@ -3132,28 +3348,6 @@ namespace DynamicDraw
                 int maxBrushSize = sliderBrushSize.Maximum;
 
                 BrushImageLoadingSettings workerArgs = new BrushImageLoadingSettings(filePaths, true, doDisplayErrors, listViewItemHeight, maxBrushSize);
-                bttnAddBrushImages.Visible = false;
-                brushImageLoadProgressBar.Visible = true;
-
-                brushImageLoadingWorker.RunWorkerAsync(workerArgs);
-            }
-        }
-
-        /// <summary>
-        /// Attempts to load any brush image files from the specified directories and add them as custom
-        /// brush images. This does not interact with the user.
-        /// </summary>
-        /// <param name="directories">
-        /// The search directories.
-        /// </param>
-        private void ImportBrushImagesFromDirectories(IEnumerable<string> directories)
-        {
-            if (!brushImageLoadingWorker.IsBusy)
-            {
-                int listViewItemHeight = GetListViewItemHeight();
-                int maxBrushSize = sliderBrushSize.Maximum;
-
-                BrushImageLoadingSettings workerArgs = new BrushImageLoadingSettings(directories, listViewItemHeight, maxBrushSize);
                 bttnAddBrushImages.Visible = false;
                 brushImageLoadProgressBar.Visible = true;
 
@@ -3223,151 +3417,6 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Sets/resets all persistent settings in the dialog to their default
-        /// values.
-        /// </summary>
-        private void InitSettings()
-        {
-            InitialInitToken();
-            InitDialogFromToken();
-        }
-
-        /// <summary>
-        /// Returns a list of files in the given directories. Any invalid
-        /// or non-directory path is ignored.
-        /// </summary>
-        /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
-        private static IReadOnlyCollection<string> FilesInDirectory(IEnumerable<string> localUris, BackgroundWorker backgroundWorker)
-        {
-            List<string> pathsToReturn = new List<string>();
-
-            foreach (string pathFromUser in localUris)
-            {
-                try
-                {
-                    // Gets and verifies the file uri is valid.
-                    string localUri = Path.GetFullPath(new Uri(pathFromUser).LocalPath)
-                       ?.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                       ?.ToLower();
-
-                    bool isDirectory = Directory.Exists(localUri);
-                    bool isFile = File.Exists(localUri);
-
-                    if (isFile)
-                    {
-                        if (localUri.EndsWith("png") || localUri.EndsWith("bmp") || localUri.EndsWith("jpg") ||
-                            localUri.EndsWith("gif") || localUri.EndsWith("tif") || localUri.EndsWith("exif") ||
-                            localUri.EndsWith("jpeg") || localUri.EndsWith("tiff") || localUri.EndsWith(".abr"))
-                        {
-                            if (!pathsToReturn.Contains(localUri))
-                            {
-                                pathsToReturn.Add(localUri);
-                            }
-                        }
-                    }
-                    else if (isDirectory)
-                    {
-                        foreach (string str in Directory.GetFiles(localUri))
-                        {
-                            if (backgroundWorker.CancellationPending)
-                            {
-                                throw new OperationCanceledException();
-                            }
-
-                            if (str.EndsWith("png") || str.EndsWith("bmp") || str.EndsWith("jpg") ||
-                                str.EndsWith("gif") || str.EndsWith("tif") || str.EndsWith("exif") ||
-                                str.EndsWith("jpeg") || str.EndsWith("tiff") || str.EndsWith(".abr"))
-                            {
-                                if (!pathsToReturn.Contains(str))
-                                {
-                                    pathsToReturn.Add(str);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (!(ex is ArgumentException ||
-                        ex is IOException ||
-                        ex is SecurityException ||
-                        ex is UnauthorizedAccessException))
-                    {
-                        throw;
-                    }
-                }
-            }
-
-            return pathsToReturn;
-        }
-
-        /// <summary>
-        /// Returns the height of one thumbnail in the list view, which is
-        /// used to compute the number on screen.
-        /// </summary>
-        private int GetListViewItemHeight()
-        {
-            if (listviewBrushImagePicker.VirtualListSize == 0)
-            {
-                // Suspend the ListView painting while the dummy item is added and removed.
-                listviewBrushImagePicker.BeginUpdate();
-
-                // Add and remove a dummy item to get the ListView item height.
-                loadedBrushImages.Add(new BrushSelectorItem("Dummy", Resources.BrCircle));
-                listviewBrushImagePicker.VirtualListSize = 1;
-
-                int itemHeight = listviewBrushImagePicker.GetItemRect(0, ItemBoundsPortion.Entire).Height;
-
-                listviewBrushImagePicker.VirtualListSize = 0;
-                loadedBrushImages.Clear();
-
-                listviewBrushImagePicker.EndUpdate();
-
-                return itemHeight;
-            }
-            else
-            {
-                return listviewBrushImagePicker.GetItemRect(0, ItemBoundsPortion.Entire).Height;
-            }
-        }
-
-        /// <summary>
-        /// Returns the amount of space between the display canvas and
-        /// the display canvas background.
-        /// </summary>
-        private Rectangle GetRange()
-        {
-            //Gets the full region.
-            Rectangle range = new Rectangle(canvas.x, canvas.y, canvas.width, canvas.height);
-
-            //Calculates width.
-            if (canvas.width >= displayCanvas.ClientRectangle.Width)
-            {
-                range.X = displayCanvas.ClientRectangle.Width - canvas.width;
-                range.Width = canvas.width - displayCanvas.ClientRectangle.Width;
-            }
-            else
-            {
-                range.X = (displayCanvas.ClientRectangle.Width - canvas.width) / 2;
-                range.Width = 0;
-            }
-
-            //Calculates height.
-            if (canvas.height >= displayCanvas.ClientRectangle.Height)
-            {
-                range.Y = displayCanvas.ClientRectangle.Height - canvas.height;
-                range.Height = canvas.height - displayCanvas.ClientRectangle.Height;
-            }
-            else
-            {
-                range.Y = (displayCanvas.ClientRectangle.Height - canvas.height) / 2;
-                range.Height = 0;
-            }
-
-            return range;
-        }
-
-        /// <summary>
         /// Initializes all components. This used to be auto-generated, but is now editable as auto-generation tools
         /// don't work on this file anymore due to a history of temporary & long incompatibility in this repo.
         /// </summary>
@@ -3376,8 +3425,10 @@ namespace DynamicDraw
             this.components = new Container();
             ComponentResourceManager resources = new ComponentResourceManager(typeof(WinDynamicDraw));
             this.timerRepositionUpdate = new Timer(this.components);
+            this.timerClipboardDataCheck = new Timer(this.components);
             this.txtTooltip = new Label();
             this.displayCanvas = new PictureBox();
+            this.topMenu = new FlowLayoutPanel();
             this.bttnToolBrush = new Button();
             this.dummyImageList = new ImageList(this.components);
             this.panelUndoRedoOkCancel = new FlowLayoutPanel();
@@ -3593,11 +3644,12 @@ namespace DynamicDraw
             this.cmbxTabPressureValueJitter = new CmbxTabletValueType();
             this.bttnSettings = new Accordion();
             this.panelSettings = new FlowLayoutPanel();
-            this.bttnCustomBrushImageLocations = new Button();
+            this.bttnUpdateCurrentBrush = new Button();
             this.bttnClearSettings = new Button();
             this.bttnDeleteBrush = new Button();
             this.bttnSaveBrush = new Button();
             this.chkbxAutomaticBrushDensity = new CheckBox();
+            this.topMenu.SuspendLayout();
             this.displayCanvas.SuspendLayout();
             ((ISupportInitialize)(this.displayCanvas)).BeginInit();
             this.panelUndoRedoOkCancel.SuspendLayout();
@@ -3718,6 +3770,12 @@ namespace DynamicDraw
             this.timerRepositionUpdate.Interval = 5;
             this.timerRepositionUpdate.Tick += new EventHandler(this.RepositionUpdate_Tick);
             // 
+            // timerClipboardDataCheck
+            // 
+            this.timerClipboardDataCheck.Interval = 1000;
+            this.timerClipboardDataCheck.Tick += new EventHandler(this.ClipboardDataCheck_Tick);
+            this.timerClipboardDataCheck.Enabled = true;
+            // 
             // txtTooltip
             // 
             resources.ApplyResources(this.txtTooltip, "txtTooltip");
@@ -3737,6 +3795,199 @@ namespace DynamicDraw
             this.displayCanvas.MouseEnter += new EventHandler(this.DisplayCanvas_MouseEnter);
             this.displayCanvas.MouseMove += new MouseEventHandler(this.DisplayCanvas_MouseMove);
             this.displayCanvas.MouseUp += new MouseEventHandler(this.DisplayCanvas_MouseUp);
+            // 
+            // topMenu
+            // 
+            this.topMenu.Name = "topMenu";
+            this.topMenu.FlowDirection = FlowDirection.LeftToRight;
+            this.topMenu.Width = displayCanvas.Width;
+            this.topMenu.Height = 32;
+
+            // The options button
+            menuOptions = new Button
+            {
+                Text = "Options",
+                Height = 30,
+                Margin = Padding.Empty,
+                Padding = Padding.Empty
+            };
+            ContextMenuStrip preferencesContextMenu = new ContextMenuStrip();
+
+            // Options -> custom brush images...
+            menuPrefsBrushImageDirectories = new ToolStripMenuItem("custom brush images...");
+            menuPrefsBrushImageDirectories.Click += (a, b) =>
+            {
+                if (settings != null)
+                {
+                    if (new DynamicDrawPreferences(settings).ShowDialog() == DialogResult.OK)
+                    {
+                        InitBrushes();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(Strings.SettingsUnavailableError,
+                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+            preferencesContextMenu.Items.Add(menuPrefsBrushImageDirectories);
+
+            // Separator
+            preferencesContextMenu.Items.Add(new ToolStripSeparator());
+
+            // Options -> reset canvas
+            this.menuResetCanvas = new ToolStripMenuItem("reset canvas", null, (a, b) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.ResetCanvasTransforms });
+            });
+
+            preferencesContextMenu.Items.Add(menuResetCanvas);
+
+            // Options -> set canvas background
+            menuSetCanvasBackground = new ToolStripMenuItem("set canvas background");
+
+            menuSetCanvasBgImageFit = new ToolStripMenuItem("stretch to fit");
+            menuSetCanvasBgImageOnlyIfFits = new ToolStripMenuItem("use only if same size");
+            menuSetCanvasBgImage = new ToolStripMenuItem(Strings.BackgroundImage);
+            menuSetCanvasBgImage.DropDown.Items.Add(menuSetCanvasBgImageFit);
+            menuSetCanvasBgImage.DropDown.Items.Add(menuSetCanvasBgImageOnlyIfFits);
+
+            menuSetCanvasBgTransparent = new ToolStripMenuItem(Strings.BackgroundTransparent);
+            menuSetCanvasBgGray = new ToolStripMenuItem(Strings.BackgroundNone);
+            menuSetCanvasBgWhite = new ToolStripMenuItem(Strings.BackgroundWhite);
+            menuSetCanvasBgBlack = new ToolStripMenuItem(Strings.BackgroundBlack);
+
+            menuSetCanvasBgImageFit.Click += (a, b) =>
+            {
+                UserSettings.BackgroundDisplayMode = BackgroundDisplayMode.ClipboardFit;
+                UpdateTopMenuState();
+                UpdateBackgroundFromClipboard(true);
+            };
+            menuSetCanvasBgImageOnlyIfFits.Click += (a, b) =>
+            {
+                UserSettings.BackgroundDisplayMode = BackgroundDisplayMode.ClipboardOnlyIfFits;
+                UpdateTopMenuState();
+                UpdateBackgroundFromClipboard(true);
+            };
+            menuSetCanvasBgTransparent.Click += (a, b) =>
+            {
+                UserSettings.BackgroundDisplayMode = BackgroundDisplayMode.Transparent;
+                UpdateTopMenuState();
+                bmpBackgroundClipboard?.Dispose();
+            };
+            menuSetCanvasBgGray.Click += (a, b) =>
+            {
+                UserSettings.BackgroundDisplayMode = BackgroundDisplayMode.Gray;
+                UpdateTopMenuState();
+                bmpBackgroundClipboard?.Dispose();
+            };
+            menuSetCanvasBgWhite.Click += (a, b) =>
+            {
+                UserSettings.BackgroundDisplayMode = BackgroundDisplayMode.White;
+                UpdateTopMenuState();
+                bmpBackgroundClipboard?.Dispose();
+            };
+            menuSetCanvasBgBlack.Click += (a, b) =>
+            {
+                UserSettings.BackgroundDisplayMode = BackgroundDisplayMode.Black;
+                UpdateTopMenuState();
+                bmpBackgroundClipboard?.Dispose();
+            };
+
+            menuSetCanvasBackground.DropDown.Items.Add(menuSetCanvasBgImage);
+            menuSetCanvasBackground.DropDown.Items.Add(menuSetCanvasBgTransparent);
+            menuSetCanvasBackground.DropDown.Items.Add(menuSetCanvasBgGray);
+            menuSetCanvasBackground.DropDown.Items.Add(menuSetCanvasBgWhite);
+            menuSetCanvasBackground.DropDown.Items.Add(menuSetCanvasBgBlack);
+
+            preferencesContextMenu.Items.Add(menuSetCanvasBackground);
+
+            // Options -> display settings -> brush indicator
+            menuDisplaySettings = new ToolStripMenuItem("display settings");
+            menuBrushIndicator = new ToolStripMenuItem("brush indicator");
+            menuBrushIndicatorSquare = new ToolStripMenuItem("square");
+            menuBrushIndicatorPreview = new ToolStripMenuItem("brush preview");
+
+            menuBrushIndicatorSquare.Click += (a, b) =>
+            {
+                UserSettings.BrushCursorPreview = BrushCursorPreview.Square;
+                UpdateTopMenuState();
+            };
+            menuBrushIndicatorPreview.Click += (a, b) =>
+            {
+                UserSettings.BrushCursorPreview = BrushCursorPreview.Preview;
+                UpdateTopMenuState();
+            };
+
+            menuBrushIndicator.DropDown.Items.Add(menuBrushIndicatorSquare);
+            menuBrushIndicator.DropDown.Items.Add(menuBrushIndicatorPreview);
+
+            menuDisplaySettings.DropDown.Items.Add(menuBrushIndicator);
+            preferencesContextMenu.Items.Add(menuDisplaySettings);
+
+            // Options -> display settings -> show symmetry lines when in use
+            menuShowSymmetryLinesInUse = new ToolStripMenuItem("show symmetry lines when in use");
+            menuShowSymmetryLinesInUse.Click += (a, b) =>
+            {
+                UserSettings.ShowSymmetryLinesWhenUsingSymmetry = !UserSettings.ShowSymmetryLinesWhenUsingSymmetry;
+                UpdateTopMenuState();
+            };
+            menuDisplaySettings.DropDown.Items.Add(menuShowSymmetryLinesInUse);
+
+            // Options -> display settings -> show the circle for minimum distance when in use
+            menuShowMinDistanceInUse = new ToolStripMenuItem("show the circle for minimum distance when in use");
+                        menuShowMinDistanceInUse.Click += (a, b) =>
+            {
+                UserSettings.ShowCircleRadiusWhenUsingMinDistance = !UserSettings.ShowCircleRadiusWhenUsingMinDistance;
+                UpdateTopMenuState();
+            };
+            menuDisplaySettings.DropDown.Items.Add(menuShowMinDistanceInUse);
+
+            // Separator
+            preferencesContextMenu.Items.Add(new ToolStripSeparator());
+
+            // Options -> color picker includes alpha
+            menuPrefsColorPickerIncludesAlpha = new ToolStripMenuItem("color picker copies transparency");
+            menuPrefsColorPickerIncludesAlpha.Click += (a, b) =>
+            {
+                UserSettings.ColorPickerIncludesAlpha = !UserSettings.ColorPickerIncludesAlpha;
+                UpdateTopMenuState();
+            };
+            preferencesContextMenu.Items.Add(menuPrefsColorPickerIncludesAlpha);
+
+            // Options -> display settings -> color picker switches to last tool when used
+            menuPrefsColorPickerSwitchesToPrevTool = new ToolStripMenuItem("color picker switches to last tool when used");
+            menuPrefsColorPickerSwitchesToPrevTool.Click += (a, b) =>
+            {
+                UserSettings.ColorPickerSwitchesToLastTool = !UserSettings.ColorPickerSwitchesToLastTool;
+                UpdateTopMenuState();
+            };
+            preferencesContextMenu.Items.Add(menuPrefsColorPickerSwitchesToPrevTool);
+
+            // Options -> display settings -> remove brush image paths when not found
+            menuPrefsRemoveUnfoundImagePaths = new ToolStripMenuItem("remove brush image paths when not found");
+            menuPrefsRemoveUnfoundImagePaths.Click += (a, b) =>
+            {
+                UserSettings.RemoveBrushImagePathsWhenNotFound = !UserSettings.RemoveBrushImagePathsWhenNotFound;
+                UpdateTopMenuState();
+            };
+            preferencesContextMenu.Items.Add(menuPrefsRemoveUnfoundImagePaths);
+
+            // Options -> display settings -> don't ask to confirm when closing/saving
+            menuPrefsConfirmCloseSave = new ToolStripMenuItem("don't ask to confirm when closing/saving");
+            menuPrefsConfirmCloseSave.Click += (a, b) =>
+            {
+                UserSettings.DisableConfirmationOnCloseOrSave = !UserSettings.DisableConfirmationOnCloseOrSave;
+                UpdateTopMenuState();
+            };
+            preferencesContextMenu.Items.Add(menuPrefsConfirmCloseSave);
+
+            menuOptions.Click += (a, b) => {
+                preferencesContextMenu.Show(menuOptions.PointToScreen(new Point(0, menuOptions.Height)));
+            };
+            this.topMenu.Controls.Add(menuOptions);
+            UpdateTopMenuState();
+
             // 
             // bttnToolBrush
             // 
@@ -5722,19 +5973,20 @@ namespace DynamicDraw
             // 
             resources.ApplyResources(this.panelSettings, "panelSettings");
             this.panelSettings.BackColor = System.Drawing.SystemColors.Control;
-            this.panelSettings.Controls.Add(this.bttnCustomBrushImageLocations);
+            this.panelSettings.Controls.Add(this.bttnUpdateCurrentBrush);
             this.panelSettings.Controls.Add(this.bttnClearSettings);
             this.panelSettings.Controls.Add(this.bttnDeleteBrush);
             this.panelSettings.Controls.Add(this.bttnSaveBrush);
             this.panelSettings.Name = "panelSettings";
             // 
-            // bttnCustomBrushImageLocations
+            // bttnUpdateCurrentBrush
             // 
-            resources.ApplyResources(this.bttnCustomBrushImageLocations, "bttnCustomBrushImageLocations");
-            this.bttnCustomBrushImageLocations.Name = "bttnCustomBrushImageLocations";
-            this.bttnCustomBrushImageLocations.UseVisualStyleBackColor = true;
-            this.bttnCustomBrushImageLocations.Click += new EventHandler(this.BttnPreferences_Click);
-            this.bttnCustomBrushImageLocations.MouseEnter += new EventHandler(this.BttnPreferences_MouseEnter);
+            resources.ApplyResources(this.bttnUpdateCurrentBrush, "bttnUpdateCurrentBrush");
+            this.bttnUpdateCurrentBrush.Enabled = false;
+            this.bttnUpdateCurrentBrush.Name = "bttnUpdateCurrentBrush";
+            this.bttnUpdateCurrentBrush.UseVisualStyleBackColor = true;
+            this.bttnUpdateCurrentBrush.Click += new EventHandler(this.BttnUpdateCurrentBrush_Click);
+            this.bttnUpdateCurrentBrush.MouseEnter += new EventHandler(this.BttnUpdateCurrentBrush_MouseEnter);
             // 
             // bttnClearSettings
             // 
@@ -5767,6 +6019,7 @@ namespace DynamicDraw
             this.BackColor = System.Drawing.SystemColors.ControlLight;
             this.CancelButton = this.bttnCancel;
             this.Controls.Add(this.panelAllSettingsContainer);
+            this.Controls.Add(this.topMenu);
             this.Controls.Add(this.displayCanvas);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
@@ -5777,6 +6030,8 @@ namespace DynamicDraw
             this.Name = "WinDynamicDraw";
             this.Resize += WinDynamicDraw_Resize;
             this.SizeGripStyle = SizeGripStyle.Auto;
+            this.topMenu.ResumeLayout(false);
+            this.topMenu.PerformLayout();
             this.displayCanvas.ResumeLayout(false);
             this.displayCanvas.PerformLayout();
             ((ISupportInitialize)(this.displayCanvas)).EndInit();
@@ -5925,112 +6180,67 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Positions the window according to the paint.net window.
+        /// Sets/resets all persistent settings in the dialog to their default
+        /// values.
         /// </summary>
-        private void DynamicDrawWindow_Load(object sender, EventArgs e)
+        private void InitSettings()
         {
-            this.DesktopLocation = Owner.PointToScreen(new Point(0, 30));
-            this.Size = new Size(Owner.ClientSize.Width, Owner.ClientSize.Height - 30);
-            this.WindowState = Owner.WindowState;
+            InitialInitToken();
+            InitDialogFromToken();
         }
 
         /// <summary>
-        /// Handles manual resizing of any element that requires it.
+        /// Detects old settings paths that this plugin used to save to, and migrates them to preserve the user's
+        /// preferences and brush image directories. Saves to the modern path, then deletes the old files.
         /// </summary>
-        private void WinDynamicDraw_Resize(object sender, EventArgs e)
+        private void MigrateLegacySettings()
         {
-            this.txtTooltip.MaximumSize = new Size(displayCanvas.Width, displayCanvas.Height);
-            displayCanvas.Refresh();
-        }
+            /* This migrates while loading for the 3 possible locations of the settings file:
+             * Documents/paint.net User Files/BrushFactorySettings.xml
+             * Program Files/paint.net/UserFiles/DynamicDrawSettings.xml
+             * Documents/paint.net User Files/DynamicDrawSettings.xml
+             * 
+             * Settings were at first stored in the registry, then moved to an XML file in User Files. When the
+             * newer location under the paint.net folder became available, settings were moved there as version 3
+             * of the plugin came around. Since then, there's been consistent issues with denial of access by UAC
+             * for being stored in Program Files, so the settings have been moved back to documents.
+             */
 
-        /// <summary>
-        /// Displays a context menu for changing background color options.
-        /// </summary>
-        /// <param name="sender">
-        /// The control associated with the context menu.
-        /// </param>
-        /// <param name="location">
-        /// The mouse location to appear at.
-        /// </param>
-        private void ShowBgContextMenu(Control sender, Point location)
-        {
-            ContextMenuStrip contextMenu = new ContextMenuStrip();
+            IUserFilesService userFilesService =
+                (IUserFilesService)Services.GetService(typeof(IUserFilesService));
 
-            if (Clipboard.ContainsData("PNG"))
+            string newPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files", "DynamicDrawSettings.xml");
+            settings = new SettingsSerialization(newPath);
+
+            if (!File.Exists(newPath))
             {
-                contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundImage,
-                    null,
-                    new EventHandler((a, b) =>
-                    {
-                        if (Clipboard.ContainsData("PNG"))
-                        {
-                            Stream stream = null;
-                            try
-                            {
-                                stream = Clipboard.GetData("PNG") as Stream;
+                string oldestPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files", "BrushFactorySettings.xml");
+                string oldPath = Path.Combine(userFilesService.UserFilesPath ?? "", "DynamicDrawSettings.xml");
 
-                                if (stream != null)
-                                {
-                                    bmpBackgroundClipboard?.Dispose();
+                // Migrates settings from the old settings filepath.
+                if (File.Exists(oldPath))
+                {
+                    // This goes up to version 3.3, inclusive.
+                    SettingsSerialization legacySettings = new SettingsSerialization(oldPath);
+                    legacySettings.LoadSavedSettings();
+                    settings.CustomBrushes = legacySettings.CustomBrushes;
+                    settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
+                    settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
+                }
+                else if (File.Exists(oldestPath))
+                {
+                    SettingsSerialization legacySettings = new SettingsSerialization(oldestPath);
+                    legacySettings.LoadSavedSettings();
+                    settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
+                    settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
+                }
 
-                                    // Sets the clipboard background image.
-                                    using (Image clipboardImage = Image.FromStream(stream))
-                                    {
-                                        bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
-                                        using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
-                                        {
-                                            graphics.CompositingMode = CompositingMode.SourceCopy;
-                                            graphics.DrawImage(clipboardImage, 0, 0, bmpBackgroundClipboard.Width, bmpBackgroundClipboard.Height);
-                                        }
-                                    }
+                settings.Save(true);
 
-                                    backgroundDisplayMode = BackgroundDisplayMode.Clipboard;
-                                }
-                            }
-                            catch
-                            {
-                                MessageBox.Show(Strings.ClipboardErrorUnusable,
-                                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                            finally
-                            {
-                                stream?.Dispose();
-                            }
-                        }
-                    })));
+                // Deletes any old settings files after migration.
+                if (File.Exists(oldestPath)) { File.Delete(oldestPath); }
+                if (File.Exists(oldPath)) { File.Delete(oldPath); }
             }
-
-            //Options to set the background colors / image.
-            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundTransparent,
-                null,
-                new EventHandler((a, b) =>
-                {
-                    backgroundDisplayMode = BackgroundDisplayMode.Transparent;
-                    bmpBackgroundClipboard?.Dispose();
-                })));
-            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundNone,
-                null,
-                new EventHandler((a, b) =>
-                {
-                    backgroundDisplayMode = BackgroundDisplayMode.Gray;
-                    bmpBackgroundClipboard?.Dispose();
-                })));
-            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundWhite,
-                null,
-                new EventHandler((a, b) =>
-                {
-                    backgroundDisplayMode = BackgroundDisplayMode.White;
-                    bmpBackgroundClipboard?.Dispose();
-                })));
-            contextMenu.Items.Add(new ToolStripMenuItem(Strings.BackgroundBlack,
-                null,
-                new EventHandler((a, b) =>
-                {
-                    backgroundDisplayMode = BackgroundDisplayMode.Black;
-                    bmpBackgroundClipboard?.Dispose();
-                })));
-
-            contextMenu.Show(sender, location);
         }
 
         /// <summary>
@@ -6147,13 +6357,84 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Attempts to read the clipboard image, if any, and copy it to a bitmap designated to store the background.
+        /// </summary>
+        private void UpdateBackgroundFromClipboard(bool showErrors)
+        {
+            // If clipboard contains an image, read it.
+            if (Clipboard.ContainsData("PNG"))
+            {
+                Stream stream = null;
+
+                try
+                {
+                    stream = Clipboard.GetData("PNG") as Stream;
+
+                    if (stream != null)
+                    {
+                        bmpBackgroundClipboard?.Dispose();
+
+                        // Sets the clipboard background image.
+                        using (Image clipboardImage = Image.FromStream(stream))
+                        {
+                            bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+                            using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
+                            {
+                                graphics.CompositingMode = CompositingMode.SourceCopy;
+                                graphics.DrawImage(clipboardImage, 0, 0, bmpBackgroundClipboard.Width, bmpBackgroundClipboard.Height);
+                            }
+                        }
+
+                        displayCanvas.Refresh();
+                    }
+                }
+                catch
+                {
+                    if (showErrors)
+                    {
+                        MessageBox.Show(Strings.ClipboardErrorUnusable,
+                            Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    bmpBackgroundClipboard?.Dispose();
+                }
+                finally
+                {
+                    stream?.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the top menu based on current preferences.
+        /// </summary>
+        private void UpdateTopMenuState()
+        {
+            menuSetCanvasBgImageFit.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit;
+            menuSetCanvasBgImageOnlyIfFits.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits;
+            menuSetCanvasBgTransparent.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Transparent;
+            menuSetCanvasBgGray.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Gray;
+            menuSetCanvasBgWhite.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.White;
+            menuSetCanvasBgBlack.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Black;
+            menuBrushIndicatorSquare.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Square;
+            menuBrushIndicatorPreview.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Preview;
+            menuShowSymmetryLinesInUse.Checked = UserSettings.ShowSymmetryLinesWhenUsingSymmetry;
+            menuShowMinDistanceInUse.Checked = UserSettings.ShowCircleRadiusWhenUsingMinDistance;
+            menuPrefsConfirmCloseSave.Checked = UserSettings.DisableConfirmationOnCloseOrSave;
+            menuPrefsColorPickerIncludesAlpha.Checked = UserSettings.ColorPickerIncludesAlpha;
+            menuPrefsColorPickerSwitchesToPrevTool.Checked = UserSettings.ColorPickerSwitchesToLastTool;
+            menuPrefsRemoveUnfoundImagePaths.Checked = UserSettings.RemoveBrushImagePathsWhenNotFound;
+        }
+
+        /// <summary>
         /// Updates all settings based on the currently selected brush.
         /// </summary>
         private void UpdateBrush(BrushSettings settings)
         {
             // Whether the delete brush button is enabled or not.
-            bttnDeleteBrush.Enabled = currentBrushPath != null &&
+            bttnUpdateCurrentBrush.Enabled = currentBrushPath != null &&
                 !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath);
+            bttnDeleteBrush.Enabled = bttnUpdateCurrentBrush.Enabled;
 
             //Copies GUI values from the settings.
             sliderBrushSize.Value = settings.BrushSize;
@@ -6338,7 +6619,7 @@ namespace DynamicDraw
 
             if (bmpBrushDownsized != null || bmpBrush != null)
             {
-                //Applies the color and alpha changes.
+                // Applies the color and alpha changes.
                 bmpBrushEffects?.Dispose();
                 bmpBrushEffects = Utils.FormatImage(bmpBrushDownsized ?? bmpBrush, PixelFormat.Format32bppPArgb);
 
@@ -6823,6 +7104,19 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Every second, if the user is using a clipboard image as the background, updates the bitmap to match.
+        /// </summary>
+        private void ClipboardDataCheck_Tick(object sender, EventArgs e)
+        {
+            if ((UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit ||
+                UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits) &&
+                pluginHasLoaded && bmpBackgroundClipboard == null)
+            {
+                UpdateBackgroundFromClipboard(false);
+            }
+        }
+
+        /// <summary>
         /// Sets up image panning and drawing to occur with mouse movement.
         /// </summary>
         private void DisplayCanvas_MouseDown(object sender, MouseEventArgs e)
@@ -6854,11 +7148,6 @@ namespace DynamicDraw
                             }
                         }
                     }
-                }
-                //Displays a context menu for the background.
-                else
-                {
-                    ShowBgContextMenu(displayCanvas, e.Location);
                 }
             }
 
@@ -6904,7 +7193,10 @@ namespace DynamicDraw
                         (int)Math.Round(mouseLocPrev.X / canvasZoom),
                         (int)Math.Round(mouseLocPrev.Y / canvasZoom)));
 
-                    SwitchTool(lastTool);
+                    if (UserSettings.ColorPickerSwitchesToLastTool)
+                    {
+                        SwitchTool(lastTool);
+                    }
                 }
                 // Changes the symmetry origin or adds a new origin (if in SetPoints symmetry mode).
                 else if (activeTool == Tool.SetSymmetryOrigin)
@@ -7162,13 +7454,18 @@ namespace DynamicDraw
 
             // Draws the background according to the selected background display mode. Note it will
             // be drawn with nearest neighbor interpolation, for speed.
-            if (backgroundDisplayMode == BackgroundDisplayMode.Transparent ||
-                backgroundDisplayMode == BackgroundDisplayMode.Clipboard)
+            if (UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Transparent ||
+                UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit ||
+                UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits)
             {
                 HatchBrush hatchBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
                 e.Graphics.FillRectangle(hatchBrush, visibleBounds);
             }
-            if (backgroundDisplayMode == BackgroundDisplayMode.Clipboard)
+            if (bmpBackgroundClipboard != null && (
+                UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit || (
+                    UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits &&
+                    bmpBackgroundClipboard.Width == bmpCommitted.Width &&
+                    bmpBackgroundClipboard.Height == bmpCommitted.Height)))
             {
                 if (sliderCanvasAngle.Value == 0)
                 {
@@ -7186,11 +7483,11 @@ namespace DynamicDraw
                     e.Graphics.DrawImage(bmpBackgroundClipboard, 0, 0, canvas.width, canvas.height);
                 }
             }
-            else if (backgroundDisplayMode == BackgroundDisplayMode.White)
+            else if (UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.White)
             {
                 e.Graphics.FillRectangle(Brushes.White, visibleBounds);
             }
-            else if (backgroundDisplayMode == BackgroundDisplayMode.Black)
+            else if (UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Black)
             {
                 e.Graphics.FillRectangle(Brushes.Black, visibleBounds);
             }
@@ -7222,7 +7519,7 @@ namespace DynamicDraw
             }
 
             //Draws only the visible portion of the image.
-            Bitmap bmpToDraw = 
+            Bitmap bmpToDraw =
                 isPreviewingEffect.settingsOpen || isPreviewingEffect.hoverPreview ? bmpStaged :
                 isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
 
@@ -7287,7 +7584,7 @@ namespace DynamicDraw
 
             if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
             {
-                //Draws the brush as a rectangle when not drawing by mouse.
+                //Draws the brush indicator when the user isn't drawing.
                 if (!isUserDrawing.started)
                 {
                     float halfSize = sliderBrushSize.Value / 2f;
@@ -7305,14 +7602,29 @@ namespace DynamicDraw
                     e.Graphics.RotateTransform(sliderBrushRotation.Value);
                     e.Graphics.TranslateTransform(-radius / 2f, -radius / 2f);
 
-                    e.Graphics.DrawRectangle(Pens.Black, 0, 0, radius, radius);
-                    e.Graphics.DrawRectangle(Pens.White, -1, -1, radius + 2, radius + 2);
+                    if (UserSettings.BrushCursorPreview == BrushCursorPreview.Preview && bmpBrushEffects != null)
+                    {
+                        e.Graphics.DrawImage(
+                            bmpBrushEffects, new Point[] {
+                                Point.Empty,
+                                new Point(radius, 0),
+                                new Point(0, radius)
+                            },
+                            bmpBrushEffects.GetBounds(),
+                            GraphicsUnit.Pixel,
+                            Utils.ColorImageAttr(0, 0, 0, 0.5f));
+                    }
+                    else
+                    {
+                        e.Graphics.DrawRectangle(Pens.Black, 0, 0, radius, radius);
+                        e.Graphics.DrawRectangle(Pens.White, -1, -1, radius + 2, radius + 2);
+                    }
 
                     e.Graphics.ResetTransform();
                 }
 
                 // Draws the minimum distance circle if min distance is in use.
-                else if (finalMinDrawDistance > 0)
+                else if (finalMinDrawDistance > 0 && UserSettings.ShowCircleRadiusWhenUsingMinDistance)
                 {
                     e.Graphics.TranslateTransform(canvas.x, canvas.y);
 
@@ -7334,7 +7646,8 @@ namespace DynamicDraw
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
             // Draws the symmetry origins for symmetry modes when it's enabled.
-            if (activeTool == Tool.SetSymmetryOrigin || cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None)
+            if (activeTool == Tool.SetSymmetryOrigin
+                || (UserSettings.ShowSymmetryLinesWhenUsingSymmetry && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None))
             {
                 // Draws indicators to see where the user-defined offsets are in SetPoints mode.
                 if (cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
@@ -7434,6 +7747,16 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Positions the window according to the paint.net window.
+        /// </summary>
+        private void DynamicDrawWindow_Load(object sender, EventArgs e)
+        {
+            this.DesktopLocation = Owner.PointToScreen(new Point(0, 30));
+            this.Size = new Size(Owner.ClientSize.Width, Owner.ClientSize.Height - 30);
+            this.WindowState = Owner.WindowState;
+        }
+
+        /// <summary>
         /// Trackbars and comboboxes (among others) handle the mouse wheel event, which makes it hard to scroll across
         /// the controls in the right-side pane. Since these controls are more traditionally used with left-clicking,
         /// being able to scroll the window with the mouse wheel is more important. This prevents handling.
@@ -7447,39 +7770,6 @@ namespace DynamicDraw
             // Stopping the mouse wheel event prevents scrolling the parent container too. This does it manually.
             scroll.Value = Math.Clamp(scroll.Value - mouseEvent.Delta, scroll.Minimum, scroll.Maximum);
             panelDockSettingsContainer.PerformLayout(); // visually update scrollbar since it won't always.
-        }
-
-        /// <summary>
-        /// Called by the tablet drawing service. Reads the packet for x/y and pressure info.
-        /// </summary>
-        /// <param name="packet"></param>
-        private void TabletUpdated(WintabDN.WintabPacket packet)
-        {
-            // Move cursor to stylus. This works since packets are only sent for touch or hover events.
-            Cursor.Position = new Point(packet.pkX, packet.pkY);
-
-            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
-
-            tabletLastPacketId = packet.pkSerialNumber;
-
-            // Gets the current pressure.
-            int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
-            float newPressureRatio = (packet.pkNormalPressure == 0) ? 0 : (float)packet.pkNormalPressure / maxPressure;
-            float deadzone = 0.01f; // Represents the 0 to 1% range of pressure.
-
-            // Simulates the left mouse based on pressure. It must be simulated to avoid special handling for each
-            // button since winforms doesn't support touch events.
-            if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
-            {
-                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftDown);
-            }
-            else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
-            {
-                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftUp);
-            }
-
-            // Updates the pressure.
-            tabletPressureRatio = newPressureRatio;
         }
 
         /// <summary>
@@ -7578,6 +7868,48 @@ namespace DynamicDraw
             //Updates with the new location and redraws the screen.
             canvas.x = canvasNewPosX;
             canvas.y = canvasNewPosY;
+            displayCanvas.Refresh();
+        }
+
+        /// <summary>
+        /// Called by the tablet drawing service. Reads the packet for x/y and pressure info.
+        /// </summary>
+        /// <param name="packet"></param>
+        private void TabletUpdated(WintabDN.WintabPacket packet)
+        {
+            // Move cursor to stylus. This works since packets are only sent for touch or hover events.
+            Cursor.Position = new Point(packet.pkX, packet.pkY);
+
+            if (packet.pkSerialNumber == tabletLastPacketId) { return; }
+
+            tabletLastPacketId = packet.pkSerialNumber;
+
+            // Gets the current pressure.
+            int maxPressure = WintabDN.CWintabInfo.GetMaxPressure();
+            float newPressureRatio = (packet.pkNormalPressure == 0) ? 0 : (float)packet.pkNormalPressure / maxPressure;
+            float deadzone = 0.01f; // Represents the 0 to 1% range of pressure.
+
+            // Simulates the left mouse based on pressure. It must be simulated to avoid special handling for each
+            // button since winforms doesn't support touch events.
+            if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
+            {
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftDown);
+            }
+            else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
+            {
+                SafeNativeMethods.SimulateClick(SafeNativeMethods.MouseEvents.LeftUp);
+            }
+
+            // Updates the pressure.
+            tabletPressureRatio = newPressureRatio;
+        }
+
+        /// <summary>
+        /// Handles manual resizing of any element that requires it.
+        /// </summary>
+        private void WinDynamicDraw_Resize(object sender, EventArgs e)
+        {
+            this.txtTooltip.MaximumSize = new Size(displayCanvas.Width, displayCanvas.Height);
             displayCanvas.Refresh();
         }
         #endregion
@@ -7721,7 +8053,7 @@ namespace DynamicDraw
 
             // Open the configuration dialog when changing the chosen effect. It won't be opened when the plugin
             // first opens (indicated by whether bmpBrushEffects is null or not).
-            if (bmpBrushEffects != null)
+            if (pluginHasLoaded)
             {
                 ActiveEffectPrepareAndPreview();
             }
@@ -7741,7 +8073,7 @@ namespace DynamicDraw
 
             // It's easy to hit the escape key on accident, especially when toggling other controls.
             // If any changes were made and the OK button was indirectly invoked, ask for confirmation first.
-            if (undoHistory.Count > 0 && !bttnCancel.Focused &&
+            if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnCancel.Focused &&
                 MessageBox.Show(Strings.ConfirmCancel, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
                 DialogResult = DialogResult.None;
@@ -7780,8 +8112,8 @@ namespace DynamicDraw
             settings.CustomBrushes.Remove(currentBrushPath);
             listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
             listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
-            settings.MarkSettingsChanged();
             currentBrushPath = null;
+            bttnUpdateCurrentBrush.Enabled = false;
             bttnDeleteBrush.Enabled = false;
         }
 
@@ -7799,7 +8131,7 @@ namespace DynamicDraw
 
             // It's easy to hit the enter key on accident, especially when toggling other controls.
             // If any changes were made and the OK button was indirectly invoked, ask for confirmation first.
-            if (undoHistory.Count > 0 && !bttnOk.Focused &&
+            if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnOk.Focused &&
                 MessageBox.Show(Strings.ConfirmChanges, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
                 DialogResult = DialogResult.None;
@@ -7831,25 +8163,14 @@ namespace DynamicDraw
         /// <summary>
         /// Opens the preferences dialog to define persistent settings.
         /// </summary>
-        private void BttnPreferences_Click(object sender, EventArgs e)
+        private void BttnUpdateCurrentBrush_Click(object sender, EventArgs e)
         {
-            if (settings != null)
-            {
-                if (new DynamicDrawPreferences(settings).ShowDialog() == DialogResult.OK)
-                {
-                    InitBrushes();
-                }
-            }
-            else
-            {
-                MessageBox.Show(Strings.SettingsUnavailableError,
-                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            settings.CustomBrushes[currentBrushPath] = CreateSettingsObjectFromCurrentSettings();
         }
 
-        private void BttnPreferences_MouseEnter(object sender, EventArgs e)
+        private void BttnUpdateCurrentBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.CustomBrushImageLocationsTip);
+            UpdateTooltip(Strings.UpdateCurrentBrushTip);
         }
 
         /// <summary>
@@ -7922,10 +8243,6 @@ namespace DynamicDraw
         /// </summary>
         private void BttnSaveBrush_Click(object sender, EventArgs e)
         {
-            int index = listviewBrushImagePicker.SelectedIndices.Count > 0
-                ? listviewBrushImagePicker.SelectedIndices[0]
-                : -1;
-
             // Opens a textbox dialog to name the custom brush. Brush names must be unique, so the brush will have
             // spaces appended to the end of the name until naming conflicts are resolved.
             TextboxDialog dlg = new TextboxDialog(
@@ -7945,106 +8262,7 @@ namespace DynamicDraw
                     inputText += " ";
                 }
 
-                BrushSettings newSettings = new BrushSettings()
-                {
-                    AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked,
-                    BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex,
-                    BrushColor = bttnBrushColor.BackColor,
-                    BrushDensity = sliderBrushDensity.Value,
-                    BrushFlow = sliderBrushFlow.Value,
-                    BrushImagePath = index >= 0 ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name : string.Empty,
-                    BrushOpacity = sliderBrushOpacity.Value,
-                    BrushRotation = sliderBrushRotation.Value,
-                    BrushSize = sliderBrushSize.Value,
-                    ColorInfluence = sliderColorInfluence.Value,
-                    DoColorizeBrush = chkbxColorizeBrush.Checked,
-                    ColorInfluenceHue = chkbxColorInfluenceHue.Checked,
-                    ColorInfluenceSat = chkbxColorInfluenceSat.Checked,
-                    ColorInfluenceVal = chkbxColorInfluenceVal.Checked,
-                    DoDitherDraw = chkbxDitherDraw.Checked,
-                    DoLockAlpha = chkbxLockAlpha.Checked,
-                    DoLockR = chkbxLockR.Checked,
-                    DoLockG = chkbxLockG.Checked,
-                    DoLockB = chkbxLockB.Checked,
-                    DoLockHue = chkbxLockHue.Checked,
-                    DoLockSat = chkbxLockSat.Checked,
-                    DoLockVal = chkbxLockVal.Checked,
-                    FlowChange = sliderShiftFlow.Value,
-                    SeamlessDrawing = chkbxSeamlessDrawing.Checked,
-                    DoRotateWithMouse = chkbxOrientToMouse.Checked,
-                    MinDrawDistance = sliderMinDrawDistance.Value,
-                    RandFlowLoss = sliderRandFlowLoss.Value,
-                    RandHorzShift = sliderRandHorzShift.Value,
-                    RandMaxB = sliderJitterMaxBlue.Value,
-                    RandMaxG = sliderJitterMaxGreen.Value,
-                    RandMaxR = sliderJitterMaxRed.Value,
-                    RandMaxH = sliderJitterMaxHue.Value,
-                    RandMaxS = sliderJitterMaxSat.Value,
-                    RandMaxV = sliderJitterMaxVal.Value,
-                    RandMaxSize = sliderRandMaxSize.Value,
-                    RandMinB = sliderJitterMinBlue.Value,
-                    RandMinG = sliderJitterMinGreen.Value,
-                    RandMinR = sliderJitterMinRed.Value,
-                    RandMinH = sliderJitterMinHue.Value,
-                    RandMinS = sliderJitterMinSat.Value,
-                    RandMinV = sliderJitterMinVal.Value,
-                    RandMinSize = sliderRandMinSize.Value,
-                    RandRotLeft = sliderRandRotLeft.Value,
-                    RandRotRight = sliderRandRotRight.Value,
-                    RandVertShift = sliderRandVertShift.Value,
-                    RotChange = sliderShiftRotation.Value,
-                    SizeChange = sliderShiftSize.Value,
-                    Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
-                    Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
-                    CmbxChosenEffect = cmbxChosenEffect.SelectedIndex,
-                    CmbxTabPressureBrushDensity = cmbxTabPressureBrushDensity.SelectedIndex,
-                    CmbxTabPressureBrushFlow = cmbxTabPressureBrushFlow.SelectedIndex,
-                    CmbxTabPressureBrushOpacity = cmbxTabPressureBrushOpacity.SelectedIndex,
-                    CmbxTabPressureBrushRotation = cmbxTabPressureBrushRotation.SelectedIndex,
-                    CmbxTabPressureBrushSize = cmbxTabPressureBrushSize.SelectedIndex,
-                    CmbxTabPressureBlueJitter = cmbxTabPressureBlueJitter.SelectedIndex,
-                    CmbxTabPressureGreenJitter = cmbxTabPressureGreenJitter.SelectedIndex,
-                    CmbxTabPressureHueJitter = cmbxTabPressureHueJitter.SelectedIndex,
-                    CmbxTabPressureMinDrawDistance = cmbxTabPressureMinDrawDistance.SelectedIndex,
-                    CmbxTabPressureRedJitter = cmbxTabPressureRedJitter.SelectedIndex,
-                    CmbxTabPressureSatJitter = cmbxTabPressureSatJitter.SelectedIndex,
-                    CmbxTabPressureValueJitter = cmbxTabPressureValueJitter.SelectedIndex,
-                    CmbxTabPressureRandFlowLoss = cmbxTabPressureRandFlowLoss.SelectedIndex,
-                    CmbxTabPressureRandHorShift = cmbxTabPressureRandHorShift.SelectedIndex,
-                    CmbxTabPressureRandMaxSize = cmbxTabPressureRandMaxSize.SelectedIndex,
-                    CmbxTabPressureRandMinSize = cmbxTabPressureRandMinSize.SelectedIndex,
-                    CmbxTabPressureRandRotLeft = cmbxTabPressureRandRotLeft.SelectedIndex,
-                    CmbxTabPressureRandRotRight = cmbxTabPressureRandRotRight.SelectedIndex,
-                    CmbxTabPressureRandVerShift = cmbxTabPressureRandVerShift.SelectedIndex,
-                    TabPressureBrushDensity = (int)spinTabPressureBrushDensity.Value,
-                    TabPressureBrushFlow = (int)spinTabPressureBrushFlow.Value,
-                    TabPressureBrushOpacity = (int)spinTabPressureBrushOpacity.Value,
-                    TabPressureBrushRotation = (int)spinTabPressureBrushRotation.Value,
-                    TabPressureBrushSize = (int)spinTabPressureBrushSize.Value,
-                    TabPressureMaxBlueJitter = (int)spinTabPressureMaxBlueJitter.Value,
-                    TabPressureMaxGreenJitter = (int)spinTabPressureMaxGreenJitter.Value,
-                    TabPressureMaxHueJitter = (int)spinTabPressureMaxHueJitter.Value,
-                    TabPressureMaxRedJitter = (int)spinTabPressureMaxRedJitter.Value,
-                    TabPressureMaxSatJitter = (int)spinTabPressureMaxSatJitter.Value,
-                    TabPressureMaxValueJitter = (int)spinTabPressureMaxValueJitter.Value,
-                    TabPressureMinBlueJitter = (int)spinTabPressureMinBlueJitter.Value,
-                    TabPressureMinDrawDistance = (int)spinTabPressureMinDrawDistance.Value,
-                    TabPressureMinGreenJitter = (int)spinTabPressureMinGreenJitter.Value,
-                    TabPressureMinHueJitter = (int)spinTabPressureMinHueJitter.Value,
-                    TabPressureMinRedJitter = (int)spinTabPressureMinRedJitter.Value,
-                    TabPressureMinSatJitter = (int)spinTabPressureMinSatJitter.Value,
-                    TabPressureMinValueJitter = (int)spinTabPressureMinValueJitter.Value,
-                    TabPressureRandFlowLoss = (int)spinTabPressureRandFlowLoss.Value,
-                    TabPressureRandHorShift = (int)spinTabPressureRandHorShift.Value,
-                    TabPressureRandMaxSize = (int)spinTabPressureRandMaxSize.Value,
-                    TabPressureRandMinSize = (int)spinTabPressureRandMinSize.Value,
-                    TabPressureRandRotLeft = (int)spinTabPressureRandRotLeft.Value,
-                    TabPressureRandRotRight = (int)spinTabPressureRandRotRight.Value,
-                    TabPressureRandVerShift = (int)spinTabPressureRandVerShift.Value
-                };
-
-                settings.CustomBrushes.Add(inputText, newSettings);
-                settings.MarkSettingsChanged();
+                settings.CustomBrushes.Add(inputText, CreateSettingsObjectFromCurrentSettings());
 
                 // Deselect whatever's selected and add a brush as selected.
                 foreach (ListViewItem item in listviewBrushPicker.Items)
@@ -8055,6 +8273,7 @@ namespace DynamicDraw
                 listviewBrushPicker.Items.Add(new ListViewItem(inputText) { Selected = true });
                 listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
                 currentBrushPath = inputText;
+                bttnUpdateCurrentBrush.Enabled = true;
                 bttnDeleteBrush.Enabled = true;
             }
         }

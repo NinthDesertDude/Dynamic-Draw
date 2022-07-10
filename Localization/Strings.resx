@@ -130,7 +130,7 @@
     <value>Add Brush Images</value>
   </data>
   <data name="AddBrushImagesTip" xml:space="preserve">
-    <value>Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings).</value>
+    <value>Select additional brush images to permanently add. They can be removed later from the options menu.</value>
   </data>
   <data name="AddFolder" xml:space="preserve">
     <value>Add folder</value>
@@ -160,7 +160,7 @@
     <value>Brush image directories and files to load when Dynamic Draw starts</value>
   </data>
   <data name="BrushLocationsTextboxTip" xml:space="preserve">
-    <value>Places to look for brush images appear here. Type a new address or use 'add folder' to add your own.</value>
+    <value>Places to look for brush images appear here. Type a new address or use the add folders/files buttons to add your own.</value>
   </data>
   <data name="BrushRotationTip" xml:space="preserve">
     <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
@@ -184,7 +184,7 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Quit without saving changes.</value>
   </data>
   <data name="CannotLoadSettingsError" xml:space="preserve">
-    <value>Your custom brush images couldn't be loaded. You can try defining them again.</value>
+    <value>Settings/preferences and custom brushes couldn't be loaded.</value>
   </data>
   <data name="CanvasZoom" xml:space="preserve">
     <value>Canvas Zoom:</value>
@@ -215,11 +215,11 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="ColorPickerTip" xml:space="preserve">
     <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards.</value>
   </data>
-  <data name="CustomBrushImageLocations" xml:space="preserve">
-    <value>Brush Image Locations</value>
+  <data name="UpdateCurrentBrush" xml:space="preserve">
+    <value>Update Current Brush</value>
   </data>
-  <data name="CustomBrushImageLocationsTip" xml:space="preserve">
-    <value>Define where to look for brush images when this plugin loads.</value>
+  <data name="UpdateCurrentBrushTip" xml:space="preserve">
+    <value>Writes any changes in the current settings over the most recently selected brush.</value>
   </data>
   <data name="JitterBlue" xml:space="preserve">
     <value>Blue Jitter:</value>
@@ -955,16 +955,13 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="EffectDefaultNone" xml:space="preserve">
     <value>No effect chosen</value>
   </data>
-  <data name="EffectFailedToStartError" xml:space="preserve">
-    <value>Effect failed to work (couldn't start).</value>
-  </data>
   <data name="EffectFailedToWorkError" xml:space="preserve">
-    <value>Effect failed to work (couldn't open the dialog).</value>
-  </data>
-  <data name="EffectFailedExternalError" xml:space="preserve">
-    <value>Effect failed to work (generic error with effect).</value>
+    <value>Couldn't apply the chosen effect.</value>
   </data>
   <data name="BrushFlowAlpha" xml:space="preserve">
     <value>Alpha:</value>
+  </data>
+  <data name="CannotSaveSettingsError" xml:space="preserve">
+    <value>Any changes to settings/preferences couldn't be saved.</value>
   </data>
 </root>

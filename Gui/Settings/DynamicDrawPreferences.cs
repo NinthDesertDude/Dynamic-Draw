@@ -7,14 +7,14 @@ namespace DynamicDraw.Gui
 {
     internal partial class DynamicDrawPreferences : Form
     {
-        private readonly IDynamicDrawSettings settings;
+        private readonly SettingsSerialization settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DynamicDrawPreferences" /> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <exception cref="ArgumentNullException"><paramref name="settings"/> is null.</exception>
-        public DynamicDrawPreferences(IDynamicDrawSettings settings)
+        public DynamicDrawPreferences(SettingsSerialization settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             InitializeComponent();
