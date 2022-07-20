@@ -98,7 +98,7 @@ namespace DynamicDraw.Logic
         /// The key that, when pressed in conjunction with any listed modifier keys, triggers the shortcut.
         /// </summary>
         [DataMember(Name = "Key")]
-        public Keys Key { get; set; }
+        public HashSet<Keys> Keys { get; set; }
 
         /// <summary>
         /// Whether or not the control modifier key must be held to trigger the shortcut.
@@ -117,6 +117,28 @@ namespace DynamicDraw.Logic
         /// </summary>
         [DataMember(Name = "ReqAlt")]
         public bool RequireAlt { get; set; }
+
+        /// <summary>
+        /// Whether the mouse wheel must be scrolled to trigger the shortcut. This condition is met on wheel up or
+        /// wheel down. All keyboard keys in the command should already be held before the mouse wheel is moved in
+        /// order to fire the command.
+        /// </summary>
+        [DataMember(Name = "ReqWheel")]
+        public bool RequireWheel { get; set; }
+
+        /// <summary>
+        /// Whether the mouse wheel must be scrolled up to trigger the shortcut. All keyboard keys in the command
+        /// should already be held before the mouse wheel is moved in order to fire the command.
+        /// </summary>
+        [DataMember(Name = "ReqWheelUp")]
+        public bool RequireWheelUp { get; set; }
+
+        /// <summary>
+        /// Whether the mouse wheel must be scrolled down to trigger the shortcut. All keyboard keys in the command
+        /// should already be held before the mouse wheel is moved in order to fire the command.
+        /// </summary>
+        [DataMember(Name = "ReqWheelDown")]
+        public bool RequireWheelDown { get; set; }
 
         /// <summary>
         /// Identifies the setting to change associated with this key shortcut.
@@ -138,10 +160,13 @@ namespace DynamicDraw.Logic
 
         public KeyboardShortcut()
         {
-            Key = Keys.None;
+            Keys = new HashSet<Keys>();
             RequireAlt = false;
             RequireCtrl = false;
             RequireShift = false;
+            RequireWheel = false;
+            RequireWheelUp = false;
+            RequireWheelDown = false;
             Target = (ShortcutTarget)(-1);
             ActionData = null;
         }

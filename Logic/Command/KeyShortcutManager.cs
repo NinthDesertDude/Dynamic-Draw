@@ -1,6 +1,7 @@
 ﻿using DynamicDraw.Interop;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace DynamicDraw.Logic
 {
@@ -10,22 +11,40 @@ namespace DynamicDraw.Logic
     public static class KeyShortcutManager
     {
         /// <summary>
-        /// Fires any shortcuts that might be registered, which would be fired based on the currently-held keys.
+        /// Fires all registered shortcuts that exactly match the requirements for pressed controls.
         /// </summary>
         public static void FireShortcuts(
             HashSet<KeyboardShortcut> shortcuts,
-            Keys key,
-            bool ctrlHeld,
-            bool shiftHeld,
-            bool altHeld,
+            HashSet<Keys> keys,
+            bool wheelUpFired,
+            bool wheelDownFired,
             HashSet<ShortcutContext> contexts)
         {
+            bool ctrlHeld = false;
+            bool shiftHeld = false;
+            bool altHeld = false;
+            HashSet<Keys> regularKeys = keys.Where((key) =>
+            {
+                if (key == Keys.ControlKey) { ctrlHeld = true; }
+                else if (key == Keys.ShiftKey) { shiftHeld = true; }
+                else if (key == Keys.Alt) { altHeld = true; }
+                else
+                {
+                    return true;
+                }
+
+                return false;
+            }).ToHashSet();
+
             foreach (var entry in shortcuts)
             {
-                if (entry.Key != key ||
+                if (!regularKeys.SetEquals(entry.Keys) ||
                     entry.RequireCtrl != ctrlHeld ||
                     entry.RequireShift != shiftHeld ||
                     entry.RequireAlt != altHeld ||
+                    (entry.RequireWheel != wheelDownFired && entry.RequireWheel != wheelUpFired) ||
+                    (!entry.RequireWheel && entry.RequireWheelUp != wheelUpFired) ||
+                    (!entry.RequireWheel && entry.RequireWheelDown != wheelDownFired) ||
                     (entry.ContextsDenied?.Overlaps(contexts) ?? false) ||
                     (!entry.ContextsRequired?.IsSubsetOf(contexts) ?? false))
                 {

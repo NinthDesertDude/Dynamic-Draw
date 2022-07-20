@@ -20,42 +20,42 @@ namespace DynamicDraw
             new KeyboardShortcut() // B: brush tool
             {
                 ActionData = $"{(int)Tool.Brush},{(int)Tool.PreviousTool}|cycle",
-                Key = System.Windows.Forms.Keys.B,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.B },
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // K: color picker tool
             {
                 ActionData = $"{(int)Tool.ColorPicker},{(int)Tool.PreviousTool}|cycle",
-                Key = System.Windows.Forms.Keys.K,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.K },
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // E: eraser tool
             {
                 ActionData = $"{(int)Tool.Eraser},{(int)Tool.PreviousTool}|cycle",
-                Key = System.Windows.Forms.Keys.E,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.E },
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // O: origin tool
             {
                 ActionData = $"{(int)Tool.SetSymmetryOrigin},{(int)Tool.PreviousTool}|cycle",
-                Key = System.Windows.Forms.Keys.O,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
                 Target = ShortcutTarget.SelectedTool,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // Ctrl + Z: undo
             {
                 ActionData = null,
-                Key = System.Windows.Forms.Keys.Z,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Z },
                 Target = ShortcutTarget.UndoAction,
                 RequireCtrl = true
             },
             new KeyboardShortcut() // Ctrl + Alt + Z: undo (common alt shortcut)
             {
                 ActionData = null,
-                Key = System.Windows.Forms.Keys.Z,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Z },
                 Target = ShortcutTarget.UndoAction,
                 RequireCtrl = true,
                 RequireAlt = true
@@ -63,29 +63,45 @@ namespace DynamicDraw
             new KeyboardShortcut() // Ctrl + Y: redo
             {
                 ActionData = null,
-                Key = System.Windows.Forms.Keys.Y,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Y },
                 Target = ShortcutTarget.RedoAction,
                 RequireCtrl = true
             },
             new KeyboardShortcut() // Ctrl + Shift + Z: redo (common alt shortcut)
             {
                 ActionData = null,
-                Key = System.Windows.Forms.Keys.Z,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Z },
                 Target = ShortcutTarget.RedoAction,
                 RequireCtrl = true,
                 RequireShift = true
             },
+            new KeyboardShortcut() // Ctrl + Wheel up: zoom in
+            {
+                ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-add-stop",
+                Target = ShortcutTarget.CanvasZoomToMouse,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
+                RequireCtrl = true,
+                RequireWheelUp = true
+            },
+            new KeyboardShortcut() // Ctrl + Wheel down: zoom out
+            {
+                ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-sub-stop",
+                Target = ShortcutTarget.CanvasZoomToMouse,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
+                RequireCtrl = true,
+                RequireWheelDown = true
+            },
             new KeyboardShortcut() // +: zoom in
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-add-stop",
-                Key = System.Windows.Forms.Keys.Oemplus,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Oemplus },
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // Ctrl + +: zoom in (common alt shortcut)
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-add-stop",
-                Key = System.Windows.Forms.Keys.Oemplus,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Oemplus },
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 RequireCtrl = true
@@ -93,14 +109,14 @@ namespace DynamicDraw
             new KeyboardShortcut() // -: zoom out
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-sub-stop",
-                Key = System.Windows.Forms.Keys.OemMinus,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemMinus },
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // Ctrl + -: zoom out (common alt shortcut)
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-sub-stop",
-                Key = System.Windows.Forms.Keys.OemMinus,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemMinus },
                 Target = ShortcutTarget.CanvasZoom,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 RequireCtrl = true
@@ -108,59 +124,257 @@ namespace DynamicDraw
             new KeyboardShortcut() // 0: reset canvas transforms
             {
                 ActionData = null,
-                Key = System.Windows.Forms.Keys.D0,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.D0 },
                 Target = ShortcutTarget.ResetCanvasTransforms,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // 0: reset canvas transforms
             {
                 ActionData = null,
-                Key = System.Windows.Forms.Keys.NumPad0,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.NumPad0 },
                 Target = ShortcutTarget.ResetCanvasTransforms,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut() // left arrow: nudge left
+            new KeyboardShortcut() // Left arrow: nudge left
             {
                 ActionData = "5|sub",
-                Key = System.Windows.Forms.Keys.Left,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Left },
                 Target = ShortcutTarget.CanvasX,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut() // right arrow: nudge right
+            new KeyboardShortcut() // Right arrow: nudge right
             {
                 ActionData = "5|add",
-                Key = System.Windows.Forms.Keys.Right,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Right },
                 Target = ShortcutTarget.CanvasX,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut() // up arrow: nudge up
+            new KeyboardShortcut() // Up arrow: nudge up
             {
                 ActionData = "5|sub",
-                Key = System.Windows.Forms.Keys.Up,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Up },
                 Target = ShortcutTarget.CanvasY,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut() // down arrow: nudge down
+            new KeyboardShortcut() // Down arrow: nudge down
             {
                 ActionData = "5|add",
-                Key = System.Windows.Forms.Keys.Down,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Down },
                 Target = ShortcutTarget.CanvasY,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
-            new KeyboardShortcut() // shift + left arrow: rotate counter-clockwise
+            new KeyboardShortcut() // Shift + Left arrow: rotate canvas counter-clockwise
             {
                 ActionData = "10|sub",
-                Key = System.Windows.Forms.Keys.Left,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Left },
                 Target = ShortcutTarget.CanvasRotation,
                 RequireShift = true
             },
-            new KeyboardShortcut() // shift + right arrow: rotate clockwise
+            new KeyboardShortcut() // Shift + Right arrow: rotate canvas clockwise
             {
                 ActionData = "10|add",
-                Key = System.Windows.Forms.Keys.Right,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Right },
                 Target = ShortcutTarget.CanvasRotation,
                 RequireShift = true
-            }
+            },
+            new KeyboardShortcut() // Shift + Wheel up: rotate canvas counter-clockwise
+            {
+                ActionData = "10|add",
+                Target = ShortcutTarget.CanvasRotation,
+                RequireShift = true,
+                RequireWheelUp = true
+            },
+            new KeyboardShortcut() // Shift + Wheel down: rotate canvas clockwise
+            {
+                ActionData = "10|sub",
+                Target = ShortcutTarget.CanvasRotation,
+                RequireShift = true,
+                RequireWheelDown = true
+            },
+            new KeyboardShortcut() // Ctrl + S + Wheel up: increase brush size
+            {
+                ActionData = "1,2,3,4,5,6,7,8,9,10,15,20,25,30,40,50,60,70,80,90,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,450,500,550,600,650,700,750,800,850,900,950,1000|cycle-add-stop",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S },
+                Target = ShortcutTarget.Size,
+                RequireCtrl = true,
+                RequireWheelUp = true
+            },
+            new KeyboardShortcut() // Ctrl + S + Wheel down: decrease brush size
+            {
+                ActionData = "1,2,3,4,5,6,7,8,9,10,15,20,25,30,40,50,60,70,80,90,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,450,500,550,600,650,700,750,800,850,900,950,1000|cycle-sub-stop",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S },
+                Target = ShortcutTarget.Size,
+                RequireCtrl = true,
+                RequireWheelDown = true
+            },
+            new KeyboardShortcut() // Ctrl + R + Wheel up: rotate brush counter-clockwise
+            {
+                ActionData = "-165,-150,-135,-120,-105,-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90,105,120,135,150,165,180|cycle-add-wrap",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R },
+                Target = ShortcutTarget.Rotation,
+                RequireCtrl = true,
+                RequireWheelUp = true
+            },
+            new KeyboardShortcut() // Ctrl + R + Wheel down: rotate brush clockwise
+            {
+                ActionData = "-165,-150,-135,-120,-105,-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90,105,120,135,150,165,180|cycle-sub-wrap",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R },
+                Target = ShortcutTarget.Rotation,
+                RequireCtrl = true,
+                RequireWheelDown = true
+            },
+            new KeyboardShortcut() // Ctrl + O + Wheel up: increase brush opacity
+            {
+                ActionData = "10|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
+                Target = ShortcutTarget.BrushOpacity,
+                RequireCtrl = true,
+                RequireWheelUp = true
+            },
+            new KeyboardShortcut() // Ctrl + O + Wheel down: decrease brush opacity
+            {
+                ActionData = "10|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
+                Target = ShortcutTarget.BrushOpacity,
+                RequireCtrl = true,
+                RequireWheelDown = true
+            },
+            new KeyboardShortcut() // Ctrl + F + Wheel up: increase brush flow
+            {
+                ActionData = "10|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F },
+                Target = ShortcutTarget.Flow,
+                RequireCtrl = true,
+                RequireWheelUp = true
+            },
+            new KeyboardShortcut() // Ctrl + F + Wheel down: decrease brush flow
+            {
+                ActionData = "10|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F },
+                Target = ShortcutTarget.Flow,
+                RequireCtrl = true,
+                RequireWheelDown = true
+            },
+            new KeyboardShortcut() // Ctrl + S + ]: increase brush size
+            {
+                ActionData = "1|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.Size,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + ]: increase brush size (faster)
+            {
+                ActionData = "5|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.Size,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut() // Ctrl + S + [: decrease brush size
+            {
+                ActionData = "1|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.Size,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + [: decrease brush size (faster)
+            {
+                ActionData = "5|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.Size,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut() // Ctrl + S + ]: increase brush angle
+            {
+                ActionData = "1|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.Rotation,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + ]: increase brush angle (faster)
+            {
+                ActionData = "5|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.Rotation,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut() // Ctrl + S + [: decrease brush angle
+            {
+                ActionData = "1|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.Rotation,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + [: decrease brush angle (faster)
+            {
+                ActionData = "5|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.Rotation,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut() // Ctrl + S + ]: increase brush opacity
+            {
+                ActionData = "1|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.BrushOpacity,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + ]: increase brush opacity (faster)
+            {
+                ActionData = "5|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.BrushOpacity,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut() // Ctrl + S + [: decrease brush opacity
+            {
+                ActionData = "1|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.BrushOpacity,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + [: decrease brush opacity (faster)
+            {
+                ActionData = "5|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.BrushOpacity,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut() // Ctrl + S + ]: increase brush flow
+            {
+                ActionData = "1|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.Flow,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + ]: increase brush flow (faster)
+            {
+                ActionData = "5|add",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemCloseBrackets },
+                Target = ShortcutTarget.Flow,
+                RequireCtrl = true,
+                RequireShift = true
+            },
+            new KeyboardShortcut() // Ctrl + S + [: decrease brush flow
+            {
+                ActionData = "1|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.Flow,
+                RequireCtrl = true
+            },
+            new KeyboardShortcut() // Ctrl + Shift + S + [: decrease brush flow (faster)
+            {
+                ActionData = "5|sub",
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemOpenBrackets },
+                Target = ShortcutTarget.Flow,
+                RequireCtrl = true,
+                RequireShift = true
+            },
         };
 
         /// <summary>

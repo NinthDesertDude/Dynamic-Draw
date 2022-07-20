@@ -12,7 +12,8 @@
         SelectedTool = 0,
 
         /// <summary>
-        /// The current canvas's zoom level.
+        /// The current canvas's zoom level. Shortcuts targeting zoom this way will zoom towards canvas center.
+        /// See <see cref="CanvasZoomToMouse"/> for the version that zooms to mouse location.
         /// </summary>
         CanvasZoom = 1,
 
@@ -331,6 +332,12 @@
         /// <summary>
         /// The chosen effect to draw with, if set.
         /// </summary>
-        ChosenEffect = 82
+        ChosenEffect = 82,
+
+        /// <summary>
+        /// The current canvas's zoom level. Shortcuts targeting zoom this way will zoom towards mouse location.
+        /// See <see cref="CanvasZoom"/> for the version that zoom to canvas center.
+        /// </summary>
+        CanvasZoomToMouse = 83
     }
 }

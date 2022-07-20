@@ -178,6 +178,11 @@ namespace DynamicDraw
         private readonly HashSet<KeyboardShortcut> keyboardShortcuts;
 
         /// <summary>
+        /// List of keys currently pressed. The last item in the list is always the most recently pressed key.
+        /// </summary>
+        private readonly HashSet<Keys> currentKeysPressed;
+
+        /// <summary>
         /// The file path identifying the currently loaded brush, or name for built-in brushes, or null if no saved brush is currently active.
         /// </summary>
         private string currentBrushPath = null;
@@ -593,6 +598,7 @@ namespace DynamicDraw
 
             loadedBrushImages = new BrushSelectorItemCollection();
             keyboardShortcuts = new HashSet<KeyboardShortcut>();
+            currentKeysPressed = new HashSet<Keys>();
 
             canvas = new(0, 0, 0, 0);
 
@@ -1128,62 +1134,21 @@ namespace DynamicDraw
         /// </summary>
         protected override void OnKeyDown(KeyEventArgs e)
         {
+            currentKeysPressed.Add(e.KeyCode);
+
             base.OnKeyDown(e);
 
+            // Fires any shortcuts that don't require the mouse wheel.
             HashSet<ShortcutContext> contexts = new HashSet<ShortcutContext>();
             if (displayCanvas.Focused) { contexts.Add(ShortcutContext.OnCanvas); }
             else { contexts.Add(ShortcutContext.OnSidebar); }
 
-            KeyShortcutManager.FireShortcuts(keyboardShortcuts, e.KeyCode, e.Control, e.Shift, e.Alt, contexts);
+            KeyShortcutManager.FireShortcuts(keyboardShortcuts, currentKeysPressed, false, false, contexts);
 
             // Display a hand icon while panning.
             if (e.KeyCode == Keys.Control || e.KeyCode == Keys.Space)
             {
                 Cursor = Cursors.Hand;
-            }
-
-            // [, Ctrl + [ increase rotation, flow, size. ], Ctrl + ] decrease.
-            int amountChange = 0;
-
-            if (e.KeyCode == Keys.OemCloseBrackets && !e.Shift)
-            {
-                amountChange = e.Control ? 5 : 1;
-            }
-            else if (e.KeyCode == Keys.OemOpenBrackets && !e.Shift)
-            {
-                amountChange = e.Control ? -5 : -1;
-            }
-
-            if (amountChange != 0)
-            {
-                if (KeyShortcutManager.IsKeyDown(Keys.R))
-                {
-                    sliderBrushRotation.Value = Math.Clamp(
-                        sliderBrushRotation.Value + amountChange,
-                        sliderBrushRotation.Minimum,
-                        sliderBrushRotation.Maximum);
-                }
-                else if (KeyShortcutManager.IsKeyDown(Keys.O))
-                {
-                    sliderBrushOpacity.Value = Math.Clamp(
-                        sliderBrushOpacity.Value + amountChange,
-                        sliderBrushOpacity.Minimum,
-                        sliderBrushOpacity.Maximum);
-                }
-                else if (KeyShortcutManager.IsKeyDown(Keys.F))
-                {
-                    sliderBrushFlow.Value = Math.Clamp(
-                        sliderBrushFlow.Value + amountChange,
-                        sliderBrushFlow.Minimum,
-                        sliderBrushFlow.Maximum);
-                }
-                else
-                {
-                    sliderBrushSize.Value = Math.Clamp(
-                        sliderBrushSize.Value + amountChange,
-                        sliderBrushSize.Minimum,
-                        sliderBrushSize.Maximum);
-                }
             }
 
             //Prevents alt from making the form lose focus.
@@ -1198,6 +1163,8 @@ namespace DynamicDraw
         /// </summary>
         protected override void OnKeyUp(KeyEventArgs e)
         {
+            currentKeysPressed.Remove(e.KeyCode);
+
             if (!e.Control && e.KeyCode != Keys.Space)
             {
                 Cursor = Cursors.Default;
@@ -1211,86 +1178,19 @@ namespace DynamicDraw
         {
             base.OnMouseWheel(e);
 
-            //Ctrl + Wheel: Changes the brush size.
-            if (ModifierKeys == Keys.Control)
-            {
-                //Ctrl + S + Wheel: Changes the brush size.
-                if (KeyShortcutManager.IsKeyDown(Keys.S))
-                {
-                    int changeFactor;
+            // Fires any shortcuts that require the mouse wheel.
+            HashSet<ShortcutContext> contexts = new HashSet<ShortcutContext>();
+            if (displayCanvas.Focused) { contexts.Add(ShortcutContext.OnCanvas); }
+            else { contexts.Add(ShortcutContext.OnSidebar); }
 
-                    if (sliderBrushSize.Value < 5)
-                    {
-                        changeFactor = 1;
-                    }
-                    else if (sliderBrushSize.Value < 10)
-                    {
-                        changeFactor = 2;
-                    }
-                    else if (sliderBrushSize.Value < 30)
-                    {
-                        changeFactor = 5;
-                    }
-                    else if (sliderBrushSize.Value < 100)
-                    {
-                        changeFactor = 10;
-                    }
-                    else
-                    {
-                        changeFactor = 20;
-                    }
+            bool wheelDirectionUp = Math.Sign(e.Delta) > 0;
 
-                    sliderBrushSize.Value = Math.Clamp(
-                    sliderBrushSize.Value + Math.Sign(e.Delta) * changeFactor,
-                    sliderBrushSize.Minimum,
-                    sliderBrushSize.Maximum);
-                }
-
-                //Ctrl + R + Wheel: Changes the brush rotation.
-                else if (KeyShortcutManager.IsKeyDown(Keys.R))
-                {
-                    int newValue = sliderBrushRotation.Value + Math.Sign(e.Delta) * 20;
-                    while (newValue < -sliderBrushRotation.Maximum) { newValue += sliderBrushRotation.Maximum * 2; }
-                    while (newValue >= sliderBrushRotation.Maximum) { newValue -= sliderBrushRotation.Maximum * 2; }
-                    sliderBrushRotation.Value = newValue;
-                }
-
-                //Ctrl + O + Wheel: Changes the brush opacity.
-                else if (KeyShortcutManager.IsKeyDown(Keys.O))
-                {
-                    sliderBrushOpacity.Value = Math.Clamp(
-                    sliderBrushOpacity.Value + Math.Sign(e.Delta) * 10,
-                    sliderBrushOpacity.Minimum,
-                    sliderBrushOpacity.Maximum);
-                }
-
-                //Ctrl + F + Wheel: Changes the brush flow.
-                else if (KeyShortcutManager.IsKeyDown(Keys.F))
-                {
-                    sliderBrushFlow.Value = Math.Clamp(
-                    sliderBrushFlow.Value + Math.Sign(e.Delta) * 10,
-                    sliderBrushFlow.Minimum,
-                    sliderBrushFlow.Maximum);
-                }
-
-                //Ctrl + Wheel: Zooms the canvas in/out.
-                else
-                {
-                    isWheelZooming = true;
-                    Zoom(e.Delta, true);
-                }
-            }
-
-            // Shift + Wheel: Changes the canvas rotation.
-            else if (ModifierKeys == Keys.Shift)
-            {
-                int newValue = sliderCanvasAngle.Value + Math.Sign(e.Delta) * 10;
-                while (newValue < 0) { newValue += 360; }
-                while (newValue >= 360) { newValue -= 360; }
-                sliderCanvasAngle.Value = newValue;
-
-                displayCanvas.Refresh();
-            }
+            KeyShortcutManager.FireShortcuts(
+                keyboardShortcuts,
+                currentKeysPressed,
+                wheelDirectionUp,
+                !wheelDirectionUp,
+                contexts);
         }
 
         /// <summary>
@@ -3262,6 +3162,12 @@ namespace DynamicDraw
                     cmbxChosenEffect.SelectedIndex =
                         shortcut.GetDataAsInt(cmbxChosenEffect.SelectedIndex, 0, cmbxChosenEffect.Items.Count);
                     break;
+                case ShortcutTarget.CanvasZoomToMouse:
+                    isWheelZooming = true;
+                    sliderCanvasZoom.Value =
+                        shortcut.GetDataAsInt(sliderCanvasZoom.Value,
+                        sliderCanvasZoom.Minimum, sliderCanvasZoom.Maximum);
+                    break;
             };
         }
 
@@ -3802,6 +3708,7 @@ namespace DynamicDraw
             this.topMenu.FlowDirection = FlowDirection.LeftToRight;
             this.topMenu.Width = displayCanvas.Width;
             this.topMenu.Height = 32;
+            this.topMenu.Margin = Padding.Empty;
 
             // The options button
             menuOptions = new Button
@@ -3836,7 +3743,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(new ToolStripSeparator());
 
             // Options -> reset canvas
-            this.menuResetCanvas = new ToolStripMenuItem("reset canvas", null, (a, b) =>
+            this.menuResetCanvas = new ToolStripMenuItem("re-center the canvas", null, (a, b) =>
             {
                 HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.ResetCanvasTransforms });
             });
@@ -6774,12 +6681,19 @@ namespace DynamicDraw
                 }
 
                 zoom *= Math.Sign(mouseWheelDetents);
+                int newValue = sliderCanvasZoom.Value + zoom;
+
+                // When sliding past 100% zoom, snaps to it. This is a common target for users.
+                if (sliderCanvasZoom.Value != 100 && Math.Sign(sliderCanvasZoom.Value - 100) != Math.Sign(newValue - 100))
+                {
+                    newValue = 100;
+                }
 
                 //Updates the corresponding slider as well (within its range).
                 sliderCanvasZoom.Value = Math.Clamp(
-                sliderCanvasZoom.Value + zoom,
-                sliderCanvasZoom.Minimum,
-                sliderCanvasZoom.Maximum);
+                    newValue,
+                    sliderCanvasZoom.Minimum,
+                    sliderCanvasZoom.Maximum);
 
                 return;
             }
@@ -7126,12 +7040,12 @@ namespace DynamicDraw
                 // Removes points near the mouse.
                 if (activeTool == Tool.SetSymmetryOrigin && cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
                 {
-                    // Deletes all points.
+                    // Ctrl + RMB: deletes all points.
                     if (KeyShortcutManager.IsKeyDown(Keys.ControlKey))
                     {
                         symmetryOrigins.Clear();
                     }
-                    // Deletes points within a small radius of the mouse.
+                    // RMB: Deletes points within a small radius of the mouse.
                     else
                     {
                         for (int i = 0; i < symmetryOrigins.Count; i++)
