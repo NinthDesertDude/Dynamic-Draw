@@ -50,9 +50,10 @@
             // txtBrushLocations
             // 
             this.txtBrushLocations.AutoSize = true;
-            this.txtBrushLocations.Location = new System.Drawing.Point(3, 0);
+            this.txtBrushLocations.Location = new System.Drawing.Point(4, 0);
+            this.txtBrushLocations.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.txtBrushLocations.Name = "txtBrushLocations";
-            this.txtBrushLocations.Size = new System.Drawing.Size(193, 13);
+            this.txtBrushLocations.Size = new System.Drawing.Size(123, 15);
             this.txtBrushLocations.TabIndex = 2;
             this.txtBrushLocations.Text = "Custom Brush Images";
             // 
@@ -61,10 +62,11 @@
             this.chkbxLoadDefaultBrushes.AutoSize = true;
             this.chkbxLoadDefaultBrushes.Checked = true;
             this.chkbxLoadDefaultBrushes.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkbxLoadDefaultBrushes.Location = new System.Drawing.Point(169, 3);
+            this.chkbxLoadDefaultBrushes.Location = new System.Drawing.Point(200, 3);
+            this.chkbxLoadDefaultBrushes.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.chkbxLoadDefaultBrushes.Name = "chkbxLoadDefaultBrushes";
-            this.chkbxLoadDefaultBrushes.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
-            this.chkbxLoadDefaultBrushes.Size = new System.Drawing.Size(134, 21);
+            this.chkbxLoadDefaultBrushes.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            this.chkbxLoadDefaultBrushes.Size = new System.Drawing.Size(172, 24);
             this.chkbxLoadDefaultBrushes.TabIndex = 3;
             this.chkbxLoadDefaultBrushes.Text = "Load Default Brush Images?";
             this.chkbxLoadDefaultBrushes.UseVisualStyleBackColor = true;
@@ -72,20 +74,22 @@
             // txtbxBrushLocations
             // 
             this.txtbxBrushLocations.AcceptsReturn = true;
-            this.txtbxBrushLocations.Location = new System.Drawing.Point(3, 16);
+            this.txtbxBrushLocations.Location = new System.Drawing.Point(4, 18);
+            this.txtbxBrushLocations.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.txtbxBrushLocations.Multiline = true;
             this.txtbxBrushLocations.Name = "txtbxBrushLocations";
             this.txtbxBrushLocations.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtbxBrushLocations.Size = new System.Drawing.Size(475, 166);
+            this.txtbxBrushLocations.Size = new System.Drawing.Size(554, 191);
             this.txtbxBrushLocations.TabIndex = 1;
             // 
             // bttnSave
             // 
             this.bttnSave.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.bttnSave.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.bttnSave.Location = new System.Drawing.Point(3, 3);
+            this.bttnSave.Location = new System.Drawing.Point(269, 3);
+            this.bttnSave.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bttnSave.Name = "bttnSave";
-            this.bttnSave.Size = new System.Drawing.Size(120, 35);
+            this.bttnSave.Size = new System.Drawing.Size(140, 40);
             this.bttnSave.TabIndex = 28;
             this.bttnSave.Text = "Save";
             this.bttnSave.UseVisualStyleBackColor = true;
@@ -96,9 +100,10 @@
             this.bttnCancel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.bttnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bttnCancel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.bttnCancel.Location = new System.Drawing.Point(129, 3);
+            this.bttnCancel.Location = new System.Drawing.Point(417, 3);
+            this.bttnCancel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bttnCancel.Name = "bttnCancel";
-            this.bttnCancel.Size = new System.Drawing.Size(120, 35);
+            this.bttnCancel.Size = new System.Drawing.Size(140, 40);
             this.bttnCancel.TabIndex = 27;
             this.bttnCancel.Text = "Cancel";
             this.bttnCancel.UseVisualStyleBackColor = true;
@@ -107,9 +112,10 @@
             // bttnAddFolder
             // 
             this.bttnAddFolder.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.bttnAddFolder.Location = new System.Drawing.Point(3, 3);
+            this.bttnAddFolder.Location = new System.Drawing.Point(4, 3);
+            this.bttnAddFolder.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bttnAddFolder.Name = "bttnAddFolder";
-            this.bttnAddFolder.Size = new System.Drawing.Size(77, 23);
+            this.bttnAddFolder.Size = new System.Drawing.Size(90, 27);
             this.bttnAddFolder.TabIndex = 29;
             this.bttnAddFolder.Text = "Add Folders";
             this.bttnAddFolder.UseVisualStyleBackColor = true;
@@ -119,9 +125,10 @@
             // 
             this.flowLayoutPanel1.Controls.Add(this.txtBrushLocations);
             this.flowLayoutPanel1.Controls.Add(this.txtbxBrushLocations);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(4, 3);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(460, 179);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(537, 207);
             this.flowLayoutPanel1.TabIndex = 30;
             // 
             // flowLayoutPanel2
@@ -131,8 +138,9 @@
             this.flowLayoutPanel2.Controls.Add(this.flowLayoutPanel4);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(484, 281);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(565, 324);
             this.flowLayoutPanel2.TabIndex = 31;
             // 
             // flowLayoutPanel3
@@ -140,17 +148,19 @@
             this.flowLayoutPanel3.Controls.Add(this.bttnAddFolder);
             this.flowLayoutPanel3.Controls.Add(this.bttnAddFiles);
             this.flowLayoutPanel3.Controls.Add(this.chkbxLoadDefaultBrushes);
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(3, 188);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(4, 216);
+            this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(481, 32);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(561, 37);
             this.flowLayoutPanel3.TabIndex = 31;
             // 
             // bttnAddFiles
             // 
             this.bttnAddFiles.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.bttnAddFiles.Location = new System.Drawing.Point(86, 3);
+            this.bttnAddFiles.Location = new System.Drawing.Point(102, 3);
+            this.bttnAddFiles.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bttnAddFiles.Name = "bttnAddFiles";
-            this.bttnAddFiles.Size = new System.Drawing.Size(77, 23);
+            this.bttnAddFiles.Size = new System.Drawing.Size(90, 27);
             this.bttnAddFiles.TabIndex = 30;
             this.bttnAddFiles.Text = "Add Files";
             this.bttnAddFiles.UseVisualStyleBackColor = true;
@@ -160,19 +170,22 @@
             // 
             this.flowLayoutPanel4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel4.Controls.Add(this.bttnSave);
             this.flowLayoutPanel4.Controls.Add(this.bttnCancel);
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(3, 226);
+            this.flowLayoutPanel4.Controls.Add(this.bttnSave);
+            this.flowLayoutPanel4.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(4, 259);
+            this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(481, 48);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(561, 55);
             this.flowLayoutPanel4.TabIndex = 3;
             // 
             // DynamicDrawPreferences
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 281);
+            this.ClientSize = new System.Drawing.Size(565, 324);
             this.Controls.Add(this.flowLayoutPanel2);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "DynamicDrawPreferences";
             this.Text = "Preferences";
             this.flowLayoutPanel1.ResumeLayout(false);

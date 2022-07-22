@@ -31,14 +31,15 @@ namespace DynamicDraw.Gui
             base.OnLoad(e);
 
             //Sets the text and tooltips based on language.
+            Text = Localization.Strings.DialogCustomBrushImagesTitle;
             bttnCancel.Text = Localization.Strings.Cancel;
-            bttnSave.Text = Localization.Strings.SavePreferences;
+            bttnSave.Text = Localization.Strings.Save;
             chkbxLoadDefaultBrushes.Text = Localization.Strings.LoadDefaultBrushes;
             bttnAddFolder.Text = Localization.Strings.AddFolder;
             bttnAddFiles.Text = Localization.Strings.AddFiles;
             txtBrushLocations.Text = Localization.Strings.BrushLocations;
             tooltip.SetToolTip(bttnCancel, Localization.Strings.CancelTip);
-            tooltip.SetToolTip(bttnSave, Localization.Strings.SavePreferencesTip);
+            tooltip.SetToolTip(bttnSave, Localization.Strings.SaveTip);
             tooltip.SetToolTip(chkbxLoadDefaultBrushes, Localization.Strings.LoadDefaultBrushesTip);
             tooltip.SetToolTip(bttnAddFolder, Localization.Strings.AddFoldersTip);
             tooltip.SetToolTip(bttnAddFiles, Localization.Strings.AddFilesTip);

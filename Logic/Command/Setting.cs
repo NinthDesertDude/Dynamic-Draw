@@ -16,6 +16,7 @@ namespace DynamicDraw
         {
             AllSettings = new Dictionary<ShortcutTarget, Setting>()
             {
+                { ShortcutTarget.AutomaticBrushDensity, new Setting(Localization.Strings.AutomaticBrushDensity, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.BrushStrokeDensity, new Setting(Localization.Strings.ShortcutDensity, 0, 50) },
                 { ShortcutTarget.CanvasZoom, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 1600) },
                 { ShortcutTarget.Color, new Setting(Localization.Strings.BrushColor, ShortcutTargetDataType.Color) },
@@ -79,10 +80,10 @@ namespace DynamicDraw
                 { ShortcutTarget.TabPressureSize, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutSize), -1000, 1000) },
                 { ShortcutTarget.TabPressureRotation, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutRotation), -180, 180) },
                 { ShortcutTarget.UndoAction, new Setting(Localization.Strings.Undo, ShortcutTargetDataType.Action) },
-                { ShortcutTarget.ResetCanvasTransforms, new Setting(Localization.Strings.ResetCanvas, ShortcutTargetDataType.Action) },
-                { ShortcutTarget.CanvasX, new Setting(Localization.Strings.CanvasX, int.MinValue, int.MaxValue) },
-                { ShortcutTarget.CanvasY, new Setting(Localization.Strings.CanvasY, int.MinValue, int.MaxValue) },
-                { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.CanvasRotation, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.ResetCanvasTransforms, new Setting(Localization.Strings.ShortcutResetCanvas, ShortcutTargetDataType.Action) },
+                { ShortcutTarget.CanvasX, new Setting(Localization.Strings.ShortcutNudgeCanvasX, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.CanvasY, new Setting(Localization.Strings.ShortcutNudgeCanvasY, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.ShortcutRotateCanvas, int.MinValue, int.MaxValue) },
                 { ShortcutTarget.BlendMode, new Setting(Localization.Strings.ShortcutBlendMode, 0, Enum.GetValues(typeof(BlendMode)).Length - 1) },
                 { ShortcutTarget.SeamlessDrawing, new Setting(Localization.Strings.SeamlessDrawing, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.ColorInfluence, new Setting(Localization.Strings.ShortcutColorInfluence, 0, 100) },
@@ -97,7 +98,8 @@ namespace DynamicDraw
                 { ShortcutTarget.DoLockSat, new Setting(Localization.Strings.LockSat, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DoLockVal, new Setting(Localization.Strings.LockVal, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.BrushOpacity, new Setting(Localization.Strings.ShortcutBrushOpacity, 0, 255) },
-                { ShortcutTarget.CanvasZoomToMouse, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 1600) }
+                { ShortcutTarget.CanvasZoomToMouse, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 1600) },
+                { ShortcutTarget.ChosenEffect, new Setting(Localization.Strings.ShortcutChosenEffect, 1, 1000) },
             };
         }
 

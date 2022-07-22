@@ -503,5 +503,14 @@ namespace DynamicDraw
         {
             return new PersistentSettings(this);
         }
+
+        /// <summary>
+        /// Returns a new HashSet containing the same KeyboardShortcut objects exposed by static context app-wide.
+        /// Do NOT mutate any of the shortcut objects.
+        /// </summary>
+        public static HashSet<KeyboardShortcut> GetShallowShortcutsList()
+        {
+            return new HashSet<KeyboardShortcut>(defaultShortcuts);
+        }
     }
 }

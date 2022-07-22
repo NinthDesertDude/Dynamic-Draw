@@ -341,10 +341,10 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="Rotation" xml:space="preserve">
     <value>Brush Rotation:</value>
   </data>
-  <data name="SavePreferences" xml:space="preserve">
+  <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="SavePreferencesTip" xml:space="preserve">
+  <data name="SaveTip" xml:space="preserve">
     <value>Saves all changes in the preferences.</value>
   </data>
   <data name="ShiftFlow" xml:space="preserve">
@@ -963,5 +963,122 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="CannotSaveSettingsError" xml:space="preserve">
     <value>Any changes to settings/preferences couldn't be saved.</value>
+  </data>
+  <data name="DialogCustomBrushImagesTitle" xml:space="preserve">
+    <value>Custom Brush Images</value>
+  </data>
+  <data name="DialogKeyboardShortcutsTitle" xml:space="preserve">
+    <value>Keyboard Shortcuts</value>
+  </data>
+  <data name="ShortcutNudgeCanvasX" xml:space="preserve">
+    <value>Nudge Canvas Horizontally</value>
+  </data>
+  <data name="ShortcutNudgeCanvasY" xml:space="preserve">
+    <value>Nudge Canvas Vertically</value>
+  </data>
+  <data name="ShortcutResetCanvas" xml:space="preserve">
+    <value>Reset Canvas</value>
+  </data>
+  <data name="ShortcutRotateCanvas" xml:space="preserve">
+    <value>Rotate Canvas</value>
+  </data>
+  <data name="KeyboardShortcutsTip" xml:space="preserve">
+    <value>The bolded names are the command to perform. The sequence to invoke it comes next. The text below some commands is associated data that tells the command how to behave.</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="KeyboardShortcuts" xml:space="preserve">
+    <value>Keyboard shortcuts</value>
+  </data>
+  <data name="KeyboardShortcutsActionDataPlaceholder" xml:space="preserve">
+    <value>Action data</value>
+  </data>
+  <data name="RestoreDefaults" xml:space="preserve">
+    <value>Restore defaults</value>
+  </data>
+  <data name="SaveKeyboardShortcutsTip" xml:space="preserve">
+    <value>Save the current keyboard shortcuts.</value>
+  </data>
+  <data name="ShortcutInputWheelDown" xml:space="preserve">
+    <value>Wheel down</value>
+  </data>
+  <data name="ShortcutInputWheelUp" xml:space="preserve">
+    <value>Wheel up</value>
+  </data>
+  <data name="ShortcutInputAlt" xml:space="preserve">
+    <value>Alt</value>
+  </data>
+  <data name="ShortcutInputBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="ShortcutInputCapsLock" xml:space="preserve">
+    <value>Caps lock</value>
+  </data>
+  <data name="ShortcutInputCtrl" xml:space="preserve">
+    <value>Ctrl</value>
+  </data>
+  <data name="ShortcutInputDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ShortcutInputEnd" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="ShortcutInputEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="ShortcutInputEscape" xml:space="preserve">
+    <value>Escape</value>
+  </data>
+  <data name="ShortcutInputHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="ShortcutInputInsert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="ShortcutInputNumLock" xml:space="preserve">
+    <value>Num lock</value>
+  </data>
+  <data name="ShortcutInputPageDown" xml:space="preserve">
+    <value>Page down</value>
+  </data>
+  <data name="ShortcutInputPageUp" xml:space="preserve">
+    <value>Page up</value>
+  </data>
+  <data name="ShortcutInputPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="ShortcutInputPrintScreen" xml:space="preserve">
+    <value>Print screen</value>
+  </data>
+  <data name="ShortcutInputScrollLock" xml:space="preserve">
+    <value>Scroll lock</value>
+  </data>
+  <data name="ShortcutInputShift" xml:space="preserve">
+    <value>Shift</value>
+  </data>
+  <data name="ShortcutInputSpace" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="ShortcutInputTab" xml:space="preserve">
+    <value>Tab</value>
+  </data>
+  <data name="ShortcutInputWheel" xml:space="preserve">
+    <value>Wheel</value>
+  </data>
+  <data name="ShortcutSelectACommand" xml:space="preserve">
+    <value>Select a command...</value>
+  </data>
+  <data name="ShortcutSetTheSequence" xml:space="preserve">
+    <value>Set the key sequence...</value>
+  </data>
+  <data name="ShortcutChosenEffect" xml:space="preserve">
+    <value>Chosen Effect</value>
   </data>
 </root>

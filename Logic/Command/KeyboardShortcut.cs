@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Text.Json;
 
-namespace DynamicDraw.Logic
+namespace DynamicDraw
 {
     /// <summary>
     /// Represents a keyboard shortcut.
@@ -143,7 +145,7 @@ namespace DynamicDraw.Logic
         /// <summary>
         /// Identifies the setting to change associated with this key shortcut.
         /// </summary>
-        [DataMember(Name = "Setting")]
+        [DataMember(Name = "Target")]
         public ShortcutTarget Target { get; set; }
 
         /// <summary>
@@ -177,37 +179,7 @@ namespace DynamicDraw.Logic
         /// <param name="data">A string representation of the data.</param>
         public bool IsActionValid()
         {
-            if (Setting.AllSettings[Target].ValueType == ShortcutTargetDataType.Integer)
-            {
-                if (int.TryParse(ActionData, out int value))
-                {
-                    return Setting.AllSettings[Target].ValidateNumberValue(value);
-                }
-
-                return false;
-            }
-
-            if (Setting.AllSettings[Target].ValueType == ShortcutTargetDataType.Float)
-            {
-                if (float.TryParse(ActionData, out float value))
-                {
-                    return Setting.AllSettings[Target].ValidateNumberValue(value);
-                }
-
-                return false;
-            }
-
-            if (Setting.AllSettings[Target].ValueType == ShortcutTargetDataType.Bool)
-            {
-                return ActionData.Equals("t") || ActionData.Equals("f");
-            }
-            
-            if (Setting.AllSettings[Target].ValueType == ShortcutTargetDataType.Color)
-            {
-                return Regex.Match(ActionData, "^([0-9]|[a-f]){6}$").Success;
-            }
-
-            return !string.IsNullOrEmpty(ActionData);
+            return IsActionValid(Target, ActionData);
         }
 
         /// <summary>
@@ -382,6 +354,225 @@ namespace DynamicDraw.Logic
             }
 
             return ActionData.Equals("t");
+        }
+
+        /// <summary>
+        /// Returns the friendly display name of the shortcut target.
+        /// </summary>
+        public string GetShortcutName()
+        {
+            return Setting.AllSettings[Target].Name;
+        }
+
+        /// <summary>
+        /// Returns user-legible string like "Ctrl + A + Mouse wheel" describing the key sequence used to invoke the
+        /// given shortcut.
+        /// </summary>
+        public string GetShortcutKeysString()
+        {
+            return GetShortcutKeysString(Keys,
+                RequireCtrl, RequireShift, RequireAlt,
+                RequireWheel, RequireWheelUp, RequireWheelDown);
+        }
+
+        /// <summary>
+        /// Verifies the given data is valid for this setting's data type.
+        /// </summary>
+        /// <param name="actionData">A string representation of the data.</param>
+        public static bool IsActionValid(ShortcutTarget target, string actionData)
+        {
+            // Actions should have no associated action data.
+            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Action)
+            {
+                return string.IsNullOrEmpty(actionData);
+            }
+
+            // Everything else must have associated action data.
+            if (actionData == null)
+            {
+                return false;
+            }
+
+            // Integers and floats must follow the allowed value|type syntaxes and have valid numeric values.
+            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Integer ||
+                Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Float)
+            {
+                // expects format: values|type
+                string[] chunks = actionData.Split('|');
+                if (chunks.Length != 2)
+                {
+                    return false;
+                }
+
+                bool isCycleType =
+                    chunks[1] == "cycle" ||
+                    chunks[1] == "cycle-stop" ||
+                    chunks[1] == "cycle-add" ||
+                    chunks[1] == "cycle-add-stop" ||
+                    chunks[1] == "cycle-add-wrap" ||
+                    chunks[1] == "cycle-sub" ||
+                    chunks[1] == "cycle-sub-stop" ||
+                    chunks[1] == "cycle-sub-wrap";
+
+                // Type must be recognized.
+                if (!isCycleType &&
+                    chunks[1] != "add" &&
+                    chunks[1] != "set" &&
+                    chunks[1] != "sub" &&
+                    chunks[1] != "mul" &&
+                    chunks[1] != "div" &&
+                    chunks[1] != "add-wrap" &&
+                    chunks[1] != "sub-wrap")
+                {
+                    return false;
+                }
+
+                // There must be at least 1 cycle value, and all values must be valid floats (this is intentional for
+                // int types, since float math can still be useful).
+                if (isCycleType)
+                {
+                    string[] numberStrings = chunks[0].Split(",");
+
+                    if (numberStrings.Length == 0)
+                    {
+                        return false;
+                    }
+
+                    foreach (string numberString in numberStrings)
+                    {
+                        if (!float.TryParse(numberString, out _))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                return float.TryParse(chunks[0], out float _);
+            }
+
+            // Bools must be t for true, f for false, or toggle to switch when fired.
+            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Bool)
+            {
+                return actionData.Equals("t") || actionData.Equals("f") || actionData.Equals("toggle");
+            }
+
+            // Colors must be 6 hexadecimal characters, lowercase alphabet.
+            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Color)
+            {
+                return Regex.Match(actionData, "^([0-9]|[a-f]){6}$").Success;
+            }
+
+            // Strings must be non-null (already guaranteed by code logic above).
+            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.String)
+            {
+                return true;
+            }
+
+            throw new Exception("Unhandled shortcut target data type: " + Enum.GetName(Setting.AllSettings[target].ValueType));
+        }
+
+        /// <summary>
+        /// Returns user-legible string like "Ctrl + A + Mouse wheel" describing the key sequence used to invoke the
+        /// given shortcut.
+        /// </summary>
+        public static string GetShortcutKeysString(HashSet<Keys> keys,
+            bool ctrlHeld, bool shiftHeld, bool altHeld,
+            bool wheel, bool wheelUp, bool wheelDown)
+        {
+            List<string> keysList = new List<string>();
+            if (ctrlHeld) { keysList.Add(Localization.Strings.ShortcutInputCtrl); }
+            if (shiftHeld) { keysList.Add(Localization.Strings.ShortcutInputShift); }
+            if (altHeld) { keysList.Add(Localization.Strings.ShortcutInputAlt); }
+            foreach (var key in keys)
+            {
+                if (key == System.Windows.Forms.Keys.D0 || key == System.Windows.Forms.Keys.NumPad0) { keysList.Add("0"); }
+                else if (key == System.Windows.Forms.Keys.D1 || key == System.Windows.Forms.Keys.NumPad1) { keysList.Add("1"); }
+                else if (key == System.Windows.Forms.Keys.D2 || key == System.Windows.Forms.Keys.NumPad2) { keysList.Add("2"); }
+                else if (key == System.Windows.Forms.Keys.D3 || key == System.Windows.Forms.Keys.NumPad3) { keysList.Add("3"); }
+                else if (key == System.Windows.Forms.Keys.D4 || key == System.Windows.Forms.Keys.NumPad4) { keysList.Add("4"); }
+                else if (key == System.Windows.Forms.Keys.D5 || key == System.Windows.Forms.Keys.NumPad5) { keysList.Add("5"); }
+                else if (key == System.Windows.Forms.Keys.D6 || key == System.Windows.Forms.Keys.NumPad6) { keysList.Add("6"); }
+                else if (key == System.Windows.Forms.Keys.D7 || key == System.Windows.Forms.Keys.NumPad7) { keysList.Add("7"); }
+                else if (key == System.Windows.Forms.Keys.D8 || key == System.Windows.Forms.Keys.NumPad8) { keysList.Add("8"); }
+                else if (key == System.Windows.Forms.Keys.D9 || key == System.Windows.Forms.Keys.NumPad9) { keysList.Add("9"); }
+                else if (key == System.Windows.Forms.Keys.Add || key == System.Windows.Forms.Keys.Oemplus) { keysList.Add("+"); }
+                else if (key == System.Windows.Forms.Keys.Back || key == System.Windows.Forms.Keys.Clear) { keysList.Add(Localization.Strings.ShortcutInputBack); }
+                else if (key == System.Windows.Forms.Keys.Capital || key == System.Windows.Forms.Keys.CapsLock) { keysList.Add(Localization.Strings.ShortcutInputCapsLock); }
+                else if (key == System.Windows.Forms.Keys.Delete) { keysList.Add(Localization.Strings.ShortcutInputDelete); }
+                else if (key == System.Windows.Forms.Keys.Down) { keysList.Add("↓"); }
+                else if (key == System.Windows.Forms.Keys.End) { keysList.Add(Localization.Strings.ShortcutInputEnd); }
+                else if (key == System.Windows.Forms.Keys.Enter || key == System.Windows.Forms.Keys.Return) { keysList.Add(Localization.Strings.ShortcutInputEnter); }
+                else if (key == System.Windows.Forms.Keys.Escape) { keysList.Add(Localization.Strings.ShortcutInputEscape); }
+                else if (key == System.Windows.Forms.Keys.Home) { keysList.Add(Localization.Strings.ShortcutInputHome); }
+                else if (key == System.Windows.Forms.Keys.Insert) { keysList.Add(Localization.Strings.ShortcutInputInsert); }
+                else if (key == System.Windows.Forms.Keys.Left) { keysList.Add("←"); }
+                else if (key == System.Windows.Forms.Keys.Multiply) { keysList.Add("*"); }
+                else if (key == System.Windows.Forms.Keys.Next || key == System.Windows.Forms.Keys.PageUp) { keysList.Add(Localization.Strings.ShortcutInputPageUp); }
+                else if (key == System.Windows.Forms.Keys.NumLock) { keysList.Add(Localization.Strings.ShortcutInputNumLock); }
+                else if (key == System.Windows.Forms.Keys.OemBackslash) { keysList.Add("\\"); }
+                else if (key == System.Windows.Forms.Keys.OemCloseBrackets) { keysList.Add("]"); }
+                else if (key == System.Windows.Forms.Keys.Oemcomma) { keysList.Add(","); }
+                else if (key == System.Windows.Forms.Keys.OemMinus || key == System.Windows.Forms.Keys.Subtract) { keysList.Add("-"); }
+                else if (key == System.Windows.Forms.Keys.OemOpenBrackets) { keysList.Add("["); }
+                else if (key == System.Windows.Forms.Keys.OemPeriod) { keysList.Add("."); }
+                else if (key == System.Windows.Forms.Keys.OemPipe) { keysList.Add("|"); }
+                else if (key == System.Windows.Forms.Keys.OemQuestion) { keysList.Add("?"); }
+                else if (key == System.Windows.Forms.Keys.OemQuotes) { keysList.Add("'"); }
+                else if (key == System.Windows.Forms.Keys.OemSemicolon) { keysList.Add(";"); }
+                else if (key == System.Windows.Forms.Keys.Oemtilde) { keysList.Add("~"); }
+                else if (key == System.Windows.Forms.Keys.PageDown || key == System.Windows.Forms.Keys.Prior) { keysList.Add(Localization.Strings.ShortcutInputPageDown); }
+                else if (key == System.Windows.Forms.Keys.Pause) { keysList.Add(Localization.Strings.ShortcutInputPause); }
+                else if (key == System.Windows.Forms.Keys.PrintScreen) { keysList.Add(Localization.Strings.ShortcutInputPrintScreen); }
+                else if (key == System.Windows.Forms.Keys.Right) { keysList.Add("→"); }
+                else if (key == System.Windows.Forms.Keys.Scroll) { keysList.Add(Localization.Strings.ShortcutInputScrollLock); }
+                else if (key == System.Windows.Forms.Keys.Space) { keysList.Add(Localization.Strings.ShortcutInputSpace); }
+                else if (key == System.Windows.Forms.Keys.Tab) { keysList.Add(Localization.Strings.ShortcutInputTab); }
+                else if (key == System.Windows.Forms.Keys.Up) { keysList.Add("↑"); }
+                else { keysList.Add(key.ToString()); }
+            }
+
+            if (wheel) { keysList.Add(Localization.Strings.ShortcutInputWheel); }
+            if (wheelUp) { keysList.Add(Localization.Strings.ShortcutInputWheelUp); }
+            if (wheelDown) { keysList.Add(Localization.Strings.ShortcutInputWheelDown); }
+
+            return string.Join(" ＋ ", keysList);
+        }
+
+        /// <summary>
+        /// This helper function takes a hash set of keys and removes Ctrl, Shift, Alt from the sequence, returning
+        /// those statuses through out variables. A clone of the list without those modifiers is returned directly.
+        /// </summary>
+        /// <param name="keys">A hash set containing keys.</param>
+        /// <param name="ctrlHeld">Whether or not ControlKey was previously in the list.</param>
+        /// <param name="shiftHeld">Whether or not ShiftKey was previously in the list.</param>
+        /// <param name="altHeld">Whether or not Alt was previously in the list.</param>
+        /// <returns></returns>
+        public static HashSet<Keys> SeparateKeyModifiers(HashSet<Keys> keys, out bool ctrlHeld, out bool shiftHeld, out bool altHeld)
+        {
+            bool ctrl = false;
+            bool shift = false;
+            bool alt = false;
+
+            HashSet<Keys> regularKeys = keys.Where((key) =>
+            {
+                if (key == System.Windows.Forms.Keys.ControlKey) { ctrl = true; }
+                else if (key == System.Windows.Forms.Keys.ShiftKey) { shift = true; }
+                else if (key == System.Windows.Forms.Keys.Alt || key == System.Windows.Forms.Keys.Menu) { alt = true; }
+                else
+                {
+                    return true;
+                }
+
+                return false;
+            }).ToHashSet();
+
+            altHeld = alt;
+            ctrlHeld = ctrl;
+            shiftHeld = shift;
+
+            return regularKeys;
         }
     }
 }

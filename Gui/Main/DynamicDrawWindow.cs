@@ -173,11 +173,6 @@ namespace DynamicDraw
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// The list of registered keyboard shortcuts.
-        /// </summary>
-        private readonly HashSet<KeyboardShortcut> keyboardShortcuts;
-
-        /// <summary>
         /// List of keys currently pressed. The last item in the list is always the most recently pressed key.
         /// </summary>
         private readonly HashSet<Keys> currentKeysPressed;
@@ -249,6 +244,25 @@ namespace DynamicDraw
                 if (settings?.Preferences != null)
                 {
                     settings.Preferences = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shortcuts deserialize asynchronously (and can fail sometimes). This returns that object if it exists, else
+        /// it returns a copy of the shortcut defaults (so any changes are discarded).
+        /// </summary>
+        private HashSet<KeyboardShortcut> KeyboardShortcuts
+        {
+            get
+            {
+                return settings?.KeyboardShortcuts ?? new PersistentSettings().KeyboardShortcuts;
+            }
+            set
+            {
+                if (settings?.KeyboardShortcuts != null)
+                {
+                    settings.KeyboardShortcuts = value;
                 }
             }
         }
@@ -351,9 +365,9 @@ namespace DynamicDraw
         private ToolStripMenuItem menuSetCanvasBgTransparent, menuSetCanvasBgGray, menuSetCanvasBgWhite, menuSetCanvasBgBlack;
         private ToolStripMenuItem menuBrushIndicator, menuBrushIndicatorSquare, menuBrushIndicatorPreview;
         private ToolStripMenuItem menuShowSymmetryLinesInUse, menuShowMinDistanceInUse;
-        private ToolStripMenuItem menuPrefsBrushImageDirectories;
-        private ToolStripMenuItem menuPrefsColorPickerIncludesAlpha, menuPrefsColorPickerSwitchesToPrevTool;
-        private ToolStripMenuItem menuPrefsRemoveUnfoundImagePaths, menuPrefsConfirmCloseSave;
+        private ToolStripMenuItem menuBrushImageDirectories, menuKeyboardShortcutsDialog;
+        private ToolStripMenuItem menuColorPickerIncludesAlpha, menuColorPickerSwitchesToPrevTool;
+        private ToolStripMenuItem menuRemoveUnfoundImagePaths, menuConfirmCloseSave;
 
         /// <summary>
         /// Tracks when the user draws out-of-bounds and moves the canvas to
@@ -597,7 +611,7 @@ namespace DynamicDraw
             tempDir = new TempDirectory();
 
             loadedBrushImages = new BrushSelectorItemCollection();
-            keyboardShortcuts = new HashSet<KeyboardShortcut>();
+            KeyboardShortcuts = new HashSet<KeyboardShortcut>();
             currentKeysPressed = new HashSet<Keys>();
 
             canvas = new(0, 0, 0, 0);
@@ -640,7 +654,7 @@ namespace DynamicDraw
             // Fetches and populates the available effects for the effect chooser combobox.
             effectOptions = new BindingList<Tuple<string, IEffectInfo>>()
             {
-                new Tuple<string, IEffectInfo>(Localization.Strings.EffectDefaultNone, null)
+                new Tuple<string, IEffectInfo>(Strings.EffectDefaultNone, null)
             };
 
             cmbxChosenEffect.DataSource = effectOptions;
@@ -838,16 +852,8 @@ namespace DynamicDraw
                 loadedBrushImagePaths.UnionWith(token.CustomBrushLocations);
             }
 
-            keyboardShortcuts.Clear(); // Prevents duplicate shortcut handling.
-            foreach (KeyboardShortcut shortcut in token.KeyboardShortcuts)
-            {
-                shortcut.OnInvoke = new Action(() =>
-                {
-                    HandleShortcut(shortcut);
-                });
-
-                keyboardShortcuts.Add(shortcut);
-            }
+            // Registers all current keyboard shortcuts.
+            InitKeyboardShortcuts(token.KeyboardShortcuts);
 
             token.CurrentBrushSettings.BrushFlow = PdnUserSettings.userPrimaryColor.A;
             token.CurrentBrushSettings.BrushColor = PdnUserSettings.userPrimaryColor;
@@ -902,6 +908,7 @@ namespace DynamicDraw
         {
             PersistentSettings token = (PersistentSettings)EffectToken;
             token.UserSettings = UserSettings;
+            token.KeyboardShortcuts = KeyboardShortcuts;
             token.CustomBrushLocations = loadedBrushImagePaths;
             token.CurrentBrushSettings = CreateSettingsObjectFromCurrentSettings(true);
             token.ActiveEffect = new(cmbxChosenEffect.SelectedIndex, new CustomEffect(effectToDraw, false));
@@ -1134,7 +1141,7 @@ namespace DynamicDraw
         /// </summary>
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            currentKeysPressed.Add(e.KeyCode);
+            currentKeysPressed.Add(e.KeyCode & Keys.KeyCode);
 
             base.OnKeyDown(e);
 
@@ -1143,7 +1150,7 @@ namespace DynamicDraw
             if (displayCanvas.Focused) { contexts.Add(ShortcutContext.OnCanvas); }
             else { contexts.Add(ShortcutContext.OnSidebar); }
 
-            KeyShortcutManager.FireShortcuts(keyboardShortcuts, currentKeysPressed, false, false, contexts);
+            KeyShortcutManager.FireShortcuts(KeyboardShortcuts, currentKeysPressed, false, false, contexts);
 
             // Display a hand icon while panning.
             if (e.KeyCode == Keys.Control || e.KeyCode == Keys.Space)
@@ -1163,7 +1170,7 @@ namespace DynamicDraw
         /// </summary>
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            currentKeysPressed.Remove(e.KeyCode);
+            currentKeysPressed.Remove(e.KeyCode & Keys.KeyCode);
 
             if (!e.Control && e.KeyCode != Keys.Space)
             {
@@ -1186,7 +1193,7 @@ namespace DynamicDraw
             bool wheelDirectionUp = Math.Sign(e.Delta) > 0;
 
             KeyShortcutManager.FireShortcuts(
-                keyboardShortcuts,
+                KeyboardShortcuts,
                 currentKeysPressed,
                 wheelDirectionUp,
                 !wheelDirectionUp,
@@ -1221,6 +1228,7 @@ namespace DynamicDraw
                 // Loading the settings is split into a separate method to allow the defaults
                 // to be used if an error occurs.
                 settings.LoadSavedSettings();
+                InitKeyboardShortcuts(KeyboardShortcuts);
                 UpdateTopMenuState();
 
                 // Populates the brush picker with saved brush names, which will be used to look up the settings later.
@@ -1264,6 +1272,23 @@ namespace DynamicDraw
         #endregion
 
         #region Methods (not event handlers)
+        /// <summary>
+        /// (Re)registers the keyboard shortcuts for the app.
+        /// </summary>
+        private void InitKeyboardShortcuts(HashSet<KeyboardShortcut> shortcutsToApply)
+        {
+            KeyboardShortcuts.Clear(); // Prevents duplicate shortcut handling.
+            foreach (KeyboardShortcut shortcut in shortcutsToApply)
+            {
+                shortcut.OnInvoke = new Action(() =>
+                {
+                    HandleShortcut(shortcut);
+                });
+
+                KeyboardShortcuts.Add(shortcut);
+            }
+        }
+
         /// <summary>
         /// Renders a chosen effect, returning whether an error occurred or not. The effect is rendered on the
         /// bmpStaged bitmap. See <see cref="ActiveEffectPrepareAndPreview"/> for context.
@@ -3721,8 +3746,8 @@ namespace DynamicDraw
             ContextMenuStrip preferencesContextMenu = new ContextMenuStrip();
 
             // Options -> custom brush images...
-            menuPrefsBrushImageDirectories = new ToolStripMenuItem("custom brush images...");
-            menuPrefsBrushImageDirectories.Click += (a, b) =>
+            menuBrushImageDirectories = new ToolStripMenuItem("custom brush images...");
+            menuBrushImageDirectories.Click += (a, b) =>
             {
                 if (settings != null)
                 {
@@ -3737,7 +3762,19 @@ namespace DynamicDraw
                         Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             };
-            preferencesContextMenu.Items.Add(menuPrefsBrushImageDirectories);
+            preferencesContextMenu.Items.Add(menuBrushImageDirectories);
+
+            // Options -> keyboard shortcuts...
+            menuKeyboardShortcutsDialog = new ToolStripMenuItem("keyboard shortcuts...");
+            menuKeyboardShortcutsDialog.Click += (a, b) =>
+            {
+                var shortcutsDialog = new EditKeyboardShortcuts(KeyboardShortcuts);
+                if (shortcutsDialog.ShowDialog() == DialogResult.OK)
+                {
+                    InitKeyboardShortcuts(shortcutsDialog.GetShortcutsAfterDialogOK());
+                }
+            };
+            preferencesContextMenu.Items.Add(menuKeyboardShortcutsDialog);
 
             // Separator
             preferencesContextMenu.Items.Add(new ToolStripSeparator());
@@ -3854,40 +3891,40 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(new ToolStripSeparator());
 
             // Options -> color picker includes alpha
-            menuPrefsColorPickerIncludesAlpha = new ToolStripMenuItem("color picker copies transparency");
-            menuPrefsColorPickerIncludesAlpha.Click += (a, b) =>
+            menuColorPickerIncludesAlpha = new ToolStripMenuItem("color picker copies transparency");
+            menuColorPickerIncludesAlpha.Click += (a, b) =>
             {
                 UserSettings.ColorPickerIncludesAlpha = !UserSettings.ColorPickerIncludesAlpha;
                 UpdateTopMenuState();
             };
-            preferencesContextMenu.Items.Add(menuPrefsColorPickerIncludesAlpha);
+            preferencesContextMenu.Items.Add(menuColorPickerIncludesAlpha);
 
             // Options -> display settings -> color picker switches to last tool when used
-            menuPrefsColorPickerSwitchesToPrevTool = new ToolStripMenuItem("color picker switches to last tool when used");
-            menuPrefsColorPickerSwitchesToPrevTool.Click += (a, b) =>
+            menuColorPickerSwitchesToPrevTool = new ToolStripMenuItem("color picker switches to last tool when used");
+            menuColorPickerSwitchesToPrevTool.Click += (a, b) =>
             {
                 UserSettings.ColorPickerSwitchesToLastTool = !UserSettings.ColorPickerSwitchesToLastTool;
                 UpdateTopMenuState();
             };
-            preferencesContextMenu.Items.Add(menuPrefsColorPickerSwitchesToPrevTool);
+            preferencesContextMenu.Items.Add(menuColorPickerSwitchesToPrevTool);
 
             // Options -> display settings -> remove brush image paths when not found
-            menuPrefsRemoveUnfoundImagePaths = new ToolStripMenuItem("remove brush image paths when not found");
-            menuPrefsRemoveUnfoundImagePaths.Click += (a, b) =>
+            menuRemoveUnfoundImagePaths = new ToolStripMenuItem("remove brush image paths when not found");
+            menuRemoveUnfoundImagePaths.Click += (a, b) =>
             {
                 UserSettings.RemoveBrushImagePathsWhenNotFound = !UserSettings.RemoveBrushImagePathsWhenNotFound;
                 UpdateTopMenuState();
             };
-            preferencesContextMenu.Items.Add(menuPrefsRemoveUnfoundImagePaths);
+            preferencesContextMenu.Items.Add(menuRemoveUnfoundImagePaths);
 
             // Options -> display settings -> don't ask to confirm when closing/saving
-            menuPrefsConfirmCloseSave = new ToolStripMenuItem("don't ask to confirm when closing/saving");
-            menuPrefsConfirmCloseSave.Click += (a, b) =>
+            menuConfirmCloseSave = new ToolStripMenuItem("don't ask to confirm when closing/saving");
+            menuConfirmCloseSave.Click += (a, b) =>
             {
                 UserSettings.DisableConfirmationOnCloseOrSave = !UserSettings.DisableConfirmationOnCloseOrSave;
                 UpdateTopMenuState();
             };
-            preferencesContextMenu.Items.Add(menuPrefsConfirmCloseSave);
+            preferencesContextMenu.Items.Add(menuConfirmCloseSave);
 
             menuOptions.Click += (a, b) => {
                 preferencesContextMenu.Show(menuOptions.PointToScreen(new Point(0, menuOptions.Height)));
@@ -6327,10 +6364,10 @@ namespace DynamicDraw
             menuBrushIndicatorPreview.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Preview;
             menuShowSymmetryLinesInUse.Checked = UserSettings.ShowSymmetryLinesWhenUsingSymmetry;
             menuShowMinDistanceInUse.Checked = UserSettings.ShowCircleRadiusWhenUsingMinDistance;
-            menuPrefsConfirmCloseSave.Checked = UserSettings.DisableConfirmationOnCloseOrSave;
-            menuPrefsColorPickerIncludesAlpha.Checked = UserSettings.ColorPickerIncludesAlpha;
-            menuPrefsColorPickerSwitchesToPrevTool.Checked = UserSettings.ColorPickerSwitchesToLastTool;
-            menuPrefsRemoveUnfoundImagePaths.Checked = UserSettings.RemoveBrushImagePathsWhenNotFound;
+            menuConfirmCloseSave.Checked = UserSettings.DisableConfirmationOnCloseOrSave;
+            menuColorPickerIncludesAlpha.Checked = UserSettings.ColorPickerIncludesAlpha;
+            menuColorPickerSwitchesToPrevTool.Checked = UserSettings.ColorPickerSwitchesToLastTool;
+            menuRemoveUnfoundImagePaths.Checked = UserSettings.RemoveBrushImagePathsWhenNotFound;
         }
 
         /// <summary>
@@ -7041,7 +7078,7 @@ namespace DynamicDraw
                 if (activeTool == Tool.SetSymmetryOrigin && cmbxSymmetry.SelectedIndex == (int)SymmetryMode.SetPoints)
                 {
                     // Ctrl + RMB: deletes all points.
-                    if (KeyShortcutManager.IsKeyDown(Keys.ControlKey))
+                    if (currentKeysPressed.Contains(Keys.ControlKey))
                     {
                         symmetryOrigins.Clear();
                     }
@@ -7067,8 +7104,8 @@ namespace DynamicDraw
 
             //Pans the image.
             else if (e.Button == MouseButtons.Middle ||
-                (e.Button == MouseButtons.Left && KeyShortcutManager.IsKeyDown(Keys.ControlKey)) ||
-                KeyShortcutManager.IsKeyDown(Keys.Space))
+                (e.Button == MouseButtons.Left && currentKeysPressed.Contains(Keys.ControlKey)) ||
+                currentKeysPressed.Contains(Keys.Space))
             {
                 isUserPanning = true;
                 mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);

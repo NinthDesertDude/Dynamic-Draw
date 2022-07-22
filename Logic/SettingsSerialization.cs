@@ -58,14 +58,22 @@ namespace DynamicDraw
         }
 
         [DataMember(Name = "CustomBrushes")]
-        public Dictionary<string, BrushSettings> CustomBrushes { get { return customBrushes; } set {
+        public Dictionary<string, BrushSettings> CustomBrushes
+        {
+            get
+            {
+                return customBrushes;
+            }
+            set
+            {
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");
                 }
 
                 customBrushes = new Dictionary<string, BrushSettings>(value);
-            } }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the list of registered keyboard shortcuts (user-changeable).
@@ -148,6 +156,7 @@ namespace DynamicDraw
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
                         customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
+                        keyboardShortcuts = savedSettings.KeyboardShortcuts ?? PersistentSettings.GetShallowShortcutsList();
                         preferences = new UserSettings(savedSettings.Preferences);
                         useDefaultBrushes = savedSettings.UseDefaultBrushes;
                     }
@@ -186,6 +195,7 @@ namespace DynamicDraw
         {
             customBrushDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             customBrushes = new Dictionary<string, BrushSettings>();
+            keyboardShortcuts = PersistentSettings.GetShallowShortcutsList();
             preferences = new UserSettings();
             useDefaultBrushes = true;
         }

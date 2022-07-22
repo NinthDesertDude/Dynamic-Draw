@@ -20,21 +20,8 @@ namespace DynamicDraw.Logic
             bool wheelDownFired,
             HashSet<ShortcutContext> contexts)
         {
-            bool ctrlHeld = false;
-            bool shiftHeld = false;
-            bool altHeld = false;
-            HashSet<Keys> regularKeys = keys.Where((key) =>
-            {
-                if (key == Keys.ControlKey) { ctrlHeld = true; }
-                else if (key == Keys.ShiftKey) { shiftHeld = true; }
-                else if (key == Keys.Alt) { altHeld = true; }
-                else
-                {
-                    return true;
-                }
-
-                return false;
-            }).ToHashSet();
+            HashSet<Keys> regularKeys = KeyboardShortcut.SeparateKeyModifiers(
+                keys, out bool ctrlHeld, out bool shiftHeld, out bool altHeld);
 
             foreach (var entry in shortcuts)
             {
