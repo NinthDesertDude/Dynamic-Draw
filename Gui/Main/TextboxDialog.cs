@@ -7,6 +7,19 @@ namespace DynamicDraw.Gui
     {
         private Func<string, string> validationFunc;
 
+        /// <summary>
+        /// A dialog with a labeled textbox that has input validation; only if valid (null returned), the OK button is
+        /// enabled. An empty string is considered an error where nothing is displayed (this is a common usecase if the
+        /// text input is empty so that you're not scolding the user who hasn't typed anything yet).
+        /// </summary>
+        /// <param name="titleText">The caption for the dialog form.</param>
+        /// <param name="descrText">The textbox label, which is on the left on the same line as the textbox.</param>
+        /// <param name="btnOkText">The text for the OK button.</param>
+        /// <param name="validateFunc">
+        /// A function taking one argument that is the updated text, and returning a string indicating the error, if
+        /// any. Null is error-free. An empty string is an error, but it's hidden. Any other string is shown as the
+        /// error message itself.
+        /// </param>
         public TextboxDialog(string titleText, string descrText, string btnOkText, Func<string, string> validateFunc)
         {
             InitializeComponent();
@@ -37,15 +50,19 @@ namespace DynamicDraw.Gui
             // an error message and displayed. Otherwise, no error is considered to exist.
             string error = this.validationFunc(this.txtbxInput.Text);
 
-            if (string.IsNullOrEmpty(error))
+            if (error == null)
             {
                 this.txtError.Visible = false;
                 this.bttnOk.Enabled = true;
             }
             else
             {
-                this.txtError.Visible = true;
-                this.txtError.Text = error;
+                if (error != "")
+                {
+                    this.txtError.Visible = true;
+                    this.txtError.Text = error;
+                }
+                
                 this.bttnOk.Enabled = false;
             }
         }

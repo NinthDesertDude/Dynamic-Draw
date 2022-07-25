@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Text.Json;
+using System.Text.Json.Serialization;
+using DynamicDraw.Localization;
 
 namespace DynamicDraw
 {
     /// <summary>
     /// Represents a keyboard shortcut.
     /// </summary>
-    [DataContract(Name = "Shortcut", Namespace = "")]
     public class KeyboardShortcut
     {
         /// <summary>
@@ -74,50 +73,56 @@ namespace DynamicDraw
         /// </summary>
         public static Dictionary<IntentTagId, string> IntentTags = new Dictionary<IntentTagId, string>()
         {
-            { IntentTagId.BoolFalse, Localization.Strings.ShortcutIntentBoolFalse },
-            { IntentTagId.BoolTrue, Localization.Strings.ShortcutIntentBoolTrue },
-            { IntentTagId.BoolToggle, Localization.Strings.ShortcutIntentBoolToggle },
-            { IntentTagId.NumAdd, Localization.Strings.ShortcutIntentNumAdd },
-            { IntentTagId.NumAddWrap, Localization.Strings.ShortcutIntentNumAddWrap },
-            { IntentTagId.NumSet, Localization.Strings.ShortcutIntentNumSet },
-            { IntentTagId.NumSub, Localization.Strings.ShortcutIntentNumSub },
-            { IntentTagId.NumSubWrap, Localization.Strings.ShortcutIntentNumSubWrap }
+            { IntentTagId.BoolFalse, Strings.ShortcutIntentBoolFalse },
+            { IntentTagId.BoolTrue, Strings.ShortcutIntentBoolTrue },
+            { IntentTagId.BoolToggle, Strings.ShortcutIntentBoolToggle },
+            { IntentTagId.NumAdd, Strings.ShortcutIntentNumAdd },
+            { IntentTagId.NumAddWrap, Strings.ShortcutIntentNumAddWrap },
+            { IntentTagId.NumSet, Strings.ShortcutIntentNumSet },
+            { IntentTagId.NumSub, Strings.ShortcutIntentNumSub },
+            { IntentTagId.NumSubWrap, Strings.ShortcutIntentNumSubWrap }
         };
 
         /// <summary>
         /// While any of these contexts are valid, the shortcut is automatically disabled.
         /// </summary>
-        [DataMember(Name = "ContextsDenied")]
+        [JsonInclude]
+        [JsonPropertyName("ContextsDenied")]
         public HashSet<ShortcutContext> ContextsDenied { get; set; }
 
         /// <summary>
         /// The shortcut is automatically disabled while any of these contexts are absent.
         /// </summary>
-        [DataMember(Name = "ContextsRequired")]
+        [JsonInclude]
+        [JsonPropertyName("ContextsRequired")]
         public HashSet<ShortcutContext> ContextsRequired { get; set; }
 
         /// <summary>
         /// The key that, when pressed in conjunction with any listed modifier keys, triggers the shortcut.
         /// </summary>
-        [DataMember(Name = "Key")]
+        [JsonInclude]
+        [JsonPropertyName("Keys")]
         public HashSet<Keys> Keys { get; set; }
 
         /// <summary>
         /// Whether or not the control modifier key must be held to trigger the shortcut.
         /// </summary>
-        [DataMember(Name = "ReqCtrl")]
+        [JsonInclude]
+        [JsonPropertyName("RequireCtrl")]
         public bool RequireCtrl { get; set; }
 
         /// <summary>
         /// Whether or not the shift modifier key must be held to trigger the shortcut.
         /// </summary>
-        [DataMember(Name = "ReqShift")]
+        [JsonInclude]
+        [JsonPropertyName("RequireShift")]
         public bool RequireShift { get; set; }
 
         /// <summary>
         /// Whether or not the alt modifier key must be held to trigger the shortcut.
         /// </summary>
-        [DataMember(Name = "ReqAlt")]
+        [JsonInclude]
+        [JsonPropertyName("RequireAlt")]
         public bool RequireAlt { get; set; }
 
         /// <summary>
@@ -125,51 +130,59 @@ namespace DynamicDraw
         /// wheel down. All keyboard keys in the command should already be held before the mouse wheel is moved in
         /// order to fire the command.
         /// </summary>
-        [DataMember(Name = "ReqWheel")]
+        [JsonInclude]
+        [JsonPropertyName("RequireWheel")]
         public bool RequireWheel { get; set; }
 
         /// <summary>
         /// Whether the mouse wheel must be scrolled up to trigger the shortcut. All keyboard keys in the command
         /// should already be held before the mouse wheel is moved in order to fire the command.
         /// </summary>
-        [DataMember(Name = "ReqWheelUp")]
+        [JsonInclude]
+        [JsonPropertyName("RequireWheelUp")]
         public bool RequireWheelUp { get; set; }
 
         /// <summary>
         /// Whether the mouse wheel must be scrolled down to trigger the shortcut. All keyboard keys in the command
         /// should already be held before the mouse wheel is moved in order to fire the command.
         /// </summary>
-        [DataMember(Name = "ReqWheelDown")]
+        [JsonInclude]
+        [JsonPropertyName("RequireWheelDown")]
         public bool RequireWheelDown { get; set; }
 
         /// <summary>
         /// Identifies the setting to change associated with this key shortcut.
         /// </summary>
-        [DataMember(Name = "Target")]
+        [JsonInclude]
+        [JsonPropertyName("Target")]
         public ShortcutTarget Target { get; set; }
 
         /// <summary>
         /// A string used as data depending on the type of action. See <see cref="KeyShortcutAction"/>'s enum entries
         /// for a description of how the string should be interpreted based on the named action.
         /// </summary>
-        [DataMember(Name = "ActionData")]
+        [JsonInclude]
+        [JsonPropertyName("ActionData")]
         public string ActionData { get; set; }
 
         /// <summary>
         /// The action to take when the keyboard shortcut is invoked.
         /// </summary>
+        [JsonIgnore]
         public Action OnInvoke { get; set; } = null;
 
         public KeyboardShortcut()
         {
+            ContextsDenied = new HashSet<ShortcutContext>();
+            ContextsRequired = new HashSet<ShortcutContext>();
             Keys = new HashSet<Keys>();
-            RequireAlt = false;
             RequireCtrl = false;
             RequireShift = false;
+            RequireAlt = false;
             RequireWheel = false;
             RequireWheelUp = false;
             RequireWheelDown = false;
-            Target = (ShortcutTarget)(-1);
+            Target = ShortcutTarget.None;
             ActionData = null;
         }
 
@@ -482,35 +495,45 @@ namespace DynamicDraw
             bool wheel, bool wheelUp, bool wheelDown)
         {
             List<string> keysList = new List<string>();
-            if (ctrlHeld) { keysList.Add(Localization.Strings.ShortcutInputCtrl); }
-            if (shiftHeld) { keysList.Add(Localization.Strings.ShortcutInputShift); }
-            if (altHeld) { keysList.Add(Localization.Strings.ShortcutInputAlt); }
+            if (ctrlHeld) { keysList.Add(Strings.ShortcutInputCtrl); }
+            if (shiftHeld) { keysList.Add(Strings.ShortcutInputShift); }
+            if (altHeld) { keysList.Add(Strings.ShortcutInputAlt); }
             foreach (var key in keys)
             {
-                if (key == System.Windows.Forms.Keys.D0 || key == System.Windows.Forms.Keys.NumPad0) { keysList.Add("0"); }
-                else if (key == System.Windows.Forms.Keys.D1 || key == System.Windows.Forms.Keys.NumPad1) { keysList.Add("1"); }
-                else if (key == System.Windows.Forms.Keys.D2 || key == System.Windows.Forms.Keys.NumPad2) { keysList.Add("2"); }
-                else if (key == System.Windows.Forms.Keys.D3 || key == System.Windows.Forms.Keys.NumPad3) { keysList.Add("3"); }
-                else if (key == System.Windows.Forms.Keys.D4 || key == System.Windows.Forms.Keys.NumPad4) { keysList.Add("4"); }
-                else if (key == System.Windows.Forms.Keys.D5 || key == System.Windows.Forms.Keys.NumPad5) { keysList.Add("5"); }
-                else if (key == System.Windows.Forms.Keys.D6 || key == System.Windows.Forms.Keys.NumPad6) { keysList.Add("6"); }
-                else if (key == System.Windows.Forms.Keys.D7 || key == System.Windows.Forms.Keys.NumPad7) { keysList.Add("7"); }
-                else if (key == System.Windows.Forms.Keys.D8 || key == System.Windows.Forms.Keys.NumPad8) { keysList.Add("8"); }
-                else if (key == System.Windows.Forms.Keys.D9 || key == System.Windows.Forms.Keys.NumPad9) { keysList.Add("9"); }
+                if (key == System.Windows.Forms.Keys.D0) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "0")); }
+                else if (key == System.Windows.Forms.Keys.D1) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "1")); }
+                else if (key == System.Windows.Forms.Keys.D2) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "2")); }
+                else if (key == System.Windows.Forms.Keys.D3) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "3")); }
+                else if (key == System.Windows.Forms.Keys.D4) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "4")); }
+                else if (key == System.Windows.Forms.Keys.D5) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "5")); }
+                else if (key == System.Windows.Forms.Keys.D6) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "6")); }
+                else if (key == System.Windows.Forms.Keys.D7) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "7")); }
+                else if (key == System.Windows.Forms.Keys.D8) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "8")); }
+                else if (key == System.Windows.Forms.Keys.D9) { keysList.Add(string.Format(Strings.ShortcutInputDigitNumber, "9")); }
+                else if (key == System.Windows.Forms.Keys.NumPad0) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "0")); }
+                else if (key == System.Windows.Forms.Keys.NumPad1) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "1")); }
+                else if (key == System.Windows.Forms.Keys.NumPad2) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "2")); }
+                else if (key == System.Windows.Forms.Keys.NumPad3) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "3")); }
+                else if (key == System.Windows.Forms.Keys.NumPad4) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "4")); }
+                else if (key == System.Windows.Forms.Keys.NumPad5) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "5")); }
+                else if (key == System.Windows.Forms.Keys.NumPad6) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "6")); }
+                else if (key == System.Windows.Forms.Keys.NumPad7) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "7")); }
+                else if (key == System.Windows.Forms.Keys.NumPad8) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "8")); }
+                else if (key == System.Windows.Forms.Keys.NumPad9) { keysList.Add(string.Format(Strings.ShortcutInputNumpadNumber, "9")); }
                 else if (key == System.Windows.Forms.Keys.Add || key == System.Windows.Forms.Keys.Oemplus) { keysList.Add("+"); }
-                else if (key == System.Windows.Forms.Keys.Back || key == System.Windows.Forms.Keys.Clear) { keysList.Add(Localization.Strings.ShortcutInputBack); }
-                else if (key == System.Windows.Forms.Keys.Capital || key == System.Windows.Forms.Keys.CapsLock) { keysList.Add(Localization.Strings.ShortcutInputCapsLock); }
-                else if (key == System.Windows.Forms.Keys.Delete) { keysList.Add(Localization.Strings.ShortcutInputDelete); }
+                else if (key == System.Windows.Forms.Keys.Back || key == System.Windows.Forms.Keys.Clear) { keysList.Add(Strings.ShortcutInputBack); }
+                else if (key == System.Windows.Forms.Keys.Capital || key == System.Windows.Forms.Keys.CapsLock) { keysList.Add(Strings.ShortcutInputCapsLock); }
+                else if (key == System.Windows.Forms.Keys.Delete) { keysList.Add(Strings.ShortcutInputDelete); }
                 else if (key == System.Windows.Forms.Keys.Down) { keysList.Add("↓"); }
-                else if (key == System.Windows.Forms.Keys.End) { keysList.Add(Localization.Strings.ShortcutInputEnd); }
-                else if (key == System.Windows.Forms.Keys.Enter || key == System.Windows.Forms.Keys.Return) { keysList.Add(Localization.Strings.ShortcutInputEnter); }
-                else if (key == System.Windows.Forms.Keys.Escape) { keysList.Add(Localization.Strings.ShortcutInputEscape); }
-                else if (key == System.Windows.Forms.Keys.Home) { keysList.Add(Localization.Strings.ShortcutInputHome); }
-                else if (key == System.Windows.Forms.Keys.Insert) { keysList.Add(Localization.Strings.ShortcutInputInsert); }
+                else if (key == System.Windows.Forms.Keys.End) { keysList.Add(Strings.ShortcutInputEnd); }
+                else if (key == System.Windows.Forms.Keys.Enter || key == System.Windows.Forms.Keys.Return) { keysList.Add(Strings.ShortcutInputEnter); }
+                else if (key == System.Windows.Forms.Keys.Escape) { keysList.Add(Strings.ShortcutInputEscape); }
+                else if (key == System.Windows.Forms.Keys.Home) { keysList.Add(Strings.ShortcutInputHome); }
+                else if (key == System.Windows.Forms.Keys.Insert) { keysList.Add(Strings.ShortcutInputInsert); }
                 else if (key == System.Windows.Forms.Keys.Left) { keysList.Add("←"); }
                 else if (key == System.Windows.Forms.Keys.Multiply) { keysList.Add("*"); }
-                else if (key == System.Windows.Forms.Keys.Next || key == System.Windows.Forms.Keys.PageUp) { keysList.Add(Localization.Strings.ShortcutInputPageUp); }
-                else if (key == System.Windows.Forms.Keys.NumLock) { keysList.Add(Localization.Strings.ShortcutInputNumLock); }
+                else if (key == System.Windows.Forms.Keys.Next || key == System.Windows.Forms.Keys.PageUp) { keysList.Add(Strings.ShortcutInputPageUp); }
+                else if (key == System.Windows.Forms.Keys.NumLock) { keysList.Add(Strings.ShortcutInputNumLock); }
                 else if (key == System.Windows.Forms.Keys.OemBackslash) { keysList.Add("\\"); }
                 else if (key == System.Windows.Forms.Keys.OemCloseBrackets) { keysList.Add("]"); }
                 else if (key == System.Windows.Forms.Keys.Oemcomma) { keysList.Add(","); }
@@ -522,22 +545,93 @@ namespace DynamicDraw
                 else if (key == System.Windows.Forms.Keys.OemQuotes) { keysList.Add("'"); }
                 else if (key == System.Windows.Forms.Keys.OemSemicolon) { keysList.Add(";"); }
                 else if (key == System.Windows.Forms.Keys.Oemtilde) { keysList.Add("~"); }
-                else if (key == System.Windows.Forms.Keys.PageDown || key == System.Windows.Forms.Keys.Prior) { keysList.Add(Localization.Strings.ShortcutInputPageDown); }
-                else if (key == System.Windows.Forms.Keys.Pause) { keysList.Add(Localization.Strings.ShortcutInputPause); }
-                else if (key == System.Windows.Forms.Keys.PrintScreen) { keysList.Add(Localization.Strings.ShortcutInputPrintScreen); }
+                else if (key == System.Windows.Forms.Keys.PageDown || key == System.Windows.Forms.Keys.Prior) { keysList.Add(Strings.ShortcutInputPageDown); }
+                else if (key == System.Windows.Forms.Keys.Pause) { keysList.Add(Strings.ShortcutInputPause); }
+                else if (key == System.Windows.Forms.Keys.PrintScreen) { keysList.Add(Strings.ShortcutInputPrintScreen); }
                 else if (key == System.Windows.Forms.Keys.Right) { keysList.Add("→"); }
-                else if (key == System.Windows.Forms.Keys.Scroll) { keysList.Add(Localization.Strings.ShortcutInputScrollLock); }
-                else if (key == System.Windows.Forms.Keys.Space) { keysList.Add(Localization.Strings.ShortcutInputSpace); }
-                else if (key == System.Windows.Forms.Keys.Tab) { keysList.Add(Localization.Strings.ShortcutInputTab); }
+                else if (key == System.Windows.Forms.Keys.Scroll) { keysList.Add(Strings.ShortcutInputScrollLock); }
+                else if (key == System.Windows.Forms.Keys.Space) { keysList.Add(Strings.ShortcutInputSpace); }
+                else if (key == System.Windows.Forms.Keys.Tab) { keysList.Add(Strings.ShortcutInputTab); }
                 else if (key == System.Windows.Forms.Keys.Up) { keysList.Add("↑"); }
                 else { keysList.Add(key.ToString()); }
             }
 
-            if (wheel) { keysList.Add(Localization.Strings.ShortcutInputWheel); }
-            if (wheelUp) { keysList.Add(Localization.Strings.ShortcutInputWheelUp); }
-            if (wheelDown) { keysList.Add(Localization.Strings.ShortcutInputWheelDown); }
+            if (wheel) { keysList.Add(Strings.ShortcutInputWheel); }
+            if (wheelUp) { keysList.Add(Strings.ShortcutInputWheelUp); }
+            if (wheelDown) { keysList.Add(Strings.ShortcutInputWheelDown); }
 
             return string.Join(" ＋ ", keysList);
+        }
+
+        /// <summary>
+        /// Returns user-legible string like "Ctrl + A + Mouse wheel" describing the key sequence used to invoke the
+        /// given shortcut.
+        /// </summary>
+        public static string GetPrintableKey(Keys key)
+        {
+            bool isShiftHeld = key.HasFlag(System.Windows.Forms.Keys.Shift);
+            int keyValue = (int)key;
+
+            // Alphabet
+            if (keyValue >= 65 && keyValue <= 90)
+            {
+                if (isShiftHeld)
+                {
+                    return ((char)keyValue).ToString();
+                }
+
+                return ((char)(keyValue + 32)).ToString();
+            }
+
+            // Digits
+            if (key == System.Windows.Forms.Keys.D0 || key == System.Windows.Forms.Keys.NumPad0) { return "0"; }
+            if (key == System.Windows.Forms.Keys.D1 || key == System.Windows.Forms.Keys.NumPad1) { return "1"; }
+            if (key == System.Windows.Forms.Keys.D2 || key == System.Windows.Forms.Keys.NumPad2) { return "2"; }
+            if (key == System.Windows.Forms.Keys.D3 || key == System.Windows.Forms.Keys.NumPad3) { return "3"; }
+            if (key == System.Windows.Forms.Keys.D4 || key == System.Windows.Forms.Keys.NumPad4) { return "4"; }
+            if (key == System.Windows.Forms.Keys.D5 || key == System.Windows.Forms.Keys.NumPad5) { return "5"; }
+            if (key == System.Windows.Forms.Keys.D6 || key == System.Windows.Forms.Keys.NumPad6) { return "6"; }
+            if (key == System.Windows.Forms.Keys.D7 || key == System.Windows.Forms.Keys.NumPad7) { return "7"; }
+            if (key == System.Windows.Forms.Keys.D8 || key == System.Windows.Forms.Keys.NumPad8) { return "8"; }
+            if (key == System.Windows.Forms.Keys.D9 || key == System.Windows.Forms.Keys.NumPad9) { return "9"; }
+
+            // Symbols
+            if (isShiftHeld)
+            {
+                if (key == System.Windows.Forms.Keys.Add || key == System.Windows.Forms.Keys.Oemplus) { return "+"; }
+                if (key == System.Windows.Forms.Keys.OemBackslash) { return "|"; }
+                if (key == System.Windows.Forms.Keys.OemCloseBrackets) { return "}"; }
+                if (key == System.Windows.Forms.Keys.Oemcomma) { return "<"; }
+                if (key == System.Windows.Forms.Keys.OemMinus || key == System.Windows.Forms.Keys.Subtract) { return "_"; }
+                if (key == System.Windows.Forms.Keys.OemOpenBrackets) { return "{"; }
+                if (key == System.Windows.Forms.Keys.OemPeriod) { return ">"; }
+                if (key == System.Windows.Forms.Keys.OemPipe) { return "|"; }
+                if (key == System.Windows.Forms.Keys.OemQuestion) { return "?"; }
+                if (key == System.Windows.Forms.Keys.OemQuotes) { return "\""; }
+                if (key == System.Windows.Forms.Keys.OemSemicolon) { return ":"; }
+                if (key == System.Windows.Forms.Keys.Oemtilde) { return "~"; }
+            }
+            else
+            {
+                if (key == System.Windows.Forms.Keys.Add || key == System.Windows.Forms.Keys.Oemplus) { return "="; }
+                if (key == System.Windows.Forms.Keys.OemBackslash) { return "\\"; }
+                if (key == System.Windows.Forms.Keys.OemCloseBrackets) { return "]"; }
+                if (key == System.Windows.Forms.Keys.Oemcomma) { return ","; }
+                if (key == System.Windows.Forms.Keys.OemMinus || key == System.Windows.Forms.Keys.Subtract) { return "-"; }
+                if (key == System.Windows.Forms.Keys.OemOpenBrackets) { return "["; }
+                if (key == System.Windows.Forms.Keys.OemPeriod) { return "."; }
+                if (key == System.Windows.Forms.Keys.OemPipe) { return "|"; }
+                if (key == System.Windows.Forms.Keys.OemQuestion) { return "/"; }
+                if (key == System.Windows.Forms.Keys.OemQuotes) { return "'"; }
+                if (key == System.Windows.Forms.Keys.OemSemicolon) { return ";"; }
+                if (key == System.Windows.Forms.Keys.Oemtilde) { return "`"; }
+            }
+
+            if (key == System.Windows.Forms.Keys.Multiply) { return "*"; }
+            if (key == System.Windows.Forms.Keys.Space) { return " "; }
+
+            // Return nothing if non-printable / not recognized.
+            return "";
         }
 
         /// <summary>

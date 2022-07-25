@@ -1081,4 +1081,13 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="ShortcutChosenEffect" xml:space="preserve">
     <value>Chosen Effect</value>
   </data>
+  <data name="ShortcutInputDigitNumber" xml:space="preserve">
+    <value>{0} (digit)</value>
+  </data>
+  <data name="ShortcutInputNumpadNumber" xml:space="preserve">
+    <value>{0} (numpad)</value>
+  </data>
+  <data name="ShortcutCanvasZoomFit" xml:space="preserve">
+    <value>Fit To Window</value>
+  </data>
 </root>

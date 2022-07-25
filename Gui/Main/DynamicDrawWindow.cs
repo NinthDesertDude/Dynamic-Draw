@@ -368,6 +368,10 @@ namespace DynamicDraw
         private ToolStripMenuItem menuBrushImageDirectories, menuKeyboardShortcutsDialog;
         private ToolStripMenuItem menuColorPickerIncludesAlpha, menuColorPickerSwitchesToPrevTool;
         private ToolStripMenuItem menuRemoveUnfoundImagePaths, menuConfirmCloseSave;
+        private Button menuCanvasZoomBttn, menuCanvasAngleBttn;
+        private ToolStripMenuItem menuCanvasZoomReset, menuCanvasZoomFit, menuCanvasZoomTo;
+        private ToolStripMenuItem menuCanvasAngleReset, menuCanvasAngle90, menuCanvasAngle180, menuCanvasAngle270, menuCanvasAngleTo;
+        private Slider sliderCanvasZoom;
 
         /// <summary>
         /// Tracks when the user draws out-of-bounds and moves the canvas to
@@ -392,8 +396,6 @@ namespace DynamicDraw
         private FlowLayoutPanel panelSettingsContainer;
         private Accordion bttnBrushControls;
         private FlowLayoutPanel panelBrush;
-        private Label txtCanvasZoom;
-        private TrackBar sliderCanvasZoom;
         private Label txtCanvasAngle;
         private TrackBar sliderCanvasAngle;
         private DoubleBufferedListView listviewBrushImagePicker;
@@ -705,7 +707,6 @@ namespace DynamicDraw
             this.cmbxTabPressureRedJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureSatJitter.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxTabPressureValueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderCanvasZoom.MouseWheel += IgnoreMouseWheelEvent;
             this.sliderCanvasAngle.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
             this.cmbxChosenEffect.MouseWheel += IgnoreMouseWheelEvent;
@@ -1026,9 +1027,6 @@ namespace DynamicDraw
             txtBrushSize.Text = string.Format("{0} {1}",
                 Strings.Size, sliderBrushSize.Value);
 
-            txtCanvasZoom.Text = string.Format("{0} {1}%",
-                Strings.CanvasZoom, sliderCanvasZoom.Value);
-
             txtCanvasAngle.Text = string.Format("{0} {1}°",
                 Strings.CanvasAngle, sliderCanvasAngle.Value);
 
@@ -1277,7 +1275,8 @@ namespace DynamicDraw
         /// </summary>
         private void InitKeyboardShortcuts(HashSet<KeyboardShortcut> shortcutsToApply)
         {
-            KeyboardShortcuts.Clear(); // Prevents duplicate shortcut handling.
+            KeyboardShortcuts = new HashSet<KeyboardShortcut>(); // Prevents duplicate shortcut handling.
+
             foreach (KeyboardShortcut shortcut in shortcutsToApply)
             {
                 shortcut.OnInvoke = new Action(() =>
@@ -2903,9 +2902,9 @@ namespace DynamicDraw
                         sliderBrushDensity.Maximum);
                     break;
                 case ShortcutTarget.CanvasZoom:
-                    sliderCanvasZoom.Value =
-                        shortcut.GetDataAsInt(sliderCanvasZoom.Value,
-                        sliderCanvasZoom.Minimum, sliderCanvasZoom.Maximum);
+                    sliderCanvasZoom.ValueInt =
+                        shortcut.GetDataAsInt(sliderCanvasZoom.ValueInt,
+                        sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
                     break;
                 case ShortcutTarget.Color:
                     UpdateBrushColor(shortcut.GetDataAsColor());
@@ -3154,7 +3153,7 @@ namespace DynamicDraw
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
                     canvas.y = (displayCanvas.Height - canvas.height) / 2;
                     sliderCanvasAngle.Value = 0;
-                    sliderCanvasZoom.Value = 100;
+                    sliderCanvasZoom.ValueInt = 100;
                     break;
                 case ShortcutTarget.CanvasX:
                     canvas.x -= (int)((shortcut.GetDataAsInt(canvas.x, int.MinValue, int.MaxValue) - canvas.x) * canvasZoom);
@@ -3189,9 +3188,22 @@ namespace DynamicDraw
                     break;
                 case ShortcutTarget.CanvasZoomToMouse:
                     isWheelZooming = true;
-                    sliderCanvasZoom.Value =
-                        shortcut.GetDataAsInt(sliderCanvasZoom.Value,
-                        sliderCanvasZoom.Minimum, sliderCanvasZoom.Maximum);
+                    sliderCanvasZoom.ValueInt =
+                        shortcut.GetDataAsInt(sliderCanvasZoom.ValueInt,
+                        sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
+                    break;
+                case ShortcutTarget.CanvasZoomFit:
+                    canvas.width = bmpCommitted.Width;
+                    canvas.height = bmpCommitted.Height;
+                    canvas.x = (displayCanvas.Width - canvas.width) / 2;
+                    canvas.y = (displayCanvas.Height - canvas.height) / 2;
+
+                    float newZoom = 100 * Math.Min(
+                        displayCanvas.ClientSize.Width / (float)bmpCommitted.Width,
+                        displayCanvas.ClientSize.Height / (float)bmpCommitted.Height);
+
+                    int result = (int)Math.Clamp(newZoom, sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
+                    sliderCanvasZoom.ValueInt = result > 1 ? result : 1;
                     break;
             };
         }
@@ -3377,8 +3389,6 @@ namespace DynamicDraw
             this.panelSettingsContainer = new FlowLayoutPanel();
             this.bttnBrushControls = new Accordion();
             this.panelBrush = new FlowLayoutPanel();
-            this.txtCanvasZoom = new Label();
-            this.sliderCanvasZoom = new TrackBar();
             this.txtCanvasAngle = new Label();
             this.sliderCanvasAngle = new TrackBar();
             this.listviewBrushPicker = new ListView();
@@ -3589,7 +3599,6 @@ namespace DynamicDraw
             this.flowLayoutPanel1.SuspendLayout();
             this.panelSettingsContainer.SuspendLayout();
             this.panelBrush.SuspendLayout();
-            ((ISupportInitialize)(this.sliderCanvasZoom)).BeginInit();
             ((ISupportInitialize)(this.sliderCanvasAngle)).BeginInit();
             this.panelBrushAddPickColor.SuspendLayout();
             ((ISupportInitialize)(this.sliderColorInfluence)).BeginInit();
@@ -3739,7 +3748,7 @@ namespace DynamicDraw
             menuOptions = new Button
             {
                 Text = "Options",
-                Height = 30,
+                Height = 32,
                 Margin = Padding.Empty,
                 Padding = Padding.Empty
             };
@@ -3899,7 +3908,7 @@ namespace DynamicDraw
             };
             preferencesContextMenu.Items.Add(menuColorPickerIncludesAlpha);
 
-            // Options -> display settings -> color picker switches to last tool when used
+            // Options -> color picker switches to last tool when used
             menuColorPickerSwitchesToPrevTool = new ToolStripMenuItem("color picker switches to last tool when used");
             menuColorPickerSwitchesToPrevTool.Click += (a, b) =>
             {
@@ -3908,7 +3917,7 @@ namespace DynamicDraw
             };
             preferencesContextMenu.Items.Add(menuColorPickerSwitchesToPrevTool);
 
-            // Options -> display settings -> remove brush image paths when not found
+            // Options -> remove brush image paths when not found
             menuRemoveUnfoundImagePaths = new ToolStripMenuItem("remove brush image paths when not found");
             menuRemoveUnfoundImagePaths.Click += (a, b) =>
             {
@@ -3917,7 +3926,7 @@ namespace DynamicDraw
             };
             preferencesContextMenu.Items.Add(menuRemoveUnfoundImagePaths);
 
-            // Options -> display settings -> don't ask to confirm when closing/saving
+            // Options -> don't ask to confirm when closing/saving
             menuConfirmCloseSave = new ToolStripMenuItem("don't ask to confirm when closing/saving");
             menuConfirmCloseSave.Click += (a, b) =>
             {
@@ -3929,7 +3938,93 @@ namespace DynamicDraw
             menuOptions.Click += (a, b) => {
                 preferencesContextMenu.Show(menuOptions.PointToScreen(new Point(0, menuOptions.Height)));
             };
+
             this.topMenu.Controls.Add(menuOptions);
+
+            // sets up the canvas zoom button
+            menuCanvasZoomBttn = new Button();
+            menuCanvasZoomBttn.Text = "🔍";
+            menuCanvasZoomBttn.Font = new Font(menuCanvasZoomBttn.Font.FontFamily, 12);
+            menuCanvasZoomBttn.Height = 32;
+            menuCanvasZoomBttn.Width = 32;
+            menuCanvasZoomBttn.Margin = Padding.Empty;
+
+            ContextMenuStrip CanvasZoomButtonContextMenu = new ContextMenuStrip();
+
+            menuCanvasZoomBttn.Click += (a, b) => {
+                CanvasZoomButtonContextMenu.Show(menuCanvasZoomBttn.PointToScreen(new Point(0, menuCanvasZoomBttn.Height)));
+            };
+
+            // canvas zoom -> reset zoom
+            menuCanvasZoomReset = new ToolStripMenuItem("reset zoom");
+            menuCanvasZoomReset.Click += (a, b) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasZoom, ActionData = "100|set" });
+            };
+            CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomReset);
+
+            // canvas zoom -> fit to window
+            menuCanvasZoomFit = new ToolStripMenuItem("fit to window");
+            menuCanvasZoomFit.Click += (a, b) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasZoomFit });
+            };
+            CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomFit);
+
+            // canvas zoom -> zoom to...
+            menuCanvasZoomTo = new ToolStripMenuItem("zoom to...");
+            menuCanvasZoomTo.Click += (a, b) =>
+            {
+                TextboxDialog dlg = new TextboxDialog(
+                    Strings.ShortcutCanvasZoom,
+                    "Zoom to:",
+                    Strings.Ok, (txt) =>
+                    {
+                        if (!int.TryParse(txt, out int value))
+                        {
+                            return " ";
+                        }
+
+                        if (!Setting.AllSettings[ShortcutTarget.CanvasZoom].ValidateNumberValue(value))
+                        {
+                            return "Number has to lie in range "
+                                + Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item1
+                                + " to "
+                                + Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item2
+                                + ".";
+                        }
+
+                        return "";
+                    });
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    HandleShortcut(new KeyboardShortcut() {
+                        Target = ShortcutTarget.CanvasZoom,
+                        ActionData = int.Parse(dlg.GetSubmittedText()) + "|set"
+                    });
+                }
+            };
+            CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomTo);
+
+            this.topMenu.Controls.Add(menuCanvasZoomBttn);
+
+            // canvas zoom slider
+            this.sliderCanvasZoom = new Slider(
+                new float[] { 1, 5, 10, 13, 17, 20, 25, 33, 50, 67, 100, 150, 200, 300, 400, 500, 600, 800, 1000, 1200, 1400, 1600, 2000, 2400, 2800, 3200, 4000, 4800, 5600, 6400 },
+                100);
+            this.sliderCanvasZoom.DiscreteStops = true;
+            this.sliderCanvasZoom.Width = 128;
+            this.sliderCanvasZoom.Height = 32;
+            this.sliderCanvasZoom.Margin = Padding.Empty;
+            this.sliderCanvasZoom.ValueChanged += SliderCanvasZoom_ValueChanged;
+            this.sliderCanvasZoom.ComputeText = (value) => { return $"{value}%"; };
+            this.sliderCanvasZoom.MouseEnter += new EventHandler(this.SliderCanvasZoom_MouseEnter);
+
+            this.topMenu.Controls.Add(sliderCanvasZoom);
+
+            //ToolStripMenuItem menuCanvasAngleReset, menuCanvasAngle90, menuCanvasAngle180, menuCanvasAngle270, menuCanvasAngleTo;
+
             UpdateTopMenuState();
 
             // 
@@ -4086,8 +4181,6 @@ namespace DynamicDraw
             // 
             resources.ApplyResources(this.panelBrush, "panelBrush");
             this.panelBrush.BackColor = System.Drawing.SystemColors.Control;
-            this.panelBrush.Controls.Add(this.txtCanvasZoom);
-            this.panelBrush.Controls.Add(this.sliderCanvasZoom);
             this.panelBrush.Controls.Add(this.txtCanvasAngle);
             this.panelBrush.Controls.Add(this.sliderCanvasAngle);
             this.panelBrush.Controls.Add(this.listviewBrushPicker);
@@ -4106,24 +4199,7 @@ namespace DynamicDraw
             this.panelBrush.Controls.Add(this.txtBrushSize);
             this.panelBrush.Controls.Add(this.sliderBrushSize);
             this.panelBrush.Name = "panelBrush";
-            // 
-            // txtCanvasZoom
-            // 
-            resources.ApplyResources(this.txtCanvasZoom, "txtCanvasZoom");
-            this.txtCanvasZoom.BackColor = System.Drawing.Color.Transparent;
-            this.txtCanvasZoom.Name = "txtCanvasZoom";
-            // 
-            // sliderCanvasZoom
-            // 
-            resources.ApplyResources(this.sliderCanvasZoom, "sliderCanvasZoom");
-            this.sliderCanvasZoom.LargeChange = 1;
-            this.sliderCanvasZoom.Maximum = 6400;
-            this.sliderCanvasZoom.Minimum = 1;
-            this.sliderCanvasZoom.Name = "sliderCanvasZoom";
-            this.sliderCanvasZoom.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderCanvasZoom.Value = 100;
-            this.sliderCanvasZoom.ValueChanged += new EventHandler(this.SliderCanvasZoom_ValueChanged);
-            this.sliderCanvasZoom.MouseEnter += new EventHandler(this.SliderCanvasZoom_MouseEnter);
+            
             // 
             // txtCanvasAngle
             // 
@@ -5988,7 +6064,6 @@ namespace DynamicDraw
             this.panelSettingsContainer.PerformLayout();
             this.panelBrush.ResumeLayout(false);
             this.panelBrush.PerformLayout();
-            ((ISupportInitialize)(this.sliderCanvasZoom)).EndInit();
             ((ISupportInitialize)(this.sliderCanvasAngle)).EndInit();
             this.panelBrushAddPickColor.ResumeLayout(false);
             this.panelBrushAddPickColor.PerformLayout();
@@ -6142,18 +6217,19 @@ namespace DynamicDraw
             /* This migrates while loading for the 3 possible locations of the settings file:
              * Documents/paint.net User Files/BrushFactorySettings.xml
              * Program Files/paint.net/UserFiles/DynamicDrawSettings.xml
-             * Documents/paint.net User Files/DynamicDrawSettings.xml
+             * Documents/paint.net User Files/DynamicDrawSettings.json
              * 
              * Settings were at first stored in the registry, then moved to an XML file in User Files. When the
              * newer location under the paint.net folder became available, settings were moved there as version 3
              * of the plugin came around. Since then, there's been consistent issues with denial of access by UAC
-             * for being stored in Program Files, so the settings have been moved back to documents.
+             * for being stored in Program Files, so the settings have been moved back to documents (and modernized
+             * to JSON).
              */
 
             IUserFilesService userFilesService =
                 (IUserFilesService)Services.GetService(typeof(IUserFilesService));
 
-            string newPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files", "DynamicDrawSettings.xml");
+            string newPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files", "DynamicDrawSettings.json");
             settings = new SettingsSerialization(newPath);
 
             if (!File.Exists(newPath))
@@ -6166,7 +6242,7 @@ namespace DynamicDraw
                 {
                     // This goes up to version 3.3, inclusive.
                     SettingsSerialization legacySettings = new SettingsSerialization(oldPath);
-                    legacySettings.LoadSavedSettings();
+                    legacySettings.LoadSavedSettings(true);
                     settings.CustomBrushes = legacySettings.CustomBrushes;
                     settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
                     settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
@@ -6174,7 +6250,7 @@ namespace DynamicDraw
                 else if (File.Exists(oldestPath))
                 {
                     SettingsSerialization legacySettings = new SettingsSerialization(oldestPath);
-                    legacySettings.LoadSavedSettings();
+                    legacySettings.LoadSavedSettings(true);
                     settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
                     settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
                 }
@@ -6676,39 +6752,39 @@ namespace DynamicDraw
             {
                 //Zooms in/out some amount for each mouse wheel movement.
                 int zoom;
-                if (sliderCanvasZoom.Value < 5)
+                if (sliderCanvasZoom.ValueInt < 5)
                 {
                     zoom = 1;
                 }
-                else if (sliderCanvasZoom.Value < 10)
+                else if (sliderCanvasZoom.ValueInt < 10)
                 {
                     zoom = 3;
                 }
-                else if (sliderCanvasZoom.Value < 20)
+                else if (sliderCanvasZoom.ValueInt < 20)
                 {
                     zoom = 5;
                 }
-                else if (sliderCanvasZoom.Value < 50)
+                else if (sliderCanvasZoom.ValueInt < 50)
                 {
                     zoom = 10;
                 }
-                else if (sliderCanvasZoom.Value < 100)
+                else if (sliderCanvasZoom.ValueInt < 100)
                 {
                     zoom = 15;
                 }
-                else if (sliderCanvasZoom.Value < 200)
+                else if (sliderCanvasZoom.ValueInt < 200)
                 {
                     zoom = 30;
                 }
-                else if (sliderCanvasZoom.Value < 500)
+                else if (sliderCanvasZoom.ValueInt < 500)
                 {
                     zoom = 50;
                 }
-                else if (sliderCanvasZoom.Value < 1000)
+                else if (sliderCanvasZoom.ValueInt < 1000)
                 {
                     zoom = 100;
                 }
-                else if (sliderCanvasZoom.Value < 2000)
+                else if (sliderCanvasZoom.ValueInt < 2000)
                 {
                     zoom = 200;
                 }
@@ -6718,30 +6794,28 @@ namespace DynamicDraw
                 }
 
                 zoom *= Math.Sign(mouseWheelDetents);
-                int newValue = sliderCanvasZoom.Value + zoom;
+                int newValue = sliderCanvasZoom.ValueInt + zoom;
 
                 // When sliding past 100% zoom, snaps to it. This is a common target for users.
-                if (sliderCanvasZoom.Value != 100 && Math.Sign(sliderCanvasZoom.Value - 100) != Math.Sign(newValue - 100))
+                if (sliderCanvasZoom.ValueInt != 100 && Math.Sign(sliderCanvasZoom.ValueInt - 100) != Math.Sign(newValue - 100))
                 {
                     newValue = 100;
                 }
 
                 //Updates the corresponding slider as well (within its range).
-                sliderCanvasZoom.Value = Math.Clamp(
+                sliderCanvasZoom.ValueInt = Math.Clamp(
                     newValue,
-                    sliderCanvasZoom.Minimum,
-                    sliderCanvasZoom.Maximum);
+                    sliderCanvasZoom.MinimumInt,
+                    sliderCanvasZoom.MaximumInt);
 
                 return;
             }
 
             //Calculates the zooming percent.
-            float newZoomFactor = sliderCanvasZoom.Value / 100f;
+            float newZoomFactor = sliderCanvasZoom.ValueInt / 100f;
 
             //Updates the canvas zoom factor.
             canvasZoom = newZoomFactor;
-            txtCanvasZoom.Text = string.Format(
-                "{0} {1:p0}", Strings.CanvasZoom, newZoomFactor);
 
             // Prevent losing the canvas due to nudging off-screen prior to zoom.
             if (canvas.x + canvas.width < 0 || canvas.x > displayCanvas.Width)
@@ -8802,7 +8876,7 @@ namespace DynamicDraw
             UpdateTooltip(Strings.CanvasZoomTip);
         }
 
-        private void SliderCanvasZoom_ValueChanged(object sender, EventArgs e)
+        private void SliderCanvasZoom_ValueChanged(object sender, float e)
         {
             Zoom(0, false);
         }

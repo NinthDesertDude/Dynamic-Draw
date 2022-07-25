@@ -7,337 +7,347 @@
     public enum ShortcutTarget
     {
         /// <summary>
+        /// Represents no shortcut.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
         /// Which type of tool is selected, e.g. brush or color picker.
         /// </summary>
-        SelectedTool = 0,
+        SelectedTool = 1,
 
         /// <summary>
         /// The current canvas's zoom level. Shortcuts targeting zoom this way will zoom towards canvas center.
         /// See <see cref="CanvasZoomToMouse"/> for the version that zooms to mouse location.
         /// </summary>
-        CanvasZoom = 1,
+        CanvasZoom = 2,
 
         /// <summary>
         /// The brush the user has currently selected.
         /// </summary>
-        SelectedBrush = 2,
+        SelectedBrush = 3,
 
         /// <summary>
         /// The brush image that the user has currently selected.
         /// </summary>
-        SelectedBrushImage = 3,
+        SelectedBrushImage = 4,
 
         /// <summary>
         /// If true, the brush color is replaced by the active color. Otherwise, it's preserved.
         /// </summary>
-        ColorizeBrush = 4,
+        ColorizeBrush = 5,
 
         /// <summary>
         /// The current brush color.
         /// </summary>
-        Color = 5,
+        Color = 6,
 
         /// <summary>
         /// The current brush transparency level.
         /// </summary>
-        Flow = 6,
+        Flow = 7,
 
         /// <summary>
         /// The angle that the brush is rotated at.
         /// </summary>
-        Rotation = 7,
+        Rotation = 8,
 
         /// <summary>
         /// How large the brush is (assuming square).
         /// </summary>
-        Size = 8,
+        Size = 9,
 
         /// <summary>
         /// How far the cursor must travel from the previous applied brush image for the next.
         /// </summary>
-        MinDrawDistance = 9,
+        MinDrawDistance = 10,
 
         /// <summary>
         /// If true, the value of brush stroke density will be automatically set based on the final brush size to
         /// always be smooth.
         /// </summary>
-        AutomaticBrushDensity = 10,
+        AutomaticBrushDensity = 11,
 
         /// <summary>
         /// The distance between the mouse location and last applied location is filled with brush strokes while
         /// drawing. The distance is divided into fractions equal to 1/xth the size of the brush (assuming square),
         /// where x is this value. Zero turns off brush stroke density.
         /// </summary>
-        BrushStrokeDensity = 11,
+        BrushStrokeDensity = 12,
 
         /// <summary>
         /// What sort of symmetry to use when drawing, e.g. mirrors, radial, or multipoint.
         /// </summary>
-        SymmetryMode = 12,
+        SymmetryMode = 13,
 
         /// <summary>
         /// The type of smoothing to apply on brush strokes.
         /// </summary>
-        SmoothingMode = 13,
+        SmoothingMode = 14,
 
         /// <summary>
         /// Whether or not the brush should follow the mouse (assuming right points to the mouse in the unrotated
         /// image).
         /// </summary>
-        RotateWithMouse = 14,
+        RotateWithMouse = 15,
 
         /// <summary>
         /// If true, the alpha channel will not be affected while drawing.
         /// </summary>
-        DoLockAlpha = 15,
+        DoLockAlpha = 16,
 
         /// <summary>
         /// The amount the brush randomly shrinks from its normal value on each brush application.
         /// </summary>
-        JitterMinSize = 16,
+        JitterMinSize = 17,
 
         /// <summary>
         /// The amount the brush randomly grows from its normal value on each brush application.
         /// </summary>
-        JitterMaxSize = 17,
+        JitterMaxSize = 18,
 
         /// <summary>
         /// The amount the brush is randomly rotated left from its normal value on each brush application.
         /// </summary>
-        JitterRotLeft = 18,
+        JitterRotLeft = 19,
 
         /// <summary>
         /// The amount the brush is randomly rotated right from its normal value on each brush application.
         /// </summary>
-        JitterRotRight = 19,
+        JitterRotRight = 20,
 
         /// <summary>
         /// The amount of random transparency over the brush's normal value on each brush application.
         /// </summary>
-        JitterFlowLoss = 20,
+        JitterFlowLoss = 21,
 
         /// <summary>
         /// The amount of random horizontal shift from the brush's normal x-position on each brush application.
         /// </summary>
-        JitterHorSpray = 21,
+        JitterHorSpray = 22,
 
         /// <summary>
         /// The amount of random vertical shift from the brush's normal y-position on each brush application.
         /// </summary>
-        JitterVerSpray = 22,
+        JitterVerSpray = 23,
 
         /// <summary>
         /// The amount of additional redness the brush has on each application.
         /// </summary>
-        JitterRedMax = 23,
+        JitterRedMax = 24,
 
         /// <summary>
         /// The amount of additional greenness the brush has on each application.
         /// </summary>
-        JitterGreenMax = 24,
+        JitterGreenMax = 25,
 
         /// <summary>
         /// The amount of additional blueness the brush has on each application.
         /// </summary>
-        JitterBlueMax = 25,
+        JitterBlueMax = 26,
 
         /// <summary>
         /// How hue-shifted the brush is on each application.
         /// </summary>
-        JitterHueMax = 26,
+        JitterHueMax = 27,
 
         /// <summary>
         /// The amount of saturation the brush has on each application.
         /// </summary>
-        JitterSatMax = 27,
+        JitterSatMax = 28,
 
         /// <summary>
         /// How much extra brightness the brush has on each application.
         /// </summary>
-        JitterValMax = 28,
+        JitterValMax = 29,
 
         /// <summary>
         /// The amount of additional redness the brush has on each application.
         /// </summary>
-        JitterRedMin = 29,
+        JitterRedMin = 30,
 
         /// <summary>
         /// The amount of additional greenness the brush has on each application.
         /// </summary>
-        JitterGreenMin = 30,
+        JitterGreenMin = 31,
 
         /// <summary>
         /// The amount of additional blueness the brush has on each application.
         /// </summary>
-        JitterBlueMin = 31,
+        JitterBlueMin = 32,
 
         /// <summary>
         /// How hue-shifted the brush is on each application.
         /// </summary>
-        JitterHueMin = 32,
+        JitterHueMin = 33,
 
         /// <summary>
         /// The amount of saturation the brush has on each application.
         /// </summary>
-        JitterSatMin = 33,
+        JitterSatMin = 34,
 
         /// <summary>
         /// How much extra brightness the brush has on each application.
         /// </summary>
-        JitterValMin = 34,
+        JitterValMin = 35,
 
         /// <summary>
         /// How much the size of the brush permanently increases on each application. Brush size reflects at the
         /// range bounds.
         /// </summary>
-        SizeShift = 35,
+        SizeShift = 36,
 
         /// <summary>
         /// How much the tilt of the brush permanently increases on each application. Tilt wraps around at the range
         /// bounds.
         /// </summary>
-        RotShift = 36,
+        RotShift = 37,
 
         /// <summary>
         /// How much the transparency of the brush permanently increases on each application. Transparency reflects
         /// at the range bounds.
         /// </summary>
-        FlowShift = 37,
+        FlowShift = 38,
 
-        TabPressureFlow = 38,
-        TabPressureSize = 39,
-        TabPressureRotation = 40,
-        TabPressureMinDrawDistance = 41,
-        TabPressureBrushDensity = 42,
-        TabPressureJitterMinSize = 43,
-        TabPressureJitterMaxSize = 44,
-        TabPressureJitterRotLeft = 45,
-        TabPressureJitterRotRight = 46,
-        TabPressureJitterFlowLoss = 47,
-        TabPressureJitterHorShift = 48,
-        TabPressureJitterVerShift = 49,
-        TabPressureJitterRedMax = 50,
-        TabPressureJitterRedMin = 51,
-        TabPressureJitterGreenMax = 52,
-        TabPressureJitterGreenMin = 53,
-        TabPressureJitterBlueMax = 54,
-        TabPressureJitterBlueMin = 55,
-        TabPressureJitterHueMax = 56,
-        TabPressureJitterHueMin = 57,
-        TabPressureJitterSatMax = 58,
-        TabPressureJitterSatMin = 59,
-        TabPressureJitterValMax = 60,
-        TabPressureJitterValMin = 61,
+        TabPressureFlow = 39,
+        TabPressureSize = 40,
+        TabPressureRotation = 41,
+        TabPressureMinDrawDistance = 42,
+        TabPressureBrushDensity = 43,
+        TabPressureJitterMinSize = 44,
+        TabPressureJitterMaxSize = 45,
+        TabPressureJitterRotLeft = 46,
+        TabPressureJitterRotRight = 47,
+        TabPressureJitterFlowLoss = 48,
+        TabPressureJitterHorShift = 49,
+        TabPressureJitterVerShift = 50,
+        TabPressureJitterRedMax = 51,
+        TabPressureJitterRedMin = 52,
+        TabPressureJitterGreenMax = 53,
+        TabPressureJitterGreenMin = 54,
+        TabPressureJitterBlueMax = 55,
+        TabPressureJitterBlueMin = 56,
+        TabPressureJitterHueMax = 57,
+        TabPressureJitterHueMin = 58,
+        TabPressureJitterSatMax = 59,
+        TabPressureJitterSatMin = 60,
+        TabPressureJitterValMax = 61,
+        TabPressureJitterValMin = 62,
 
         /// <summary>
         /// The action to undo a change.
         /// </summary>
-        UndoAction = 62,
+        UndoAction = 63,
 
         /// <summary>
         /// The action to redo a change.
         /// </summary>
-        RedoAction = 63,
+        RedoAction = 64,
 
         /// <summary>
         /// Resets the canvas position, zoom, and rotation.
         /// </summary>
-        ResetCanvasTransforms = 64,
+        ResetCanvasTransforms = 65,
 
         /// <summary>
         /// The canvas's horizontal position.
         /// </summary>
-        CanvasX = 65,
+        CanvasX = 66,
 
         /// <summary>
         /// The canvas's vertical position.
         /// </summary>
-        CanvasY = 66,
+        CanvasY = 67,
 
         /// <summary>
         /// The canvas's orientation in degrees.
         /// </summary>
-        CanvasRotation = 67,
+        CanvasRotation = 68,
 
         /// <summary>
         /// The blending mode used when drawing with the brush.
         /// </summary>
-        BlendMode = 68,
+        BlendMode = 69,
 
         /// <summary>
         /// Whether to wrap around to the other side of the canvas where brush stamps would clip.
         /// </summary>
-        SeamlessDrawing = 69,
+        SeamlessDrawing = 70,
 
         /// <summary>
         /// The amount to mix the active color with the brush color when colorize brush is off.
         /// </summary>
-        ColorInfluence = 70,
+        ColorInfluence = 71,
 
         /// <summary>
         /// Whether mixing the active color with the brush should affect hue when colorize brush is off.
         /// </summary>
-        ColorInfluenceHue = 71,
+        ColorInfluenceHue = 72,
 
         /// <summary>
         /// Whether mixing the active color with the brush should affect saturation when colorize brush is off.
         /// </summary>
-        ColorInfluenceSat = 72,
+        ColorInfluenceSat = 73,
 
         /// <summary>
         /// Whether mixing the active color with the brush should affect value when colorize brush is off.
         /// </summary>
-        ColorInfluenceVal = 73,
+        ColorInfluenceVal = 74,
 
         /// <summary>
         /// Whether to draw in a checkerboard pattern, skipping every other pixel or not.
         /// </summary>
-        DitherDraw = 74,
+        DitherDraw = 75,
 
         /// <summary>
         /// If true, the red channel will not be affected while drawing.
         /// </summary>
-        DoLockR = 75,
+        DoLockR = 76,
 
         /// <summary>
         /// If true, the green channel will not be affected while drawing.
         /// </summary>
-        DoLockG = 76,
+        DoLockG = 77,
 
         /// <summary>
         /// If true, the blue channel will not be affected while drawing.
         /// </summary>
-        DoLockB = 77,
+        DoLockB = 78,
 
         /// <summary>
         /// If true, the hue will not be affected while drawing.
         /// </summary>
-        DoLockHue = 78,
+        DoLockHue = 79,
 
         /// <summary>
         /// If true, the saturation will not be affected while drawing.
         /// </summary>
-        DoLockSat = 79,
+        DoLockSat = 80,
 
         /// <summary>
         /// If true, the value will not be affected while drawing.
         /// </summary>
-        DoLockVal = 80,
+        DoLockVal = 81,
 
         /// <summary>
         /// The brush opacity (or rather, max alpha allowed on the layer). Anything greater truncates to max.
         /// </summary>
-        BrushOpacity = 81,
+        BrushOpacity = 82,
 
         /// <summary>
         /// The chosen effect to draw with, if set.
         /// </summary>
-        ChosenEffect = 82,
+        ChosenEffect = 83,
 
         /// <summary>
         /// The current canvas's zoom level. Shortcuts targeting zoom this way will zoom towards mouse location.
         /// See <see cref="CanvasZoom"/> for the version that zoom to canvas center.
         /// </summary>
-        CanvasZoomToMouse = 83
+        CanvasZoomToMouse = 84,
+
+        /// <summary>
+        /// Centers the canvas and zooms to fit the entire canvas in view.
+        /// </summary>
+        CanvasZoomFit = 85
     }
 }

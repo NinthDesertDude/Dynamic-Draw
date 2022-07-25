@@ -1922,6 +1922,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fit To Window.
+        /// </summary>
+        internal static string ShortcutCanvasZoomFit {
+            get {
+                return ResourceManager.GetString("ShortcutCanvasZoomFit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Chosen Effect.
         /// </summary>
         internal static string ShortcutChosenEffect {
@@ -2021,6 +2030,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} (digit).
+        /// </summary>
+        internal static string ShortcutInputDigitNumber {
+            get {
+                return ResourceManager.GetString("ShortcutInputDigitNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to End.
         /// </summary>
         internal static string ShortcutInputEnd {
@@ -2071,6 +2089,15 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutInputNumLock {
             get {
                 return ResourceManager.GetString("ShortcutInputNumLock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (numpad).
+        /// </summary>
+        internal static string ShortcutInputNumpadNumber {
+            get {
+                return ResourceManager.GetString("ShortcutInputNumpadNumber", resourceCulture);
             }
         }
         

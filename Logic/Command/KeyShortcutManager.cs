@@ -32,22 +32,14 @@ namespace DynamicDraw.Logic
                     (entry.RequireWheel != wheelDownFired && entry.RequireWheel != wheelUpFired) ||
                     (!entry.RequireWheel && entry.RequireWheelUp != wheelUpFired) ||
                     (!entry.RequireWheel && entry.RequireWheelDown != wheelDownFired) ||
-                    (entry.ContextsDenied?.Overlaps(contexts) ?? false) ||
-                    (!entry.ContextsRequired?.IsSubsetOf(contexts) ?? false))
+                    (entry.ContextsDenied.Overlaps(contexts)) ||
+                    (!entry.ContextsRequired.IsSubsetOf(contexts)))
                 {
                     continue;
                 }
 
                 entry.OnInvoke?.Invoke();
             }
-        }
-
-        /// <summary>
-        /// Determines whether the specified key is down.
-        /// </summary>
-        public static bool IsKeyDown(Keys key)
-        {
-            return SafeNativeMethods.GetKeyState((int)key) < 0;
         }
     }
 }

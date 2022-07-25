@@ -1,17 +1,18 @@
-﻿using DynamicDraw.Logic;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DynamicDraw
 {
     /// <summary>
     /// Implements the loading and saving of the settings.
     /// </summary>
-    [DataContract(Name = "DynamicDrawSettings", Namespace = "")]
-    internal sealed class SettingsSerialization
+    [DataContract(Name = "DynamicDrawSettings", Namespace = "")] // for importing legacy xml, don't copy this pattern
+    public class SettingsSerialization
     {
         private readonly string settingsPath;
         private bool createUserFilesDir;
@@ -24,6 +25,16 @@ namespace DynamicDraw
         private UserSettings preferences;
         private bool useDefaultBrushes;
 
+        [JsonConstructor]
+        public SettingsSerialization()
+        {
+            settingsPath = "";
+            createUserFilesDir = false;
+            deleteMigratedRegistrySettings = false;
+            loadedSettings = false;
+            InitializeDefaultSettings();
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SettingsSerialization"/> class.
         /// </summary>
@@ -33,10 +44,13 @@ namespace DynamicDraw
             settingsPath = path;
             createUserFilesDir = false;
             deleteMigratedRegistrySettings = false;
+            loadedSettings = false;
             InitializeDefaultSettings();
         }
 
-        [DataMember(Name = "CustomBrushDirectories")]
+        [DataMember(Name = "CustomBrushDirectories")] // for importing legacy xml, don't copy this pattern
+        [JsonInclude]
+        [JsonPropertyName("BrushImagePaths")]
         public HashSet<string> CustomBrushImageDirectories
         {
             get
@@ -57,7 +71,9 @@ namespace DynamicDraw
             }
         }
 
-        [DataMember(Name = "CustomBrushes")]
+        [DataMember(Name = "CustomBrushes")] // for importing legacy xml, don't copy this pattern
+        [JsonInclude]
+        [JsonPropertyName("CustomBrushes")]
         public Dictionary<string, BrushSettings> CustomBrushes
         {
             get
@@ -78,7 +94,8 @@ namespace DynamicDraw
         /// <summary>
         /// Gets or sets the list of registered keyboard shortcuts (user-changeable).
         /// </summary>
-        [DataMember(Name = "KeyboardShortcuts")]
+        [JsonInclude]
+        [JsonPropertyName("KeyboardShortcuts")]
         public HashSet<KeyboardShortcut> KeyboardShortcuts
         {
             get
@@ -89,7 +106,7 @@ namespace DynamicDraw
             {
                 if (keyboardShortcuts != value)
                 {
-                    keyboardShortcuts = value;
+                    keyboardShortcuts = new HashSet<KeyboardShortcut>(value);
                 }
             }
         }
@@ -100,7 +117,9 @@ namespace DynamicDraw
         /// <value>
         ///   <c>true</c> if the default brushes should be used; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "UseDefaultBrushes")]
+        [DataMember(Name = "UseDefaultBrushes")] // for importing legacy xml, don't copy this pattern
+        [JsonInclude]
+        [JsonPropertyName("UseDefaultBrushImages")]
         public bool UseDefaultBrushes
         {
             get
@@ -119,7 +138,8 @@ namespace DynamicDraw
         /// <summary>
         /// Gets or sets the program preferences of the user.
         /// </summary>
-        [DataMember(Name = "Preferences")]
+        [JsonInclude]
+        [JsonPropertyName("Preferences")]
         public UserSettings Preferences
         {
             get
@@ -133,9 +153,21 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Initializes the settings fields to their default values.
+        /// </summary>
+        private void InitializeDefaultSettings()
+        {
+            customBrushDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            customBrushes = new Dictionary<string, BrushSettings>();
+            keyboardShortcuts = PersistentSettings.GetShallowShortcutsList();
+            preferences = new UserSettings();
+            useDefaultBrushes = true;
+        }
+
+        /// <summary>
         /// Loads the saved settings for this instance.
         /// </summary>
-        public void LoadSavedSettings()
+        public void LoadSavedSettings(bool isLegacyXml = false)
         {
             if (!loadedSettings)
             {
@@ -151,8 +183,17 @@ namespace DynamicDraw
                     using (FileStream stream = new FileStream(settingsPath, FileMode.Open, FileAccess.Read))
                     {
                         string rootPath = Path.GetFileNameWithoutExtension(settingsPath);
-                        DataContractSerializer serializer = new DataContractSerializer(typeof(SettingsSerialization), rootPath, "");
-                        SettingsSerialization savedSettings = (SettingsSerialization)serializer.ReadObject(stream);
+                        SettingsSerialization savedSettings;
+
+                        if (isLegacyXml)
+                        {
+                            DataContractSerializer serializer = new DataContractSerializer(typeof(SettingsSerialization), rootPath, "");
+                            savedSettings = (SettingsSerialization)serializer.ReadObject(stream);
+                        }
+                        else
+                        {
+                            savedSettings = (SettingsSerialization)JsonSerializer.Deserialize(stream, typeof(SettingsSerialization));
+                        }
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
                         customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
@@ -167,10 +208,15 @@ namespace DynamicDraw
                     createUserFilesDir = true;
                     MigrateSettingsFromRegistry();
                 }
-                catch (FileNotFoundException)
+                catch (Exception ex)
                 {
                     // Migrate the settings from the registry or save the default settings.
-                    MigrateSettingsFromRegistry();
+                    if (ex is FileNotFoundException || ex is JsonException)
+                    {
+                        MigrateSettingsFromRegistry();
+                    }
+
+                    throw;
                 }
             }
         }
@@ -189,19 +235,34 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Initializes the settings fields to their default values.
+        /// Saves the settings for this instance.
         /// </summary>
-        private void InitializeDefaultSettings()
+        /// <param name="forceCreateUserFilesDir">Used to save settings for the first time when necessary.</param>
+        public void Save(bool forceCreateUserFilesDir = false)
         {
-            customBrushDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            customBrushes = new Dictionary<string, BrushSettings>();
-            keyboardShortcuts = PersistentSettings.GetShallowShortcutsList();
-            preferences = new UserSettings();
-            useDefaultBrushes = true;
+            if (settingsPath == null)
+            {
+                return;
+            }
+
+            if (createUserFilesDir || forceCreateUserFilesDir)
+            {
+                DirectoryInfo info = new DirectoryInfo(Path.GetDirectoryName(settingsPath));
+
+                if (!info.Exists)
+                {
+                    info.Create();
+                }
+            }
+
+            using (FileStream stream = new FileStream(settingsPath, FileMode.Create, FileAccess.Write))
+            {
+                JsonSerializer.Serialize(stream, this, typeof(SettingsSerialization));
+            }
         }
 
         /// <summary>
-        /// Migrates the settings from the registry.
+        /// Migrates the settings from the registry. This is the oldest legacy settings location.
         /// </summary>
         private void MigrateSettingsFromRegistry()
         {
@@ -229,11 +290,10 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Called when the object is deserializing.
+        /// Supports loading old settings files formatted as XML.
         /// </summary>
-        /// <param name="context">The streaming context.</param>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
+        private void LegacyXmlOnDeserializing(StreamingContext context)
         {
             // The DataContractSerializer does not call the constructor to initialize the class fields.
             // https://blogs.msdn.microsoft.com/mohamedg/2014/02/05/warning-datacontractserializer-wont-call-your-constructor/
@@ -241,34 +301,6 @@ namespace DynamicDraw
             // This method initializes the fields to their default values when the class is deserializing.
 
             InitializeDefaultSettings();
-        }
-
-        /// <summary>
-        /// Saves the settings for this instance.
-        /// </summary>
-        /// <param name="forceCreateUserFilesDir">Used to save settings for the first time when necessary.</param>
-        public void Save(bool forceCreateUserFilesDir = false)
-        {
-            if (settingsPath == null)
-            {
-                return;
-            }
-
-            if (createUserFilesDir || forceCreateUserFilesDir)
-            {
-                DirectoryInfo info = new DirectoryInfo(Path.GetDirectoryName(settingsPath));
-
-                if (!info.Exists)
-                {
-                    info.Create();
-                }
-            }
-
-            using (FileStream stream = new FileStream(settingsPath, FileMode.Create, FileAccess.Write))
-            {
-                DataContractSerializer serializer = new DataContractSerializer(typeof(SettingsSerialization));
-                serializer.WriteObject(stream, this);
-            }
         }
     }
 }

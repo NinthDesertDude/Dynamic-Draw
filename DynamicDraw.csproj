@@ -54,6 +54,9 @@
     <Compile Update="Gui\EditKeyboardShortcuts.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Gui\Main\Slider.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Gui\Main\CmbxTabletValueType.cs">
       <SubType>Component</SubType>
     </Compile>

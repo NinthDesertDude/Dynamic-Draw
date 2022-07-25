@@ -18,7 +18,7 @@ namespace DynamicDraw
             {
                 { ShortcutTarget.AutomaticBrushDensity, new Setting(Localization.Strings.AutomaticBrushDensity, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.BrushStrokeDensity, new Setting(Localization.Strings.ShortcutDensity, 0, 50) },
-                { ShortcutTarget.CanvasZoom, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 1600) },
+                { ShortcutTarget.CanvasZoom, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 6400) },
                 { ShortcutTarget.Color, new Setting(Localization.Strings.BrushColor, ShortcutTargetDataType.Color) },
                 { ShortcutTarget.ColorizeBrush, new Setting(Localization.Strings.ColorizeBrush, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.Flow, new Setting(Localization.Strings.ShortcutFlow, 0, 255) },
@@ -98,8 +98,9 @@ namespace DynamicDraw
                 { ShortcutTarget.DoLockSat, new Setting(Localization.Strings.LockSat, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.DoLockVal, new Setting(Localization.Strings.LockVal, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.BrushOpacity, new Setting(Localization.Strings.ShortcutBrushOpacity, 0, 255) },
-                { ShortcutTarget.CanvasZoomToMouse, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 1600) },
+                { ShortcutTarget.CanvasZoomToMouse, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 6400) },
                 { ShortcutTarget.ChosenEffect, new Setting(Localization.Strings.ShortcutChosenEffect, 1, 1000) },
+                { ShortcutTarget.CanvasZoomFit, new Setting(Localization.Strings.ShortcutCanvasZoom, ShortcutTargetDataType.Action) }
             };
         }
 

@@ -19,7 +19,7 @@ namespace DynamicDraw
         private readonly HashSet<Keys> recordedAllKeys = new HashSet<Keys>();
         private readonly HashSet<Keys> recordedHeldKeys = new HashSet<Keys>();
 
-        private ShortcutTarget currentShortcutTarget = (ShortcutTarget)(-1);
+        private ShortcutTarget currentShortcutTarget = ShortcutTarget.None;
         private HashSet<Keys> currentShortcutSequence = new HashSet<Keys>();
         private bool currentShortcutUsesMouseWheelUp = false;
         private bool currentShortcutUsesMouseWheelDown = false;
@@ -73,6 +73,12 @@ namespace DynamicDraw
             var shortcutTargetOptions = new BindingList<Tuple<string, ShortcutTarget>>();
             foreach (int i in Enum.GetValues(typeof(ShortcutTarget)))
             {
+                // "None" is not a valid option to pick, so skip it.
+                if (i == (int)ShortcutTarget.None)
+                {
+                    continue;
+                }
+
                 ShortcutTarget target = (ShortcutTarget)i;
                 shortcutTargetOptions.Add(
                     new Tuple<string, ShortcutTarget>(Setting.AllSettings[target].Name, target));
@@ -132,7 +138,7 @@ namespace DynamicDraw
             // Updates the shortcut combobox.
             int shortcutTargetCmbxIndex = -1;
 
-            if ((int)currentShortcutTarget != -1)
+            if (currentShortcutTarget != ShortcutTarget.None)
             {
                 for (int i = 0; i < cmbxShortcutTarget.Items.Count; i++)
                 {
@@ -189,14 +195,14 @@ namespace DynamicDraw
                 txtbxShortcutActionData.Text = currentShortcutActionData;
 
                 // Handles the add, edit, delete button enabled status.
-                txtbxShortcutActionData.Enabled = ((int)currentShortcutTarget != -1) &&
+                txtbxShortcutActionData.Enabled = (currentShortcutTarget != ShortcutTarget.None) &&
                     Setting.AllSettings[currentShortcutTarget].ValueType != ShortcutTargetDataType.Action;
 
                 bttnDeleteShortcut.Enabled = shortcutsListBox.SelectedItems.Count != 0;
             }
 
             bool isShortcutValid =
-                (int)currentShortcutTarget != -1 &&
+                currentShortcutTarget != ShortcutTarget.None &&
                 shortcutTargetCmbxIndex != -1 &&
                 KeyboardShortcut.IsActionValid(currentShortcutTarget, currentShortcutActionData);
 
@@ -409,7 +415,7 @@ namespace DynamicDraw
         {
             if (shortcutsListBox.SelectedIndices.Count > 1)
             {
-                currentShortcutTarget = (ShortcutTarget)(-1);
+                currentShortcutTarget = ShortcutTarget.None;
                 currentShortcutSequence = new HashSet<Keys>();
                 currentShortcutUsesMouseWheelUp = false;
                 currentShortcutUsesMouseWheelDown = false;
@@ -521,7 +527,7 @@ namespace DynamicDraw
         {
             if (cmbxShortcutTarget.SelectedIndex == -1)
             {
-                currentShortcutTarget = (ShortcutTarget)(-1);
+                currentShortcutTarget = ShortcutTarget.None;
             }
             else
             {

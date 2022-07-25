@@ -6,9 +6,6 @@ namespace DynamicDraw.Interop
     [SuppressUnmanagedCodeSecurity]
     internal static class SafeNativeMethods
     {
-        [DllImport("user32.dll", ExactSpelling = true)]
-        internal static extern short GetKeyState(int keyCode);
-
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         private static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
 

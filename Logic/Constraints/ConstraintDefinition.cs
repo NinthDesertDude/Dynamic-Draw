@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace DynamicDraw
 {
@@ -25,19 +26,16 @@ namespace DynamicDraw
         /// <summary>
         /// The property that the constraint definition concerns.
         /// </summary>
-        [DataMember(Name = "Property")]
         public ShortcutTarget Property { get; set; }
 
         /// <summary>
         /// Determines how a constraint runs, e.g. on brush stroke, jitter during stroke, etc.
         /// </summary>
-        [DataMember(Name = "Trigger")]
         public ConstraintTrigger Trigger { get; set; }
 
         /// <summary>
         /// The points on the graph that are used to generate the curve table / decide the curve strength.
         /// </summary>
-        [DataMember(Name = "StrengthCurve")]
         public PointF[] StrengthCurveControlPoints
         {
             get
@@ -55,10 +53,6 @@ namespace DynamicDraw
         /// The amount of points in the curve table, hence "resolution" because a low number will
         /// produce very blocky graphs. Ideally it should match the domain of the property to avoid
         /// the slight overhead of lerping between points on the graph.
-        /// </summary>
-        [DataMember(Name = "StrengthResolution")]
-        /// <summary>
-        /// A positive value with a reasonable range e.g. 100 to 20000.
         /// </summary>
         public int StrengthCurveResolution
         {
@@ -83,28 +77,24 @@ namespace DynamicDraw
         /// 
         /// Lazy constructed when needed or at request.
         /// </summary>
-        [IgnoreDataMember]
+        [JsonIgnore]
         public float[] CurveTable { get; set; } = Array.Empty<float>();
 
         /// <summary>
         /// The value handling method.
         /// </summary>
-        [DataMember(Name = "ValueType")]
         public ConstraintValueHandlingMethod ValueType { get; set; } = ConstraintValueHandlingMethod.DoNothing;
 
-        [DataMember(Name = "ValueSource")]
         public ConstraintValueSource ValueSource { get; set; } = ConstraintValueSource.None;
 
         /// <summary>
         /// For properties that require a float.
         /// </summary>
-        [DataMember(Name = "ValFloat1")]
         public float ValFloat1 { get; set; } = 0f;
 
         /// <summary>
         /// For properties that requires two float values.
         /// </summary>
-        [DataMember(Name = "ValFloat2")]
         public float ValFloat2 { get; set; } = 0f;
         #endregion
 

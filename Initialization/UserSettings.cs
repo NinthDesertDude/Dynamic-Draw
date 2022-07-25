@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace DynamicDraw
 {
@@ -14,52 +15,60 @@ namespace DynamicDraw
         /// <summary>
         /// How transparency will be displayed on canvas, e.g. white or checkered.
         /// </summary>
-        [DataMember(Name = "BackgroundDisplayMode")]
+        [JsonInclude]
+        [JsonPropertyName("BackgroundDisplayMode")]
         public BackgroundDisplayMode BackgroundDisplayMode { get; set; }
 
         /// <summary>
         /// How the brush indicator will appear, e.g. as a square or as a preview of the current brush.
         /// </summary>
-        [DataMember(Name = "BrushCursorPreview")]
+        [JsonInclude]
+        [JsonPropertyName("BrushCursorPreview")]
         public BrushCursorPreview BrushCursorPreview { get; set; }
 
         /// <summary>
         /// If true, the color picker will also copy the transparency of the selected pixel.
         /// </summary>
-        [DataMember(Name = "ColorPickerIncludesAlpha")]
+        [JsonInclude]
+        [JsonPropertyName("ColorPickerIncludesAlpha")]
         public bool ColorPickerIncludesAlpha { get; set; }
 
         /// <summary>
         /// If true, the color picker will switch to the previous tool after clicking.
         /// </summary>
-        [DataMember(Name = "ColorPickerSwitchesToLastTool")]
+        [JsonInclude]
+        [JsonPropertyName("ColorPickerSwitchesToLastTool")]
         public bool ColorPickerSwitchesToLastTool { get; set; }
 
         /// <summary>
         /// If true, the confirmation dialog asking if you want to close the plugin will not be displayed when
         /// attempting to close or cancel it.
         /// </summary>
-        [DataMember(Name = "DisableConfirmationOnCloseOrSave")]
+        [JsonInclude]
+        [JsonPropertyName("DisableConfirmationOnCloseOrSave")]
         public bool DisableConfirmationOnCloseOrSave { get; set; }
 
         /// <summary>
         /// If true, custom brush paths (both directories and files) that are not found will result in those paths
         /// being removed from the list of custom image paths to load.
         /// </summary>
-        [DataMember(Name = "RemoveBrushImagePathsWhenNotFound")]
+        [JsonInclude]
+        [JsonPropertyName("RemoveBrushImagePathsWhenNotFound")]
         public bool RemoveBrushImagePathsWhenNotFound { get; set; }
 
         /// <summary>
         /// If true, the circle that indicates how far the minimum distance goes will be shown as long as minimum
         /// distance is nonzero.
         /// </summary>
-        [DataMember(Name = "ShowCircleRadiusWhenUsingMinDistance")]
+        [JsonInclude]
+        [JsonPropertyName("ShowCircleRadiusWhenUsingMinDistance")]
         public bool ShowCircleRadiusWhenUsingMinDistance { get; set; }
 
         /// <summary>
         /// if true, the symmetry origin will be shown at all times as long as a symmetry mode is active.
         /// </summary>
-        [DataMember(Name = "ShowSymmetryLinesWhenUsingSymmetry")]
+        [JsonInclude]
+        [JsonPropertyName("ShowSymmetryLinesWhenUsingSymmetry")]
         public bool ShowSymmetryLinesWhenUsingSymmetry { get; set; }
         #endregion
 

@@ -3,6 +3,7 @@ using DynamicDraw.Localization;
 using DynamicDraw.Logic;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text.Json.Serialization;
 
 namespace DynamicDraw
 {
@@ -472,6 +473,7 @@ namespace DynamicDraw
         /// <summary>
         /// Creates a new settings token.
         /// </summary>
+        [JsonConstructor]
         public PersistentSettings()
         {
             ActiveEffect = new(0, null);
