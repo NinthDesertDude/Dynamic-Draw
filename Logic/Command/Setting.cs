@@ -43,7 +43,7 @@ namespace DynamicDraw
                 { ShortcutTarget.JitterValMin, new Setting(Localization.Strings.ShortcutJitterValueMin, 0, 100) },
                 { ShortcutTarget.JitterVerSpray, new Setting(Localization.Strings.ShortcutJitterVerSpray, 0, 100) },
                 { ShortcutTarget.DoLockAlpha, new Setting(Localization.Strings.LockAlpha, ShortcutTargetDataType.Bool) },
-                { ShortcutTarget.MinDrawDistance, new Setting(Localization.Strings.MinDrawDistance, 0, 100) },
+                { ShortcutTarget.MinDrawDistance, new Setting(Localization.Strings.ShortcutMinDrawDist, 0, 100) },
                 { ShortcutTarget.RedoAction, new Setting(Localization.Strings.Redo, ShortcutTargetDataType.Action) },
                 { ShortcutTarget.RotateWithMouse, new Setting(Localization.Strings.OrientToMouse, ShortcutTargetDataType.Bool) },
                 { ShortcutTarget.Rotation, new Setting(Localization.Strings.ShortcutRotation, -180, 180) },

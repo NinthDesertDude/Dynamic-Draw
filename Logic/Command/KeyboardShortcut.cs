@@ -564,8 +564,8 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Returns user-legible string like "Ctrl + A + Mouse wheel" describing the key sequence used to invoke the
-        /// given shortcut.
+        /// Returns the string literal equivalent of a character, such as 0 for the numpad or OEM zero key. Returns an
+        /// empty string if there is no equivalent.
         /// </summary>
         public static string GetPrintableKey(Keys key)
         {

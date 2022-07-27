@@ -25,6 +25,7 @@ namespace DynamicDraw.Gui
             InitializeComponent();
             Text = titleText;
             this.txtDescription.Text = descrText;
+            this.txtDescription.Visible = !string.IsNullOrEmpty(descrText);
             this.bttnOk.Text = btnOkText;
             validationFunc = validateFunc;
             this.txtbxInput.TextChanged += TxtbxInput_TextChanged;
@@ -50,20 +51,12 @@ namespace DynamicDraw.Gui
             // an error message and displayed. Otherwise, no error is considered to exist.
             string error = this.validationFunc(this.txtbxInput.Text);
 
-            if (error == null)
+            txtError.Visible = !string.IsNullOrEmpty(error);
+            bttnOk.Enabled = (error == null);
+
+            if (txtError.Visible)
             {
-                this.txtError.Visible = false;
-                this.bttnOk.Enabled = true;
-            }
-            else
-            {
-                if (error != "")
-                {
-                    this.txtError.Visible = true;
-                    this.txtError.Text = error;
-                }
-                
-                this.bttnOk.Enabled = false;
+                this.txtError.Text = error;
             }
         }
     }

@@ -369,9 +369,10 @@ namespace DynamicDraw
         private ToolStripMenuItem menuColorPickerIncludesAlpha, menuColorPickerSwitchesToPrevTool;
         private ToolStripMenuItem menuRemoveUnfoundImagePaths, menuConfirmCloseSave;
         private Button menuCanvasZoomBttn, menuCanvasAngleBttn;
+        private Slider sliderCanvasZoom, sliderCanvasAngle;
         private ToolStripMenuItem menuCanvasZoomReset, menuCanvasZoomFit, menuCanvasZoomTo;
         private ToolStripMenuItem menuCanvasAngleReset, menuCanvasAngle90, menuCanvasAngle180, menuCanvasAngle270, menuCanvasAngleTo;
-        private Slider sliderCanvasZoom;
+        private FlowLayoutPanel panelTools;
 
         /// <summary>
         /// Tracks when the user draws out-of-bounds and moves the canvas to
@@ -392,12 +393,9 @@ namespace DynamicDraw
         private Button bttnToolBrush;
         private Button bttnToolOrigin;
         private Button BttnToolEraser;
-        private FlowLayoutPanel flowLayoutPanel1;
         private FlowLayoutPanel panelSettingsContainer;
         private Accordion bttnBrushControls;
         private FlowLayoutPanel panelBrush;
-        private Label txtCanvasAngle;
-        private TrackBar sliderCanvasAngle;
         private DoubleBufferedListView listviewBrushImagePicker;
         private Panel panelBrushAddPickColor;
         private CheckBox chkbxColorizeBrush;
@@ -688,84 +686,83 @@ namespace DynamicDraw
 
             // Prevents sliders and comboboxes from handling mouse wheel, so the user can scroll up/down normally.
             // Winforms designer doesn't recognize this event, so it immediately strips it if placed with autogen code.
-            this.cmbxTabPressureBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureBrushSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureHueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandHorShift.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRandVerShift.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureRedJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureSatJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxTabPressureValueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderCanvasAngle.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxChosenEffect.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderColorInfluence.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderBrushSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxSymmetry.MouseWheel += IgnoreMouseWheelEvent;
-            this.cmbxBrushSmoothing.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandHorzShift.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderRandVertShift.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMinRed.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMaxRed.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMinGreen.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMaxGreen.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMinBlue.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMaxBlue.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMinHue.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMaxHue.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMinSat.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMaxSat.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMinVal.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderJitterMaxVal.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderShiftSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderShiftRotation.MouseWheel += IgnoreMouseWheelEvent;
-            this.sliderShiftFlow.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureBrushSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMaxBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMaxGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMaxHueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMaxRedJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMaxSatJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMaxValueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMinBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMinGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMinHueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMinRedJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMinSatJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureMinValueJitter.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandHorShift.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
-            this.spinTabPressureRandVerShift.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureBrushSize.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureHueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRandHorShift.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRandVerShift.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureRedJitter.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureSatJitter.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxTabPressureValueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxChosenEffect.MouseWheel += IgnoreMouseWheelEvent;
+            sliderColorInfluence.MouseWheel += IgnoreMouseWheelEvent;
+            sliderBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
+            sliderBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
+            sliderBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
+            sliderBrushSize.MouseWheel += IgnoreMouseWheelEvent;
+            sliderMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
+            sliderBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxSymmetry.MouseWheel += IgnoreMouseWheelEvent;
+            cmbxBrushSmoothing.MouseWheel += IgnoreMouseWheelEvent;
+            sliderRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
+            sliderRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
+            sliderRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
+            sliderRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
+            sliderRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
+            sliderRandHorzShift.MouseWheel += IgnoreMouseWheelEvent;
+            sliderRandVertShift.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMinRed.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMaxRed.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMinGreen.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMaxGreen.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMinBlue.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMaxBlue.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMinHue.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMaxHue.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMinSat.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMaxSat.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMinVal.MouseWheel += IgnoreMouseWheelEvent;
+            sliderJitterMaxVal.MouseWheel += IgnoreMouseWheelEvent;
+            sliderShiftSize.MouseWheel += IgnoreMouseWheelEvent;
+            sliderShiftRotation.MouseWheel += IgnoreMouseWheelEvent;
+            sliderShiftFlow.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureBrushSize.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMaxBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMaxGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMaxHueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMaxRedJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMaxSatJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMaxValueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMinBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMinGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMinHueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMinRedJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMinSatJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureMinValueJitter.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureRandHorShift.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
+            spinTabPressureRandVerShift.MouseWheel += IgnoreMouseWheelEvent;
 
             // Binds the accordion buttons containing all the options.
             bttnBrushControls.UpdateAccordion(Strings.AccordionBrush, false, new Control[] { panelBrush });
@@ -862,7 +859,7 @@ namespace DynamicDraw
             // Fetches and populates the available effects for the effect chooser combobox.
             if (effectOptions.Count == 1)
             {
-                IEffectsService effectsService = this.Services?.GetService<IEffectsService>();
+                IEffectsService effectsService = Services?.GetService<IEffectsService>();
 
                 if (effectsService != null)
                 {
@@ -996,9 +993,7 @@ namespace DynamicDraw
 
             //Adds versioning information to the window title.
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            Text = EffectPlugin.StaticName + " (version " +
-                version.Major + "." +
-                version.Minor + ")";
+            Text = string.Format(Strings.VersionString, EffectPlugin.StaticName, version.Major, version.Minor);
 
             //Loads globalization texts for regional support.
             txtBrushOpacity.Text = string.Format("{0} {1}",
@@ -1026,9 +1021,6 @@ namespace DynamicDraw
 
             txtBrushSize.Text = string.Format("{0} {1}",
                 Strings.Size, sliderBrushSize.Value);
-
-            txtCanvasAngle.Text = string.Format("{0} {1}°",
-                Strings.CanvasAngle, sliderCanvasAngle.Value);
 
             txtColorInfluence.Text = String.Format("{0} {1}%",
                 Strings.ColorInfluence, sliderColorInfluence.Value);
@@ -1418,7 +1410,7 @@ namespace DynamicDraw
             bttnChooseEffectSettings.Enabled = isEffectConfigurable;
             UpdateEnabledControls();
 
-            effectToDraw.Effect.Services = this.Services;
+            effectToDraw.Effect.Services = Services;
             effectToDraw.Effect.EnvironmentParameters = new EffectEnvironmentParameters(
                 bttnBrushColor.BackColor,
                 Color.Black,
@@ -2073,7 +2065,7 @@ namespace DynamicDraw
             (Surface surface, Bitmap bmp) eraserAndEffectSrc = (null, null);
             if (activeTool == Tool.Eraser)
             {
-                eraserAndEffectSrc.surface = this.EnvironmentParameters.SourceSurface;
+                eraserAndEffectSrc.surface = EnvironmentParameters.SourceSurface;
             }
             else if (effectToDraw.Effect != null)
             {
@@ -2118,9 +2110,9 @@ namespace DynamicDraw
 
                 #region create intermediate rotated brush (as needed)
                 // Manually rotates to account for canvas angle (lockbits doesn't use matrices).
-                if (useLockbitsDrawing && sliderCanvasAngle.Value != 0)
+                if (useLockbitsDrawing && sliderCanvasAngle.ValueInt != 0)
                 {
-                    rotation -= sliderCanvasAngle.Value;
+                    rotation -= sliderCanvasAngle.ValueInt;
                 }
 
                 Bitmap bmpBrushRot = bmpBrushEffects;
@@ -2156,7 +2148,7 @@ namespace DynamicDraw
                 if (!useLockbitsDrawing)
                 {
                     g.TranslateTransform(drawingOffsetX, drawingOffsetY);
-                    g.RotateTransform(-sliderCanvasAngle.Value);
+                    g.RotateTransform(-sliderCanvasAngle.ValueInt);
                     g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
                 }
 
@@ -2175,7 +2167,7 @@ namespace DynamicDraw
                         if (useLockbitsDrawing)
                         {
                             PointF rotatedLoc = loc;
-                            if (sliderCanvasAngle.Value != 0)
+                            if (sliderCanvasAngle.ValueInt != 0)
                             {
                                 rotatedLoc = TransformPoint(loc, true, true, false);
                             }
@@ -2225,7 +2217,7 @@ namespace DynamicDraw
                             if (drawToStagedBitmap)
                             {
                                 PointF rotatedLoc = loc;
-                                if (sliderCanvasAngle.Value != 0)
+                                if (sliderCanvasAngle.ValueInt != 0)
                                 {
                                     rotatedLoc = TransformPoint(loc, true, true, false);
                                 }
@@ -2361,7 +2353,7 @@ namespace DynamicDraw
                                         loc.X + symmetryOrigins[i].X,
                                         loc.Y + symmetryOrigins[i].Y);
 
-                                    if (sliderCanvasAngle.Value != 0)
+                                    if (sliderCanvasAngle.ValueInt != 0)
                                     {
                                         transformedPoint = TransformPoint(transformedPoint, true, true, false);
                                     }
@@ -3152,7 +3144,7 @@ namespace DynamicDraw
                     canvas.height = bmpCommitted.Height;
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
                     canvas.y = (displayCanvas.Height - canvas.height) / 2;
-                    sliderCanvasAngle.Value = 0;
+                    sliderCanvasAngle.ValueInt = 0;
                     sliderCanvasZoom.ValueInt = 100;
                     break;
                 case ShortcutTarget.CanvasX:
@@ -3164,10 +3156,10 @@ namespace DynamicDraw
                     displayCanvas.Refresh();
                     break;
                 case ShortcutTarget.CanvasRotation:
-                    var newValue = shortcut.GetDataAsInt(sliderCanvasAngle.Value, int.MinValue, int.MaxValue);
-                    while (newValue < 0) { newValue += 360; }
-                    while (newValue >= 360) { newValue -= 360; }
-                    sliderCanvasAngle.Value = newValue;
+                    var newValue = shortcut.GetDataAsInt(sliderCanvasAngle.ValueInt, int.MinValue, int.MaxValue);
+                    while (newValue <= -180) { newValue += 360; }
+                    while (newValue > 180) { newValue -= 360; }
+                    sliderCanvasAngle.ValueInt = newValue;
                     break;
                 case ShortcutTarget.BlendMode:
                     cmbxBlendMode.SelectedIndex =
@@ -3365,389 +3357,391 @@ namespace DynamicDraw
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new Container();
+            components = new Container();
             ComponentResourceManager resources = new ComponentResourceManager(typeof(WinDynamicDraw));
-            this.timerRepositionUpdate = new Timer(this.components);
-            this.timerClipboardDataCheck = new Timer(this.components);
-            this.txtTooltip = new Label();
-            this.displayCanvas = new PictureBox();
-            this.topMenu = new FlowLayoutPanel();
-            this.bttnToolBrush = new Button();
-            this.dummyImageList = new ImageList(this.components);
-            this.panelUndoRedoOkCancel = new FlowLayoutPanel();
-            this.bttnUndo = new Button();
-            this.bttnRedo = new Button();
-            this.bttnOk = new Button();
-            this.bttnCancel = new Button();
-            this.brushImageLoadingWorker = new BackgroundWorker();
-            this.bttnColorPicker = new Button();
-            this.panelAllSettingsContainer = new Panel();
-            this.panelDockSettingsContainer = new Panel();
-            this.flowLayoutPanel1 = new FlowLayoutPanel();
-            this.BttnToolEraser = new Button();
-            this.bttnToolOrigin = new Button();
-            this.panelSettingsContainer = new FlowLayoutPanel();
-            this.bttnBrushControls = new Accordion();
-            this.panelBrush = new FlowLayoutPanel();
-            this.txtCanvasAngle = new Label();
-            this.sliderCanvasAngle = new TrackBar();
-            this.listviewBrushPicker = new ListView();
-            this.listviewBrushImagePicker = new DoubleBufferedListView();
-            this.panelBrushAddPickColor = new Panel();
-            this.chkbxColorizeBrush = new CheckBox();
-            this.txtColorInfluence = new Label();
-            this.sliderColorInfluence = new TrackBar();
-            this.panelColorInfluenceHSV = new FlowLayoutPanel();
-            this.chkbxColorInfluenceHue = new CheckBox();
-            this.chkbxColorInfluenceSat = new CheckBox();
-            this.chkbxColorInfluenceVal = new CheckBox();
-            this.bttnAddBrushImages = new Button();
-            this.brushImageLoadProgressBar = new ProgressBar();
-            this.bttnBrushColor = new Button();
-            this.cmbxBlendMode = new ComboBox();
-            this.txtBrushOpacity = new Label();
-            this.sliderBrushOpacity = new TrackBar();
-            this.txtBrushFlow = new Label();
-            this.sliderBrushFlow = new TrackBar();
-            this.txtBrushRotation = new Label();
-            this.sliderBrushRotation = new TrackBar();
-            this.txtBrushSize = new Label();
-            this.sliderBrushSize = new TrackBar();
-            this.bttnSpecialSettings = new Accordion();
-            this.panelSpecialSettings = new FlowLayoutPanel();
-            this.panelChosenEffect = new Panel();
-            this.cmbxChosenEffect = new ComboBox();
-            this.bttnChooseEffectSettings = new Button();
-            this.txtMinDrawDistance = new Label();
-            this.sliderMinDrawDistance = new TrackBar();
-            this.txtBrushDensity = new Label();
-            this.sliderBrushDensity = new TrackBar();
-            this.cmbxSymmetry = new ComboBox();
-            this.cmbxBrushSmoothing = new ComboBox();
-            this.chkbxSeamlessDrawing = new CheckBox();
-            this.chkbxOrientToMouse = new CheckBox();
-            this.chkbxDitherDraw = new CheckBox();
-            this.chkbxLockAlpha = new CheckBox();
-            this.panelRGBLocks = new Panel();
-            this.chkbxLockR = new CheckBox();
-            this.chkbxLockG = new CheckBox();
-            this.chkbxLockB = new CheckBox();
-            this.panelHSVLocks = new Panel();
-            this.chkbxLockHue = new CheckBox();
-            this.chkbxLockSat = new CheckBox();
-            this.chkbxLockVal = new CheckBox();
-            this.bttnJitterBasicsControls = new Accordion();
-            this.panelJitterBasics = new FlowLayoutPanel();
-            this.txtRandMinSize = new Label();
-            this.sliderRandMinSize = new TrackBar();
-            this.txtRandMaxSize = new Label();
-            this.sliderRandMaxSize = new TrackBar();
-            this.txtRandRotLeft = new Label();
-            this.sliderRandRotLeft = new TrackBar();
-            this.txtRandRotRight = new Label();
-            this.sliderRandRotRight = new TrackBar();
-            this.txtRandFlowLoss = new Label();
-            this.sliderRandFlowLoss = new TrackBar();
-            this.txtRandHorzShift = new Label();
-            this.sliderRandHorzShift = new TrackBar();
-            this.txtRandVertShift = new Label();
-            this.sliderRandVertShift = new TrackBar();
-            this.bttnJitterColorControls = new Accordion();
-            this.panelJitterColor = new FlowLayoutPanel();
-            this.txtJitterRed = new Label();
-            this.sliderJitterMinRed = new TrackBar();
-            this.sliderJitterMaxRed = new TrackBar();
-            this.txtJitterGreen = new Label();
-            this.sliderJitterMinGreen = new TrackBar();
-            this.sliderJitterMaxGreen = new TrackBar();
-            this.txtJitterBlue = new Label();
-            this.sliderJitterMinBlue = new TrackBar();
-            this.sliderJitterMaxBlue = new TrackBar();
-            this.txtJitterHue = new Label();
-            this.sliderJitterMinHue = new TrackBar();
-            this.sliderJitterMaxHue = new TrackBar();
-            this.txtJitterSaturation = new Label();
-            this.sliderJitterMinSat = new TrackBar();
-            this.sliderJitterMaxSat = new TrackBar();
-            this.txtJitterValue = new Label();
-            this.sliderJitterMinVal = new TrackBar();
-            this.sliderJitterMaxVal = new TrackBar();
-            this.bttnShiftBasicsControls = new Accordion();
-            this.panelShiftBasics = new FlowLayoutPanel();
-            this.txtShiftSize = new Label();
-            this.sliderShiftSize = new TrackBar();
-            this.txtShiftRotation = new Label();
-            this.sliderShiftRotation = new TrackBar();
-            this.txtShiftFlow = new Label();
-            this.sliderShiftFlow = new TrackBar();
-            this.bttnTabAssignPressureControls = new Accordion();
-            this.panelTabletAssignPressure = new FlowLayoutPanel();
-            this.panelTabPressureBrushOpacity = new FlowLayoutPanel();
-            this.panel19 = new Panel();
-            this.txtTabPressureBrushOpacity = new Label();
-            this.spinTabPressureBrushOpacity = new NumericUpDown();
-            this.cmbxTabPressureBrushOpacity = new CmbxTabletValueType();
-            this.panelTabPressureBrushFlow = new FlowLayoutPanel();
-            this.panel3 = new Panel();
-            this.txtTabPressureBrushFlow = new Label();
-            this.spinTabPressureBrushFlow = new NumericUpDown();
-            this.cmbxTabPressureBrushFlow = new CmbxTabletValueType();
-            this.panelTabPressureBrushSize = new FlowLayoutPanel();
-            this.panel8 = new Panel();
-            this.txtTabPressureBrushSize = new Label();
-            this.spinTabPressureBrushSize = new NumericUpDown();
-            this.cmbxTabPressureBrushSize = new CmbxTabletValueType();
-            this.panelTabPressureBrushRotation = new FlowLayoutPanel();
-            this.panel2 = new Panel();
-            this.txtTabPressureBrushRotation = new Label();
-            this.spinTabPressureBrushRotation = new NumericUpDown();
-            this.cmbxTabPressureBrushRotation = new CmbxTabletValueType();
-            this.panelTabPressureMinDrawDistance = new FlowLayoutPanel();
-            this.panel1 = new Panel();
-            this.lblTabPressureMinDrawDistance = new Label();
-            this.spinTabPressureMinDrawDistance = new NumericUpDown();
-            this.cmbxTabPressureMinDrawDistance = new CmbxTabletValueType();
-            this.panelTabPressureBrushDensity = new FlowLayoutPanel();
-            this.panel4 = new Panel();
-            this.lblTabPressureBrushDensity = new Label();
-            this.spinTabPressureBrushDensity = new NumericUpDown();
-            this.cmbxTabPressureBrushDensity = new CmbxTabletValueType();
-            this.panelTabPressureRandMinSize = new FlowLayoutPanel();
-            this.panel5 = new Panel();
-            this.lblTabPressureRandMinSize = new Label();
-            this.spinTabPressureRandMinSize = new NumericUpDown();
-            this.cmbxTabPressureRandMinSize = new CmbxTabletValueType();
-            this.panelTabPressureRandMaxSize = new FlowLayoutPanel();
-            this.panel6 = new Panel();
-            this.lblTabPressureRandMaxSize = new Label();
-            this.spinTabPressureRandMaxSize = new NumericUpDown();
-            this.cmbxTabPressureRandMaxSize = new CmbxTabletValueType();
-            this.panelTabPressureRandRotLeft = new FlowLayoutPanel();
-            this.panel7 = new Panel();
-            this.lblTabPressureRandRotLeft = new Label();
-            this.spinTabPressureRandRotLeft = new NumericUpDown();
-            this.cmbxTabPressureRandRotLeft = new CmbxTabletValueType();
-            this.panelTabPressureRandRotRight = new FlowLayoutPanel();
-            this.panel9 = new Panel();
-            this.lblTabPressureRandRotRight = new Label();
-            this.spinTabPressureRandRotRight = new NumericUpDown();
-            this.cmbxTabPressureRandRotRight = new CmbxTabletValueType();
-            this.panelTabPressureRandFlowLoss = new FlowLayoutPanel();
-            this.panel10 = new Panel();
-            this.lblTabPressureRandFlowLoss = new Label();
-            this.spinTabPressureRandFlowLoss = new NumericUpDown();
-            this.cmbxTabPressureRandFlowLoss = new CmbxTabletValueType();
-            this.panelTabPressureRandHorShift = new FlowLayoutPanel();
-            this.panel12 = new Panel();
-            this.lblTabPressureRandHorShift = new Label();
-            this.spinTabPressureRandHorShift = new NumericUpDown();
-            this.cmbxTabPressureRandHorShift = new CmbxTabletValueType();
-            this.panelTabPressureRandVerShift = new FlowLayoutPanel();
-            this.panel11 = new Panel();
-            this.lblTabPressureRandVerShift = new Label();
-            this.spinTabPressureRandVerShift = new NumericUpDown();
-            this.cmbxTabPressureRandVerShift = new CmbxTabletValueType();
-            this.panelTabPressureRedJitter = new FlowLayoutPanel();
-            this.panel13 = new Panel();
-            this.spinTabPressureMinRedJitter = new NumericUpDown();
-            this.lblTabPressureRedJitter = new Label();
-            this.spinTabPressureMaxRedJitter = new NumericUpDown();
-            this.cmbxTabPressureRedJitter = new CmbxTabletValueType();
-            this.panelTabPressureGreenJitter = new FlowLayoutPanel();
-            this.panel14 = new Panel();
-            this.spinTabPressureMinGreenJitter = new NumericUpDown();
-            this.lblTabPressureGreenJitter = new Label();
-            this.spinTabPressureMaxGreenJitter = new NumericUpDown();
-            this.cmbxTabPressureGreenJitter = new CmbxTabletValueType();
-            this.panelTabPressureBlueJitter = new FlowLayoutPanel();
-            this.panel15 = new Panel();
-            this.spinTabPressureMinBlueJitter = new NumericUpDown();
-            this.lblTabPressureBlueJitter = new Label();
-            this.spinTabPressureMaxBlueJitter = new NumericUpDown();
-            this.cmbxTabPressureBlueJitter = new CmbxTabletValueType();
-            this.panelTabPressureHueJitter = new FlowLayoutPanel();
-            this.panel16 = new Panel();
-            this.spinTabPressureMinHueJitter = new NumericUpDown();
-            this.lblTabPressureHueJitter = new Label();
-            this.spinTabPressureMaxHueJitter = new NumericUpDown();
-            this.cmbxTabPressureHueJitter = new CmbxTabletValueType();
-            this.panelTabPressureSatJitter = new FlowLayoutPanel();
-            this.panel17 = new Panel();
-            this.spinTabPressureMinSatJitter = new NumericUpDown();
-            this.lblTabPressureSatJitter = new Label();
-            this.spinTabPressureMaxSatJitter = new NumericUpDown();
-            this.cmbxTabPressureSatJitter = new CmbxTabletValueType();
-            this.panelTabPressureValueJitter = new FlowLayoutPanel();
-            this.panel18 = new Panel();
-            this.spinTabPressureMinValueJitter = new NumericUpDown();
-            this.lblTabPressureValueJitter = new Label();
-            this.spinTabPressureMaxValueJitter = new NumericUpDown();
-            this.cmbxTabPressureValueJitter = new CmbxTabletValueType();
-            this.bttnSettings = new Accordion();
-            this.panelSettings = new FlowLayoutPanel();
-            this.bttnUpdateCurrentBrush = new Button();
-            this.bttnClearSettings = new Button();
-            this.bttnDeleteBrush = new Button();
-            this.bttnSaveBrush = new Button();
-            this.chkbxAutomaticBrushDensity = new CheckBox();
-            this.topMenu.SuspendLayout();
-            this.displayCanvas.SuspendLayout();
-            ((ISupportInitialize)(this.displayCanvas)).BeginInit();
-            this.panelUndoRedoOkCancel.SuspendLayout();
-            this.panelAllSettingsContainer.SuspendLayout();
-            this.panelDockSettingsContainer.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
-            this.panelSettingsContainer.SuspendLayout();
-            this.panelBrush.SuspendLayout();
-            ((ISupportInitialize)(this.sliderCanvasAngle)).BeginInit();
-            this.panelBrushAddPickColor.SuspendLayout();
-            ((ISupportInitialize)(this.sliderColorInfluence)).BeginInit();
-            this.panelColorInfluenceHSV.SuspendLayout();
-            ((ISupportInitialize)(this.sliderBrushOpacity)).BeginInit();
-            ((ISupportInitialize)(this.sliderBrushFlow)).BeginInit();
-            ((ISupportInitialize)(this.sliderBrushRotation)).BeginInit();
-            ((ISupportInitialize)(this.sliderBrushSize)).BeginInit();
-            this.panelSpecialSettings.SuspendLayout();
-            this.panelChosenEffect.SuspendLayout();
-            this.panelRGBLocks.SuspendLayout();
-            this.panelHSVLocks.SuspendLayout();
-            ((ISupportInitialize)(this.sliderMinDrawDistance)).BeginInit();
-            ((ISupportInitialize)(this.sliderBrushDensity)).BeginInit();
-            this.panelJitterBasics.SuspendLayout();
-            ((ISupportInitialize)(this.sliderRandMinSize)).BeginInit();
-            ((ISupportInitialize)(this.sliderRandMaxSize)).BeginInit();
-            ((ISupportInitialize)(this.sliderRandRotLeft)).BeginInit();
-            ((ISupportInitialize)(this.sliderRandRotRight)).BeginInit();
-            ((ISupportInitialize)(this.sliderRandFlowLoss)).BeginInit();
-            ((ISupportInitialize)(this.sliderRandHorzShift)).BeginInit();
-            ((ISupportInitialize)(this.sliderRandVertShift)).BeginInit();
-            this.panelJitterColor.SuspendLayout();
-            ((ISupportInitialize)(this.sliderJitterMinRed)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMaxRed)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMinGreen)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMaxGreen)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMinBlue)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMaxBlue)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMinHue)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMaxHue)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMinSat)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMaxSat)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMinVal)).BeginInit();
-            ((ISupportInitialize)(this.sliderJitterMaxVal)).BeginInit();
-            this.panelShiftBasics.SuspendLayout();
-            ((ISupportInitialize)(this.sliderShiftSize)).BeginInit();
-            ((ISupportInitialize)(this.sliderShiftRotation)).BeginInit();
-            ((ISupportInitialize)(this.sliderShiftFlow)).BeginInit();
-            this.panelTabletAssignPressure.SuspendLayout();
-            this.panelTabPressureBrushOpacity.SuspendLayout();
-            this.panel19.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushOpacity)).BeginInit();
-            this.panelTabPressureBrushFlow.SuspendLayout();
-            this.panel3.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushFlow)).BeginInit();
-            this.panelTabPressureBrushSize.SuspendLayout();
-            this.panel8.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushSize)).BeginInit();
-            this.panelTabPressureBrushRotation.SuspendLayout();
-            this.panel2.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushRotation)).BeginInit();
-            this.panelTabPressureMinDrawDistance.SuspendLayout();
-            this.panel1.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinDrawDistance)).BeginInit();
-            this.panelTabPressureBrushDensity.SuspendLayout();
-            this.panel4.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushDensity)).BeginInit();
-            this.panelTabPressureRandMinSize.SuspendLayout();
-            this.panel5.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandMinSize)).BeginInit();
-            this.panelTabPressureRandMaxSize.SuspendLayout();
-            this.panel6.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandMaxSize)).BeginInit();
-            this.panelTabPressureRandRotLeft.SuspendLayout();
-            this.panel7.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandRotLeft)).BeginInit();
-            this.panelTabPressureRandRotRight.SuspendLayout();
-            this.panel9.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandRotRight)).BeginInit();
-            this.panelTabPressureRandFlowLoss.SuspendLayout();
-            this.panel10.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandFlowLoss)).BeginInit();
-            this.panelTabPressureRandHorShift.SuspendLayout();
-            this.panel12.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandHorShift)).BeginInit();
-            this.panelTabPressureRandVerShift.SuspendLayout();
-            this.panel11.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandVerShift)).BeginInit();
-            this.panelTabPressureRedJitter.SuspendLayout();
-            this.panel13.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinRedJitter)).BeginInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxRedJitter)).BeginInit();
-            this.panelTabPressureGreenJitter.SuspendLayout();
-            this.panel14.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinGreenJitter)).BeginInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxGreenJitter)).BeginInit();
-            this.panelTabPressureBlueJitter.SuspendLayout();
-            this.panel15.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinBlueJitter)).BeginInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxBlueJitter)).BeginInit();
-            this.panelTabPressureHueJitter.SuspendLayout();
-            this.panel16.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinHueJitter)).BeginInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxHueJitter)).BeginInit();
-            this.panelTabPressureSatJitter.SuspendLayout();
-            this.panel17.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinSatJitter)).BeginInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxSatJitter)).BeginInit();
-            this.panelTabPressureValueJitter.SuspendLayout();
-            this.panel18.SuspendLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinValueJitter)).BeginInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxValueJitter)).BeginInit();
-            this.panelSettings.SuspendLayout();
-            this.SuspendLayout();
+            timerRepositionUpdate = new Timer(components);
+            timerClipboardDataCheck = new Timer(components);
+            txtTooltip = new Label();
+            displayCanvas = new PictureBox();
+            topMenu = new FlowLayoutPanel();
+            bttnToolBrush = new Button();
+            dummyImageList = new ImageList(components);
+            panelUndoRedoOkCancel = new FlowLayoutPanel();
+            bttnUndo = new Button();
+            bttnRedo = new Button();
+            bttnOk = new Button();
+            bttnCancel = new Button();
+            brushImageLoadingWorker = new BackgroundWorker();
+            bttnColorPicker = new Button();
+            panelAllSettingsContainer = new Panel();
+            panelDockSettingsContainer = new Panel();
+            BttnToolEraser = new Button();
+            bttnToolOrigin = new Button();
+            panelSettingsContainer = new FlowLayoutPanel();
+            bttnBrushControls = new Accordion();
+            panelBrush = new FlowLayoutPanel();
+            listviewBrushPicker = new ListView();
+            listviewBrushImagePicker = new DoubleBufferedListView();
+            panelBrushAddPickColor = new Panel();
+            chkbxColorizeBrush = new CheckBox();
+            txtColorInfluence = new Label();
+            sliderColorInfluence = new TrackBar();
+            panelColorInfluenceHSV = new FlowLayoutPanel();
+            chkbxColorInfluenceHue = new CheckBox();
+            chkbxColorInfluenceSat = new CheckBox();
+            chkbxColorInfluenceVal = new CheckBox();
+            bttnAddBrushImages = new Button();
+            brushImageLoadProgressBar = new ProgressBar();
+            bttnBrushColor = new Button();
+            cmbxBlendMode = new ComboBox();
+            txtBrushOpacity = new Label();
+            sliderBrushOpacity = new TrackBar();
+            txtBrushFlow = new Label();
+            sliderBrushFlow = new TrackBar();
+            txtBrushRotation = new Label();
+            sliderBrushRotation = new TrackBar();
+            txtBrushSize = new Label();
+            sliderBrushSize = new TrackBar();
+            bttnSpecialSettings = new Accordion();
+            panelSpecialSettings = new FlowLayoutPanel();
+            panelChosenEffect = new Panel();
+            cmbxChosenEffect = new ComboBox();
+            bttnChooseEffectSettings = new Button();
+            txtMinDrawDistance = new Label();
+            sliderMinDrawDistance = new TrackBar();
+            txtBrushDensity = new Label();
+            sliderBrushDensity = new TrackBar();
+            cmbxSymmetry = new ComboBox();
+            cmbxBrushSmoothing = new ComboBox();
+            chkbxSeamlessDrawing = new CheckBox();
+            chkbxOrientToMouse = new CheckBox();
+            chkbxDitherDraw = new CheckBox();
+            chkbxLockAlpha = new CheckBox();
+            panelRGBLocks = new Panel();
+            chkbxLockR = new CheckBox();
+            chkbxLockG = new CheckBox();
+            chkbxLockB = new CheckBox();
+            panelHSVLocks = new Panel();
+            chkbxLockHue = new CheckBox();
+            chkbxLockSat = new CheckBox();
+            chkbxLockVal = new CheckBox();
+            bttnJitterBasicsControls = new Accordion();
+            panelJitterBasics = new FlowLayoutPanel();
+            txtRandMinSize = new Label();
+            sliderRandMinSize = new TrackBar();
+            txtRandMaxSize = new Label();
+            sliderRandMaxSize = new TrackBar();
+            txtRandRotLeft = new Label();
+            sliderRandRotLeft = new TrackBar();
+            txtRandRotRight = new Label();
+            sliderRandRotRight = new TrackBar();
+            txtRandFlowLoss = new Label();
+            sliderRandFlowLoss = new TrackBar();
+            txtRandHorzShift = new Label();
+            sliderRandHorzShift = new TrackBar();
+            txtRandVertShift = new Label();
+            sliderRandVertShift = new TrackBar();
+            bttnJitterColorControls = new Accordion();
+            panelJitterColor = new FlowLayoutPanel();
+            txtJitterRed = new Label();
+            sliderJitterMinRed = new TrackBar();
+            sliderJitterMaxRed = new TrackBar();
+            txtJitterGreen = new Label();
+            sliderJitterMinGreen = new TrackBar();
+            sliderJitterMaxGreen = new TrackBar();
+            txtJitterBlue = new Label();
+            sliderJitterMinBlue = new TrackBar();
+            sliderJitterMaxBlue = new TrackBar();
+            txtJitterHue = new Label();
+            sliderJitterMinHue = new TrackBar();
+            sliderJitterMaxHue = new TrackBar();
+            txtJitterSaturation = new Label();
+            sliderJitterMinSat = new TrackBar();
+            sliderJitterMaxSat = new TrackBar();
+            txtJitterValue = new Label();
+            sliderJitterMinVal = new TrackBar();
+            sliderJitterMaxVal = new TrackBar();
+            bttnShiftBasicsControls = new Accordion();
+            panelShiftBasics = new FlowLayoutPanel();
+            txtShiftSize = new Label();
+            sliderShiftSize = new TrackBar();
+            txtShiftRotation = new Label();
+            sliderShiftRotation = new TrackBar();
+            txtShiftFlow = new Label();
+            sliderShiftFlow = new TrackBar();
+            bttnTabAssignPressureControls = new Accordion();
+            panelTabletAssignPressure = new FlowLayoutPanel();
+            panelTabPressureBrushOpacity = new FlowLayoutPanel();
+            panel19 = new Panel();
+            txtTabPressureBrushOpacity = new Label();
+            spinTabPressureBrushOpacity = new NumericUpDown();
+            cmbxTabPressureBrushOpacity = new CmbxTabletValueType();
+            panelTabPressureBrushFlow = new FlowLayoutPanel();
+            panel3 = new Panel();
+            txtTabPressureBrushFlow = new Label();
+            spinTabPressureBrushFlow = new NumericUpDown();
+            cmbxTabPressureBrushFlow = new CmbxTabletValueType();
+            panelTabPressureBrushSize = new FlowLayoutPanel();
+            panel8 = new Panel();
+            txtTabPressureBrushSize = new Label();
+            spinTabPressureBrushSize = new NumericUpDown();
+            cmbxTabPressureBrushSize = new CmbxTabletValueType();
+            panelTabPressureBrushRotation = new FlowLayoutPanel();
+            panel2 = new Panel();
+            txtTabPressureBrushRotation = new Label();
+            spinTabPressureBrushRotation = new NumericUpDown();
+            cmbxTabPressureBrushRotation = new CmbxTabletValueType();
+            panelTabPressureMinDrawDistance = new FlowLayoutPanel();
+            panel1 = new Panel();
+            lblTabPressureMinDrawDistance = new Label();
+            spinTabPressureMinDrawDistance = new NumericUpDown();
+            cmbxTabPressureMinDrawDistance = new CmbxTabletValueType();
+            panelTabPressureBrushDensity = new FlowLayoutPanel();
+            panel4 = new Panel();
+            lblTabPressureBrushDensity = new Label();
+            spinTabPressureBrushDensity = new NumericUpDown();
+            cmbxTabPressureBrushDensity = new CmbxTabletValueType();
+            panelTabPressureRandMinSize = new FlowLayoutPanel();
+            panel5 = new Panel();
+            lblTabPressureRandMinSize = new Label();
+            spinTabPressureRandMinSize = new NumericUpDown();
+            cmbxTabPressureRandMinSize = new CmbxTabletValueType();
+            panelTabPressureRandMaxSize = new FlowLayoutPanel();
+            panel6 = new Panel();
+            lblTabPressureRandMaxSize = new Label();
+            spinTabPressureRandMaxSize = new NumericUpDown();
+            cmbxTabPressureRandMaxSize = new CmbxTabletValueType();
+            panelTabPressureRandRotLeft = new FlowLayoutPanel();
+            panel7 = new Panel();
+            lblTabPressureRandRotLeft = new Label();
+            spinTabPressureRandRotLeft = new NumericUpDown();
+            cmbxTabPressureRandRotLeft = new CmbxTabletValueType();
+            panelTabPressureRandRotRight = new FlowLayoutPanel();
+            panel9 = new Panel();
+            lblTabPressureRandRotRight = new Label();
+            spinTabPressureRandRotRight = new NumericUpDown();
+            cmbxTabPressureRandRotRight = new CmbxTabletValueType();
+            panelTabPressureRandFlowLoss = new FlowLayoutPanel();
+            panel10 = new Panel();
+            lblTabPressureRandFlowLoss = new Label();
+            spinTabPressureRandFlowLoss = new NumericUpDown();
+            cmbxTabPressureRandFlowLoss = new CmbxTabletValueType();
+            panelTabPressureRandHorShift = new FlowLayoutPanel();
+            panel12 = new Panel();
+            lblTabPressureRandHorShift = new Label();
+            spinTabPressureRandHorShift = new NumericUpDown();
+            cmbxTabPressureRandHorShift = new CmbxTabletValueType();
+            panelTabPressureRandVerShift = new FlowLayoutPanel();
+            panel11 = new Panel();
+            lblTabPressureRandVerShift = new Label();
+            spinTabPressureRandVerShift = new NumericUpDown();
+            cmbxTabPressureRandVerShift = new CmbxTabletValueType();
+            panelTabPressureRedJitter = new FlowLayoutPanel();
+            panel13 = new Panel();
+            spinTabPressureMinRedJitter = new NumericUpDown();
+            lblTabPressureRedJitter = new Label();
+            spinTabPressureMaxRedJitter = new NumericUpDown();
+            cmbxTabPressureRedJitter = new CmbxTabletValueType();
+            panelTabPressureGreenJitter = new FlowLayoutPanel();
+            panel14 = new Panel();
+            spinTabPressureMinGreenJitter = new NumericUpDown();
+            lblTabPressureGreenJitter = new Label();
+            spinTabPressureMaxGreenJitter = new NumericUpDown();
+            cmbxTabPressureGreenJitter = new CmbxTabletValueType();
+            panelTabPressureBlueJitter = new FlowLayoutPanel();
+            panel15 = new Panel();
+            spinTabPressureMinBlueJitter = new NumericUpDown();
+            lblTabPressureBlueJitter = new Label();
+            spinTabPressureMaxBlueJitter = new NumericUpDown();
+            cmbxTabPressureBlueJitter = new CmbxTabletValueType();
+            panelTabPressureHueJitter = new FlowLayoutPanel();
+            panel16 = new Panel();
+            spinTabPressureMinHueJitter = new NumericUpDown();
+            lblTabPressureHueJitter = new Label();
+            spinTabPressureMaxHueJitter = new NumericUpDown();
+            cmbxTabPressureHueJitter = new CmbxTabletValueType();
+            panelTabPressureSatJitter = new FlowLayoutPanel();
+            panel17 = new Panel();
+            spinTabPressureMinSatJitter = new NumericUpDown();
+            lblTabPressureSatJitter = new Label();
+            spinTabPressureMaxSatJitter = new NumericUpDown();
+            cmbxTabPressureSatJitter = new CmbxTabletValueType();
+            panelTabPressureValueJitter = new FlowLayoutPanel();
+            panel18 = new Panel();
+            spinTabPressureMinValueJitter = new NumericUpDown();
+            lblTabPressureValueJitter = new Label();
+            spinTabPressureMaxValueJitter = new NumericUpDown();
+            cmbxTabPressureValueJitter = new CmbxTabletValueType();
+            bttnSettings = new Accordion();
+            panelSettings = new FlowLayoutPanel();
+            bttnUpdateCurrentBrush = new Button();
+            bttnClearSettings = new Button();
+            bttnDeleteBrush = new Button();
+            bttnSaveBrush = new Button();
+            chkbxAutomaticBrushDensity = new CheckBox();
+            topMenu.SuspendLayout();
+            displayCanvas.SuspendLayout();
+            ((ISupportInitialize)(displayCanvas)).BeginInit();
+            panelUndoRedoOkCancel.SuspendLayout();
+            panelAllSettingsContainer.SuspendLayout();
+            panelDockSettingsContainer.SuspendLayout();
+            panelSettingsContainer.SuspendLayout();
+            panelBrush.SuspendLayout();
+            panelBrushAddPickColor.SuspendLayout();
+            ((ISupportInitialize)(sliderColorInfluence)).BeginInit();
+            panelColorInfluenceHSV.SuspendLayout();
+            ((ISupportInitialize)(sliderBrushOpacity)).BeginInit();
+            ((ISupportInitialize)(sliderBrushFlow)).BeginInit();
+            ((ISupportInitialize)(sliderBrushRotation)).BeginInit();
+            ((ISupportInitialize)(sliderBrushSize)).BeginInit();
+            panelSpecialSettings.SuspendLayout();
+            panelChosenEffect.SuspendLayout();
+            panelRGBLocks.SuspendLayout();
+            panelHSVLocks.SuspendLayout();
+            ((ISupportInitialize)(sliderMinDrawDistance)).BeginInit();
+            ((ISupportInitialize)(sliderBrushDensity)).BeginInit();
+            panelJitterBasics.SuspendLayout();
+            ((ISupportInitialize)(sliderRandMinSize)).BeginInit();
+            ((ISupportInitialize)(sliderRandMaxSize)).BeginInit();
+            ((ISupportInitialize)(sliderRandRotLeft)).BeginInit();
+            ((ISupportInitialize)(sliderRandRotRight)).BeginInit();
+            ((ISupportInitialize)(sliderRandFlowLoss)).BeginInit();
+            ((ISupportInitialize)(sliderRandHorzShift)).BeginInit();
+            ((ISupportInitialize)(sliderRandVertShift)).BeginInit();
+            panelJitterColor.SuspendLayout();
+            ((ISupportInitialize)(sliderJitterMinRed)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMaxRed)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMinGreen)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMaxGreen)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMinBlue)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMaxBlue)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMinHue)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMaxHue)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMinSat)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMaxSat)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMinVal)).BeginInit();
+            ((ISupportInitialize)(sliderJitterMaxVal)).BeginInit();
+            panelShiftBasics.SuspendLayout();
+            ((ISupportInitialize)(sliderShiftSize)).BeginInit();
+            ((ISupportInitialize)(sliderShiftRotation)).BeginInit();
+            ((ISupportInitialize)(sliderShiftFlow)).BeginInit();
+            panelTabletAssignPressure.SuspendLayout();
+            panelTabPressureBrushOpacity.SuspendLayout();
+            panel19.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureBrushOpacity)).BeginInit();
+            panelTabPressureBrushFlow.SuspendLayout();
+            panel3.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureBrushFlow)).BeginInit();
+            panelTabPressureBrushSize.SuspendLayout();
+            panel8.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureBrushSize)).BeginInit();
+            panelTabPressureBrushRotation.SuspendLayout();
+            panel2.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureBrushRotation)).BeginInit();
+            panelTabPressureMinDrawDistance.SuspendLayout();
+            panel1.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureMinDrawDistance)).BeginInit();
+            panelTabPressureBrushDensity.SuspendLayout();
+            panel4.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureBrushDensity)).BeginInit();
+            panelTabPressureRandMinSize.SuspendLayout();
+            panel5.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureRandMinSize)).BeginInit();
+            panelTabPressureRandMaxSize.SuspendLayout();
+            panel6.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureRandMaxSize)).BeginInit();
+            panelTabPressureRandRotLeft.SuspendLayout();
+            panel7.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureRandRotLeft)).BeginInit();
+            panelTabPressureRandRotRight.SuspendLayout();
+            panel9.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureRandRotRight)).BeginInit();
+            panelTabPressureRandFlowLoss.SuspendLayout();
+            panel10.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureRandFlowLoss)).BeginInit();
+            panelTabPressureRandHorShift.SuspendLayout();
+            panel12.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureRandHorShift)).BeginInit();
+            panelTabPressureRandVerShift.SuspendLayout();
+            panel11.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureRandVerShift)).BeginInit();
+            panelTabPressureRedJitter.SuspendLayout();
+            panel13.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureMinRedJitter)).BeginInit();
+            ((ISupportInitialize)(spinTabPressureMaxRedJitter)).BeginInit();
+            panelTabPressureGreenJitter.SuspendLayout();
+            panel14.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureMinGreenJitter)).BeginInit();
+            ((ISupportInitialize)(spinTabPressureMaxGreenJitter)).BeginInit();
+            panelTabPressureBlueJitter.SuspendLayout();
+            panel15.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureMinBlueJitter)).BeginInit();
+            ((ISupportInitialize)(spinTabPressureMaxBlueJitter)).BeginInit();
+            panelTabPressureHueJitter.SuspendLayout();
+            panel16.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureMinHueJitter)).BeginInit();
+            ((ISupportInitialize)(spinTabPressureMaxHueJitter)).BeginInit();
+            panelTabPressureSatJitter.SuspendLayout();
+            panel17.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureMinSatJitter)).BeginInit();
+            ((ISupportInitialize)(spinTabPressureMaxSatJitter)).BeginInit();
+            panelTabPressureValueJitter.SuspendLayout();
+            panel18.SuspendLayout();
+            ((ISupportInitialize)(spinTabPressureMinValueJitter)).BeginInit();
+            ((ISupportInitialize)(spinTabPressureMaxValueJitter)).BeginInit();
+            panelSettings.SuspendLayout();
+            SuspendLayout();
             // 
             // timerRepositionUpdate
             // 
-            this.timerRepositionUpdate.Interval = 5;
-            this.timerRepositionUpdate.Tick += new EventHandler(this.RepositionUpdate_Tick);
+            timerRepositionUpdate.Interval = 5;
+            timerRepositionUpdate.Tick += new EventHandler(RepositionUpdate_Tick);
             // 
             // timerClipboardDataCheck
             // 
-            this.timerClipboardDataCheck.Interval = 1000;
-            this.timerClipboardDataCheck.Tick += new EventHandler(this.ClipboardDataCheck_Tick);
-            this.timerClipboardDataCheck.Enabled = true;
+            timerClipboardDataCheck.Interval = 1000;
+            timerClipboardDataCheck.Tick += new EventHandler(ClipboardDataCheck_Tick);
+            timerClipboardDataCheck.Enabled = true;
             // 
             // txtTooltip
             // 
-            resources.ApplyResources(this.txtTooltip, "txtTooltip");
-            this.txtTooltip.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.txtTooltip.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.txtTooltip.Name = "txtTooltip";
+            txtTooltip.BackColor = SystemColors.ControlDarkDark;
+            txtTooltip.ForeColor = SystemColors.HighlightText;
+            txtTooltip.Name = "txtTooltip";
+            txtTooltip.AutoSize = true;
+            txtTooltip.Dock = DockStyle.Top;
+            txtTooltip.Font = new Font("Microsoft Sans Serif", 10);
+            txtTooltip.Size = new Size(76, 17);
+            txtTooltip.TabIndex = 0;
             // 
             // displayCanvas
             // 
-            this.displayCanvas.BackColor = System.Drawing.Color.FromArgb(207, 207, 207);
-            resources.ApplyResources(this.displayCanvas, "displayCanvas");
-            this.displayCanvas.Controls.Add(this.txtTooltip);
-            this.displayCanvas.Name = "displayCanvas";
-            this.displayCanvas.TabStop = false;
-            this.displayCanvas.Paint += new PaintEventHandler(this.DisplayCanvas_Paint);
-            this.displayCanvas.MouseDown += new MouseEventHandler(this.DisplayCanvas_MouseDown);
-            this.displayCanvas.MouseEnter += new EventHandler(this.DisplayCanvas_MouseEnter);
-            this.displayCanvas.MouseMove += new MouseEventHandler(this.DisplayCanvas_MouseMove);
-            this.displayCanvas.MouseUp += new MouseEventHandler(this.DisplayCanvas_MouseUp);
+            displayCanvas.BackColor = Color.FromArgb(207, 207, 207);
+            displayCanvas.Controls.Add(txtTooltip);
+            displayCanvas.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            displayCanvas.Name = "displayCanvas";
+            displayCanvas.Location = new Point(0, 29);
+            displayCanvas.Margin = Padding.Empty;
+            displayCanvas.Size = new Size(656, 512);
+            displayCanvas.TabStop = false;
+            displayCanvas.Paint += new PaintEventHandler(DisplayCanvas_Paint);
+            displayCanvas.MouseDown += new MouseEventHandler(DisplayCanvas_MouseDown);
+            displayCanvas.MouseEnter += new EventHandler(DisplayCanvas_MouseEnter);
+            displayCanvas.MouseMove += new MouseEventHandler(DisplayCanvas_MouseMove);
+            displayCanvas.MouseUp += new MouseEventHandler(DisplayCanvas_MouseUp);
             // 
             // topMenu
             // 
-            this.topMenu.Name = "topMenu";
-            this.topMenu.FlowDirection = FlowDirection.LeftToRight;
-            this.topMenu.Width = displayCanvas.Width;
-            this.topMenu.Height = 32;
-            this.topMenu.Margin = Padding.Empty;
+            topMenu.Name = "topMenu";
+            topMenu.FlowDirection = FlowDirection.LeftToRight;
+            topMenu.Width = displayCanvas.Width;
+            topMenu.Height = 32;
+            topMenu.Margin = Padding.Empty;
 
             // The options button
             menuOptions = new Button
             {
-                Text = "Options",
+                Text = Strings.MenuOptions,
                 Height = 32,
                 Margin = Padding.Empty,
                 Padding = Padding.Empty
@@ -3755,7 +3749,7 @@ namespace DynamicDraw
             ContextMenuStrip preferencesContextMenu = new ContextMenuStrip();
 
             // Options -> custom brush images...
-            menuBrushImageDirectories = new ToolStripMenuItem("custom brush images...");
+            menuBrushImageDirectories = new ToolStripMenuItem(Strings.MenuCustomBrushImages);
             menuBrushImageDirectories.Click += (a, b) =>
             {
                 if (settings != null)
@@ -3774,7 +3768,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(menuBrushImageDirectories);
 
             // Options -> keyboard shortcuts...
-            menuKeyboardShortcutsDialog = new ToolStripMenuItem("keyboard shortcuts...");
+            menuKeyboardShortcutsDialog = new ToolStripMenuItem(Strings.MenuKeyboardShortcuts);
             menuKeyboardShortcutsDialog.Click += (a, b) =>
             {
                 var shortcutsDialog = new EditKeyboardShortcuts(KeyboardShortcuts);
@@ -3789,7 +3783,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(new ToolStripSeparator());
 
             // Options -> reset canvas
-            this.menuResetCanvas = new ToolStripMenuItem("re-center the canvas", null, (a, b) =>
+            menuResetCanvas = new ToolStripMenuItem(Strings.MenuRecenterTheCanvas, null, (a, b) =>
             {
                 HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.ResetCanvasTransforms });
             });
@@ -3797,10 +3791,10 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(menuResetCanvas);
 
             // Options -> set canvas background
-            menuSetCanvasBackground = new ToolStripMenuItem("set canvas background");
+            menuSetCanvasBackground = new ToolStripMenuItem(Strings.MenuSetCanvasBackground);
 
-            menuSetCanvasBgImageFit = new ToolStripMenuItem("stretch to fit");
-            menuSetCanvasBgImageOnlyIfFits = new ToolStripMenuItem("use only if same size");
+            menuSetCanvasBgImageFit = new ToolStripMenuItem(Strings.MenuCanvasBgStretchToFit);
+            menuSetCanvasBgImageOnlyIfFits = new ToolStripMenuItem(Strings.MenuCanvasBgUseOnlyIfSameSize);
             menuSetCanvasBgImage = new ToolStripMenuItem(Strings.BackgroundImage);
             menuSetCanvasBgImage.DropDown.Items.Add(menuSetCanvasBgImageFit);
             menuSetCanvasBgImage.DropDown.Items.Add(menuSetCanvasBgImageOnlyIfFits);
@@ -3856,10 +3850,10 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(menuSetCanvasBackground);
 
             // Options -> display settings -> brush indicator
-            menuDisplaySettings = new ToolStripMenuItem("display settings");
-            menuBrushIndicator = new ToolStripMenuItem("brush indicator");
-            menuBrushIndicatorSquare = new ToolStripMenuItem("square");
-            menuBrushIndicatorPreview = new ToolStripMenuItem("brush preview");
+            menuDisplaySettings = new ToolStripMenuItem(Strings.MenuDisplaySettings);
+            menuBrushIndicator = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicator);
+            menuBrushIndicatorSquare = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicatorSquare);
+            menuBrushIndicatorPreview = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicatorPreview);
 
             menuBrushIndicatorSquare.Click += (a, b) =>
             {
@@ -3879,7 +3873,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(menuDisplaySettings);
 
             // Options -> display settings -> show symmetry lines when in use
-            menuShowSymmetryLinesInUse = new ToolStripMenuItem("show symmetry lines when in use");
+            menuShowSymmetryLinesInUse = new ToolStripMenuItem(Strings.MenuDisplayShowSymmetryLines);
             menuShowSymmetryLinesInUse.Click += (a, b) =>
             {
                 UserSettings.ShowSymmetryLinesWhenUsingSymmetry = !UserSettings.ShowSymmetryLinesWhenUsingSymmetry;
@@ -3888,7 +3882,7 @@ namespace DynamicDraw
             menuDisplaySettings.DropDown.Items.Add(menuShowSymmetryLinesInUse);
 
             // Options -> display settings -> show the circle for minimum distance when in use
-            menuShowMinDistanceInUse = new ToolStripMenuItem("show the circle for minimum distance when in use");
+            menuShowMinDistanceInUse = new ToolStripMenuItem(Strings.MenuDisplayShowMinDistCircle);
                         menuShowMinDistanceInUse.Click += (a, b) =>
             {
                 UserSettings.ShowCircleRadiusWhenUsingMinDistance = !UserSettings.ShowCircleRadiusWhenUsingMinDistance;
@@ -3900,7 +3894,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(new ToolStripSeparator());
 
             // Options -> color picker includes alpha
-            menuColorPickerIncludesAlpha = new ToolStripMenuItem("color picker copies transparency");
+            menuColorPickerIncludesAlpha = new ToolStripMenuItem(Strings.MenuColorPickerCopiesTransparency);
             menuColorPickerIncludesAlpha.Click += (a, b) =>
             {
                 UserSettings.ColorPickerIncludesAlpha = !UserSettings.ColorPickerIncludesAlpha;
@@ -3909,7 +3903,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(menuColorPickerIncludesAlpha);
 
             // Options -> color picker switches to last tool when used
-            menuColorPickerSwitchesToPrevTool = new ToolStripMenuItem("color picker switches to last tool when used");
+            menuColorPickerSwitchesToPrevTool = new ToolStripMenuItem(Strings.MenuColorPickerSwitches);
             menuColorPickerSwitchesToPrevTool.Click += (a, b) =>
             {
                 UserSettings.ColorPickerSwitchesToLastTool = !UserSettings.ColorPickerSwitchesToLastTool;
@@ -3918,7 +3912,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(menuColorPickerSwitchesToPrevTool);
 
             // Options -> remove brush image paths when not found
-            menuRemoveUnfoundImagePaths = new ToolStripMenuItem("remove brush image paths when not found");
+            menuRemoveUnfoundImagePaths = new ToolStripMenuItem(Strings.MenuRemoveUnfoundImagePaths);
             menuRemoveUnfoundImagePaths.Click += (a, b) =>
             {
                 UserSettings.RemoveBrushImagePathsWhenNotFound = !UserSettings.RemoveBrushImagePathsWhenNotFound;
@@ -3927,7 +3921,7 @@ namespace DynamicDraw
             preferencesContextMenu.Items.Add(menuRemoveUnfoundImagePaths);
 
             // Options -> don't ask to confirm when closing/saving
-            menuConfirmCloseSave = new ToolStripMenuItem("don't ask to confirm when closing/saving");
+            menuConfirmCloseSave = new ToolStripMenuItem(Strings.MenuDontConfirmCloseSave);
             menuConfirmCloseSave.Click += (a, b) =>
             {
                 UserSettings.DisableConfirmationOnCloseOrSave = !UserSettings.DisableConfirmationOnCloseOrSave;
@@ -3939,15 +3933,16 @@ namespace DynamicDraw
                 preferencesContextMenu.Show(menuOptions.PointToScreen(new Point(0, menuOptions.Height)));
             };
 
-            this.topMenu.Controls.Add(menuOptions);
+            topMenu.Controls.Add(menuOptions);
 
             // sets up the canvas zoom button
-            menuCanvasZoomBttn = new Button();
-            menuCanvasZoomBttn.Text = "🔍";
-            menuCanvasZoomBttn.Font = new Font(menuCanvasZoomBttn.Font.FontFamily, 12);
-            menuCanvasZoomBttn.Height = 32;
-            menuCanvasZoomBttn.Width = 32;
-            menuCanvasZoomBttn.Margin = Padding.Empty;
+            menuCanvasZoomBttn = new Button
+            {
+                Image = Resources.MenuZoom,
+                Height = 32,
+                Width = 32,
+                Margin = Padding.Empty
+            };
 
             ContextMenuStrip CanvasZoomButtonContextMenu = new ContextMenuStrip();
 
@@ -3955,8 +3950,10 @@ namespace DynamicDraw
                 CanvasZoomButtonContextMenu.Show(menuCanvasZoomBttn.PointToScreen(new Point(0, menuCanvasZoomBttn.Height)));
             };
 
+            menuCanvasAngleBttn = new Button();
+
             // canvas zoom -> reset zoom
-            menuCanvasZoomReset = new ToolStripMenuItem("reset zoom");
+            menuCanvasZoomReset = new ToolStripMenuItem(Strings.MenuZoomReset);
             menuCanvasZoomReset.Click += (a, b) =>
             {
                 HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasZoom, ActionData = "100|set" });
@@ -3964,7 +3961,7 @@ namespace DynamicDraw
             CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomReset);
 
             // canvas zoom -> fit to window
-            menuCanvasZoomFit = new ToolStripMenuItem("fit to window");
+            menuCanvasZoomFit = new ToolStripMenuItem(Strings.MenuZoomFit);
             menuCanvasZoomFit.Click += (a, b) =>
             {
                 HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasZoomFit });
@@ -3972,12 +3969,12 @@ namespace DynamicDraw
             CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomFit);
 
             // canvas zoom -> zoom to...
-            menuCanvasZoomTo = new ToolStripMenuItem("zoom to...");
+            menuCanvasZoomTo = new ToolStripMenuItem(Strings.MenuZoomTo);
             menuCanvasZoomTo.Click += (a, b) =>
             {
                 TextboxDialog dlg = new TextboxDialog(
                     Strings.ShortcutCanvasZoom,
-                    "Zoom to:",
+                    null,
                     Strings.Ok, (txt) =>
                     {
                         if (!int.TryParse(txt, out int value))
@@ -3987,11 +3984,9 @@ namespace DynamicDraw
 
                         if (!Setting.AllSettings[ShortcutTarget.CanvasZoom].ValidateNumberValue(value))
                         {
-                            return "Number has to lie in range "
-                                + Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item1
-                                + " to "
-                                + Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item2
-                                + ".";
+                            return string.Format(Strings.TextboxDialogRangeInvalid,
+                                Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item1,
+                                Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item2);
                         }
 
                         return "";
@@ -4007,2195 +4002,3256 @@ namespace DynamicDraw
             };
             CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomTo);
 
-            this.topMenu.Controls.Add(menuCanvasZoomBttn);
+            topMenu.Controls.Add(menuCanvasZoomBttn);
 
             // canvas zoom slider
-            this.sliderCanvasZoom = new Slider(
+            sliderCanvasZoom = new Slider(
                 new float[] { 1, 5, 10, 13, 17, 20, 25, 33, 50, 67, 100, 150, 200, 300, 400, 500, 600, 800, 1000, 1200, 1400, 1600, 2000, 2400, 2800, 3200, 4000, 4800, 5600, 6400 },
-                100);
-            this.sliderCanvasZoom.DiscreteStops = true;
-            this.sliderCanvasZoom.Width = 128;
-            this.sliderCanvasZoom.Height = 32;
-            this.sliderCanvasZoom.Margin = Padding.Empty;
-            this.sliderCanvasZoom.ValueChanged += SliderCanvasZoom_ValueChanged;
-            this.sliderCanvasZoom.ComputeText = (value) => { return $"{value}%"; };
-            this.sliderCanvasZoom.MouseEnter += new EventHandler(this.SliderCanvasZoom_MouseEnter);
+                100)
+            {
+                DiscreteStops = true,
+                Width = 128,
+                Height = 32,
+                Margin = Padding.Empty,
+                ComputeText = (value) => { return $"{value}%"; }
+            };
+            sliderCanvasZoom.MouseEnter += SliderCanvasZoom_MouseEnter;
+            sliderCanvasZoom.ValueChanged += SliderCanvasZoom_ValueChanged;
 
-            this.topMenu.Controls.Add(sliderCanvasZoom);
+            topMenu.Controls.Add(sliderCanvasZoom);
 
-            //ToolStripMenuItem menuCanvasAngleReset, menuCanvasAngle90, menuCanvasAngle180, menuCanvasAngle270, menuCanvasAngleTo;
+            // sets up the canvas angle button
+            menuCanvasAngleBttn = new Button
+            {
+                Image = Resources.MenuAngle,
+                Height = 32,
+                Width = 32,
+                Margin = Padding.Empty
+            };
+
+            ContextMenuStrip CanvasAngleButtonContextMenu = new ContextMenuStrip();
+
+            menuCanvasAngleBttn.Click += (a, b) => {
+                CanvasAngleButtonContextMenu.Show(menuCanvasAngleBttn.PointToScreen(new Point(0, menuCanvasAngleBttn.Height)));
+            };
+
+            // canvas angle -> reset angle
+            menuCanvasAngleReset = new ToolStripMenuItem(Strings.MenuRotateReset);
+            menuCanvasAngleReset.Click += (a, b) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "0|set" });
+            };
+            CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngleReset);
+
+            // canvas angle -> rotate to 90
+            menuCanvasAngle90 = new ToolStripMenuItem(Strings.MenuRotate90);
+            menuCanvasAngle90.Click += (a, b) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "90|set" });
+            };
+            CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngle90);
+
+            // canvas angle -> rotate to 180
+            menuCanvasAngle180 = new ToolStripMenuItem(Strings.MenuRotate180);
+            menuCanvasAngle180.Click += (a, b) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "180|set" });
+            };
+            CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngle180);
+
+            // canvas angle -> rotate to 270
+            menuCanvasAngle270 = new ToolStripMenuItem(Strings.MenuRotate270);
+            menuCanvasAngle270.Click += (a, b) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "270|set" });
+            };
+            CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngle270);
 
             UpdateTopMenuState();
+
+            // canvas angle -> rotate to...
+            menuCanvasAngleTo = new ToolStripMenuItem(Strings.MenuRotateTo);
+            menuCanvasAngleTo.Click += (a, b) =>
+            {
+                TextboxDialog dlg = new TextboxDialog(
+                    Strings.ShortcutCanvasAngle,
+                    null,
+                    Strings.Ok, (txt) =>
+                    {
+                        if (!int.TryParse(txt, out int value))
+                        {
+                            return " ";
+                        }
+
+                        return null;
+                    });
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    HandleShortcut(new KeyboardShortcut()
+                    {
+                        Target = ShortcutTarget.CanvasRotation,
+                        ActionData = int.Parse(dlg.GetSubmittedText()) + "|set"
+                    });
+                }
+            };
+            CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngleTo);
+
+            topMenu.Controls.Add(menuCanvasAngleBttn);
+
+            // canvas angle slider
+            sliderCanvasAngle = new Slider(-180f, 180f, 0)
+            {
+                IntegerOnly = true,
+                Width = 128,
+                Height = 32,
+                Margin = Padding.Empty,
+                ComputeText = (value) => { return $"{value}°"; }
+            };
+            sliderCanvasAngle.MouseEnter += SliderCanvasAngle_MouseEnter;
+            sliderCanvasAngle.ValueChanged += SliderCanvasAngle_ValueChanged;
+
+            topMenu.Controls.Add(sliderCanvasAngle);
+
+            panelTools = new FlowLayoutPanel();
+            panelTools.Controls.Add(bttnToolBrush);
+            panelTools.Controls.Add(BttnToolEraser);
+            panelTools.Controls.Add(bttnColorPicker);
+            panelTools.Controls.Add(bttnToolOrigin);
+            panelTools.Margin = Padding.Empty;
+            panelTools.Padding = Padding.Empty;
+            panelTools.Size = new Size(155, 38);
+            panelTools.TabIndex = 30;
+
+            topMenu.Controls.Add(panelTools);
 
             // 
             // bttnToolBrush
             // 
-            this.bttnToolBrush.BackColor = System.Drawing.SystemColors.ButtonShadow;
-            this.bttnToolBrush.Image = global::DynamicDraw.Properties.Resources.ToolBrush;
-            resources.ApplyResources(this.bttnToolBrush, "bttnToolBrush");
-            this.bttnToolBrush.Name = "bttnToolBrush";
-            this.bttnToolBrush.UseVisualStyleBackColor = false;
-            this.bttnToolBrush.Click += new EventHandler(this.BttnToolBrush_Click);
-            this.bttnToolBrush.MouseEnter += new EventHandler(this.BttnToolBrush_MouseEnter);
+            bttnToolBrush.BackColor = SystemColors.ButtonShadow;
+            bttnToolBrush.Image = Resources.ToolBrush;
+            bttnToolBrush.Name = "bttnToolBrush";
+            bttnToolBrush.UseVisualStyleBackColor = false;
+            bttnToolBrush.Click += new EventHandler(BttnToolBrush_Click);
+            bttnToolBrush.MouseEnter += new EventHandler(BttnToolBrush_MouseEnter);
+            bttnToolBrush.Location = new Point(8, 3);
+            bttnToolBrush.Margin = Padding.Empty;
+            bttnToolBrush.Size = new Size(32, 32);
+            bttnToolBrush.TabIndex = 1;
             // 
             // dummyImageList
             // 
-            this.dummyImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
-            resources.ApplyResources(this.dummyImageList, "dummyImageList");
-            this.dummyImageList.TransparentColor = System.Drawing.Color.Transparent;
+            dummyImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            dummyImageList.TransparentColor = Color.Transparent;
+            dummyImageList.ImageSize = new Size(24, 24);
             // 
             // panelUndoRedoOkCancel
             // 
-            resources.ApplyResources(this.panelUndoRedoOkCancel, "panelUndoRedoOkCancel");
-            this.panelUndoRedoOkCancel.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.panelUndoRedoOkCancel.Controls.Add(this.bttnUndo);
-            this.panelUndoRedoOkCancel.Controls.Add(this.bttnRedo);
-            this.panelUndoRedoOkCancel.Controls.Add(this.bttnOk);
-            this.panelUndoRedoOkCancel.Controls.Add(this.bttnCancel);
-            this.panelUndoRedoOkCancel.Name = "panelUndoRedoOkCancel";
+            panelUndoRedoOkCancel.BackColor = SystemColors.ControlDarkDark;
+            panelUndoRedoOkCancel.Controls.Add(bttnUndo);
+            panelUndoRedoOkCancel.Controls.Add(bttnRedo);
+            panelUndoRedoOkCancel.Controls.Add(bttnOk);
+            panelUndoRedoOkCancel.Controls.Add(bttnCancel);
+            panelUndoRedoOkCancel.Dock = DockStyle.Bottom;
+            panelUndoRedoOkCancel.Location = new Point(0, 484);
+            panelUndoRedoOkCancel.Margin = new Padding(0, 3, 0, 3);
+            panelUndoRedoOkCancel.Size = new Size(173, 57);
+            panelUndoRedoOkCancel.TabIndex = 145;
+            panelUndoRedoOkCancel.Name = "panelUndoRedoOkCancel";
             // 
             // bttnUndo
             // 
-            resources.ApplyResources(this.bttnUndo, "bttnUndo");
-            this.bttnUndo.Name = "bttnUndo";
-            this.bttnUndo.UseVisualStyleBackColor = true;
-            this.bttnUndo.Click += new EventHandler(this.BttnUndo_Click);
-            this.bttnUndo.MouseEnter += new EventHandler(this.BttnUndo_MouseEnter);
+            bttnUndo.Enabled = false;
+            bttnUndo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bttnUndo.Name = "bttnUndo";
+            bttnUndo.Margin = new Padding(3, 3, 13, 3);
+            bttnUndo.Size = new Size(77, 23);
+            bttnUndo.TabIndex = 141;
+            bttnUndo.UseVisualStyleBackColor = true;
+            bttnUndo.Click += new EventHandler(BttnUndo_Click);
+            bttnUndo.MouseEnter += new EventHandler(BttnUndo_MouseEnter);
             // 
             // bttnRedo
             // 
-            resources.ApplyResources(this.bttnRedo, "bttnRedo");
-            this.bttnRedo.Name = "bttnRedo";
-            this.bttnRedo.UseVisualStyleBackColor = true;
-            this.bttnRedo.Click += new EventHandler(this.BttnRedo_Click);
-            this.bttnRedo.MouseEnter += new EventHandler(this.BttnRedo_MouseEnter);
+            bttnRedo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bttnRedo.Enabled = false;
+            bttnRedo.Location = new Point(93, 3);
+            bttnRedo.Margin = new Padding(0, 3, 0, 3);
+            bttnRedo.Name = "bttnRedo";
+            bttnRedo.Size = new Size(77, 23);
+            bttnRedo.TabIndex = 142;
+            bttnRedo.UseVisualStyleBackColor = true;
+            bttnRedo.Click += new EventHandler(BttnRedo_Click);
+            bttnRedo.MouseEnter += new EventHandler(BttnRedo_MouseEnter);
             // 
             // bttnOk
             // 
-            this.bttnOk.BackColor = System.Drawing.Color.Honeydew;
-            resources.ApplyResources(this.bttnOk, "bttnOk");
-            this.bttnOk.Name = "bttnOk";
-            this.bttnOk.UseVisualStyleBackColor = false;
-            this.bttnOk.Click += new EventHandler(this.BttnOk_Click);
-            this.bttnOk.MouseEnter += new EventHandler(this.BttnOk_MouseEnter);
+            bttnOk.BackColor = Color.Honeydew;
+            bttnOk.Location = new Point(3, 32);
+            bttnOk.Margin = new Padding(3, 3, 13, 3);
+            bttnOk.Name = "bttnOk";
+            bttnOk.Size = new Size(77, 23);
+            bttnOk.TabIndex = 143;
+            bttnOk.UseVisualStyleBackColor = false;
+            bttnOk.Click += new EventHandler(BttnOk_Click);
+            bttnOk.MouseEnter += new EventHandler(BttnOk_MouseEnter);
             // 
             // bttnCancel
             // 
-            resources.ApplyResources(this.bttnCancel, "bttnCancel");
-            this.bttnCancel.BackColor = System.Drawing.Color.MistyRose;
-            this.bttnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bttnCancel.Name = "bttnCancel";
-            this.bttnCancel.UseVisualStyleBackColor = false;
-            this.bttnCancel.Click += new EventHandler(this.BttnCancel_Click);
-            this.bttnCancel.MouseEnter += new EventHandler(this.BttnCancel_MouseEnter);
+            bttnCancel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bttnCancel.BackColor = Color.MistyRose;
+            bttnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            bttnCancel.Location = new Point(93, 32);
+            bttnCancel.Margin = new Padding(0, 3, 0, 3);
+            bttnCancel.Name = "bttnCancel";
+            bttnCancel.Size = new Size(77, 23);
+            bttnCancel.TabIndex = 144;
+            bttnCancel.UseVisualStyleBackColor = false;
+            bttnCancel.Click += new EventHandler(BttnCancel_Click);
+            bttnCancel.MouseEnter += new EventHandler(BttnCancel_MouseEnter);
             // 
             // brushImageLoadingWorker
             // 
-            this.brushImageLoadingWorker.WorkerReportsProgress = true;
-            this.brushImageLoadingWorker.WorkerSupportsCancellation = true;
-            this.brushImageLoadingWorker.DoWork += new DoWorkEventHandler(this.BrushImageLoadingWorker_DoWork);
-            this.brushImageLoadingWorker.ProgressChanged += new ProgressChangedEventHandler(this.BrushImageLoadingWorker_ProgressChanged);
-            this.brushImageLoadingWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.BrushImageLoadingWorker_RunWorkerCompleted);
+            brushImageLoadingWorker.WorkerReportsProgress = true;
+            brushImageLoadingWorker.WorkerSupportsCancellation = true;
+            brushImageLoadingWorker.DoWork += new DoWorkEventHandler(BrushImageLoadingWorker_DoWork);
+            brushImageLoadingWorker.ProgressChanged += new ProgressChangedEventHandler(BrushImageLoadingWorker_ProgressChanged);
+            brushImageLoadingWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BrushImageLoadingWorker_RunWorkerCompleted);
             // 
             // bttnColorPicker
             // 
-            this.bttnColorPicker.Image = global::DynamicDraw.Properties.Resources.ColorPickerIcon;
-            resources.ApplyResources(this.bttnColorPicker, "bttnColorPicker");
-            this.bttnColorPicker.Name = "bttnColorPicker";
-            this.bttnColorPicker.UseVisualStyleBackColor = true;
-            this.bttnColorPicker.Click += new EventHandler(this.BttnToolColorPicker_Click);
-            this.bttnColorPicker.MouseEnter += new EventHandler(this.BttnToolColorPicker_MouseEnter);
+            bttnColorPicker.Image = Resources.ColorPickerIcon;
+            bttnColorPicker.Location = new Point(78, 3);
+            bttnColorPicker.Margin = Padding.Empty;
+            bttnColorPicker.Size = new Size(32, 32);
+            bttnColorPicker.TabIndex = 3;
+            bttnColorPicker.Name = "bttnColorPicker";
+            bttnColorPicker.UseVisualStyleBackColor = true;
+            bttnColorPicker.Click += new EventHandler(BttnToolColorPicker_Click);
+            bttnColorPicker.MouseEnter += new EventHandler(BttnToolColorPicker_MouseEnter);
             // 
             // panelAllSettingsContainer
             // 
-            this.panelAllSettingsContainer.BackColor = System.Drawing.Color.Transparent;
-            this.panelAllSettingsContainer.Controls.Add(this.panelDockSettingsContainer);
-            this.panelAllSettingsContainer.Controls.Add(this.panelUndoRedoOkCancel);
-            resources.ApplyResources(this.panelAllSettingsContainer, "panelAllSettingsContainer");
-            this.panelAllSettingsContainer.Name = "panelAllSettingsContainer";
+            panelAllSettingsContainer.BackColor = Color.Transparent;
+            panelAllSettingsContainer.Controls.Add(panelDockSettingsContainer);
+            panelAllSettingsContainer.Controls.Add(panelUndoRedoOkCancel);
+            panelAllSettingsContainer.Name = "panelAllSettingsContainer";
             // 
             // panelDockSettingsContainer
             // 
-            resources.ApplyResources(this.panelDockSettingsContainer, "panelDockSettingsContainer");
-            this.panelDockSettingsContainer.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.panelDockSettingsContainer.Controls.Add(this.flowLayoutPanel1);
-            this.panelDockSettingsContainer.Controls.Add(this.panelSettingsContainer);
-            this.panelDockSettingsContainer.Name = "panelDockSettingsContainer";
-            // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Controls.Add(this.bttnToolBrush);
-            this.flowLayoutPanel1.Controls.Add(this.BttnToolEraser);
-            this.flowLayoutPanel1.Controls.Add(this.bttnColorPicker);
-            this.flowLayoutPanel1.Controls.Add(this.bttnToolOrigin);
-            resources.ApplyResources(this.flowLayoutPanel1, "flowLayoutPanel1");
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            panelDockSettingsContainer.AutoScroll = true;
+            panelDockSettingsContainer.BackColor = SystemColors.ControlDarkDark;
+            panelDockSettingsContainer.Controls.Add(panelSettingsContainer);
+            panelDockSettingsContainer.Name = "panelDockSettingsContainer";
             // 
             // BttnToolEraser
             // 
-            this.BttnToolEraser.Image = global::DynamicDraw.Properties.Resources.ToolEraser;
-            resources.ApplyResources(this.BttnToolEraser, "BttnToolEraser");
-            this.BttnToolEraser.Name = "BttnToolEraser";
-            this.BttnToolEraser.UseVisualStyleBackColor = true;
-            this.BttnToolEraser.Click += new EventHandler(this.BttnToolEraser_Click);
-            this.BttnToolEraser.MouseEnter += new EventHandler(this.BttnToolEraser_MouseEnter);
+            BttnToolEraser.Image = Resources.ToolEraser;
+            BttnToolEraser.Location = new Point(43, 3);
+            BttnToolEraser.Margin = Padding.Empty;
+            BttnToolEraser.Size = new Size(32, 32);
+            BttnToolEraser.TabIndex = 2;
+            BttnToolEraser.Name = "BttnToolEraser";
+            BttnToolEraser.UseVisualStyleBackColor = true;
+            BttnToolEraser.Click += new EventHandler(BttnToolEraser_Click);
+            BttnToolEraser.MouseEnter += new EventHandler(BttnToolEraser_MouseEnter);
             // 
             // bttnToolOrigin
             // 
-            this.bttnToolOrigin.Image = global::DynamicDraw.Properties.Resources.ToolOrigin;
-            resources.ApplyResources(this.bttnToolOrigin, "bttnToolOrigin");
-            this.bttnToolOrigin.Name = "bttnToolOrigin";
-            this.bttnToolOrigin.UseVisualStyleBackColor = true;
-            this.bttnToolOrigin.Click += new EventHandler(this.BttnToolOrigin_Click);
-            this.bttnToolOrigin.MouseEnter += new EventHandler(this.BttnToolOrigin_MouseEnter);
+            bttnToolOrigin.Image = Resources.ToolOrigin;
+            bttnToolOrigin.Name = "bttnToolOrigin";
+            bttnToolOrigin.Location = new Point(113, 3);
+            bttnToolOrigin.Margin = Padding.Empty;
+            bttnToolOrigin.Size = new Size(32, 32);
+            bttnToolOrigin.TabIndex = 4;
+            bttnToolOrigin.UseVisualStyleBackColor = true;
+            bttnToolOrigin.Click += new EventHandler(BttnToolOrigin_Click);
+            bttnToolOrigin.MouseEnter += new EventHandler(BttnToolOrigin_MouseEnter);
             // 
             // panelSettingsContainer
             // 
-            resources.ApplyResources(this.panelSettingsContainer, "panelSettingsContainer");
-            this.panelSettingsContainer.BackColor = System.Drawing.Color.Transparent;
-            this.panelSettingsContainer.Controls.Add(this.bttnBrushControls);
-            this.panelSettingsContainer.Controls.Add(this.panelBrush);
-            this.panelSettingsContainer.Controls.Add(this.bttnSpecialSettings);
-            this.panelSettingsContainer.Controls.Add(this.panelSpecialSettings);
-            this.panelSettingsContainer.Controls.Add(this.bttnJitterBasicsControls);
-            this.panelSettingsContainer.Controls.Add(this.panelJitterBasics);
-            this.panelSettingsContainer.Controls.Add(this.bttnJitterColorControls);
-            this.panelSettingsContainer.Controls.Add(this.panelJitterColor);
-            this.panelSettingsContainer.Controls.Add(this.bttnShiftBasicsControls);
-            this.panelSettingsContainer.Controls.Add(this.panelShiftBasics);
-            this.panelSettingsContainer.Controls.Add(this.bttnTabAssignPressureControls);
-            this.panelSettingsContainer.Controls.Add(this.panelTabletAssignPressure);
-            this.panelSettingsContainer.Controls.Add(this.bttnSettings);
-            this.panelSettingsContainer.Controls.Add(this.panelSettings);
-            this.panelSettingsContainer.Name = "panelSettingsContainer";
+            panelSettingsContainer.AutoSize = true;
+            panelSettingsContainer.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelSettingsContainer.BackColor = Color.Transparent;
+            panelSettingsContainer.Controls.Add(bttnBrushControls);
+            panelSettingsContainer.Controls.Add(panelBrush);
+            panelSettingsContainer.Controls.Add(bttnSpecialSettings);
+            panelSettingsContainer.Controls.Add(panelSpecialSettings);
+            panelSettingsContainer.Controls.Add(bttnJitterBasicsControls);
+            panelSettingsContainer.Controls.Add(panelJitterBasics);
+            panelSettingsContainer.Controls.Add(bttnJitterColorControls);
+            panelSettingsContainer.Controls.Add(panelJitterColor);
+            panelSettingsContainer.Controls.Add(bttnShiftBasicsControls);
+            panelSettingsContainer.Controls.Add(panelShiftBasics);
+            panelSettingsContainer.Controls.Add(bttnTabAssignPressureControls);
+            panelSettingsContainer.Controls.Add(panelTabletAssignPressure);
+            panelSettingsContainer.Controls.Add(bttnSettings);
+            panelSettingsContainer.Controls.Add(panelSettings);
+            panelSettingsContainer.Name = "panelSettingsContainer";
             // 
             // bttnBrushControls
             // 
-            this.bttnBrushControls.BackColor = System.Drawing.Color.Black;
-            this.bttnBrushControls.ForeColor = System.Drawing.Color.WhiteSmoke;
-            resources.ApplyResources(this.bttnBrushControls, "bttnBrushControls");
-            this.bttnBrushControls.Name = "bttnBrushControls";
-            this.bttnBrushControls.UseVisualStyleBackColor = false;
+            bttnBrushControls.BackColor = Color.Black;
+            bttnBrushControls.ForeColor = Color.WhiteSmoke;
+            bttnBrushControls.Location = new Point(0, 3);
+            bttnBrushControls.Margin = new Padding(0, 3, 0, 3);
+            bttnBrushControls.Size = new Size(155, 23);
+            bttnBrushControls.TabIndex = 5;
+            bttnBrushControls.TextAlign = ContentAlignment.MiddleLeft;
+            bttnBrushControls.Name = "bttnBrushControls";
+            bttnBrushControls.UseVisualStyleBackColor = false;
             // 
             // panelBrush
             // 
-            resources.ApplyResources(this.panelBrush, "panelBrush");
-            this.panelBrush.BackColor = System.Drawing.SystemColors.Control;
-            this.panelBrush.Controls.Add(this.txtCanvasAngle);
-            this.panelBrush.Controls.Add(this.sliderCanvasAngle);
-            this.panelBrush.Controls.Add(this.listviewBrushPicker);
-            this.panelBrush.Controls.Add(this.listviewBrushImagePicker);
-            this.panelBrush.Controls.Add(this.panelBrushAddPickColor);
-            this.panelBrush.Controls.Add(this.txtColorInfluence);
-            this.panelBrush.Controls.Add(this.sliderColorInfluence);
-            this.panelBrush.Controls.Add(this.panelColorInfluenceHSV);
-            this.panelBrush.Controls.Add(this.cmbxBlendMode);
-            this.panelBrush.Controls.Add(this.txtBrushOpacity);
-            this.panelBrush.Controls.Add(this.sliderBrushOpacity);
-            this.panelBrush.Controls.Add(this.txtBrushFlow);
-            this.panelBrush.Controls.Add(this.sliderBrushFlow);
-            this.panelBrush.Controls.Add(this.txtBrushRotation);
-            this.panelBrush.Controls.Add(this.sliderBrushRotation);
-            this.panelBrush.Controls.Add(this.txtBrushSize);
-            this.panelBrush.Controls.Add(this.sliderBrushSize);
-            this.panelBrush.Name = "panelBrush";
-            
-            // 
-            // txtCanvasAngle
-            // 
-            resources.ApplyResources(this.txtCanvasAngle, "txtCanvasAngle");
-            this.txtCanvasAngle.BackColor = System.Drawing.Color.Transparent;
-            this.txtCanvasAngle.Name = "txtCanvasAngle";
-            // 
-            // sliderCanvasAngle
-            // 
-            resources.ApplyResources(this.sliderCanvasAngle, "sliderCanvasAngle");
-            this.sliderCanvasAngle.LargeChange = 1;
-            this.sliderCanvasAngle.Maximum = 360;
-            this.sliderCanvasAngle.Minimum = 0;
-            this.sliderCanvasAngle.Name = "sliderCanvasAngle";
-            this.sliderCanvasAngle.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderCanvasAngle.Value = 0;
-            this.sliderCanvasAngle.ValueChanged += new EventHandler(this.SliderCanvasAngle_ValueChanged);
-            this.sliderCanvasAngle.MouseEnter += new EventHandler(this.SliderCanvasAngle_MouseEnter);
+            panelBrush.AutoSize = true;
+            panelBrush.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelBrush.BackColor = SystemColors.Control;
+            panelBrush.Controls.Add(listviewBrushPicker);
+            panelBrush.Controls.Add(listviewBrushImagePicker);
+            panelBrush.Controls.Add(panelBrushAddPickColor);
+            panelBrush.Controls.Add(txtColorInfluence);
+            panelBrush.Controls.Add(sliderColorInfluence);
+            panelBrush.Controls.Add(panelColorInfluenceHSV);
+            panelBrush.Controls.Add(cmbxBlendMode);
+            panelBrush.Controls.Add(txtBrushOpacity);
+            panelBrush.Controls.Add(sliderBrushOpacity);
+            panelBrush.Controls.Add(txtBrushFlow);
+            panelBrush.Controls.Add(sliderBrushFlow);
+            panelBrush.Controls.Add(txtBrushRotation);
+            panelBrush.Controls.Add(sliderBrushRotation);
+            panelBrush.Controls.Add(txtBrushSize);
+            panelBrush.Controls.Add(sliderBrushSize);
+            panelBrush.Name = "panelBrush";
             // 
             // listviewBrushPicker
             // 
-            this.listviewBrushPicker.HideSelection = false;
-            this.listviewBrushPicker.Columns.Add("_"); // name hidden and unimportant
-            this.listviewBrushPicker.HeaderStyle = ColumnHeaderStyle.None;
-            resources.ApplyResources(this.listviewBrushPicker, "listviewBrushPicker");
-            this.listviewBrushPicker.Name = "listviewBrushPicker";
-            this.listviewBrushPicker.UseCompatibleStateImageBehavior = false;
-            this.listviewBrushPicker.View = System.Windows.Forms.View.Details;
-            this.listviewBrushPicker.SelectedIndexChanged += new EventHandler(this.ListViewBrushPicker_SelectedIndexChanged);
-            this.listviewBrushPicker.MouseEnter += new EventHandler(this.ListviewBrushPicker_MouseEnter);
+            listviewBrushPicker.HideSelection = false;
+            listviewBrushPicker.Location = new Point(0, 98);
+            listviewBrushPicker.Margin = new Padding(0, 0, 0, 3);
+            listviewBrushPicker.Size = new Size(156, 92);
+            listviewBrushPicker.TabIndex = 8;
+            listviewBrushPicker.Columns.Add("_"); // name hidden and unimportant
+            listviewBrushPicker.HeaderStyle = ColumnHeaderStyle.None;
+            listviewBrushPicker.Name = "listviewBrushPicker";
+            listviewBrushPicker.UseCompatibleStateImageBehavior = false;
+            listviewBrushPicker.View = System.Windows.Forms.View.Details;
+            listviewBrushPicker.SelectedIndexChanged += new EventHandler(ListViewBrushPicker_SelectedIndexChanged);
+            listviewBrushPicker.MouseEnter += new EventHandler(ListviewBrushPicker_MouseEnter);
             // 
             // listviewBrushImagePicker
             // 
-            this.listviewBrushImagePicker.HideSelection = false;
-            this.listviewBrushImagePicker.LargeImageList = this.dummyImageList;
-            resources.ApplyResources(this.listviewBrushImagePicker, "listviewBrushImagePicker");
-            this.listviewBrushImagePicker.MultiSelect = false;
-            this.listviewBrushImagePicker.Name = "listviewBrushImagePicker";
-            this.listviewBrushImagePicker.OwnerDraw = true;
-            this.listviewBrushImagePicker.ShowItemToolTips = true;
-            this.listviewBrushImagePicker.UseCompatibleStateImageBehavior = false;
-            this.listviewBrushImagePicker.VirtualMode = true;
-            this.listviewBrushImagePicker.CacheVirtualItems += new CacheVirtualItemsEventHandler(this.ListViewBrushImagePicker_CacheVirtualItems);
-            this.listviewBrushImagePicker.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(this.ListViewBrushImagePicker_DrawColumnHeader);
-            this.listviewBrushImagePicker.DrawItem += new DrawListViewItemEventHandler(this.ListViewBrushImagePicker_DrawItem);
-            this.listviewBrushImagePicker.DrawSubItem += new DrawListViewSubItemEventHandler(this.ListViewBrushImagePicker_DrawSubItem);
-            this.listviewBrushImagePicker.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(this.ListViewBrushImagePicker_RetrieveVirtualItem);
-            this.listviewBrushImagePicker.SelectedIndexChanged += new EventHandler(this.ListViewBrushImagePicker_SelectedIndexChanged);
-            this.listviewBrushImagePicker.MouseEnter += new EventHandler(this.ListViewBrushImagePicker_MouseEnter);
+            listviewBrushImagePicker.HideSelection = false;
+            listviewBrushImagePicker.Location = new Point(0, 193);
+            listviewBrushImagePicker.Margin = new Padding(0, 0, 0, 3);
+            listviewBrushImagePicker.Size = new Size(156, 175);
+            listviewBrushImagePicker.TabIndex = 9;
+            listviewBrushImagePicker.LargeImageList = dummyImageList;
+            listviewBrushImagePicker.MultiSelect = false;
+            listviewBrushImagePicker.Name = "listviewBrushImagePicker";
+            listviewBrushImagePicker.OwnerDraw = true;
+            listviewBrushImagePicker.ShowItemToolTips = true;
+            listviewBrushImagePicker.UseCompatibleStateImageBehavior = false;
+            listviewBrushImagePicker.VirtualMode = true;
+            listviewBrushImagePicker.CacheVirtualItems += new CacheVirtualItemsEventHandler(ListViewBrushImagePicker_CacheVirtualItems);
+            listviewBrushImagePicker.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(ListViewBrushImagePicker_DrawColumnHeader);
+            listviewBrushImagePicker.DrawItem += new DrawListViewItemEventHandler(ListViewBrushImagePicker_DrawItem);
+            listviewBrushImagePicker.DrawSubItem += new DrawListViewSubItemEventHandler(ListViewBrushImagePicker_DrawSubItem);
+            listviewBrushImagePicker.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(ListViewBrushImagePicker_RetrieveVirtualItem);
+            listviewBrushImagePicker.SelectedIndexChanged += new EventHandler(ListViewBrushImagePicker_SelectedIndexChanged);
+            listviewBrushImagePicker.MouseEnter += new EventHandler(ListViewBrushImagePicker_MouseEnter);
             // 
             // panelBrushAddPickColor
             // 
-            resources.ApplyResources(this.panelBrushAddPickColor, "panelBrushAddPickColor");
-            this.panelBrushAddPickColor.Controls.Add(this.chkbxColorizeBrush);
-            this.panelBrushAddPickColor.Controls.Add(this.bttnAddBrushImages);
-            this.panelBrushAddPickColor.Controls.Add(this.brushImageLoadProgressBar);
-            this.panelBrushAddPickColor.Controls.Add(this.bttnBrushColor);
-            this.panelBrushAddPickColor.Name = "panelBrushAddPickColor";
+            panelBrushAddPickColor.Location = new Point(0, 374);
+            panelBrushAddPickColor.Margin = new Padding(0, 3, 0, 3);
+            panelBrushAddPickColor.Size = new Size(156, 72);
+            panelBrushAddPickColor.TabIndex = 10;
+            panelBrushAddPickColor.AutoSize = true;
+            panelBrushAddPickColor.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelBrushAddPickColor.Controls.Add(chkbxColorizeBrush);
+            panelBrushAddPickColor.Controls.Add(bttnAddBrushImages);
+            panelBrushAddPickColor.Controls.Add(brushImageLoadProgressBar);
+            panelBrushAddPickColor.Controls.Add(bttnBrushColor);
+            panelBrushAddPickColor.Name = "panelBrushAddPickColor";
             // 
             // bttnChooseEffectSettings
             // 
-            this.bttnChooseEffectSettings.Image = global::DynamicDraw.Properties.Resources.EffectSettingsIcon;
-            resources.ApplyResources(this.bttnChooseEffectSettings, "bttnChooseEffectSettings");
-            this.bttnChooseEffectSettings.Name = "bttnChooseEffectSettings";
-            this.bttnChooseEffectSettings.UseVisualStyleBackColor = true;
-            this.bttnChooseEffectSettings.Click += new EventHandler(this.BttnChooseEffectSettings_Click);
-            this.bttnChooseEffectSettings.MouseEnter += new EventHandler(this.BttnChooseEffectSettings_MouseEnter);
-            this.bttnChooseEffectSettings.MouseLeave += new EventHandler(this.BttnChooseEffectSettings_MouseLeave);
+            bttnChooseEffectSettings.Image = Resources.EffectSettingsIcon;
+            bttnChooseEffectSettings.Name = "bttnChooseEffectSettings";
+            bttnChooseEffectSettings.UseVisualStyleBackColor = true;
+            bttnChooseEffectSettings.Click += new EventHandler(BttnChooseEffectSettings_Click);
+            bttnChooseEffectSettings.MouseEnter += new EventHandler(BttnChooseEffectSettings_MouseEnter);
+            bttnChooseEffectSettings.MouseLeave += new EventHandler(BttnChooseEffectSettings_MouseLeave);
             // 
             // chkbxColorizeBrush
             // 
-            resources.ApplyResources(this.chkbxColorizeBrush, "chkbxColorizeBrush");
-            this.chkbxColorizeBrush.Checked = true;
-            this.chkbxColorizeBrush.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkbxColorizeBrush.Name = "chkbxColorizeBrush";
-            this.chkbxColorizeBrush.UseVisualStyleBackColor = true;
-            this.chkbxColorizeBrush.CheckedChanged += new EventHandler(this.ChkbxColorizeBrush_CheckedChanged);
-            this.chkbxColorizeBrush.MouseEnter += new EventHandler(this.ChkbxColorizeBrush_MouseEnter);
+            chkbxColorizeBrush.AutoSize = true;
+            chkbxColorizeBrush.Checked = true;
+            chkbxColorizeBrush.CheckState = System.Windows.Forms.CheckState.Checked;
+            chkbxColorizeBrush.Location = new Point(10, 48);
+            chkbxColorizeBrush.Size = new Size(93, 17);
+            chkbxColorizeBrush.TabIndex = 12;
+            chkbxColorizeBrush.Name = "chkbxColorizeBrush";
+            chkbxColorizeBrush.UseVisualStyleBackColor = true;
+            chkbxColorizeBrush.CheckedChanged += new EventHandler(ChkbxColorizeBrush_CheckedChanged);
+            chkbxColorizeBrush.MouseEnter += new EventHandler(ChkbxColorizeBrush_MouseEnter);
             // 
             // bttnAddBrushImages
             // 
-            this.bttnAddBrushImages.Image = global::DynamicDraw.Properties.Resources.AddBrushIcon;
-            resources.ApplyResources(this.bttnAddBrushImages, "bttnAddBrushImages");
-            this.bttnAddBrushImages.Name = "bttnAddBrushImages";
-            this.bttnAddBrushImages.UseVisualStyleBackColor = true;
-            this.bttnAddBrushImages.Click += new EventHandler(this.BttnAddBrushImages_Click);
-            this.bttnAddBrushImages.MouseEnter += new EventHandler(this.BttnAddBrushImages_MouseEnter);
+            bttnAddBrushImages.Image = Resources.AddBrushIcon;
+            bttnAddBrushImages.TextImageRelation = TextImageRelation.ImageBeforeText;
+            bttnAddBrushImages.Location = new Point(0, 3);
+            bttnAddBrushImages.Name = "bttnAddBrushImages";
+            bttnAddBrushImages.Size = new Size(153, 32);
+            bttnAddBrushImages.TabIndex = 11;
+            bttnAddBrushImages.UseVisualStyleBackColor = true;
+            bttnAddBrushImages.Click += new EventHandler(BttnAddBrushImages_Click);
+            bttnAddBrushImages.MouseEnter += new EventHandler(BttnAddBrushImages_MouseEnter);
             // 
             // brushImageLoadProgressBar
             // 
-            resources.ApplyResources(this.brushImageLoadProgressBar, "brushImageLoadProgressBar");
-            this.brushImageLoadProgressBar.Name = "brushImageLoadProgressBar";
+            brushImageLoadProgressBar.Location = new Point(0, 12);
+            brushImageLoadProgressBar.Margin = new Padding(0, 3, 0, 3);
+            brushImageLoadProgressBar.Size = new Size(153, 23);
+            brushImageLoadProgressBar.Name = "brushImageLoadProgressBar";
             // 
             // bttnBrushColor
             // 
-            resources.ApplyResources(this.bttnBrushColor, "bttnBrushColor");
-            this.bttnBrushColor.BackColor = System.Drawing.Color.Black;
-            this.bttnBrushColor.ForeColor = System.Drawing.Color.White;
-            this.bttnBrushColor.Name = "bttnBrushColor";
-            this.bttnBrushColor.UseVisualStyleBackColor = false;
-            this.bttnBrushColor.Click += new EventHandler(this.BttnBrushColor_Click);
-            this.bttnBrushColor.MouseEnter += new EventHandler(this.BttnBrushColor_MouseEnter);
+            bttnBrushColor.Anchor = AnchorStyles.Top;
+            bttnBrushColor.BackColor = Color.Black;
+            bttnBrushColor.ForeColor = Color.White;
+            bttnBrushColor.Location = new Point(109, 41);
+            bttnBrushColor.Margin = new Padding(3, 3, 0, 3);
+            bttnBrushColor.Size = new Size(47, 28);
+            bttnBrushColor.TabIndex = 13;
+            bttnBrushColor.Name = "bttnBrushColor";
+            bttnBrushColor.UseVisualStyleBackColor = false;
+            bttnBrushColor.Click += new EventHandler(BttnBrushColor_Click);
+            bttnBrushColor.MouseEnter += new EventHandler(BttnBrushColor_MouseEnter);
             // 
             // txtColorInfluence
             // 
-            resources.ApplyResources(this.txtColorInfluence, "txtColorInfluence");
-            this.txtColorInfluence.BackColor = System.Drawing.Color.Transparent;
-            this.txtColorInfluence.Name = "txtColorInfluence";
+            txtColorInfluence.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtColorInfluence.BackColor = Color.Transparent;
+            txtColorInfluence.Name = "txtColorInfluence";
             // 
             // sliderColorInfluence
             // 
-            resources.ApplyResources(this.sliderColorInfluence, "sliderColorInfluence");
-            this.sliderColorInfluence.LargeChange = 1;
-            this.sliderColorInfluence.Maximum = 100;
-            this.sliderColorInfluence.Minimum = 0;
-            this.sliderColorInfluence.Name = "sliderColorInfluence";
-            this.sliderColorInfluence.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderColorInfluence.ValueChanged += new EventHandler(this.SliderColorInfluence_ValueChanged);
-            this.sliderColorInfluence.MouseEnter += new EventHandler(this.SliderColorInfluence_MouseEnter);
+            sliderColorInfluence.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderColorInfluence.LargeChange = 1;
+            sliderColorInfluence.Maximum = 100;
+            sliderColorInfluence.Minimum = 0;
+            sliderColorInfluence.Name = "sliderColorInfluence";
+            sliderColorInfluence.TickStyle = TickStyle.None;
+            sliderColorInfluence.ValueChanged += new EventHandler(SliderColorInfluence_ValueChanged);
+            sliderColorInfluence.MouseEnter += new EventHandler(SliderColorInfluence_MouseEnter);
             // 
             // panelColorInfluenceHSV
             // 
-            resources.ApplyResources(this.panelColorInfluenceHSV, "panelColorInfluenceHSV");
-            this.panelColorInfluenceHSV.BackColor = System.Drawing.Color.Transparent;
-            this.panelColorInfluenceHSV.Controls.Add(this.chkbxColorInfluenceHue);
-            this.panelColorInfluenceHSV.Controls.Add(this.chkbxColorInfluenceSat);
-            this.panelColorInfluenceHSV.Controls.Add(this.chkbxColorInfluenceVal);
-            this.panelColorInfluenceHSV.Name = "panelColorInfluenceHSV";
+            panelColorInfluenceHSV.BackColor = Color.Transparent;
+            panelColorInfluenceHSV.Controls.Add(chkbxColorInfluenceHue);
+            panelColorInfluenceHSV.Controls.Add(chkbxColorInfluenceSat);
+            panelColorInfluenceHSV.Controls.Add(chkbxColorInfluenceVal);
+            panelColorInfluenceHSV.Name = "panelColorInfluenceHSV";
             // 
             // chkbxColorInfluenceHue
             // 
-            resources.ApplyResources(this.chkbxColorInfluenceHue, "chkbxColorInfluenceHue");
-            this.chkbxColorInfluenceHue.Checked = true;
-            this.chkbxColorInfluenceHue.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkbxColorInfluenceHue.Name = "chkbxColorInfluenceHue";
-            this.chkbxColorInfluenceHue.UseVisualStyleBackColor = true;
-            this.chkbxColorInfluenceHue.MouseEnter += new EventHandler(this.ChkbxColorInfluenceHue_MouseEnter);
+            chkbxColorInfluenceHue.Checked = true;
+            chkbxColorInfluenceHue.CheckState = System.Windows.Forms.CheckState.Checked;
+            chkbxColorInfluenceHue.Name = "chkbxColorInfluenceHue";
+            chkbxColorInfluenceHue.UseVisualStyleBackColor = true;
+            chkbxColorInfluenceHue.MouseEnter += new EventHandler(ChkbxColorInfluenceHue_MouseEnter);
             // 
             // chkbxColorInfluenceSat
             // 
-            resources.ApplyResources(this.chkbxColorInfluenceSat, "chkbxColorInfluenceSat");
-            this.chkbxColorInfluenceSat.Checked = true;
-            this.chkbxColorInfluenceSat.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkbxColorInfluenceSat.Name = "chkbxColorInfluenceSat";
-            this.chkbxColorInfluenceSat.UseVisualStyleBackColor = true;
-            this.chkbxColorInfluenceSat.MouseEnter += new EventHandler(this.ChkbxColorInfluenceSat_MouseEnter);
+            chkbxColorInfluenceSat.Checked = true;
+            chkbxColorInfluenceSat.CheckState = System.Windows.Forms.CheckState.Checked;
+            chkbxColorInfluenceSat.Name = "chkbxColorInfluenceSat";
+            chkbxColorInfluenceSat.UseVisualStyleBackColor = true;
+            chkbxColorInfluenceSat.MouseEnter += new EventHandler(ChkbxColorInfluenceSat_MouseEnter);
             // 
             // chkbxColorInfluenceVal
             // 
-            resources.ApplyResources(this.chkbxColorInfluenceVal, "chkbxColorInfluenceVal");
-            this.chkbxColorInfluenceVal.Name = "chkbxColorInfluenceVal";
-            this.chkbxColorInfluenceVal.UseVisualStyleBackColor = true;
-            this.chkbxColorInfluenceVal.MouseEnter += new EventHandler(this.ChkbxColorInfluenceVal_MouseEnter);
+            chkbxColorInfluenceVal.Name = "chkbxColorInfluenceVal";
+            chkbxColorInfluenceVal.UseVisualStyleBackColor = true;
+            chkbxColorInfluenceVal.MouseEnter += new EventHandler(ChkbxColorInfluenceVal_MouseEnter);
             // 
             // cmbxBlendMode
             // 
-            resources.ApplyResources(this.cmbxBlendMode, "cmbxBlendMode");
-            this.cmbxBlendMode.BackColor = System.Drawing.Color.White;
-            this.cmbxBlendMode.DropDownHeight = 140;
-            this.cmbxBlendMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxBlendMode.DropDownWidth = 20;
-            this.cmbxBlendMode.FormattingEnabled = true;
-            this.cmbxBlendMode.Name = "cmbxBlendMode";
-            this.cmbxBlendMode.SelectedIndexChanged += new EventHandler(this.BttnBlendMode_SelectedIndexChanged);
-            this.cmbxBlendMode.MouseEnter += new EventHandler(this.BttnBlendMode_MouseEnter);
+            cmbxBlendMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cmbxBlendMode.BackColor = Color.White;
+            cmbxBlendMode.DropDownHeight = 140;
+            cmbxBlendMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxBlendMode.DropDownWidth = 20;
+            cmbxBlendMode.FormattingEnabled = true;
+            cmbxBlendMode.Name = "cmbxBlendMode";
+            cmbxBlendMode.SelectedIndexChanged += new EventHandler(BttnBlendMode_SelectedIndexChanged);
+            cmbxBlendMode.MouseEnter += new EventHandler(BttnBlendMode_MouseEnter);
             // 
             // txtBrushOpacity
             // 
-            resources.ApplyResources(this.txtBrushOpacity, "txtBrushOpacity");
-            this.txtBrushOpacity.BackColor = System.Drawing.Color.Transparent;
-            this.txtBrushOpacity.Name = "txtBrushOpacity";
+            txtBrushOpacity.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtBrushOpacity.BackColor = Color.Transparent;
+            txtBrushOpacity.Name = "txtBrushOpacity";
+            txtColorInfluence.Location = new Point(10, 449);
+            txtColorInfluence.Margin = new Padding(0, 0, 0, 0);
+            txtColorInfluence.Size = new Size(149, 17);
+            txtColorInfluence.TabIndex = 0;
+            txtColorInfluence.TextAlign = ContentAlignment.MiddleCenter;
+            sliderColorInfluence.AutoSize = false;
+            sliderColorInfluence.Location = new Point(0, 469);
+            sliderColorInfluence.Margin = new Padding(0, 0, 0, 0);
+            sliderColorInfluence.Size = new Size(150, 25);
+            sliderColorInfluence.TabIndex = 14;
+            panelColorInfluenceHSV.FlowDirection = FlowDirection.LeftToRight;
+            panelColorInfluenceHSV.Location = new Point(0, 497);
+            panelColorInfluenceHSV.Margin = new Padding(0, 3, 0, 3);
+            panelColorInfluenceHSV.Size = new Size(155, 28);
+            panelColorInfluenceHSV.TabIndex = 15;
+            panelColorInfluenceHSV.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            chkbxColorInfluenceHue.AutoSize = true;
+            chkbxColorInfluenceHue.Location = new Point(0, 0);
+            chkbxColorInfluenceHue.Size = new Size(32, 17);
+            chkbxColorInfluenceHue.TabIndex = 16;
+            chkbxColorInfluenceSat.AutoSize = true;
+            chkbxColorInfluenceSat.Location = new Point(0, 0);
+            chkbxColorInfluenceSat.Size = new Size(32, 17);
+            chkbxColorInfluenceSat.TabIndex = 17;
+            chkbxColorInfluenceVal.AutoSize = true;
+            chkbxColorInfluenceVal.Location = new Point(0, 0);
+            chkbxColorInfluenceVal.Size = new Size(32, 17);
+            chkbxColorInfluenceVal.TabIndex = 18;
+            cmbxBlendMode.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxBlendMode.IntegralHeight = false;
+            cmbxBlendMode.ItemHeight = 13;
+            cmbxBlendMode.Location = new Point(3, 477);
+            cmbxBlendMode.Margin = new Padding(0, 3, 0, 3);
+            cmbxBlendMode.MaxDropDownItems = 3;
+            cmbxBlendMode.Size = new Size(153, 21);
+            cmbxBlendMode.TabIndex = 19;
+            txtBrushOpacity.Location = new Point(7, 522);
+            txtBrushOpacity.Margin = new Padding(0, 0, 0, 0);
+            txtBrushOpacity.Size = new Size(149, 17);
+            txtBrushOpacity.TabIndex = 0;
+            txtBrushOpacity.TextAlign = ContentAlignment.MiddleCenter;
+            sliderBrushOpacity.AutoSize = false;
+            sliderBrushOpacity.Location = new Point(6, 542);
+            sliderBrushOpacity.Margin = new Padding(0, 3, 0, 3);
+            sliderBrushOpacity.Size = new Size(150, 25);
+            sliderBrushOpacity.TabIndex = 20;
+            txtBrushFlow.Location = new Point(7, 570);
+            txtBrushFlow.Margin = new Padding(0, 0, 0, 0);
+            txtBrushFlow.Size = new Size(149, 17);
+            txtBrushFlow.TabIndex = 0;
+            txtBrushFlow.TextAlign = ContentAlignment.MiddleCenter;
+            sliderBrushFlow.AutoSize = false;
+            sliderBrushFlow.Location = new Point(6, 590);
+            sliderBrushFlow.Margin = new Padding(0, 3, 0, 3);
+            sliderBrushFlow.Size = new Size(150, 25);
+            sliderBrushFlow.TabIndex = 21;
+            txtBrushRotation.Location = new Point(7, 618);
+            txtBrushRotation.Margin = new Padding(0, 0, 0, 0);
+            txtBrushRotation.Size = new Size(149, 17);
+            txtBrushRotation.TabIndex = 0;
+            txtBrushRotation.TextAlign = ContentAlignment.MiddleCenter;
+            sliderBrushRotation.AutoSize = false;
+            sliderBrushRotation.Location = new Point(6, 638);
+            sliderBrushRotation.Margin = new Padding(0, 3, 0, 3);
+            sliderBrushRotation.Size = new Size(150, 25);
+            sliderBrushRotation.TabIndex = 22;
+            txtBrushSize.Location = new Point(7, 666);
+            txtBrushSize.Margin = new Padding(0, 0, 0, 0);
+            txtBrushSize.Size = new Size(149, 17);
+            txtBrushSize.TabIndex = 0;
+            txtBrushSize.TextAlign = ContentAlignment.MiddleCenter;
+            sliderBrushSize.AutoSize = false;
+            sliderBrushSize.Location = new Point(6, 686);
+            sliderBrushSize.Margin = new Padding(0, 3, 0, 3);
+            sliderBrushSize.Size = new Size(150, 25);
+            sliderBrushSize.TabIndex = 23;
+            panelBrush.FlowDirection = FlowDirection.TopDown;
+            panelBrush.Location = new Point(0, 32);
+            panelBrush.Margin = new Padding(0, 3, 0, 3);
+            panelBrush.Size = new Size(156, 546);
+            panelBrush.TabIndex = 5;
+            bttnSpecialSettings.Location = new Point(0, 584);
+            bttnSpecialSettings.Margin = new Padding(0, 3, 0, 3);
+            bttnSpecialSettings.Size = new Size(155, 23);
+            bttnSpecialSettings.TabIndex = 18;
+            bttnSpecialSettings.TextAlign = ContentAlignment.MiddleLeft;
+            panelSpecialSettings.AutoSize = true;
+            panelSpecialSettings.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelChosenEffect.Location = new Point(0, 3);
+            panelChosenEffect.Margin = new Padding(0, 3, 0, 0);
+            panelChosenEffect.Size = new Size(156, 33);
+            panelChosenEffect.TabIndex = 20;
+            cmbxChosenEffect.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxChosenEffect.IntegralHeight = false;
+            cmbxChosenEffect.ItemHeight = 24;
+            cmbxChosenEffect.Location = new Point(3, 0);
+            cmbxChosenEffect.Margin = new Padding(0, 3, 0, 3);
+            cmbxChosenEffect.MaxDropDownItems = 100;
+            cmbxChosenEffect.Size = new Size(121, 21);
+            cmbxChosenEffect.TabIndex = 0;
+            bttnChooseEffectSettings.Location = new Point(123, 0);
+            bttnChooseEffectSettings.Margin = new Padding(0, 0, 0, 0);
+            bttnChooseEffectSettings.Size = new Size(30, 30);
+            bttnChooseEffectSettings.TabIndex = 1;
+            txtMinDrawDistance.Location = new Point(4, 32);
+            txtMinDrawDistance.Size = new Size(149, 17);
+            txtMinDrawDistance.TabIndex = 0;
+            txtMinDrawDistance.TextAlign = ContentAlignment.MiddleCenter;
+            sliderMinDrawDistance.AutoSize = false;
+            sliderMinDrawDistance.Location = new Point(3, 52);
+            sliderMinDrawDistance.Size = new Size(150, 25);
+            sliderMinDrawDistance.TabIndex = 21;
+            txtBrushDensity.Location = new Point(4, 48);
+            txtBrushDensity.Size = new Size(149, 17);
+            txtBrushDensity.TabIndex = 0;
+            txtBrushDensity.TextAlign = ContentAlignment.MiddleCenter;
+            sliderBrushDensity.AutoSize = false;
+            sliderBrushDensity.Location = new Point(3, 68);
+            sliderBrushDensity.Size = new Size(150, 25);
+            sliderBrushDensity.TabIndex = 22;
+            cmbxSymmetry.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxSymmetry.IntegralHeight = false;
+            cmbxSymmetry.ItemHeight = 13;
+            cmbxSymmetry.Location = new Point(3, 99);
+            cmbxSymmetry.Margin = new Padding(0, 3, 0, 3);
+            cmbxSymmetry.MaxDropDownItems = 9;
+            cmbxSymmetry.Size = new Size(153, 21);
+            cmbxSymmetry.TabIndex = 24;
+            cmbxBrushSmoothing.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxBrushSmoothing.IntegralHeight = false;
+            cmbxBrushSmoothing.ItemHeight = 13;
+            cmbxBrushSmoothing.Location = new Point(3, 126);
+            cmbxBrushSmoothing.Margin = new Padding(0, 3, 0, 3);
+            cmbxBrushSmoothing.MaxDropDownItems = 9;
+            cmbxBrushSmoothing.Size = new Size(153, 21);
+            cmbxBrushSmoothing.TabIndex = 23;
+            chkbxSeamlessDrawing.AutoSize = true;
+            chkbxSeamlessDrawing.Location = new Point(3, 153);
+            chkbxSeamlessDrawing.Size = new Size(118, 17);
+            chkbxSeamlessDrawing.TabIndex = 25;
+            chkbxOrientToMouse.AutoSize = true;
+            chkbxOrientToMouse.Location = new Point(3, 176);
+            chkbxOrientToMouse.Size = new Size(118, 17);
+            chkbxOrientToMouse.TabIndex = 26;
+            chkbxDitherDraw.AutoSize = true;
+            chkbxDitherDraw.Location = new Point(3, 199);
+            chkbxDitherDraw.Size = new Size(80, 17);
+            chkbxDitherDraw.TabIndex = 27;
+            chkbxLockAlpha.AutoSize = true;
+            chkbxLockAlpha.Location = new Point(3, 222);
+            chkbxLockAlpha.Size = new Size(80, 17);
+            chkbxLockAlpha.TabIndex = 28;
+            panelRGBLocks.Location = new Point(0, 255);
+            panelRGBLocks.Margin = new Padding(0, 3, 0, 0);
+            panelRGBLocks.Size = new Size(156, 22);
+            panelRGBLocks.TabIndex = 29;
+            chkbxLockR.AutoSize = true;
+            chkbxLockR.Location = new Point(3, 0);
+            chkbxLockR.Size = new Size(80, 17);
+            chkbxLockR.TabIndex = 1;
+            chkbxLockG.AutoSize = true;
+            chkbxLockG.Location = new Point(44, 0);
+            chkbxLockG.Size = new Size(80, 17);
+            chkbxLockG.TabIndex = 2;
+            chkbxLockB.AutoSize = true;
+            chkbxLockB.Location = new Point(82, 0);
+            chkbxLockB.Size = new Size(80, 17);
+            chkbxLockB.TabIndex = 3;
+            panelHSVLocks.Location = new Point(0, 277);
+            panelHSVLocks.Margin = new Padding(0, 3, 0, 0);
+            panelHSVLocks.Size = new Size(156, 22);
+            panelHSVLocks.TabIndex = 30;
+            chkbxLockHue.AutoSize = true;
+            chkbxLockHue.Location = new Point(3, 0);
+            chkbxLockHue.Size = new Size(80, 17);
+            chkbxLockHue.TabIndex = 1;
+            chkbxLockSat.AutoSize = true;
+            chkbxLockSat.Location = new Point(44, 0);
+            chkbxLockSat.Size = new Size(80, 17);
+            chkbxLockSat.TabIndex = 2;
+            chkbxLockVal.AutoSize = true;
+            chkbxLockVal.Location = new Point(82, 0);
+            chkbxLockVal.Size = new Size(80, 17);
+            chkbxLockVal.TabIndex = 3;
+            panelSpecialSettings.FlowDirection = FlowDirection.TopDown;
+            panelSpecialSettings.Location = new Point(0, 613);
+            panelSpecialSettings.Margin = new Padding(0, 3, 0, 3);
+            panelSpecialSettings.Size = new Size(156, 196);
+            panelSpecialSettings.TabIndex = 19;
+            bttnJitterBasicsControls.Location = new Point(0, 815);
+            bttnJitterBasicsControls.Margin = new Padding(0, 3, 0, 3);
+            bttnJitterBasicsControls.Size = new Size(155, 23);
+            bttnJitterBasicsControls.TabIndex = 27;
+            bttnJitterBasicsControls.TextAlign = ContentAlignment.MiddleLeft;
+            panelJitterBasics.AutoSize = true;
+            panelJitterBasics.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            txtRandMinSize.Location = new Point(3, 0);
+            txtRandMinSize.Size = new Size(149, 17);
+            txtRandMinSize.TabIndex = 0;
+            txtRandMinSize.TextAlign = ContentAlignment.MiddleCenter;
+            sliderRandMinSize.AutoSize = false;
+            sliderRandMinSize.Location = new Point(3, 20);
+            sliderRandMinSize.Size = new Size(150, 25);
+            sliderRandMinSize.TabIndex = 29;
+            txtRandMaxSize.Location = new Point(3, 48);
+            txtRandMaxSize.Size = new Size(149, 17);
+            txtRandMaxSize.TabIndex = 0;
+            txtRandMaxSize.TextAlign = ContentAlignment.MiddleCenter;
+            sliderRandMaxSize.AutoSize = false;
+            sliderRandMaxSize.Location = new Point(3, 68);
+            sliderRandMaxSize.Size = new Size(150, 25);
+            sliderRandMaxSize.TabIndex = 30;
+            txtRandRotLeft.Location = new Point(4, 96);
+            txtRandRotLeft.Size = new Size(149, 17);
+            txtRandRotLeft.TabIndex = 0;
+            txtRandRotLeft.TextAlign = ContentAlignment.MiddleCenter;
+            sliderRandRotLeft.AutoSize = false;
+            sliderRandRotLeft.Location = new Point(3, 116);
+            sliderRandRotLeft.Size = new Size(150, 25);
+            sliderRandRotLeft.TabIndex = 31;
+            txtRandRotRight.Location = new Point(4, 144);
+            txtRandRotRight.Size = new Size(149, 17);
+            txtRandRotRight.TabIndex = 0;
+            txtRandRotRight.TextAlign = ContentAlignment.MiddleCenter;
+            sliderRandRotRight.AutoSize = false;
+            sliderRandRotRight.Location = new Point(3, 164);
+            sliderRandRotRight.Size = new Size(150, 25);
+            sliderRandRotRight.TabIndex = 32;
+            txtRandFlowLoss.Location = new Point(4, 192);
+            txtRandFlowLoss.Size = new Size(149, 17);
+            txtRandFlowLoss.TabIndex = 0;
+            txtRandFlowLoss.TextAlign = ContentAlignment.MiddleCenter;
+            sliderRandFlowLoss.AutoSize = false;
+            sliderRandFlowLoss.Location = new Point(3, 212);
+            sliderRandFlowLoss.Size = new Size(150, 25);
+            sliderRandFlowLoss.TabIndex = 33;
+            txtRandHorzShift.Location = new Point(3, 240);
+            txtRandHorzShift.Size = new Size(149, 17);
+            txtRandHorzShift.TabIndex = 0;
+            txtRandHorzShift.TextAlign = ContentAlignment.MiddleCenter;
+            sliderRandHorzShift.AutoSize = false;
+            sliderRandHorzShift.Location = new Point(3, 260);
+            sliderRandHorzShift.Size = new Size(150, 25);
+            sliderRandHorzShift.TabIndex = 34;
+            txtRandVertShift.Location = new Point(3, 288);
+            txtRandVertShift.Size = new Size(149, 17);
+            txtRandVertShift.TabIndex = 0;
+            txtRandVertShift.TextAlign = ContentAlignment.MiddleCenter;
+            sliderRandVertShift.AutoSize = false;
+            sliderRandVertShift.Location = new Point(3, 308);
+            sliderRandVertShift.Size = new Size(150, 25);
+            sliderRandVertShift.TabIndex = 35;
+            panelJitterBasics.FlowDirection = FlowDirection.TopDown;
+            panelJitterBasics.Location = new Point(0, 844);
+            panelJitterBasics.Margin = new Padding(0, 3, 0, 3);
+            panelJitterBasics.Size = new Size(156, 336);
+            panelJitterBasics.TabIndex = 28;
+            bttnJitterColorControls.Location = new Point(0, 1186);
+            bttnJitterColorControls.Margin = new Padding(0, 3, 0, 3);
+            bttnJitterColorControls.Size = new Size(155, 23);
+            bttnJitterColorControls.TabIndex = 36;
+            bttnJitterColorControls.TextAlign = ContentAlignment.MiddleLeft;
+            panelJitterColor.AutoSize = true;
+            panelJitterColor.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            txtJitterRed.Location = new Point(3, 0);
+            txtJitterRed.Size = new Size(149, 17);
+            txtJitterRed.TabIndex = 0;
+            txtJitterRed.TextAlign = ContentAlignment.MiddleCenter;
+            sliderJitterMinRed.AutoSize = false;
+            sliderJitterMinRed.Location = new Point(3, 20);
+            sliderJitterMinRed.Size = new Size(150, 25);
+            sliderJitterMinRed.TabIndex = 38;
+            sliderJitterMaxRed.AutoSize = false;
+            sliderJitterMaxRed.Location = new Point(3, 51);
+            sliderJitterMaxRed.Size = new Size(150, 25);
+            sliderJitterMaxRed.TabIndex = 39;
+            txtJitterGreen.Location = new Point(3, 79);
+            txtJitterGreen.Size = new Size(149, 17);
+            txtJitterGreen.TabIndex = 0;
+            txtJitterGreen.TextAlign = ContentAlignment.MiddleCenter;
+            sliderJitterMinGreen.AutoSize = false;
+            sliderJitterMinGreen.Location = new Point(3, 99);
+            sliderJitterMinGreen.Size = new Size(150, 25);
+            sliderJitterMinGreen.TabIndex = 40;
+            sliderJitterMaxGreen.AutoSize = false;
+            sliderJitterMaxGreen.Location = new Point(3, 130);
+            sliderJitterMaxGreen.Size = new Size(150, 25);
+            sliderJitterMaxGreen.TabIndex = 41;
+            txtJitterBlue.Location = new Point(3, 158);
+            txtJitterBlue.Size = new Size(149, 17);
+            txtJitterBlue.TabIndex = 0;
+            txtJitterBlue.TextAlign = ContentAlignment.MiddleCenter;
+            sliderJitterMinBlue.AutoSize = false;
+            sliderJitterMinBlue.Location = new Point(3, 178);
+            sliderJitterMinBlue.Size = new Size(150, 25);
+            sliderJitterMinBlue.TabIndex = 42;
+            sliderJitterMaxBlue.AutoSize = false;
+            sliderJitterMaxBlue.Location = new Point(3, 209);
+            sliderJitterMaxBlue.Size = new Size(150, 25);
+            sliderJitterMaxBlue.TabIndex = 43;
+            txtJitterHue.Location = new Point(3, 237);
+            txtJitterHue.Size = new Size(149, 17);
+            txtJitterHue.TabIndex = 0;
+            txtJitterHue.TextAlign = ContentAlignment.MiddleCenter;
+            sliderJitterMinHue.AutoSize = false;
+            sliderJitterMinHue.Location = new Point(3, 257);
+            sliderJitterMinHue.Size = new Size(150, 25);
+            sliderJitterMinHue.TabIndex = 44;
+            sliderJitterMaxHue.AutoSize = false;
+            sliderJitterMaxHue.Location = new Point(3, 288);
+            sliderJitterMaxHue.Size = new Size(150, 25);
+            sliderJitterMaxHue.TabIndex = 45;
+            txtJitterSaturation.Location = new Point(3, 316);
+            txtJitterSaturation.Size = new Size(149, 17);
+            txtJitterSaturation.TabIndex = 0;
+            txtJitterSaturation.TextAlign = ContentAlignment.MiddleCenter;
+            sliderJitterMinSat.AutoSize = false;
+            sliderJitterMinSat.Location = new Point(3, 336);
+            sliderJitterMinSat.Size = new Size(150, 25);
+            sliderJitterMinSat.TabIndex = 46;
+            sliderJitterMaxSat.AutoSize = false;
+            sliderJitterMaxSat.Location = new Point(3, 367);
+            sliderJitterMaxSat.Size = new Size(150, 25);
+            sliderJitterMaxSat.TabIndex = 47;
+            txtJitterValue.Location = new Point(3, 395);
+            txtJitterValue.Size = new Size(149, 17);
+            txtJitterValue.TabIndex = 0;
+            txtJitterValue.TextAlign = ContentAlignment.MiddleCenter;
+            sliderJitterMinVal.AutoSize = false;
+            sliderJitterMinVal.Location = new Point(3, 415);
+            sliderJitterMinVal.Size = new Size(150, 25);
+            sliderJitterMinVal.TabIndex = 48;
+            sliderJitterMaxVal.AutoSize = false;
+            sliderJitterMaxVal.Location = new Point(3, 446);
+            sliderJitterMaxVal.Size = new Size(150, 25);
+            sliderJitterMaxVal.TabIndex = 49;
+            panelJitterColor.FlowDirection = FlowDirection.TopDown;
+            panelJitterColor.Location = new Point(0, 1215);
+            panelJitterColor.Margin = new Padding(0, 3, 0, 3);
+            panelJitterColor.Size = new Size(156, 474);
+            panelJitterColor.TabIndex = 37;
+            bttnShiftBasicsControls.Location = new Point(0, 1695);
+            bttnShiftBasicsControls.Margin = new Padding(0, 3, 0, 3);
+            bttnShiftBasicsControls.Size = new Size(155, 23);
+            bttnShiftBasicsControls.TabIndex = 50;
+            bttnShiftBasicsControls.TextAlign = ContentAlignment.MiddleLeft;
+            panelShiftBasics.AutoSize = true;
+            panelShiftBasics.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            txtShiftSize.Location = new Point(3, 0);
+            txtShiftSize.Size = new Size(149, 17);
+            txtShiftSize.TabIndex = 0;
+            txtShiftSize.TextAlign = ContentAlignment.MiddleCenter;
+            sliderShiftSize.AutoSize = false;
+            sliderShiftSize.Location = new Point(3, 20);
+            sliderShiftSize.Size = new Size(150, 25);
+            sliderShiftSize.TabIndex = 52;
+            txtShiftRotation.Location = new Point(3, 48);
+            txtShiftRotation.Size = new Size(149, 17);
+            txtShiftRotation.TabIndex = 0;
+            txtShiftRotation.TextAlign = ContentAlignment.MiddleCenter;
+            sliderShiftRotation.AutoSize = false;
+            sliderShiftRotation.Location = new Point(3, 68);
+            sliderShiftRotation.Size = new Size(150, 25);
+            sliderShiftRotation.TabIndex = 53;
+            txtShiftFlow.Location = new Point(3, 96);
+            txtShiftFlow.Size = new Size(149, 17);
+            txtShiftFlow.TabIndex = 0;
+            txtShiftFlow.TextAlign = ContentAlignment.MiddleCenter;
+            sliderShiftFlow.AutoSize = false;
+            sliderShiftFlow.Location = new Point(3, 116);
+            sliderShiftFlow.Size = new Size(150, 25);
+            sliderShiftFlow.TabIndex = 54;
+            panelShiftBasics.FlowDirection = FlowDirection.TopDown;
+            panelShiftBasics.Location = new Point(0, 1724);
+            panelShiftBasics.Margin = new Padding(0, 3, 0, 3);
+            panelShiftBasics.Size = new Size(156, 144);
+            panelShiftBasics.TabIndex = 51;
+            bttnTabAssignPressureControls.Location = new Point(0, 1874);
+            bttnTabAssignPressureControls.Margin = new Padding(0, 3, 0, 3);
+            bttnTabAssignPressureControls.Size = new Size(155, 23);
+            bttnTabAssignPressureControls.TabIndex = 55;
+            bttnTabAssignPressureControls.TextAlign = ContentAlignment.MiddleLeft;
+            panelTabletAssignPressure.AutoSize = true;
+            panelTabletAssignPressure.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelTabPressureBrushOpacity.AutoSize = true;
+            panelTabPressureBrushOpacity.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            txtTabPressureBrushOpacity.AutoSize = true;
+            txtTabPressureBrushOpacity.Dock = DockStyle.Left;
+            txtTabPressureBrushOpacity.Font = new Font("Microsoft Sans Serif", 8.25f);
+            txtTabPressureBrushOpacity.Location = new Point(0, 0);
+            txtTabPressureBrushOpacity.Margin = new Padding(3, 3, 3, 3);
+            txtTabPressureBrushOpacity.Size = new Size(105, 13);
+            txtTabPressureBrushOpacity.TabIndex = 0;
+            spinTabPressureBrushOpacity.Dock = DockStyle.Right;
+            spinTabPressureBrushOpacity.Location = new Point(105, 0);
+            spinTabPressureBrushOpacity.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureBrushOpacity.Size = new Size(51, 20);
+            spinTabPressureBrushOpacity.TabIndex = 58;
+            panel19.Location = new Point(0, 3);
+            panel19.Margin = new Padding(0, 3, 0, 0);
+            panel19.Size = new Size(156, 22);
+            panel19.TabIndex = 57;
+            cmbxTabPressureBrushOpacity.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureBrushOpacity.IntegralHeight = false;
+            cmbxTabPressureBrushOpacity.ItemHeight = 13;
+            cmbxTabPressureBrushOpacity.Location = new Point(0, 25);
+            cmbxTabPressureBrushOpacity.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureBrushOpacity.MaxDropDownItems = 9;
+            cmbxTabPressureBrushOpacity.Size = new Size(156, 21);
+            cmbxTabPressureBrushOpacity.TabIndex = 59;
+            panelTabPressureBrushOpacity.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureBrushOpacity.Location = new Point(0, 3);
+            panelTabPressureBrushOpacity.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureBrushOpacity.Size = new Size(156, 49);
+            panelTabPressureBrushOpacity.TabIndex = 60;
+            panelTabPressureBrushFlow.AutoSize = true;
+            panelTabPressureBrushFlow.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            txtTabPressureBrushFlow.AutoSize = true;
+            txtTabPressureBrushFlow.Dock = DockStyle.Left;
+            txtTabPressureBrushFlow.Font = new Font("Microsoft Sans Serif", 8.25f);
+            txtTabPressureBrushFlow.Location = new Point(0, 0);
+            txtTabPressureBrushFlow.Margin = new Padding(3, 3, 3, 3);
+            txtTabPressureBrushFlow.Size = new Size(105, 13);
+            txtTabPressureBrushFlow.TabIndex = 0;
+            spinTabPressureBrushFlow.Dock = DockStyle.Right;
+            spinTabPressureBrushFlow.Location = new Point(105, 0);
+            spinTabPressureBrushFlow.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureBrushFlow.Size = new Size(51, 20);
+            spinTabPressureBrushFlow.TabIndex = 58;
+            panel3.Location = new Point(0, 3);
+            panel3.Margin = new Padding(0, 3, 0, 0);
+            panel3.Size = new Size(156, 22);
+            panel3.TabIndex = 57;
+            cmbxTabPressureBrushFlow.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureBrushFlow.IntegralHeight = false;
+            cmbxTabPressureBrushFlow.ItemHeight = 13;
+            cmbxTabPressureBrushFlow.Location = new Point(0, 25);
+            cmbxTabPressureBrushFlow.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureBrushFlow.MaxDropDownItems = 9;
+            cmbxTabPressureBrushFlow.Size = new Size(156, 21);
+            cmbxTabPressureBrushFlow.TabIndex = 59;
+            panelTabPressureBrushFlow.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureBrushFlow.Location = new Point(0, 58);
+            panelTabPressureBrushFlow.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureBrushFlow.Size = new Size(156, 49);
+            panelTabPressureBrushFlow.TabIndex = 60;
+            panelTabPressureBrushSize.AutoSize = true;
+            panelTabPressureBrushSize.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            txtTabPressureBrushSize.AutoSize = true;
+            txtTabPressureBrushSize.Dock = DockStyle.Left;
+            txtTabPressureBrushSize.Font = new Font("Microsoft Sans Serif", 8.25f);
+            txtTabPressureBrushSize.Location = new Point(0, 0);
+            txtTabPressureBrushSize.Margin = new Padding(3, 3, 3, 3);
+            txtTabPressureBrushSize.Size = new Size(60, 13);
+            txtTabPressureBrushSize.TabIndex = 0;
+            spinTabPressureBrushSize.Dock = DockStyle.Right;
+            spinTabPressureBrushSize.Location = new Point(105, 0);
+            spinTabPressureBrushSize.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureBrushSize.Size = new Size(51, 20);
+            spinTabPressureBrushSize.TabIndex = 62;
+            panel8.Location = new Point(0, 3);
+            panel8.Margin = new Padding(0, 3, 0, 0);
+            panel8.Size = new Size(156, 22);
+            panel8.TabIndex = 61;
+            cmbxTabPressureBrushSize.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureBrushSize.IntegralHeight = false;
+            cmbxTabPressureBrushSize.ItemHeight = 13;
+            cmbxTabPressureBrushSize.Location = new Point(0, 25);
+            cmbxTabPressureBrushSize.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureBrushSize.MaxDropDownItems = 9;
+            cmbxTabPressureBrushSize.Size = new Size(156, 21);
+            cmbxTabPressureBrushSize.TabIndex = 63;
+            panelTabPressureBrushSize.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureBrushSize.Location = new Point(0, 113);
+            panelTabPressureBrushSize.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureBrushSize.Size = new Size(156, 49);
+            panelTabPressureBrushSize.TabIndex = 62;
+            panelTabPressureBrushRotation.AutoSize = true;
+            panelTabPressureBrushRotation.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            txtTabPressureBrushRotation.AutoSize = true;
+            txtTabPressureBrushRotation.Dock = DockStyle.Left;
+            txtTabPressureBrushRotation.Font = new Font("Microsoft Sans Serif", 8.25f);
+            txtTabPressureBrushRotation.Location = new Point(0, 0);
+            txtTabPressureBrushRotation.Margin = new Padding(3, 3, 3, 3);
+            txtTabPressureBrushRotation.Size = new Size(80, 13);
+            txtTabPressureBrushRotation.TabIndex = 0;
+            spinTabPressureBrushRotation.Dock = DockStyle.Right;
+            spinTabPressureBrushRotation.Location = new Point(105, 0);
+            spinTabPressureBrushRotation.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureBrushRotation.Size = new Size(51, 20);
+            spinTabPressureBrushRotation.TabIndex = 66;
+            panel2.Location = new Point(0, 3);
+            panel2.Margin = new Padding(0, 3, 0, 0);
+            panel2.Size = new Size(156, 22);
+            panel2.TabIndex = 65;
+            cmbxTabPressureBrushRotation.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureBrushRotation.IntegralHeight = false;
+            cmbxTabPressureBrushRotation.ItemHeight = 13;
+            cmbxTabPressureBrushRotation.Location = new Point(0, 25);
+            cmbxTabPressureBrushRotation.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureBrushRotation.MaxDropDownItems = 9;
+            cmbxTabPressureBrushRotation.Size = new Size(156, 21);
+            cmbxTabPressureBrushRotation.TabIndex = 68;
+            panelTabPressureBrushRotation.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureBrushRotation.Location = new Point(0, 168);
+            panelTabPressureBrushRotation.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureBrushRotation.Size = new Size(156, 49);
+            panelTabPressureBrushRotation.TabIndex = 67;
+            panelTabPressureMinDrawDistance.AutoSize = true;
+            panelTabPressureMinDrawDistance.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureMinDrawDistance.AutoSize = true;
+            lblTabPressureMinDrawDistance.Dock = DockStyle.Left;
+            lblTabPressureMinDrawDistance.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureMinDrawDistance.Location = new Point(0, 0);
+            lblTabPressureMinDrawDistance.Margin = new Padding(3, 3, 3, 3);
+            lblTabPressureMinDrawDistance.Size = new Size(103, 13);
+            lblTabPressureMinDrawDistance.TabIndex = 0;
+            spinTabPressureMinDrawDistance.Dock = DockStyle.Right;
+            spinTabPressureMinDrawDistance.Location = new Point(105, 0);
+            spinTabPressureMinDrawDistance.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMinDrawDistance.Size = new Size(51, 20);
+            spinTabPressureMinDrawDistance.TabIndex = 69;
+            panel1.Location = new Point(0, 3);
+            panel1.Margin = new Padding(0, 3, 0, 0);
+            panel1.Size = new Size(156, 22);
+            panel1.TabIndex = 70;
+            cmbxTabPressureMinDrawDistance.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureMinDrawDistance.IntegralHeight = false;
+            cmbxTabPressureMinDrawDistance.ItemHeight = 13;
+            cmbxTabPressureMinDrawDistance.Location = new Point(0, 25);
+            cmbxTabPressureMinDrawDistance.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureMinDrawDistance.MaxDropDownItems = 9;
+            cmbxTabPressureMinDrawDistance.Size = new Size(156, 21);
+            cmbxTabPressureMinDrawDistance.TabIndex = 72;
+            panelTabPressureMinDrawDistance.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureMinDrawDistance.Location = new Point(0, 223);
+            panelTabPressureMinDrawDistance.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureMinDrawDistance.Size = new Size(156, 49);
+            panelTabPressureMinDrawDistance.TabIndex = 71;
+            panelTabPressureBrushDensity.AutoSize = true;
+            panelTabPressureBrushDensity.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureBrushDensity.AutoSize = true;
+            lblTabPressureBrushDensity.Dock = DockStyle.Left;
+            lblTabPressureBrushDensity.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureBrushDensity.Location = new Point(0, 0);
+            lblTabPressureBrushDensity.Margin = new Padding(3, 3, 3, 3);
+            lblTabPressureBrushDensity.Size = new Size(75, 13);
+            lblTabPressureBrushDensity.TabIndex = 0;
+            spinTabPressureBrushDensity.Dock = DockStyle.Right;
+            spinTabPressureBrushDensity.Location = new Point(105, 0);
+            spinTabPressureBrushDensity.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureBrushDensity.Size = new Size(51, 20);
+            spinTabPressureBrushDensity.TabIndex = 74;
+            panel4.Location = new Point(0, 3);
+            panel4.Margin = new Padding(0, 3, 0, 0);
+            panel4.Size = new Size(156, 22);
+            panel4.TabIndex = 73;
+            cmbxTabPressureBrushDensity.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureBrushDensity.IntegralHeight = false;
+            cmbxTabPressureBrushDensity.ItemHeight = 13;
+            cmbxTabPressureBrushDensity.Location = new Point(0, 25);
+            cmbxTabPressureBrushDensity.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureBrushDensity.MaxDropDownItems = 9;
+            cmbxTabPressureBrushDensity.Size = new Size(156, 21);
+            cmbxTabPressureBrushDensity.TabIndex = 76;
+            panelTabPressureBrushDensity.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureBrushDensity.Location = new Point(0, 278);
+            panelTabPressureBrushDensity.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureBrushDensity.Size = new Size(156, 49);
+            panelTabPressureBrushDensity.TabIndex = 75;
+            panelTabPressureRandMinSize.AutoSize = true;
+            panelTabPressureRandMinSize.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureRandMinSize.AutoSize = true;
+            lblTabPressureRandMinSize.Dock = DockStyle.Left;
+            lblTabPressureRandMinSize.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRandMinSize.Location = new Point(0, 0);
+            lblTabPressureRandMinSize.Margin = new Padding(3, 3, 3, 3);
+            lblTabPressureRandMinSize.Size = new Size(93, 13);
+            lblTabPressureRandMinSize.TabIndex = 0;
+            spinTabPressureRandMinSize.Dock = DockStyle.Right;
+            spinTabPressureRandMinSize.Location = new Point(105, 0);
+            spinTabPressureRandMinSize.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureRandMinSize.Size = new Size(51, 20);
+            spinTabPressureRandMinSize.TabIndex = 78;
+            panel5.Location = new Point(0, 3);
+            panel5.Margin = new Padding(0, 3, 0, 0);
+            panel5.Size = new Size(156, 22);
+            panel5.TabIndex = 77;
+            cmbxTabPressureRandMinSize.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRandMinSize.IntegralHeight = false;
+            cmbxTabPressureRandMinSize.ItemHeight = 13;
+            cmbxTabPressureRandMinSize.Location = new Point(0, 25);
+            cmbxTabPressureRandMinSize.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRandMinSize.MaxDropDownItems = 9;
+            cmbxTabPressureRandMinSize.Size = new Size(156, 21);
+            cmbxTabPressureRandMinSize.TabIndex = 80;
+            panelTabPressureRandMinSize.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRandMinSize.Location = new Point(0, 333);
+            panelTabPressureRandMinSize.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRandMinSize.Size = new Size(156, 49);
+            panelTabPressureRandMinSize.TabIndex = 79;
+            panelTabPressureRandMaxSize.AutoSize = true;
+            panelTabPressureRandMaxSize.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureRandMaxSize.AutoSize = true;
+            lblTabPressureRandMaxSize.Dock = DockStyle.Left;
+            lblTabPressureRandMaxSize.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRandMaxSize.Location = new Point(0, 0);
+            lblTabPressureRandMaxSize.Margin = new Padding(3, 3, 3, 3);
+            lblTabPressureRandMaxSize.Size = new Size(96, 13);
+            lblTabPressureRandMaxSize.TabIndex = 0;
+            spinTabPressureRandMaxSize.Dock = DockStyle.Right;
+            spinTabPressureRandMaxSize.Location = new Point(105, 0);
+            spinTabPressureRandMaxSize.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureRandMaxSize.Size = new Size(51, 20);
+            spinTabPressureRandMaxSize.TabIndex = 82;
+            panel6.Location = new Point(0, 3);
+            panel6.Margin = new Padding(0, 3, 0, 0);
+            panel6.Size = new Size(156, 22);
+            panel6.TabIndex = 81;
+            cmbxTabPressureRandMaxSize.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRandMaxSize.IntegralHeight = false;
+            cmbxTabPressureRandMaxSize.ItemHeight = 13;
+            cmbxTabPressureRandMaxSize.Location = new Point(0, 25);
+            cmbxTabPressureRandMaxSize.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRandMaxSize.MaxDropDownItems = 9;
+            cmbxTabPressureRandMaxSize.Size = new Size(156, 21);
+            cmbxTabPressureRandMaxSize.TabIndex = 84;
+            panelTabPressureRandMaxSize.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRandMaxSize.Location = new Point(0, 388);
+            panelTabPressureRandMaxSize.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRandMaxSize.Size = new Size(156, 49);
+            panelTabPressureRandMaxSize.TabIndex = 83;
+            panelTabPressureRandRotLeft.AutoSize = true;
+            panelTabPressureRandRotLeft.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureRandRotLeft.AutoSize = true;
+            lblTabPressureRandRotLeft.Dock = DockStyle.Left;
+            lblTabPressureRandRotLeft.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRandRotLeft.Location = new Point(0, 0);
+            lblTabPressureRandRotLeft.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureRandRotLeft.Size = new Size(91, 13);
+            lblTabPressureRandRotLeft.TabIndex = 0;
+            spinTabPressureRandRotLeft.Dock = DockStyle.Right;
+            spinTabPressureRandRotLeft.Location = new Point(105, 0);
+            spinTabPressureRandRotLeft.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureRandRotLeft.Size = new Size(51, 20);
+            spinTabPressureRandRotLeft.TabIndex = 85;
+            panel7.Location = new Point(0, 3);
+            panel7.Margin = new Padding(0, 3, 0, 0);
+            panel7.Size = new Size(156, 22);
+            panel7.TabIndex = 84;
+            cmbxTabPressureRandRotLeft.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRandRotLeft.IntegralHeight = false;
+            cmbxTabPressureRandRotLeft.ItemHeight = 13;
+            cmbxTabPressureRandRotLeft.Location = new Point(0, 25);
+            cmbxTabPressureRandRotLeft.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRandRotLeft.MaxDropDownItems = 9;
+            cmbxTabPressureRandRotLeft.Size = new Size(156, 21);
+            cmbxTabPressureRandRotLeft.TabIndex = 87;
+            panelTabPressureRandRotLeft.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRandRotLeft.Location = new Point(0, 443);
+            panelTabPressureRandRotLeft.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRandRotLeft.Size = new Size(156, 49);
+            panelTabPressureRandRotLeft.TabIndex = 86;
+            panelTabPressureRandRotRight.AutoSize = true;
+            panelTabPressureRandRotRight.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureRandRotRight.AutoSize = true;
+            lblTabPressureRandRotRight.Dock = DockStyle.Left;
+            lblTabPressureRandRotRight.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRandRotRight.Location = new Point(0, 0);
+            lblTabPressureRandRotRight.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureRandRotRight.Size = new Size(98, 13);
+            lblTabPressureRandRotRight.TabIndex = 0;
+            spinTabPressureRandRotRight.Dock = DockStyle.Right;
+            spinTabPressureRandRotRight.Location = new Point(105, 0);
+            spinTabPressureRandRotRight.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureRandRotRight.Size = new Size(51, 20);
+            spinTabPressureRandRotRight.TabIndex = 89;
+            panel9.Location = new Point(0, 3);
+            panel9.Margin = new Padding(0, 3, 0, 0);
+            panel9.Size = new Size(156, 22);
+            panel9.TabIndex = 88;
+            cmbxTabPressureRandRotRight.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRandRotRight.IntegralHeight = false;
+            cmbxTabPressureRandRotRight.ItemHeight = 13;
+            cmbxTabPressureRandRotRight.Location = new Point(0, 25);
+            cmbxTabPressureRandRotRight.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRandRotRight.MaxDropDownItems = 9;
+            cmbxTabPressureRandRotRight.Size = new Size(156, 21);
+            cmbxTabPressureRandRotRight.TabIndex = 91;
+            panelTabPressureRandRotRight.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRandRotRight.Location = new Point(0, 498);
+            panelTabPressureRandRotRight.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRandRotRight.Size = new Size(156, 49);
+            panelTabPressureRandRotRight.TabIndex = 90;
+            panelTabPressureRandFlowLoss.AutoSize = true;
+            panelTabPressureRandFlowLoss.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureRandFlowLoss.AutoSize = true;
+            lblTabPressureRandFlowLoss.Dock = DockStyle.Left;
+            lblTabPressureRandFlowLoss.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRandFlowLoss.Location = new Point(0, 0);
+            lblTabPressureRandFlowLoss.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureRandFlowLoss.Size = new Size(100, 13);
+            lblTabPressureRandFlowLoss.TabIndex = 0;
+            spinTabPressureRandFlowLoss.Dock = DockStyle.Right;
+            spinTabPressureRandFlowLoss.Location = new Point(105, 0);
+            spinTabPressureRandFlowLoss.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureRandFlowLoss.Size = new Size(51, 20);
+            spinTabPressureRandFlowLoss.TabIndex = 93;
+            panel10.Location = new Point(0, 3);
+            panel10.Margin = new Padding(0, 3, 0, 0);
+            panel10.Size = new Size(156, 22);
+            panel10.TabIndex = 92;
+            cmbxTabPressureRandFlowLoss.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRandFlowLoss.IntegralHeight = false;
+            cmbxTabPressureRandFlowLoss.ItemHeight = 13;
+            cmbxTabPressureRandFlowLoss.Location = new Point(0, 25);
+            cmbxTabPressureRandFlowLoss.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRandFlowLoss.MaxDropDownItems = 9;
+            cmbxTabPressureRandFlowLoss.Size = new Size(156, 21);
+            cmbxTabPressureRandFlowLoss.TabIndex = 95;
+            panelTabPressureRandFlowLoss.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRandFlowLoss.Location = new Point(0, 553);
+            panelTabPressureRandFlowLoss.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRandFlowLoss.Size = new Size(156, 49);
+            panelTabPressureRandFlowLoss.TabIndex = 94;
+            panelTabPressureRandHorShift.AutoSize = true;
+            panelTabPressureRandHorShift.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureRandHorShift.AutoSize = true;
+            lblTabPressureRandHorShift.Dock = DockStyle.Left;
+            lblTabPressureRandHorShift.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRandHorShift.Location = new Point(0, 0);
+            lblTabPressureRandHorShift.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureRandHorShift.Size = new Size(97, 13);
+            lblTabPressureRandHorShift.TabIndex = 0;
+            spinTabPressureRandHorShift.Dock = DockStyle.Right;
+            spinTabPressureRandHorShift.Location = new Point(105, 0);
+            spinTabPressureRandHorShift.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureRandHorShift.Size = new Size(51, 20);
+            spinTabPressureRandHorShift.TabIndex = 97;
+            panel12.Location = new Point(0, 3);
+            panel12.Margin = new Padding(0, 3, 0, 0);
+            panel12.Size = new Size(156, 22);
+            panel12.TabIndex = 96;
+            cmbxTabPressureRandHorShift.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRandHorShift.IntegralHeight = false;
+            cmbxTabPressureRandHorShift.ItemHeight = 13;
+            cmbxTabPressureRandHorShift.Location = new Point(0, 25);
+            cmbxTabPressureRandHorShift.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRandHorShift.MaxDropDownItems = 9;
+            cmbxTabPressureRandHorShift.Size = new Size(156, 21);
+            cmbxTabPressureRandHorShift.TabIndex = 99;
+            panelTabPressureRandHorShift.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRandHorShift.Location = new Point(0, 608);
+            panelTabPressureRandHorShift.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRandHorShift.Size = new Size(156, 49);
+            panelTabPressureRandHorShift.TabIndex = 98;
+            panelTabPressureRandVerShift.AutoSize = true;
+            panelTabPressureRandVerShift.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            lblTabPressureRandVerShift.AutoSize = true;
+            lblTabPressureRandVerShift.Dock = DockStyle.Left;
+            lblTabPressureRandVerShift.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRandVerShift.Location = new Point(0, 0);
+            lblTabPressureRandVerShift.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureRandVerShift.Size = new Size(96, 13);
+            lblTabPressureRandVerShift.TabIndex = 0;
+            spinTabPressureRandVerShift.Dock = DockStyle.Right;
+            spinTabPressureRandVerShift.Location = new Point(105, 0);
+            spinTabPressureRandVerShift.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureRandVerShift.Size = new Size(51, 20);
+            spinTabPressureRandVerShift.TabIndex = 101;
+            panel11.Location = new Point(0, 3);
+            panel11.Margin = new Padding(0, 3, 0, 0);
+            panel11.Size = new Size(156, 22);
+            panel11.TabIndex = 100;
+            cmbxTabPressureRandVerShift.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRandVerShift.IntegralHeight = false;
+            cmbxTabPressureRandVerShift.ItemHeight = 13;
+            cmbxTabPressureRandVerShift.Location = new Point(0, 25);
+            cmbxTabPressureRandVerShift.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRandVerShift.MaxDropDownItems = 9;
+            cmbxTabPressureRandVerShift.Size = new Size(156, 21);
+            cmbxTabPressureRandVerShift.TabIndex = 103;
+            panelTabPressureRandVerShift.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRandVerShift.Location = new Point(0, 663);
+            panelTabPressureRandVerShift.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRandVerShift.Size = new Size(156, 49);
+            panelTabPressureRandVerShift.TabIndex = 102;
+            panelTabPressureRedJitter.AutoSize = true;
+            panelTabPressureRedJitter.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            spinTabPressureMinRedJitter.Dock = DockStyle.Right;
+            spinTabPressureMinRedJitter.Location = new Point(74, 0);
+            spinTabPressureMinRedJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMinRedJitter.Size = new Size(41, 20);
+            spinTabPressureMinRedJitter.TabIndex = 104;
+            lblTabPressureRedJitter.AutoSize = true;
+            lblTabPressureRedJitter.Dock = DockStyle.Left;
+            lblTabPressureRedJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureRedJitter.Location = new Point(0, 0);
+            lblTabPressureRedJitter.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureRedJitter.Size = new Size(55, 13);
+            lblTabPressureRedJitter.TabIndex = 0;
+            spinTabPressureMaxRedJitter.Dock = DockStyle.Right;
+            spinTabPressureMaxRedJitter.Location = new Point(115, 0);
+            spinTabPressureMaxRedJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMaxRedJitter.Size = new Size(41, 20);
+            spinTabPressureMaxRedJitter.TabIndex = 105;
+            panel13.Location = new Point(0, 3);
+            panel13.Margin = new Padding(0, 3, 0, 0);
+            panel13.Size = new Size(156, 22);
+            panel13.TabIndex = 103;
+            cmbxTabPressureRedJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureRedJitter.IntegralHeight = false;
+            cmbxTabPressureRedJitter.ItemHeight = 13;
+            cmbxTabPressureRedJitter.Location = new Point(0, 25);
+            cmbxTabPressureRedJitter.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureRedJitter.MaxDropDownItems = 9;
+            cmbxTabPressureRedJitter.Size = new Size(156, 21);
+            cmbxTabPressureRedJitter.TabIndex = 107;
+            panelTabPressureRedJitter.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureRedJitter.Location = new Point(0, 718);
+            panelTabPressureRedJitter.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureRedJitter.Size = new Size(156, 49);
+            panelTabPressureRedJitter.TabIndex = 106;
+            panelTabPressureGreenJitter.AutoSize = true;
+            panelTabPressureGreenJitter.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            spinTabPressureMinGreenJitter.Dock = DockStyle.Right;
+            spinTabPressureMinGreenJitter.Location = new Point(74, 0);
+            spinTabPressureMinGreenJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMinGreenJitter.Size = new Size(41, 20);
+            spinTabPressureMinGreenJitter.TabIndex = 108;
+            lblTabPressureGreenJitter.AutoSize = true;
+            lblTabPressureGreenJitter.Dock = DockStyle.Left;
+            lblTabPressureGreenJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureGreenJitter.Location = new Point(0, 0);
+            lblTabPressureGreenJitter.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureGreenJitter.Size = new Size(64, 13);
+            lblTabPressureGreenJitter.TabIndex = 0;
+            spinTabPressureMaxGreenJitter.Dock = DockStyle.Right;
+            spinTabPressureMaxGreenJitter.Location = new Point(115, 0);
+            spinTabPressureMaxGreenJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMaxGreenJitter.Size = new Size(41, 20);
+            spinTabPressureMaxGreenJitter.TabIndex = 109;
+            panel14.Location = new Point(0, 3);
+            panel14.Margin = new Padding(0, 3, 0, 0);
+            panel14.Size = new Size(156, 22);
+            panel14.TabIndex = 107;
+            cmbxTabPressureGreenJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureGreenJitter.IntegralHeight = false;
+            cmbxTabPressureGreenJitter.ItemHeight = 13;
+            cmbxTabPressureGreenJitter.Location = new Point(0, 25);
+            cmbxTabPressureGreenJitter.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureGreenJitter.MaxDropDownItems = 9;
+            cmbxTabPressureGreenJitter.Size = new Size(156, 21);
+            cmbxTabPressureGreenJitter.TabIndex = 111;
+            panelTabPressureGreenJitter.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureGreenJitter.Location = new Point(0, 773);
+            panelTabPressureGreenJitter.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureGreenJitter.Size = new Size(156, 49);
+            panelTabPressureGreenJitter.TabIndex = 110;
+            panelTabPressureBlueJitter.AutoSize = true;
+            panelTabPressureBlueJitter.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            spinTabPressureMinBlueJitter.Dock = DockStyle.Right;
+            spinTabPressureMinBlueJitter.Location = new Point(74, 0);
+            spinTabPressureMinBlueJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMinBlueJitter.Size = new Size(41, 20);
+            spinTabPressureMinBlueJitter.TabIndex = 113;
+            lblTabPressureBlueJitter.AutoSize = true;
+            lblTabPressureBlueJitter.Dock = DockStyle.Left;
+            lblTabPressureBlueJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureBlueJitter.Location = new Point(0, 0);
+            lblTabPressureBlueJitter.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureBlueJitter.Size = new Size(56, 13);
+            lblTabPressureBlueJitter.TabIndex = 0;
+            spinTabPressureMaxBlueJitter.Dock = DockStyle.Right;
+            spinTabPressureMaxBlueJitter.Location = new Point(115, 0);
+            spinTabPressureMaxBlueJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMaxBlueJitter.Size = new Size(41, 20);
+            spinTabPressureMaxBlueJitter.TabIndex = 114;
+            panel15.Location = new Point(0, 3);
+            panel15.Margin = new Padding(0, 3, 0, 0);
+            panel15.Size = new Size(156, 22);
+            panel15.TabIndex = 112;
+            cmbxTabPressureBlueJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureBlueJitter.IntegralHeight = false;
+            cmbxTabPressureBlueJitter.ItemHeight = 13;
+            cmbxTabPressureBlueJitter.Location = new Point(0, 25);
+            cmbxTabPressureBlueJitter.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureBlueJitter.MaxDropDownItems = 9;
+            cmbxTabPressureBlueJitter.Size = new Size(156, 21);
+            cmbxTabPressureBlueJitter.TabIndex = 116;
+            panelTabPressureBlueJitter.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureBlueJitter.Location = new Point(0, 828);
+            panelTabPressureBlueJitter.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureBlueJitter.Size = new Size(156, 49);
+            panelTabPressureBlueJitter.TabIndex = 115;
+            panelTabPressureHueJitter.AutoSize = true;
+            panelTabPressureHueJitter.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            spinTabPressureMinHueJitter.Dock = DockStyle.Right;
+            spinTabPressureMinHueJitter.Location = new Point(74, 0);
+            spinTabPressureMinHueJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMinHueJitter.Size = new Size(41, 20);
+            spinTabPressureMinHueJitter.TabIndex = 118;
+            lblTabPressureHueJitter.AutoSize = true;
+            lblTabPressureHueJitter.Dock = DockStyle.Left;
+            lblTabPressureHueJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureHueJitter.Location = new Point(0, 0);
+            lblTabPressureHueJitter.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureHueJitter.Size = new Size(55, 13);
+            lblTabPressureHueJitter.TabIndex = 0;
+            spinTabPressureMaxHueJitter.Dock = DockStyle.Right;
+            spinTabPressureMaxHueJitter.Location = new Point(115, 0);
+            spinTabPressureMaxHueJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMaxHueJitter.Size = new Size(41, 20);
+            spinTabPressureMaxHueJitter.TabIndex = 119;
+            panel16.Location = new Point(0, 3);
+            panel16.Margin = new Padding(0, 3, 0, 0);
+            panel16.Size = new Size(156, 22);
+            panel16.TabIndex = 117;
+            cmbxTabPressureHueJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureHueJitter.IntegralHeight = false;
+            cmbxTabPressureHueJitter.ItemHeight = 13;
+            cmbxTabPressureHueJitter.Location = new Point(0, 25);
+            cmbxTabPressureHueJitter.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureHueJitter.MaxDropDownItems = 9;
+            cmbxTabPressureHueJitter.Size = new Size(156, 21);
+            cmbxTabPressureHueJitter.TabIndex = 121;
+            panelTabPressureHueJitter.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureHueJitter.Location = new Point(0, 883);
+            panelTabPressureHueJitter.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureHueJitter.Size = new Size(156, 49);
+            panelTabPressureHueJitter.TabIndex = 120;
+            panelTabPressureSatJitter.AutoSize = true;
+            panelTabPressureSatJitter.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            spinTabPressureMinSatJitter.Dock = DockStyle.Right;
+            spinTabPressureMinSatJitter.Location = new Point(74, 0);
+            spinTabPressureMinSatJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMinSatJitter.Size = new Size(41, 20);
+            spinTabPressureMinSatJitter.TabIndex = 123;
+            lblTabPressureSatJitter.AutoSize = true;
+            lblTabPressureSatJitter.Dock = DockStyle.Left;
+            lblTabPressureSatJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureSatJitter.Location = new Point(0, 0);
+            lblTabPressureSatJitter.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureSatJitter.Size = new Size(54, 13);
+            lblTabPressureSatJitter.TabIndex = 0;
+            spinTabPressureMaxSatJitter.Dock = DockStyle.Right;
+            spinTabPressureMaxSatJitter.Location = new Point(115, 0);
+            spinTabPressureMaxSatJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMaxSatJitter.Size = new Size(41, 20);
+            spinTabPressureMaxSatJitter.TabIndex = 124;
+            panel17.Location = new Point(0, 3);
+            panel17.Margin = new Padding(0, 3, 0, 0);
+            panel17.Size = new Size(156, 22);
+            panel17.TabIndex = 122;
+            cmbxTabPressureSatJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureSatJitter.IntegralHeight = false;
+            cmbxTabPressureSatJitter.ItemHeight = 13;
+            cmbxTabPressureSatJitter.Location = new Point(0, 25);
+            cmbxTabPressureSatJitter.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureSatJitter.MaxDropDownItems = 9;
+            cmbxTabPressureSatJitter.Size = new Size(156, 21);
+            cmbxTabPressureSatJitter.TabIndex = 126;
+            panelTabPressureSatJitter.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureSatJitter.Location = new Point(0, 938);
+            panelTabPressureSatJitter.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureSatJitter.Size = new Size(156, 49);
+            panelTabPressureSatJitter.TabIndex = 125;
+            panelTabPressureValueJitter.AutoSize = true;
+            panelTabPressureValueJitter.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            spinTabPressureMinValueJitter.Dock = DockStyle.Right;
+            spinTabPressureMinValueJitter.Location = new Point(74, 0);
+            spinTabPressureMinValueJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMinValueJitter.Size = new Size(41, 20);
+            spinTabPressureMinValueJitter.TabIndex = 128;
+            lblTabPressureValueJitter.AutoSize = true;
+            lblTabPressureValueJitter.Dock = DockStyle.Left;
+            lblTabPressureValueJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            lblTabPressureValueJitter.Location = new Point(0, 0);
+            lblTabPressureValueJitter.Margin = new Padding(0, 3, 0, 3);
+            lblTabPressureValueJitter.Size = new Size(62, 13);
+            lblTabPressureValueJitter.TabIndex = 0;
+            spinTabPressureMaxValueJitter.Dock = DockStyle.Right;
+            spinTabPressureMaxValueJitter.Location = new Point(115, 0);
+            spinTabPressureMaxValueJitter.Margin = new Padding(3, 3, 0, 3);
+            spinTabPressureMaxValueJitter.Size = new Size(41, 20);
+            spinTabPressureMaxValueJitter.TabIndex = 129;
+            panel18.Location = new Point(0, 3);
+            panel18.Margin = new Padding(0, 3, 0, 0);
+            panel18.Size = new Size(156, 22);
+            panel18.TabIndex = 127;
+            cmbxTabPressureValueJitter.Font = new Font("Microsoft Sans Serif", 8.25f);
+            cmbxTabPressureValueJitter.IntegralHeight = false;
+            cmbxTabPressureValueJitter.ItemHeight = 13;
+            cmbxTabPressureValueJitter.Location = new Point(0, 25);
+            cmbxTabPressureValueJitter.Margin = new Padding(0, 0, 0, 3);
+            cmbxTabPressureValueJitter.MaxDropDownItems = 9;
+            cmbxTabPressureValueJitter.Size = new Size(156, 21);
+            cmbxTabPressureValueJitter.TabIndex = 131;
+            panelTabPressureValueJitter.FlowDirection = FlowDirection.TopDown;
+            panelTabPressureValueJitter.Location = new Point(0, 993);
+            panelTabPressureValueJitter.Margin = new Padding(0, 3, 0, 3);
+            panelTabPressureValueJitter.Size = new Size(156, 49);
+            panelTabPressureValueJitter.TabIndex = 130;
+            panelTabletAssignPressure.FlowDirection = FlowDirection.TopDown;
+            panelTabletAssignPressure.Location = new Point(0, 1903);
+            panelTabletAssignPressure.Margin = new Padding(0, 3, 0, 3);
+            panelTabletAssignPressure.Size = new Size(156, 990);
+            panelTabletAssignPressure.TabIndex = 55;
+            bttnSettings.Location = new Point(0, 2899);
+            bttnSettings.Margin = new Padding(0, 3, 0, 3);
+            bttnSettings.Size = new Size(155, 23);
+            bttnSettings.TabIndex = 132;
+            bttnSettings.TextAlign = ContentAlignment.MiddleLeft;
+            panelSettings.AutoSize = true;
+            panelSettings.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            bttnUpdateCurrentBrush.Location = new Point(0, 3);
+            bttnUpdateCurrentBrush.Margin = new Padding(0, 3, 0, 3);
+            bttnUpdateCurrentBrush.Size = new Size(156, 23);
+            bttnUpdateCurrentBrush.TabIndex = 133;
+            bttnClearSettings.Location = new Point(0, 61);
+            bttnClearSettings.Margin = new Padding(0, 3, 0, 3);
+            bttnClearSettings.Size = new Size(156, 23);
+            bttnClearSettings.TabIndex = 135;
+            bttnDeleteBrush.Enabled = false;
+            bttnDeleteBrush.Location = new Point(0, 90);
+            bttnDeleteBrush.Margin = new Padding(0, 3, 0, 3);
+            bttnDeleteBrush.Size = new Size(156, 23);
+            bttnDeleteBrush.TabIndex = 136;
+            bttnSaveBrush.Location = new Point(0, 119);
+            bttnSaveBrush.Margin = new Padding(0, 3, 0, 3);
+            bttnSaveBrush.Size = new Size(156, 23);
+            bttnSaveBrush.TabIndex = 137;
+            panelSettings.FlowDirection = FlowDirection.TopDown;
+            panelSettings.Location = new Point(0, 2928);
+            panelSettings.Margin = new Padding(0, 3, 0, 0);
+            panelSettings.Size = new Size(156, 145);
+            panelSettings.TabIndex = 133;
+            panelSettingsContainer.FlowDirection = FlowDirection.TopDown;
+            panelSettingsContainer.Location = new Point(0, 35);
+            panelSettingsContainer.Margin = new Padding(0, 3, 0, 3);
+            panelSettingsContainer.Size = new Size(156, 3073);
+            panelSettingsContainer.TabIndex = 138;
+            panelDockSettingsContainer.Dock = DockStyle.Fill;
+            panelDockSettingsContainer.Location = new Point(0, 0);
+            panelDockSettingsContainer.Size = new Size(173, 484);
+            panelDockSettingsContainer.TabIndex = 139;
+            panelAllSettingsContainer.Dock = DockStyle.Right;
+            panelAllSettingsContainer.Location = new Point(656, 0);
+            panelAllSettingsContainer.Size = new Size(173, 541);
+            panelAllSettingsContainer.TabIndex = 140;
+            this.AutoScaleDimensions = new SizeF(96f, 96f);
+            this.BackgroundImageLayout = ImageLayout.None;
+            this.ClientSize = new Size(829, 541);
+            this.Location = new Point(0, 0);
+            this.Margin = new Padding(5, 5, 5, 5);
             // 
             // sliderBrushOpacity
             // 
-            resources.ApplyResources(this.sliderBrushOpacity, "sliderBrushOpacity");
-            this.sliderBrushOpacity.LargeChange = 1;
-            this.sliderBrushOpacity.Maximum = 255;
-            this.sliderBrushOpacity.Name = "sliderBrushOpacity";
-            this.sliderBrushOpacity.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushOpacity.Value = 255;
-            this.sliderBrushOpacity.ValueChanged += new EventHandler(this.SliderBrushOpacity_ValueChanged);
-            this.sliderBrushOpacity.MouseEnter += new EventHandler(this.SliderBrushOpacity_MouseEnter);
+            sliderBrushOpacity.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderBrushOpacity.LargeChange = 1;
+            sliderBrushOpacity.Maximum = 255;
+            sliderBrushOpacity.Name = "sliderBrushOpacity";
+            sliderBrushOpacity.TickStyle = TickStyle.None;
+            sliderBrushOpacity.Value = 255;
+            sliderBrushOpacity.ValueChanged += new EventHandler(SliderBrushOpacity_ValueChanged);
+            sliderBrushOpacity.MouseEnter += new EventHandler(SliderBrushOpacity_MouseEnter);
             // 
             // txtBrushFlow
             // 
-            resources.ApplyResources(this.txtBrushFlow, "txtBrushFlow");
-            this.txtBrushFlow.BackColor = System.Drawing.Color.Transparent;
-            this.txtBrushFlow.Name = "txtBrushFlow";
+            txtBrushFlow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtBrushFlow.BackColor = Color.Transparent;
+            txtBrushFlow.Name = "txtBrushFlow";
             // 
             // sliderBrushFlow
             // 
-            resources.ApplyResources(this.sliderBrushFlow, "sliderBrushFlow");
-            this.sliderBrushFlow.LargeChange = 1;
-            this.sliderBrushFlow.Maximum = 255;
-            this.sliderBrushFlow.Name = "sliderBrushFlow";
-            this.sliderBrushFlow.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushFlow.Value = 255;
-            this.sliderBrushFlow.ValueChanged += new EventHandler(this.SliderBrushFlow_ValueChanged);
-            this.sliderBrushFlow.MouseEnter += new EventHandler(this.SliderBrushFlow_MouseEnter);
+            sliderBrushFlow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderBrushFlow.LargeChange = 1;
+            sliderBrushFlow.Maximum = 255;
+            sliderBrushFlow.Name = "sliderBrushFlow";
+            sliderBrushFlow.TickStyle = TickStyle.None;
+            sliderBrushFlow.Value = 255;
+            sliderBrushFlow.ValueChanged += new EventHandler(SliderBrushFlow_ValueChanged);
+            sliderBrushFlow.MouseEnter += new EventHandler(SliderBrushFlow_MouseEnter);
             // 
             // txtBrushRotation
             // 
-            resources.ApplyResources(this.txtBrushRotation, "txtBrushRotation");
-            this.txtBrushRotation.BackColor = System.Drawing.Color.Transparent;
-            this.txtBrushRotation.Name = "txtBrushRotation";
+            txtBrushRotation.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtBrushRotation.BackColor = Color.Transparent;
+            txtBrushRotation.Name = "txtBrushRotation";
             // 
             // sliderBrushRotation
             // 
-            resources.ApplyResources(this.sliderBrushRotation, "sliderBrushRotation");
-            this.sliderBrushRotation.LargeChange = 1;
-            this.sliderBrushRotation.Maximum = 180;
-            this.sliderBrushRotation.Minimum = -180;
-            this.sliderBrushRotation.Name = "sliderBrushRotation";
-            this.sliderBrushRotation.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushRotation.ValueChanged += new EventHandler(this.SliderBrushRotation_ValueChanged);
-            this.sliderBrushRotation.MouseEnter += new EventHandler(this.SliderBrushRotation_MouseEnter);
+            sliderBrushRotation.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderBrushRotation.LargeChange = 1;
+            sliderBrushRotation.Maximum = 180;
+            sliderBrushRotation.Minimum = -180;
+            sliderBrushRotation.Name = "sliderBrushRotation";
+            sliderBrushRotation.TickStyle = TickStyle.None;
+            sliderBrushRotation.ValueChanged += new EventHandler(SliderBrushRotation_ValueChanged);
+            sliderBrushRotation.MouseEnter += new EventHandler(SliderBrushRotation_MouseEnter);
             // 
             // txtBrushSize
             // 
-            resources.ApplyResources(this.txtBrushSize, "txtBrushSize");
-            this.txtBrushSize.BackColor = System.Drawing.Color.Transparent;
-            this.txtBrushSize.Name = "txtBrushSize";
+            txtBrushSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtBrushSize.BackColor = Color.Transparent;
+            txtBrushSize.Name = "txtBrushSize";
             // 
             // sliderBrushSize
             // 
-            resources.ApplyResources(this.sliderBrushSize, "sliderBrushSize");
-            this.sliderBrushSize.LargeChange = 1;
-            this.sliderBrushSize.Maximum = 1000;
-            this.sliderBrushSize.Minimum = 1;
-            this.sliderBrushSize.Name = "sliderBrushSize";
-            this.sliderBrushSize.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushSize.Value = 10;
-            this.sliderBrushSize.ValueChanged += new EventHandler(this.SliderBrushSize_ValueChanged);
-            this.sliderBrushSize.MouseEnter += new EventHandler(this.SliderBrushSize_MouseEnter);
+            sliderBrushSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderBrushSize.LargeChange = 1;
+            sliderBrushSize.Maximum = 1000;
+            sliderBrushSize.Minimum = 1;
+            sliderBrushSize.Name = "sliderBrushSize";
+            sliderBrushSize.TickStyle = TickStyle.None;
+            sliderBrushSize.Value = 10;
+            sliderBrushSize.ValueChanged += new EventHandler(SliderBrushSize_ValueChanged);
+            sliderBrushSize.MouseEnter += new EventHandler(SliderBrushSize_MouseEnter);
             // 
             // bttnSpecialSettings
             // 
-            this.bttnSpecialSettings.BackColor = System.Drawing.Color.Black;
-            this.bttnSpecialSettings.ForeColor = System.Drawing.Color.WhiteSmoke;
-            resources.ApplyResources(this.bttnSpecialSettings, "bttnSpecialSettings");
-            this.bttnSpecialSettings.Name = "bttnSpecialSettings";
-            this.bttnSpecialSettings.UseVisualStyleBackColor = false;
+            bttnSpecialSettings.BackColor = Color.Black;
+            bttnSpecialSettings.ForeColor = Color.WhiteSmoke;
+            bttnSpecialSettings.Name = "bttnSpecialSettings";
+            bttnSpecialSettings.UseVisualStyleBackColor = false;
             // 
             // panelSpecialSettings
             // 
-            resources.ApplyResources(this.panelSpecialSettings, "panelSpecialSettings");
-            this.panelSpecialSettings.BackColor = System.Drawing.SystemColors.Control;
-            this.panelSpecialSettings.Controls.Add(this.panelChosenEffect);
-            this.panelSpecialSettings.Controls.Add(this.txtMinDrawDistance);
-            this.panelSpecialSettings.Controls.Add(this.sliderMinDrawDistance);
-            this.panelSpecialSettings.Controls.Add(this.chkbxAutomaticBrushDensity);
-            this.panelSpecialSettings.Controls.Add(this.txtBrushDensity);
-            this.panelSpecialSettings.Controls.Add(this.sliderBrushDensity);
-            this.panelSpecialSettings.Controls.Add(this.cmbxBrushSmoothing);
-            this.panelSpecialSettings.Controls.Add(this.cmbxSymmetry);
-            this.panelSpecialSettings.Controls.Add(this.chkbxSeamlessDrawing);
-            this.panelSpecialSettings.Controls.Add(this.chkbxOrientToMouse);
-            this.panelSpecialSettings.Controls.Add(this.chkbxDitherDraw);
-            this.panelSpecialSettings.Controls.Add(this.chkbxLockAlpha);
-            this.panelSpecialSettings.Controls.Add(this.panelRGBLocks);
-            this.panelSpecialSettings.Controls.Add(this.panelHSVLocks);
-            this.panelSpecialSettings.Name = "panelSpecialSettings";
+            panelSpecialSettings.BackColor = SystemColors.Control;
+            panelSpecialSettings.Controls.Add(panelChosenEffect);
+            panelSpecialSettings.Controls.Add(txtMinDrawDistance);
+            panelSpecialSettings.Controls.Add(sliderMinDrawDistance);
+            panelSpecialSettings.Controls.Add(chkbxAutomaticBrushDensity);
+            panelSpecialSettings.Controls.Add(txtBrushDensity);
+            panelSpecialSettings.Controls.Add(sliderBrushDensity);
+            panelSpecialSettings.Controls.Add(cmbxBrushSmoothing);
+            panelSpecialSettings.Controls.Add(cmbxSymmetry);
+            panelSpecialSettings.Controls.Add(chkbxSeamlessDrawing);
+            panelSpecialSettings.Controls.Add(chkbxOrientToMouse);
+            panelSpecialSettings.Controls.Add(chkbxDitherDraw);
+            panelSpecialSettings.Controls.Add(chkbxLockAlpha);
+            panelSpecialSettings.Controls.Add(panelRGBLocks);
+            panelSpecialSettings.Controls.Add(panelHSVLocks);
+            panelSpecialSettings.Name = "panelSpecialSettings";
             // 
             // panelChosenEffect
             // 
-            this.panelChosenEffect.Controls.Add(this.cmbxChosenEffect);
-            this.panelChosenEffect.Controls.Add(this.bttnChooseEffectSettings);
-            resources.ApplyResources(this.panelChosenEffect, "panelChosenEffect");
-            this.panelChosenEffect.Name = "panelChosenEffect";
+            panelChosenEffect.Controls.Add(cmbxChosenEffect);
+            panelChosenEffect.Controls.Add(bttnChooseEffectSettings);
+            panelChosenEffect.Name = "panelChosenEffect";
             // 
             // cmbxChosenEffect
             // 
-            resources.ApplyResources(this.cmbxChosenEffect, "cmbxChosenEffect");
-            this.cmbxChosenEffect.BackColor = System.Drawing.Color.White;
-            this.cmbxChosenEffect.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.cmbxChosenEffect.DropDownHeight = 140;
-            this.cmbxChosenEffect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxChosenEffect.DropDownWidth = 20;
-            this.cmbxChosenEffect.FormattingEnabled = true;
-            this.cmbxChosenEffect.Name = "cmbxChosenEffect";
-            this.cmbxChosenEffect.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.CmbxChosenEffect_DrawItem);
-            this.cmbxChosenEffect.MouseEnter += new EventHandler(this.CmbxChosenEffect_MouseEnter);
-            this.cmbxChosenEffect.MouseLeave += new EventHandler(this.CmbxChosenEffect_MouseLeave);
-            this.cmbxChosenEffect.SelectedIndexChanged += new EventHandler(this.CmbxChosenEffect_SelectedIndexChanged);
+            cmbxChosenEffect.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cmbxChosenEffect.BackColor = Color.White;
+            cmbxChosenEffect.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            cmbxChosenEffect.DropDownHeight = 140;
+            cmbxChosenEffect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxChosenEffect.DropDownWidth = 20;
+            cmbxChosenEffect.FormattingEnabled = true;
+            cmbxChosenEffect.Name = "cmbxChosenEffect";
+            cmbxChosenEffect.DrawItem += new System.Windows.Forms.DrawItemEventHandler(CmbxChosenEffect_DrawItem);
+            cmbxChosenEffect.MouseEnter += new EventHandler(CmbxChosenEffect_MouseEnter);
+            cmbxChosenEffect.MouseLeave += new EventHandler(CmbxChosenEffect_MouseLeave);
+            cmbxChosenEffect.SelectedIndexChanged += new EventHandler(CmbxChosenEffect_SelectedIndexChanged);
             // 
             // txtMinDrawDistance
             // 
-            resources.ApplyResources(this.txtMinDrawDistance, "txtMinDrawDistance");
-            this.txtMinDrawDistance.BackColor = System.Drawing.Color.Transparent;
-            this.txtMinDrawDistance.Name = "txtMinDrawDistance";
+            txtMinDrawDistance.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtMinDrawDistance.BackColor = Color.Transparent;
+            txtMinDrawDistance.Name = "txtMinDrawDistance";
             // 
             // sliderMinDrawDistance
             // 
-            resources.ApplyResources(this.sliderMinDrawDistance, "sliderMinDrawDistance");
-            this.sliderMinDrawDistance.LargeChange = 1;
-            this.sliderMinDrawDistance.Maximum = 500;
-            this.sliderMinDrawDistance.Name = "sliderMinDrawDistance";
-            this.sliderMinDrawDistance.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderMinDrawDistance.ValueChanged += new EventHandler(this.SliderMinDrawDistance_ValueChanged);
-            this.sliderMinDrawDistance.MouseEnter += new EventHandler(this.SliderMinDrawDistance_MouseEnter);
+            sliderMinDrawDistance.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderMinDrawDistance.LargeChange = 1;
+            sliderMinDrawDistance.Maximum = 500;
+            sliderMinDrawDistance.Name = "sliderMinDrawDistance";
+            sliderMinDrawDistance.TickStyle = TickStyle.None;
+            sliderMinDrawDistance.ValueChanged += new EventHandler(SliderMinDrawDistance_ValueChanged);
+            sliderMinDrawDistance.MouseEnter += new EventHandler(SliderMinDrawDistance_MouseEnter);
             // 
             // chkbxAutomaticBrushDensity
             // 
-            resources.ApplyResources(this.chkbxAutomaticBrushDensity, "chkbxAutomaticBrushDensity");
-            this.chkbxAutomaticBrushDensity.Text = "Manage density automatically";
-            this.chkbxAutomaticBrushDensity.Checked = true;
-            this.chkbxAutomaticBrushDensity.Name = "chkbxAutomaticBrushDensity";
-            this.chkbxAutomaticBrushDensity.MouseEnter += new EventHandler(this.AutomaticBrushDensity_MouseEnter);
-            this.chkbxAutomaticBrushDensity.CheckedChanged += new EventHandler(this.AutomaticBrushDensity_CheckedChanged);
-            this.chkbxAutomaticBrushDensity.TabIndex = 20;
+            chkbxAutomaticBrushDensity.Text = "Manage density automatically";
+            chkbxAutomaticBrushDensity.Checked = true;
+            chkbxAutomaticBrushDensity.Name = "chkbxAutomaticBrushDensity";
+            chkbxAutomaticBrushDensity.MouseEnter += new EventHandler(AutomaticBrushDensity_MouseEnter);
+            chkbxAutomaticBrushDensity.CheckedChanged += new EventHandler(AutomaticBrushDensity_CheckedChanged);
+            chkbxAutomaticBrushDensity.TabIndex = 20;
             // 
             // txtBrushDensity
             // 
-            resources.ApplyResources(this.txtBrushDensity, "txtBrushDensity");
-            this.txtBrushDensity.BackColor = System.Drawing.Color.Transparent;
-            this.txtBrushDensity.Name = "txtBrushDensity";
+            txtBrushDensity.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtBrushDensity.BackColor = Color.Transparent;
+            txtBrushDensity.Name = "txtBrushDensity";
             // 
             // sliderBrushDensity
             // 
-            resources.ApplyResources(this.sliderBrushDensity, "sliderBrushDensity");
-            this.sliderBrushDensity.LargeChange = 1;
-            this.sliderBrushDensity.Maximum = 50;
-            this.sliderBrushDensity.Name = "sliderBrushDensity";
-            this.sliderBrushDensity.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderBrushDensity.Value = 10;
-            this.sliderBrushDensity.Enabled = false;
-            this.sliderBrushDensity.ValueChanged += new EventHandler(this.SliderBrushDensity_ValueChanged);
-            this.sliderBrushDensity.MouseEnter += new EventHandler(this.SliderBrushDensity_MouseEnter);
+            sliderBrushDensity.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderBrushDensity.LargeChange = 1;
+            sliderBrushDensity.Maximum = 50;
+            sliderBrushDensity.Name = "sliderBrushDensity";
+            sliderBrushDensity.TickStyle = TickStyle.None;
+            sliderBrushDensity.Value = 10;
+            sliderBrushDensity.Enabled = false;
+            sliderBrushDensity.ValueChanged += new EventHandler(SliderBrushDensity_ValueChanged);
+            sliderBrushDensity.MouseEnter += new EventHandler(SliderBrushDensity_MouseEnter);
             // 
             // cmbxSymmetry
             // 
-            resources.ApplyResources(this.cmbxSymmetry, "cmbxSymmetry");
-            this.cmbxSymmetry.BackColor = System.Drawing.Color.White;
-            this.cmbxSymmetry.DropDownHeight = 140;
-            this.cmbxSymmetry.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxSymmetry.DropDownWidth = 20;
-            this.cmbxSymmetry.FormattingEnabled = true;
-            this.cmbxSymmetry.Name = "cmbxSymmetry";
-            this.cmbxSymmetry.MouseEnter += new EventHandler(this.BttnSymmetry_MouseEnter);
+            cmbxSymmetry.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cmbxSymmetry.BackColor = Color.White;
+            cmbxSymmetry.DropDownHeight = 140;
+            cmbxSymmetry.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxSymmetry.DropDownWidth = 20;
+            cmbxSymmetry.FormattingEnabled = true;
+            cmbxSymmetry.Name = "cmbxSymmetry";
+            cmbxSymmetry.MouseEnter += new EventHandler(BttnSymmetry_MouseEnter);
             // 
             // cmbxBrushSmoothing
             // 
-            resources.ApplyResources(this.cmbxBrushSmoothing, "cmbxBrushSmoothing");
-            this.cmbxBrushSmoothing.BackColor = System.Drawing.Color.White;
-            this.cmbxBrushSmoothing.DropDownHeight = 140;
-            this.cmbxBrushSmoothing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxBrushSmoothing.DropDownWidth = 20;
-            this.cmbxBrushSmoothing.FormattingEnabled = true;
-            this.cmbxBrushSmoothing.Name = "cmbxBrushSmoothing";
-            this.cmbxBrushSmoothing.MouseEnter += new EventHandler(this.BttnBrushSmoothing_MouseEnter);
+            cmbxBrushSmoothing.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cmbxBrushSmoothing.BackColor = Color.White;
+            cmbxBrushSmoothing.DropDownHeight = 140;
+            cmbxBrushSmoothing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxBrushSmoothing.DropDownWidth = 20;
+            cmbxBrushSmoothing.FormattingEnabled = true;
+            cmbxBrushSmoothing.Name = "cmbxBrushSmoothing";
+            cmbxBrushSmoothing.MouseEnter += new EventHandler(BttnBrushSmoothing_MouseEnter);
             // 
             // chkbxSeamlessDrawing
             // 
-            resources.ApplyResources(this.chkbxSeamlessDrawing, "chkbxSeamlessDrawing");
-            this.chkbxSeamlessDrawing.Name = "chkbxSeamlessDrawing";
-            this.chkbxSeamlessDrawing.UseVisualStyleBackColor = true;
-            this.chkbxSeamlessDrawing.MouseEnter += new EventHandler(this.ChkbxSeamlessDrawing_MouseEnter);
+            chkbxSeamlessDrawing.Name = "chkbxSeamlessDrawing";
+            chkbxSeamlessDrawing.UseVisualStyleBackColor = true;
+            chkbxSeamlessDrawing.MouseEnter += new EventHandler(ChkbxSeamlessDrawing_MouseEnter);
             // 
             // chkbxOrientToMouse
             // 
-            resources.ApplyResources(this.chkbxOrientToMouse, "chkbxOrientToMouse");
-            this.chkbxOrientToMouse.Name = "chkbxOrientToMouse";
-            this.chkbxOrientToMouse.UseVisualStyleBackColor = true;
-            this.chkbxOrientToMouse.MouseEnter += new EventHandler(this.ChkbxOrientToMouse_MouseEnter);
+            chkbxOrientToMouse.Name = "chkbxOrientToMouse";
+            chkbxOrientToMouse.UseVisualStyleBackColor = true;
+            chkbxOrientToMouse.MouseEnter += new EventHandler(ChkbxOrientToMouse_MouseEnter);
             // 
             // chkbxDitherDraw
             // 
-            resources.ApplyResources(this.chkbxDitherDraw, "chkbxDitherDraw");
-            this.chkbxDitherDraw.Name = "chkbxDitherDraw";
-            this.chkbxDitherDraw.UseVisualStyleBackColor = true;
-            this.chkbxDitherDraw.MouseEnter += new EventHandler(this.ChkbxDitherDraw_MouseEnter);
+            chkbxDitherDraw.Name = "chkbxDitherDraw";
+            chkbxDitherDraw.UseVisualStyleBackColor = true;
+            chkbxDitherDraw.MouseEnter += new EventHandler(ChkbxDitherDraw_MouseEnter);
             // 
             // panelRGBLocks
             // 
-            this.panelRGBLocks.Controls.Add(this.chkbxLockR);
-            this.panelRGBLocks.Controls.Add(this.chkbxLockG);
-            this.panelRGBLocks.Controls.Add(this.chkbxLockB);
-            resources.ApplyResources(this.panelRGBLocks, "panelRGBLocks");
-            this.panelRGBLocks.Name = "panelRGBLocks";
+            panelRGBLocks.Controls.Add(chkbxLockR);
+            panelRGBLocks.Controls.Add(chkbxLockG);
+            panelRGBLocks.Controls.Add(chkbxLockB);
+            panelRGBLocks.Name = "panelRGBLocks";
             // 
             // panelHSVLocks
             // 
-            this.panelHSVLocks.Controls.Add(this.chkbxLockHue);
-            this.panelHSVLocks.Controls.Add(this.chkbxLockSat);
-            this.panelHSVLocks.Controls.Add(this.chkbxLockVal);
-            resources.ApplyResources(this.panelHSVLocks, "panelHSVLocks");
-            this.panelHSVLocks.Name = "panelHSVLocks";
+            panelHSVLocks.Controls.Add(chkbxLockHue);
+            panelHSVLocks.Controls.Add(chkbxLockSat);
+            panelHSVLocks.Controls.Add(chkbxLockVal);
+            panelHSVLocks.Name = "panelHSVLocks";
             // 
             // chkbxLockAlpha
             // 
-            resources.ApplyResources(this.chkbxLockAlpha, "chkbxLockAlpha");
-            this.chkbxLockAlpha.Name = "chkbxLockAlpha";
-            this.chkbxLockAlpha.UseVisualStyleBackColor = true;
-            this.chkbxLockAlpha.MouseEnter += new EventHandler(this.ChkbxLockAlpha_MouseEnter);
+            chkbxLockAlpha.Name = "chkbxLockAlpha";
+            chkbxLockAlpha.UseVisualStyleBackColor = true;
+            chkbxLockAlpha.MouseEnter += new EventHandler(ChkbxLockAlpha_MouseEnter);
             // 
             // chkbxLockR
             // 
-            resources.ApplyResources(this.chkbxLockR, "chkbxLockR");
-            this.chkbxLockR.Name = "chkbxLockR";
-            this.chkbxLockR.UseVisualStyleBackColor = true;
-            this.chkbxLockR.MouseEnter += new EventHandler(this.ChkbxLockR_MouseEnter);
+            chkbxLockR.Name = "chkbxLockR";
+            chkbxLockR.UseVisualStyleBackColor = true;
+            chkbxLockR.MouseEnter += new EventHandler(ChkbxLockR_MouseEnter);
             // 
             // chkbxLockG
             // 
-            resources.ApplyResources(this.chkbxLockG, "chkbxLockG");
-            this.chkbxLockG.Name = "chkbxLockG";
-            this.chkbxLockG.UseVisualStyleBackColor = true;
-            this.chkbxLockG.MouseEnter += new EventHandler(this.ChkbxLockG_MouseEnter);
+            chkbxLockG.Name = "chkbxLockG";
+            chkbxLockG.UseVisualStyleBackColor = true;
+            chkbxLockG.MouseEnter += new EventHandler(ChkbxLockG_MouseEnter);
             // 
             // chkbxLockB
             // 
-            resources.ApplyResources(this.chkbxLockB, "chkbxLockB");
-            this.chkbxLockB.Name = "chkbxLockB";
-            this.chkbxLockB.UseVisualStyleBackColor = true;
-            this.chkbxLockB.MouseEnter += new EventHandler(this.ChkbxLockB_MouseEnter);
+            chkbxLockB.Name = "chkbxLockB";
+            chkbxLockB.UseVisualStyleBackColor = true;
+            chkbxLockB.MouseEnter += new EventHandler(ChkbxLockB_MouseEnter);
             // 
             // chkbxLockHue
             // 
-            resources.ApplyResources(this.chkbxLockHue, "chkbxLockHue");
-            this.chkbxLockHue.Name = "chkbxLockHue";
-            this.chkbxLockHue.UseVisualStyleBackColor = true;
-            this.chkbxLockHue.MouseEnter += new EventHandler(this.ChkbxLockHue_MouseEnter);
+            chkbxLockHue.Name = "chkbxLockHue";
+            chkbxLockHue.UseVisualStyleBackColor = true;
+            chkbxLockHue.MouseEnter += new EventHandler(ChkbxLockHue_MouseEnter);
             // 
             // chkbxLockSat
             // 
-            resources.ApplyResources(this.chkbxLockSat, "chkbxLockSat");
-            this.chkbxLockSat.Name = "chkbxLockSat";
-            this.chkbxLockSat.UseVisualStyleBackColor = true;
-            this.chkbxLockSat.MouseEnter += new EventHandler(this.ChkbxLockSat_MouseEnter);
+            chkbxLockSat.Name = "chkbxLockSat";
+            chkbxLockSat.UseVisualStyleBackColor = true;
+            chkbxLockSat.MouseEnter += new EventHandler(ChkbxLockSat_MouseEnter);
             // 
             // chkbxLockVal
             // 
-            resources.ApplyResources(this.chkbxLockVal, "chkbxLockVal");
-            this.chkbxLockVal.Name = "chkbxLockVal";
-            this.chkbxLockVal.UseVisualStyleBackColor = true;
-            this.chkbxLockVal.MouseEnter += new EventHandler(this.ChkbxLockVal_MouseEnter);
+            chkbxLockVal.Name = "chkbxLockVal";
+            chkbxLockVal.UseVisualStyleBackColor = true;
+            chkbxLockVal.MouseEnter += new EventHandler(ChkbxLockVal_MouseEnter);
             // 
             // bttnJitterBasicsControls
             // 
-            this.bttnJitterBasicsControls.BackColor = System.Drawing.Color.Black;
-            this.bttnJitterBasicsControls.ForeColor = System.Drawing.Color.WhiteSmoke;
-            resources.ApplyResources(this.bttnJitterBasicsControls, "bttnJitterBasicsControls");
-            this.bttnJitterBasicsControls.Name = "bttnJitterBasicsControls";
-            this.bttnJitterBasicsControls.UseVisualStyleBackColor = false;
+            bttnJitterBasicsControls.BackColor = Color.Black;
+            bttnJitterBasicsControls.ForeColor = Color.WhiteSmoke;
+            bttnJitterBasicsControls.Name = "bttnJitterBasicsControls";
+            bttnJitterBasicsControls.UseVisualStyleBackColor = false;
             // 
             // panelJitterBasics
             // 
-            resources.ApplyResources(this.panelJitterBasics, "panelJitterBasics");
-            this.panelJitterBasics.BackColor = System.Drawing.SystemColors.Control;
-            this.panelJitterBasics.Controls.Add(this.txtRandMinSize);
-            this.panelJitterBasics.Controls.Add(this.sliderRandMinSize);
-            this.panelJitterBasics.Controls.Add(this.txtRandMaxSize);
-            this.panelJitterBasics.Controls.Add(this.sliderRandMaxSize);
-            this.panelJitterBasics.Controls.Add(this.txtRandRotLeft);
-            this.panelJitterBasics.Controls.Add(this.sliderRandRotLeft);
-            this.panelJitterBasics.Controls.Add(this.txtRandRotRight);
-            this.panelJitterBasics.Controls.Add(this.sliderRandRotRight);
-            this.panelJitterBasics.Controls.Add(this.txtRandFlowLoss);
-            this.panelJitterBasics.Controls.Add(this.sliderRandFlowLoss);
-            this.panelJitterBasics.Controls.Add(this.txtRandHorzShift);
-            this.panelJitterBasics.Controls.Add(this.sliderRandHorzShift);
-            this.panelJitterBasics.Controls.Add(this.txtRandVertShift);
-            this.panelJitterBasics.Controls.Add(this.sliderRandVertShift);
-            this.panelJitterBasics.Name = "panelJitterBasics";
+            panelJitterBasics.BackColor = SystemColors.Control;
+            panelJitterBasics.Controls.Add(txtRandMinSize);
+            panelJitterBasics.Controls.Add(sliderRandMinSize);
+            panelJitterBasics.Controls.Add(txtRandMaxSize);
+            panelJitterBasics.Controls.Add(sliderRandMaxSize);
+            panelJitterBasics.Controls.Add(txtRandRotLeft);
+            panelJitterBasics.Controls.Add(sliderRandRotLeft);
+            panelJitterBasics.Controls.Add(txtRandRotRight);
+            panelJitterBasics.Controls.Add(sliderRandRotRight);
+            panelJitterBasics.Controls.Add(txtRandFlowLoss);
+            panelJitterBasics.Controls.Add(sliderRandFlowLoss);
+            panelJitterBasics.Controls.Add(txtRandHorzShift);
+            panelJitterBasics.Controls.Add(sliderRandHorzShift);
+            panelJitterBasics.Controls.Add(txtRandVertShift);
+            panelJitterBasics.Controls.Add(sliderRandVertShift);
+            panelJitterBasics.Name = "panelJitterBasics";
             // 
             // txtRandMinSize
             // 
-            this.txtRandMinSize.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtRandMinSize, "txtRandMinSize");
-            this.txtRandMinSize.Name = "txtRandMinSize";
+            txtRandMinSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRandMinSize.BackColor = Color.Transparent;
+            txtRandMinSize.Name = "txtRandMinSize";
             // 
             // sliderRandMinSize
             // 
-            resources.ApplyResources(this.sliderRandMinSize, "sliderRandMinSize");
-            this.sliderRandMinSize.LargeChange = 1;
-            this.sliderRandMinSize.Maximum = 1000;
-            this.sliderRandMinSize.Name = "sliderRandMinSize";
-            this.sliderRandMinSize.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMinSize.ValueChanged += new EventHandler(this.SliderRandMinSize_ValueChanged);
-            this.sliderRandMinSize.MouseEnter += new EventHandler(this.SliderRandMinSize_MouseEnter);
+            sliderRandMinSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderRandMinSize.LargeChange = 1;
+            sliderRandMinSize.Maximum = 1000;
+            sliderRandMinSize.Name = "sliderRandMinSize";
+            sliderRandMinSize.TickStyle = TickStyle.None;
+            sliderRandMinSize.ValueChanged += new EventHandler(SliderRandMinSize_ValueChanged);
+            sliderRandMinSize.MouseEnter += new EventHandler(SliderRandMinSize_MouseEnter);
             // 
             // txtRandMaxSize
             // 
-            this.txtRandMaxSize.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtRandMaxSize, "txtRandMaxSize");
-            this.txtRandMaxSize.Name = "txtRandMaxSize";
+            txtRandMaxSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRandMaxSize.BackColor = Color.Transparent;
+            txtRandMaxSize.Name = "txtRandMaxSize";
             // 
             // sliderRandMaxSize
             // 
-            resources.ApplyResources(this.sliderRandMaxSize, "sliderRandMaxSize");
-            this.sliderRandMaxSize.LargeChange = 1;
-            this.sliderRandMaxSize.Maximum = 1000;
-            this.sliderRandMaxSize.Name = "sliderRandMaxSize";
-            this.sliderRandMaxSize.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandMaxSize.ValueChanged += new EventHandler(this.SliderRandMaxSize_ValueChanged);
-            this.sliderRandMaxSize.MouseEnter += new EventHandler(this.SliderRandMaxSize_MouseEnter);
+            sliderRandMaxSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderRandMaxSize.LargeChange = 1;
+            sliderRandMaxSize.Maximum = 1000;
+            sliderRandMaxSize.Name = "sliderRandMaxSize";
+            sliderRandMaxSize.TickStyle = TickStyle.None;
+            sliderRandMaxSize.ValueChanged += new EventHandler(SliderRandMaxSize_ValueChanged);
+            sliderRandMaxSize.MouseEnter += new EventHandler(SliderRandMaxSize_MouseEnter);
             // 
             // txtRandRotLeft
             // 
-            resources.ApplyResources(this.txtRandRotLeft, "txtRandRotLeft");
-            this.txtRandRotLeft.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandRotLeft.Name = "txtRandRotLeft";
+            txtRandRotLeft.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRandRotLeft.BackColor = Color.Transparent;
+            txtRandRotLeft.Name = "txtRandRotLeft";
             // 
             // sliderRandRotLeft
             // 
-            resources.ApplyResources(this.sliderRandRotLeft, "sliderRandRotLeft");
-            this.sliderRandRotLeft.LargeChange = 1;
-            this.sliderRandRotLeft.Maximum = 180;
-            this.sliderRandRotLeft.Name = "sliderRandRotLeft";
-            this.sliderRandRotLeft.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandRotLeft.ValueChanged += new EventHandler(this.SliderRandRotLeft_ValueChanged);
-            this.sliderRandRotLeft.MouseEnter += new EventHandler(this.SliderRandRotLeft_MouseEnter);
+            sliderRandRotLeft.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderRandRotLeft.LargeChange = 1;
+            sliderRandRotLeft.Maximum = 180;
+            sliderRandRotLeft.Name = "sliderRandRotLeft";
+            sliderRandRotLeft.TickStyle = TickStyle.None;
+            sliderRandRotLeft.ValueChanged += new EventHandler(SliderRandRotLeft_ValueChanged);
+            sliderRandRotLeft.MouseEnter += new EventHandler(SliderRandRotLeft_MouseEnter);
             // 
             // txtRandRotRight
             // 
-            resources.ApplyResources(this.txtRandRotRight, "txtRandRotRight");
-            this.txtRandRotRight.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandRotRight.Name = "txtRandRotRight";
+            txtRandRotRight.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRandRotRight.BackColor = Color.Transparent;
+            txtRandRotRight.Name = "txtRandRotRight";
             // 
             // sliderRandRotRight
             // 
-            resources.ApplyResources(this.sliderRandRotRight, "sliderRandRotRight");
-            this.sliderRandRotRight.LargeChange = 1;
-            this.sliderRandRotRight.Maximum = 180;
-            this.sliderRandRotRight.Name = "sliderRandRotRight";
-            this.sliderRandRotRight.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandRotRight.ValueChanged += new EventHandler(this.SliderRandRotRight_ValueChanged);
-            this.sliderRandRotRight.MouseEnter += new EventHandler(this.SliderRandRotRight_MouseEnter);
+            sliderRandRotRight.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderRandRotRight.LargeChange = 1;
+            sliderRandRotRight.Maximum = 180;
+            sliderRandRotRight.Name = "sliderRandRotRight";
+            sliderRandRotRight.TickStyle = TickStyle.None;
+            sliderRandRotRight.ValueChanged += new EventHandler(SliderRandRotRight_ValueChanged);
+            sliderRandRotRight.MouseEnter += new EventHandler(SliderRandRotRight_MouseEnter);
             // 
             // txtRandFlowLoss
             // 
-            resources.ApplyResources(this.txtRandFlowLoss, "txtRandFlowLoss");
-            this.txtRandFlowLoss.BackColor = System.Drawing.Color.Transparent;
-            this.txtRandFlowLoss.Name = "txtRandMinFlowLoss";
+            txtRandFlowLoss.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRandFlowLoss.BackColor = Color.Transparent;
+            txtRandFlowLoss.Name = "txtRandMinFlowLoss";
             // 
             // sliderRandFlowLoss
             // 
-            resources.ApplyResources(this.sliderRandFlowLoss, "sliderRandFlowLoss");
-            this.sliderRandFlowLoss.LargeChange = 1;
-            this.sliderRandFlowLoss.Maximum = 255;
-            this.sliderRandFlowLoss.Name = "sliderRandFlowLoss";
-            this.sliderRandFlowLoss.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandFlowLoss.ValueChanged += new EventHandler(this.SliderRandFlowLoss_ValueChanged);
-            this.sliderRandFlowLoss.MouseEnter += new EventHandler(this.SliderRandFlowLoss_MouseEnter);
+            sliderRandFlowLoss.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderRandFlowLoss.LargeChange = 1;
+            sliderRandFlowLoss.Maximum = 255;
+            sliderRandFlowLoss.Name = "sliderRandFlowLoss";
+            sliderRandFlowLoss.TickStyle = TickStyle.None;
+            sliderRandFlowLoss.ValueChanged += new EventHandler(SliderRandFlowLoss_ValueChanged);
+            sliderRandFlowLoss.MouseEnter += new EventHandler(SliderRandFlowLoss_MouseEnter);
             // 
             // txtRandHorzShift
             // 
-            this.txtRandHorzShift.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtRandHorzShift, "txtRandHorzShift");
-            this.txtRandHorzShift.Name = "txtRandHorzShift";
+            txtRandHorzShift.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRandHorzShift.BackColor = Color.Transparent;
+            txtRandHorzShift.Name = "txtRandHorzShift";
             // 
             // sliderRandHorzShift
             // 
-            resources.ApplyResources(this.sliderRandHorzShift, "sliderRandHorzShift");
-            this.sliderRandHorzShift.LargeChange = 1;
-            this.sliderRandHorzShift.Maximum = 100;
-            this.sliderRandHorzShift.Name = "sliderRandHorzShift";
-            this.sliderRandHorzShift.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandHorzShift.ValueChanged += new EventHandler(this.SliderRandHorzShift_ValueChanged);
-            this.sliderRandHorzShift.MouseEnter += new EventHandler(this.SliderRandHorzShift_MouseEnter);
+            sliderRandHorzShift.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderRandHorzShift.LargeChange = 1;
+            sliderRandHorzShift.Maximum = 100;
+            sliderRandHorzShift.Name = "sliderRandHorzShift";
+            sliderRandHorzShift.TickStyle = TickStyle.None;
+            sliderRandHorzShift.ValueChanged += new EventHandler(SliderRandHorzShift_ValueChanged);
+            sliderRandHorzShift.MouseEnter += new EventHandler(SliderRandHorzShift_MouseEnter);
             // 
             // txtRandVertShift
             // 
-            this.txtRandVertShift.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtRandVertShift, "txtRandVertShift");
-            this.txtRandVertShift.Name = "txtRandVertShift";
+            txtRandVertShift.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRandVertShift.BackColor = Color.Transparent;
+            txtRandVertShift.Name = "txtRandVertShift";
             // 
             // sliderRandVertShift
             // 
-            resources.ApplyResources(this.sliderRandVertShift, "sliderRandVertShift");
-            this.sliderRandVertShift.LargeChange = 1;
-            this.sliderRandVertShift.Maximum = 100;
-            this.sliderRandVertShift.Name = "sliderRandVertShift";
-            this.sliderRandVertShift.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderRandVertShift.ValueChanged += new EventHandler(this.SliderRandVertShift_ValueChanged);
-            this.sliderRandVertShift.MouseEnter += new EventHandler(this.SliderRandVertShift_MouseEnter);
+            sliderRandVertShift.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderRandVertShift.LargeChange = 1;
+            sliderRandVertShift.Maximum = 100;
+            sliderRandVertShift.Name = "sliderRandVertShift";
+            sliderRandVertShift.TickStyle = TickStyle.None;
+            sliderRandVertShift.ValueChanged += new EventHandler(SliderRandVertShift_ValueChanged);
+            sliderRandVertShift.MouseEnter += new EventHandler(SliderRandVertShift_MouseEnter);
             // 
             // bttnJitterColorControls
             // 
-            this.bttnJitterColorControls.BackColor = System.Drawing.Color.Black;
-            this.bttnJitterColorControls.ForeColor = System.Drawing.Color.WhiteSmoke;
-            resources.ApplyResources(this.bttnJitterColorControls, "bttnJitterColorControls");
-            this.bttnJitterColorControls.Name = "bttnJitterColorControls";
-            this.bttnJitterColorControls.UseVisualStyleBackColor = false;
+            bttnJitterColorControls.BackColor = Color.Black;
+            bttnJitterColorControls.ForeColor = Color.WhiteSmoke;
+            bttnJitterColorControls.Name = "bttnJitterColorControls";
+            bttnJitterColorControls.UseVisualStyleBackColor = false;
             // 
             // panelJitterColor
             // 
-            resources.ApplyResources(this.panelJitterColor, "panelJitterColor");
-            this.panelJitterColor.BackColor = System.Drawing.SystemColors.Control;
-            this.panelJitterColor.Controls.Add(this.txtJitterRed);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMinRed);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMaxRed);
-            this.panelJitterColor.Controls.Add(this.txtJitterGreen);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMinGreen);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMaxGreen);
-            this.panelJitterColor.Controls.Add(this.txtJitterBlue);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMinBlue);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMaxBlue);
-            this.panelJitterColor.Controls.Add(this.txtJitterHue);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMinHue);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMaxHue);
-            this.panelJitterColor.Controls.Add(this.txtJitterSaturation);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMinSat);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMaxSat);
-            this.panelJitterColor.Controls.Add(this.txtJitterValue);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMinVal);
-            this.panelJitterColor.Controls.Add(this.sliderJitterMaxVal);
-            this.panelJitterColor.Name = "panelJitterColor";
+            panelJitterColor.BackColor = SystemColors.Control;
+            panelJitterColor.Controls.Add(txtJitterRed);
+            panelJitterColor.Controls.Add(sliderJitterMinRed);
+            panelJitterColor.Controls.Add(sliderJitterMaxRed);
+            panelJitterColor.Controls.Add(txtJitterGreen);
+            panelJitterColor.Controls.Add(sliderJitterMinGreen);
+            panelJitterColor.Controls.Add(sliderJitterMaxGreen);
+            panelJitterColor.Controls.Add(txtJitterBlue);
+            panelJitterColor.Controls.Add(sliderJitterMinBlue);
+            panelJitterColor.Controls.Add(sliderJitterMaxBlue);
+            panelJitterColor.Controls.Add(txtJitterHue);
+            panelJitterColor.Controls.Add(sliderJitterMinHue);
+            panelJitterColor.Controls.Add(sliderJitterMaxHue);
+            panelJitterColor.Controls.Add(txtJitterSaturation);
+            panelJitterColor.Controls.Add(sliderJitterMinSat);
+            panelJitterColor.Controls.Add(sliderJitterMaxSat);
+            panelJitterColor.Controls.Add(txtJitterValue);
+            panelJitterColor.Controls.Add(sliderJitterMinVal);
+            panelJitterColor.Controls.Add(sliderJitterMaxVal);
+            panelJitterColor.Name = "panelJitterColor";
             // 
             // txtJitterRed
             // 
-            this.txtJitterRed.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtJitterRed, "txtJitterRed");
-            this.txtJitterRed.Name = "txtJitterRed";
+            txtJitterRed.BackColor = Color.Transparent;
+            txtJitterRed.Name = "txtJitterRed";
             // 
             // sliderJitterMinRed
             // 
-            resources.ApplyResources(this.sliderJitterMinRed, "sliderJitterMinRed");
-            this.sliderJitterMinRed.BackColor = System.Drawing.SystemColors.Control;
-            this.sliderJitterMinRed.LargeChange = 1;
-            this.sliderJitterMinRed.Maximum = 100;
-            this.sliderJitterMinRed.Name = "sliderJitterMinRed";
-            this.sliderJitterMinRed.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinRed.ValueChanged += new EventHandler(this.SliderJitterMinRed_ValueChanged);
-            this.sliderJitterMinRed.MouseEnter += new EventHandler(this.SliderJitterMinRed_MouseEnter);
+            sliderJitterMinRed.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMinRed.BackColor = SystemColors.Control;
+            sliderJitterMinRed.LargeChange = 1;
+            sliderJitterMinRed.Maximum = 100;
+            sliderJitterMinRed.Name = "sliderJitterMinRed";
+            sliderJitterMinRed.TickStyle = TickStyle.None;
+            sliderJitterMinRed.ValueChanged += new EventHandler(SliderJitterMinRed_ValueChanged);
+            sliderJitterMinRed.MouseEnter += new EventHandler(SliderJitterMinRed_MouseEnter);
             // 
             // sliderJitterMaxRed
             // 
-            resources.ApplyResources(this.sliderJitterMaxRed, "sliderJitterMaxRed");
-            this.sliderJitterMaxRed.LargeChange = 1;
-            this.sliderJitterMaxRed.Maximum = 100;
-            this.sliderJitterMaxRed.Name = "sliderJitterMaxRed";
-            this.sliderJitterMaxRed.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxRed.ValueChanged += new EventHandler(this.SliderJitterMaxRed_ValueChanged);
-            this.sliderJitterMaxRed.MouseEnter += new EventHandler(this.SliderJitterMaxRed_MouseEnter);
+            sliderJitterMaxRed.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMaxRed.LargeChange = 1;
+            sliderJitterMaxRed.Maximum = 100;
+            sliderJitterMaxRed.Name = "sliderJitterMaxRed";
+            sliderJitterMaxRed.TickStyle = TickStyle.None;
+            sliderJitterMaxRed.ValueChanged += new EventHandler(SliderJitterMaxRed_ValueChanged);
+            sliderJitterMaxRed.MouseEnter += new EventHandler(SliderJitterMaxRed_MouseEnter);
             // 
             // txtJitterGreen
             // 
-            this.txtJitterGreen.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtJitterGreen, "txtJitterGreen");
-            this.txtJitterGreen.Name = "txtJitterGreen";
+            txtJitterGreen.BackColor = Color.Transparent;
+            txtJitterGreen.Name = "txtJitterGreen";
             // 
             // sliderJitterMinGreen
             // 
-            resources.ApplyResources(this.sliderJitterMinGreen, "sliderJitterMinGreen");
-            this.sliderJitterMinGreen.LargeChange = 1;
-            this.sliderJitterMinGreen.Maximum = 100;
-            this.sliderJitterMinGreen.Name = "sliderJitterMinGreen";
-            this.sliderJitterMinGreen.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinGreen.ValueChanged += new EventHandler(this.SliderJitterMinGreen_ValueChanged);
-            this.sliderJitterMinGreen.MouseEnter += new EventHandler(this.SliderJitterMinGreen_MouseEnter);
+            sliderJitterMinGreen.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMinGreen.LargeChange = 1;
+            sliderJitterMinGreen.Maximum = 100;
+            sliderJitterMinGreen.Name = "sliderJitterMinGreen";
+            sliderJitterMinGreen.TickStyle = TickStyle.None;
+            sliderJitterMinGreen.ValueChanged += new EventHandler(SliderJitterMinGreen_ValueChanged);
+            sliderJitterMinGreen.MouseEnter += new EventHandler(SliderJitterMinGreen_MouseEnter);
             // 
             // sliderJitterMaxGreen
             // 
-            resources.ApplyResources(this.sliderJitterMaxGreen, "sliderJitterMaxGreen");
-            this.sliderJitterMaxGreen.LargeChange = 1;
-            this.sliderJitterMaxGreen.Maximum = 100;
-            this.sliderJitterMaxGreen.Name = "sliderJitterMaxGreen";
-            this.sliderJitterMaxGreen.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxGreen.ValueChanged += new EventHandler(this.SliderJitterMaxGreen_ValueChanged);
-            this.sliderJitterMaxGreen.MouseEnter += new EventHandler(this.SliderJitterMaxGreen_MouseEnter);
+            sliderJitterMaxGreen.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMaxGreen.LargeChange = 1;
+            sliderJitterMaxGreen.Maximum = 100;
+            sliderJitterMaxGreen.Name = "sliderJitterMaxGreen";
+            sliderJitterMaxGreen.TickStyle = TickStyle.None;
+            sliderJitterMaxGreen.ValueChanged += new EventHandler(SliderJitterMaxGreen_ValueChanged);
+            sliderJitterMaxGreen.MouseEnter += new EventHandler(SliderJitterMaxGreen_MouseEnter);
             // 
             // txtJitterBlue
             // 
-            this.txtJitterBlue.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtJitterBlue, "txtJitterBlue");
-            this.txtJitterBlue.Name = "txtJitterBlue";
+            txtJitterBlue.BackColor = Color.Transparent;
+            txtJitterBlue.Name = "txtJitterBlue";
             // 
             // sliderJitterMinBlue
             // 
-            resources.ApplyResources(this.sliderJitterMinBlue, "sliderJitterMinBlue");
-            this.sliderJitterMinBlue.LargeChange = 1;
-            this.sliderJitterMinBlue.Maximum = 100;
-            this.sliderJitterMinBlue.Name = "sliderJitterMinBlue";
-            this.sliderJitterMinBlue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinBlue.ValueChanged += new EventHandler(this.SliderJitterMinBlue_ValueChanged);
-            this.sliderJitterMinBlue.MouseEnter += new EventHandler(this.SliderJitterMinBlue_MouseEnter);
+            sliderJitterMinBlue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMinBlue.LargeChange = 1;
+            sliderJitterMinBlue.Maximum = 100;
+            sliderJitterMinBlue.Name = "sliderJitterMinBlue";
+            sliderJitterMinBlue.TickStyle = TickStyle.None;
+            sliderJitterMinBlue.ValueChanged += new EventHandler(SliderJitterMinBlue_ValueChanged);
+            sliderJitterMinBlue.MouseEnter += new EventHandler(SliderJitterMinBlue_MouseEnter);
             // 
             // sliderJitterMaxBlue
             // 
-            resources.ApplyResources(this.sliderJitterMaxBlue, "sliderJitterMaxBlue");
-            this.sliderJitterMaxBlue.LargeChange = 1;
-            this.sliderJitterMaxBlue.Maximum = 100;
-            this.sliderJitterMaxBlue.Name = "sliderJitterMaxBlue";
-            this.sliderJitterMaxBlue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxBlue.ValueChanged += new EventHandler(this.SliderJitterMaxBlue_ValueChanged);
-            this.sliderJitterMaxBlue.MouseEnter += new EventHandler(this.SliderJitterMaxBlue_MouseEnter);
+            sliderJitterMaxBlue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMaxBlue.LargeChange = 1;
+            sliderJitterMaxBlue.Maximum = 100;
+            sliderJitterMaxBlue.Name = "sliderJitterMaxBlue";
+            sliderJitterMaxBlue.TickStyle = TickStyle.None;
+            sliderJitterMaxBlue.ValueChanged += new EventHandler(SliderJitterMaxBlue_ValueChanged);
+            sliderJitterMaxBlue.MouseEnter += new EventHandler(SliderJitterMaxBlue_MouseEnter);
             // 
             // txtJitterHue
             // 
-            this.txtJitterHue.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtJitterHue, "txtJitterHue");
-            this.txtJitterHue.Name = "txtJitterHue";
+            txtJitterHue.BackColor = Color.Transparent;
+            txtJitterHue.Name = "txtJitterHue";
             // 
             // sliderJitterMinHue
             // 
-            resources.ApplyResources(this.sliderJitterMinHue, "sliderJitterMinHue");
-            this.sliderJitterMinHue.LargeChange = 1;
-            this.sliderJitterMinHue.Maximum = 100;
-            this.sliderJitterMinHue.Name = "sliderJitterMinHue";
-            this.sliderJitterMinHue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinHue.ValueChanged += new EventHandler(this.SliderJitterMinHue_ValueChanged);
-            this.sliderJitterMinHue.MouseEnter += new EventHandler(this.SliderJitterMinHue_MouseEnter);
+            sliderJitterMinHue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMinHue.LargeChange = 1;
+            sliderJitterMinHue.Maximum = 100;
+            sliderJitterMinHue.Name = "sliderJitterMinHue";
+            sliderJitterMinHue.TickStyle = TickStyle.None;
+            sliderJitterMinHue.ValueChanged += new EventHandler(SliderJitterMinHue_ValueChanged);
+            sliderJitterMinHue.MouseEnter += new EventHandler(SliderJitterMinHue_MouseEnter);
             // 
             // sliderJitterMaxHue
             // 
-            resources.ApplyResources(this.sliderJitterMaxHue, "sliderJitterMaxHue");
-            this.sliderJitterMaxHue.LargeChange = 1;
-            this.sliderJitterMaxHue.Maximum = 100;
-            this.sliderJitterMaxHue.Name = "sliderJitterMaxHue";
-            this.sliderJitterMaxHue.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxHue.ValueChanged += new EventHandler(this.SliderJitterMaxHue_ValueChanged);
-            this.sliderJitterMaxHue.MouseEnter += new EventHandler(this.SliderJitterMaxHue_MouseEnter);
+            sliderJitterMaxHue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMaxHue.LargeChange = 1;
+            sliderJitterMaxHue.Maximum = 100;
+            sliderJitterMaxHue.Name = "sliderJitterMaxHue";
+            sliderJitterMaxHue.TickStyle = TickStyle.None;
+            sliderJitterMaxHue.ValueChanged += new EventHandler(SliderJitterMaxHue_ValueChanged);
+            sliderJitterMaxHue.MouseEnter += new EventHandler(SliderJitterMaxHue_MouseEnter);
             // 
             // txtJitterSaturation
             // 
-            this.txtJitterSaturation.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtJitterSaturation, "txtJitterSaturation");
-            this.txtJitterSaturation.Name = "txtJitterSaturation";
+            txtJitterSaturation.BackColor = Color.Transparent;
+            txtJitterSaturation.Name = "txtJitterSaturation";
             // 
             // sliderJitterMinSat
             // 
-            resources.ApplyResources(this.sliderJitterMinSat, "sliderJitterMinSat");
-            this.sliderJitterMinSat.LargeChange = 1;
-            this.sliderJitterMinSat.Maximum = 100;
-            this.sliderJitterMinSat.Name = "sliderJitterMinSat";
-            this.sliderJitterMinSat.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinSat.ValueChanged += new EventHandler(this.SliderJitterMinSat_ValueChanged);
-            this.sliderJitterMinSat.MouseEnter += new EventHandler(this.SliderJitterMinSat_MouseEnter);
+            sliderJitterMinSat.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMinSat.LargeChange = 1;
+            sliderJitterMinSat.Maximum = 100;
+            sliderJitterMinSat.Name = "sliderJitterMinSat";
+            sliderJitterMinSat.TickStyle = TickStyle.None;
+            sliderJitterMinSat.ValueChanged += new EventHandler(SliderJitterMinSat_ValueChanged);
+            sliderJitterMinSat.MouseEnter += new EventHandler(SliderJitterMinSat_MouseEnter);
             // 
             // sliderJitterMaxSat
             // 
-            resources.ApplyResources(this.sliderJitterMaxSat, "sliderJitterMaxSat");
-            this.sliderJitterMaxSat.LargeChange = 1;
-            this.sliderJitterMaxSat.Maximum = 100;
-            this.sliderJitterMaxSat.Name = "sliderJitterMaxSat";
-            this.sliderJitterMaxSat.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxSat.ValueChanged += new EventHandler(this.SliderJitterMaxSat_ValueChanged);
-            this.sliderJitterMaxSat.MouseEnter += new EventHandler(this.SliderJitterMaxSat_MouseEnter);
+            sliderJitterMaxSat.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMaxSat.LargeChange = 1;
+            sliderJitterMaxSat.Maximum = 100;
+            sliderJitterMaxSat.Name = "sliderJitterMaxSat";
+            sliderJitterMaxSat.TickStyle = TickStyle.None;
+            sliderJitterMaxSat.ValueChanged += new EventHandler(SliderJitterMaxSat_ValueChanged);
+            sliderJitterMaxSat.MouseEnter += new EventHandler(SliderJitterMaxSat_MouseEnter);
             // 
             // txtJitterValue
             // 
-            this.txtJitterValue.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtJitterValue, "txtJitterValue");
-            this.txtJitterValue.Name = "txtJitterValue";
+            txtJitterValue.BackColor = Color.Transparent;
+            txtJitterValue.Name = "txtJitterValue";
             // 
             // sliderJitterMinVal
             // 
-            resources.ApplyResources(this.sliderJitterMinVal, "sliderJitterMinVal");
-            this.sliderJitterMinVal.LargeChange = 1;
-            this.sliderJitterMinVal.Maximum = 100;
-            this.sliderJitterMinVal.Name = "sliderJitterMinVal";
-            this.sliderJitterMinVal.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMinVal.ValueChanged += new EventHandler(this.SliderJitterMinVal_ValueChanged);
-            this.sliderJitterMinVal.MouseEnter += new EventHandler(this.SliderJitterMinVal_MouseEnter);
+            sliderJitterMinVal.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMinVal.LargeChange = 1;
+            sliderJitterMinVal.Maximum = 100;
+            sliderJitterMinVal.Name = "sliderJitterMinVal";
+            sliderJitterMinVal.TickStyle = TickStyle.None;
+            sliderJitterMinVal.ValueChanged += new EventHandler(SliderJitterMinVal_ValueChanged);
+            sliderJitterMinVal.MouseEnter += new EventHandler(SliderJitterMinVal_MouseEnter);
             // 
             // sliderJitterMaxVal
             // 
-            resources.ApplyResources(this.sliderJitterMaxVal, "sliderJitterMaxVal");
-            this.sliderJitterMaxVal.LargeChange = 1;
-            this.sliderJitterMaxVal.Maximum = 100;
-            this.sliderJitterMaxVal.Name = "sliderJitterMaxVal";
-            this.sliderJitterMaxVal.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderJitterMaxVal.ValueChanged += new EventHandler(this.SliderJitterMaxVal_ValueChanged);
-            this.sliderJitterMaxVal.MouseEnter += new EventHandler(this.SliderJitterMaxVal_MouseEnter);
+            sliderJitterMaxVal.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderJitterMaxVal.LargeChange = 1;
+            sliderJitterMaxVal.Maximum = 100;
+            sliderJitterMaxVal.Name = "sliderJitterMaxVal";
+            sliderJitterMaxVal.TickStyle = TickStyle.None;
+            sliderJitterMaxVal.ValueChanged += new EventHandler(SliderJitterMaxVal_ValueChanged);
+            sliderJitterMaxVal.MouseEnter += new EventHandler(SliderJitterMaxVal_MouseEnter);
             // 
             // bttnShiftBasicsControls
             // 
-            this.bttnShiftBasicsControls.BackColor = System.Drawing.Color.Black;
-            this.bttnShiftBasicsControls.ForeColor = System.Drawing.Color.WhiteSmoke;
-            resources.ApplyResources(this.bttnShiftBasicsControls, "bttnShiftBasicsControls");
-            this.bttnShiftBasicsControls.Name = "bttnShiftBasicsControls";
-            this.bttnShiftBasicsControls.UseVisualStyleBackColor = false;
+            bttnShiftBasicsControls.BackColor = Color.Black;
+            bttnShiftBasicsControls.ForeColor = Color.WhiteSmoke;
+            bttnShiftBasicsControls.Name = "bttnShiftBasicsControls";
+            bttnShiftBasicsControls.UseVisualStyleBackColor = false;
             // 
             // panelShiftBasics
             // 
-            resources.ApplyResources(this.panelShiftBasics, "panelShiftBasics");
-            this.panelShiftBasics.BackColor = System.Drawing.SystemColors.Control;
-            this.panelShiftBasics.Controls.Add(this.txtShiftSize);
-            this.panelShiftBasics.Controls.Add(this.sliderShiftSize);
-            this.panelShiftBasics.Controls.Add(this.txtShiftRotation);
-            this.panelShiftBasics.Controls.Add(this.sliderShiftRotation);
-            this.panelShiftBasics.Controls.Add(this.txtShiftFlow);
-            this.panelShiftBasics.Controls.Add(this.sliderShiftFlow);
-            this.panelShiftBasics.Name = "panelShiftBasics";
+            panelShiftBasics.BackColor = SystemColors.Control;
+            panelShiftBasics.Controls.Add(txtShiftSize);
+            panelShiftBasics.Controls.Add(sliderShiftSize);
+            panelShiftBasics.Controls.Add(txtShiftRotation);
+            panelShiftBasics.Controls.Add(sliderShiftRotation);
+            panelShiftBasics.Controls.Add(txtShiftFlow);
+            panelShiftBasics.Controls.Add(sliderShiftFlow);
+            panelShiftBasics.Name = "panelShiftBasics";
             // 
             // txtShiftSize
             // 
-            this.txtShiftSize.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtShiftSize, "txtShiftSize");
-            this.txtShiftSize.Name = "txtShiftSize";
+            txtShiftSize.BackColor = Color.Transparent;
+            txtShiftSize.Name = "txtShiftSize";
             // 
             // sliderShiftSize
             // 
-            resources.ApplyResources(this.sliderShiftSize, "sliderShiftSize");
-            this.sliderShiftSize.LargeChange = 1;
-            this.sliderShiftSize.Maximum = 1000;
-            this.sliderShiftSize.Minimum = -1000;
-            this.sliderShiftSize.Name = "sliderShiftSize";
-            this.sliderShiftSize.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderShiftSize.ValueChanged += new EventHandler(this.SliderShiftSize_ValueChanged);
-            this.sliderShiftSize.MouseEnter += new EventHandler(this.SliderShiftSize_MouseEnter);
+            sliderShiftSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderShiftSize.LargeChange = 1;
+            sliderShiftSize.Maximum = 1000;
+            sliderShiftSize.Minimum = -1000;
+            sliderShiftSize.Name = "sliderShiftSize";
+            sliderShiftSize.TickStyle = TickStyle.None;
+            sliderShiftSize.ValueChanged += new EventHandler(SliderShiftSize_ValueChanged);
+            sliderShiftSize.MouseEnter += new EventHandler(SliderShiftSize_MouseEnter);
             // 
             // txtShiftRotation
             // 
-            this.txtShiftRotation.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtShiftRotation, "txtShiftRotation");
-            this.txtShiftRotation.Name = "txtShiftRotation";
+            txtShiftRotation.BackColor = Color.Transparent;
+            txtShiftRotation.Name = "txtShiftRotation";
             // 
             // sliderShiftRotation
             // 
-            resources.ApplyResources(this.sliderShiftRotation, "sliderShiftRotation");
-            this.sliderShiftRotation.LargeChange = 1;
-            this.sliderShiftRotation.Maximum = 180;
-            this.sliderShiftRotation.Minimum = -180;
-            this.sliderShiftRotation.Name = "sliderShiftRotation";
-            this.sliderShiftRotation.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderShiftRotation.ValueChanged += new EventHandler(this.SliderShiftRotation_ValueChanged);
-            this.sliderShiftRotation.MouseEnter += new EventHandler(this.SliderShiftRotation_MouseEnter);
+            sliderShiftRotation.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderShiftRotation.LargeChange = 1;
+            sliderShiftRotation.Maximum = 180;
+            sliderShiftRotation.Minimum = -180;
+            sliderShiftRotation.Name = "sliderShiftRotation";
+            sliderShiftRotation.TickStyle = TickStyle.None;
+            sliderShiftRotation.ValueChanged += new EventHandler(SliderShiftRotation_ValueChanged);
+            sliderShiftRotation.MouseEnter += new EventHandler(SliderShiftRotation_MouseEnter);
             // 
             // txtShiftFlow
             // 
-            this.txtShiftFlow.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.txtShiftFlow, "txtShiftFlow");
-            this.txtShiftFlow.Name = "txtShiftFlow";
+            txtShiftFlow.BackColor = Color.Transparent;
+            txtShiftFlow.Name = "txtShiftFlow";
             // 
             // sliderShiftFlow
             // 
-            resources.ApplyResources(this.sliderShiftFlow, "sliderShiftFlow");
-            this.sliderShiftFlow.LargeChange = 1;
-            this.sliderShiftFlow.Maximum = 255;
-            this.sliderShiftFlow.Minimum = -255;
-            this.sliderShiftFlow.Name = "sliderShiftFlow";
-            this.sliderShiftFlow.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.sliderShiftFlow.ValueChanged += new EventHandler(this.SliderShiftFlow_ValueChanged);
-            this.sliderShiftFlow.MouseEnter += new EventHandler(this.SliderShiftFlow_MouseEnter);
+            sliderShiftFlow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sliderShiftFlow.LargeChange = 1;
+            sliderShiftFlow.Maximum = 255;
+            sliderShiftFlow.Minimum = -255;
+            sliderShiftFlow.Name = "sliderShiftFlow";
+            sliderShiftFlow.TickStyle = TickStyle.None;
+            sliderShiftFlow.ValueChanged += new EventHandler(SliderShiftFlow_ValueChanged);
+            sliderShiftFlow.MouseEnter += new EventHandler(SliderShiftFlow_MouseEnter);
             // 
             // bttnTabAssignPressureControls
             // 
-            this.bttnTabAssignPressureControls.BackColor = System.Drawing.Color.Black;
-            this.bttnTabAssignPressureControls.ForeColor = System.Drawing.Color.WhiteSmoke;
-            resources.ApplyResources(this.bttnTabAssignPressureControls, "bttnTabAssignPressureControls");
-            this.bttnTabAssignPressureControls.Name = "bttnTabAssignPressureControls";
-            this.bttnTabAssignPressureControls.UseVisualStyleBackColor = false;
+            bttnTabAssignPressureControls.BackColor = Color.Black;
+            bttnTabAssignPressureControls.ForeColor = Color.WhiteSmoke;
+            bttnTabAssignPressureControls.Name = "bttnTabAssignPressureControls";
+            bttnTabAssignPressureControls.UseVisualStyleBackColor = false;
             // 
             // panelTabletAssignPressure
             // 
-            resources.ApplyResources(this.panelTabletAssignPressure, "panelTabletAssignPressure");
-            this.panelTabletAssignPressure.BackColor = System.Drawing.SystemColors.Control;
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushOpacity);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushFlow);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushSize);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushRotation);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureMinDrawDistance);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBrushDensity);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandMinSize);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandMaxSize);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandRotLeft);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandRotRight);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandFlowLoss);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandHorShift);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRandVerShift);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureRedJitter);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureGreenJitter);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureBlueJitter);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureHueJitter);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureSatJitter);
-            this.panelTabletAssignPressure.Controls.Add(this.panelTabPressureValueJitter);
-            this.panelTabletAssignPressure.Name = "panelTabletAssignPressure";
+            panelTabletAssignPressure.BackColor = SystemColors.Control;
+            panelTabletAssignPressure.Controls.Add(panelTabPressureBrushOpacity);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureBrushFlow);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureBrushSize);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureBrushRotation);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureMinDrawDistance);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureBrushDensity);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRandMinSize);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRandMaxSize);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRandRotLeft);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRandRotRight);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRandFlowLoss);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRandHorShift);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRandVerShift);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureRedJitter);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureGreenJitter);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureBlueJitter);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureHueJitter);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureSatJitter);
+            panelTabletAssignPressure.Controls.Add(panelTabPressureValueJitter);
+            panelTabletAssignPressure.Name = "panelTabletAssignPressure";
             // 
             // panelTabPressureBrushOpacity
             // 
-            resources.ApplyResources(this.panelTabPressureBrushOpacity, "panelTabPressureBrushOpacity");
-            this.panelTabPressureBrushOpacity.Controls.Add(this.panel19);
-            this.panelTabPressureBrushOpacity.Controls.Add(this.cmbxTabPressureBrushOpacity);
-            this.panelTabPressureBrushOpacity.Name = "panelTabPressureBrushOpacity";
+            panelTabPressureBrushOpacity.Controls.Add(panel19);
+            panelTabPressureBrushOpacity.Controls.Add(cmbxTabPressureBrushOpacity);
+            panelTabPressureBrushOpacity.Name = "panelTabPressureBrushOpacity";
             // 
             // panel19
             //
-            this.panel19.Controls.Add(this.txtTabPressureBrushOpacity);
-            this.panel19.Controls.Add(this.spinTabPressureBrushOpacity);
-            resources.ApplyResources(this.panel19, "panel19");
-            this.panel19.Name = "panel19";
+            panel19.Controls.Add(txtTabPressureBrushOpacity);
+            panel19.Controls.Add(spinTabPressureBrushOpacity);
+            panel19.Name = "panel19";
             // 
             // txtTabPressureBrushOpacity
             // 
-            resources.ApplyResources(this.txtTabPressureBrushOpacity, "txtTabPressureBrushOpacity");
-            this.txtTabPressureBrushOpacity.Name = "txtTabPressureBrushOpacity";
+            txtTabPressureBrushOpacity.Name = "txtTabPressureBrushOpacity";
+            txtTabPressureBrushOpacity.Text = Strings.BrushOpacity;
             // 
             // spinTabPressureBrushOpacity
             // 
-            resources.ApplyResources(this.spinTabPressureBrushOpacity, "spinTabPressureBrushOpacity");
-            this.spinTabPressureBrushOpacity.Maximum = new decimal(new int[] {
+            spinTabPressureBrushOpacity.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
-            this.spinTabPressureBrushOpacity.Minimum = new decimal(new int[] {
+            spinTabPressureBrushOpacity.Minimum = new decimal(new int[] {
             255,
             0,
             0,
             -2147483648});
-            this.spinTabPressureBrushOpacity.Name = "spinTabPressureBrushOpacity";
+            spinTabPressureBrushOpacity.Name = "spinTabPressureBrushOpacity";
             // 
             // cmbxTabPressureBrushOpacity
             // 
-            this.cmbxTabPressureBrushOpacity.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBrushOpacity.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBrushOpacity.DropDownHeight = 140;
-            this.cmbxTabPressureBrushOpacity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBrushOpacity.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBrushOpacity, "cmbxTabPressureBrushOpacity");
-            this.cmbxTabPressureBrushOpacity.FormattingEnabled = true;
-            this.cmbxTabPressureBrushOpacity.Name = "cmbxTabPressureBrushOpacity";
-            this.cmbxTabPressureBrushOpacity.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushOpacity.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushOpacity.BackColor = Color.White;
+            cmbxTabPressureBrushOpacity.DisplayMember = "DisplayMember";
+            cmbxTabPressureBrushOpacity.DropDownHeight = 140;
+            cmbxTabPressureBrushOpacity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureBrushOpacity.DropDownWidth = 20;
+            cmbxTabPressureBrushOpacity.FormattingEnabled = true;
+            cmbxTabPressureBrushOpacity.Name = "cmbxTabPressureBrushOpacity";
+            cmbxTabPressureBrushOpacity.ValueMember = "ValueMember";
+            cmbxTabPressureBrushOpacity.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             //
             // panelTabPressureBrushFlow
             // 
-            resources.ApplyResources(this.panelTabPressureBrushFlow, "panelTabPressureBrushFlow");
-            this.panelTabPressureBrushFlow.Controls.Add(this.panel3);
-            this.panelTabPressureBrushFlow.Controls.Add(this.cmbxTabPressureBrushFlow);
-            this.panelTabPressureBrushFlow.Name = "panelTabPressureBrushFlow";
+            panelTabPressureBrushFlow.Controls.Add(panel3);
+            panelTabPressureBrushFlow.Controls.Add(cmbxTabPressureBrushFlow);
+            panelTabPressureBrushFlow.Name = "panelTabPressureBrushFlow";
             // 
             // panel3
             // 
-            this.panel3.Controls.Add(this.txtTabPressureBrushFlow);
-            this.panel3.Controls.Add(this.spinTabPressureBrushFlow);
-            resources.ApplyResources(this.panel3, "panel3");
-            this.panel3.Name = "panel3";
+            panel3.Controls.Add(txtTabPressureBrushFlow);
+            panel3.Controls.Add(spinTabPressureBrushFlow);
+            panel3.Name = "panel3";
             // 
             // txtTabPressureBrushFlow
             // 
-            resources.ApplyResources(this.txtTabPressureBrushFlow, "txtTabPressureBrushFlow");
-            this.txtTabPressureBrushFlow.Name = "txtTabPressureBrushFlow";
+            txtTabPressureBrushFlow.Name = "txtTabPressureBrushFlow";
+            txtTabPressureBrushFlow.Text = Strings.BrushFlow;
             // 
             // spinTabPressureBrushFlow
             // 
-            resources.ApplyResources(this.spinTabPressureBrushFlow, "spinTabPressureBrushFlow");
-            this.spinTabPressureBrushFlow.Maximum = new decimal(new int[] {
+            spinTabPressureBrushFlow.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
-            this.spinTabPressureBrushFlow.Minimum = new decimal(new int[] {
+            spinTabPressureBrushFlow.Minimum = new decimal(new int[] {
             255,
             0,
             0,
             -2147483648});
-            this.spinTabPressureBrushFlow.Name = "spinTabPressureBrushFlow";
+            spinTabPressureBrushFlow.Name = "spinTabPressureBrushFlow";
             // 
             // cmbxTabPressureBrushFlow
             // 
-            this.cmbxTabPressureBrushFlow.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBrushFlow.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBrushFlow.DropDownHeight = 140;
-            this.cmbxTabPressureBrushFlow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBrushFlow.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBrushFlow, "cmbxTabPressureBrushFlow");
-            this.cmbxTabPressureBrushFlow.FormattingEnabled = true;
-            this.cmbxTabPressureBrushFlow.Name = "cmbxTabPressureBrushFlow";
-            this.cmbxTabPressureBrushFlow.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushFlow.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushFlow.BackColor = Color.White;
+            cmbxTabPressureBrushFlow.DisplayMember = "DisplayMember";
+            cmbxTabPressureBrushFlow.DropDownHeight = 140;
+            cmbxTabPressureBrushFlow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureBrushFlow.DropDownWidth = 20;
+            cmbxTabPressureBrushFlow.FormattingEnabled = true;
+            cmbxTabPressureBrushFlow.Name = "cmbxTabPressureBrushFlow";
+            cmbxTabPressureBrushFlow.ValueMember = "ValueMember";
+            cmbxTabPressureBrushFlow.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushSize
             // 
-            resources.ApplyResources(this.panelTabPressureBrushSize, "panelTabPressureBrushSize");
-            this.panelTabPressureBrushSize.Controls.Add(this.panel8);
-            this.panelTabPressureBrushSize.Controls.Add(this.cmbxTabPressureBrushSize);
-            this.panelTabPressureBrushSize.Name = "panelTabPressureBrushSize";
+            panelTabPressureBrushSize.Controls.Add(panel8);
+            panelTabPressureBrushSize.Controls.Add(cmbxTabPressureBrushSize);
+            panelTabPressureBrushSize.Name = "panelTabPressureBrushSize";
             // 
             // panel8
             // 
-            this.panel8.Controls.Add(this.txtTabPressureBrushSize);
-            this.panel8.Controls.Add(this.spinTabPressureBrushSize);
-            resources.ApplyResources(this.panel8, "panel8");
-            this.panel8.Name = "panel8";
+            panel8.Controls.Add(txtTabPressureBrushSize);
+            panel8.Controls.Add(spinTabPressureBrushSize);
+            panel8.Name = "panel8";
             // 
             // txtTabPressureBrushSize
             // 
-            resources.ApplyResources(this.txtTabPressureBrushSize, "txtTabPressureBrushSize");
-            this.txtTabPressureBrushSize.Name = "txtTabPressureBrushSize";
+            txtTabPressureBrushSize.Name = "txtTabPressureBrushSize";
+            txtTabPressureBrushSize.Text = Strings.Size;
             // 
             // spinTabPressureBrushSize
             // 
-            resources.ApplyResources(this.spinTabPressureBrushSize, "spinTabPressureBrushSize");
-            this.spinTabPressureBrushSize.Maximum = new decimal(new int[] {
+            spinTabPressureBrushSize.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-            this.spinTabPressureBrushSize.Minimum = new decimal(new int[] {
+            spinTabPressureBrushSize.Minimum = new decimal(new int[] {
             1000,
             0,
             0,
             -2147483648});
-            this.spinTabPressureBrushSize.Name = "spinTabPressureBrushSize";
-            this.spinTabPressureBrushSize.LostFocus += SpinTabPressureBrushSize_LostFocus;
+            spinTabPressureBrushSize.Name = "spinTabPressureBrushSize";
+            spinTabPressureBrushSize.LostFocus += SpinTabPressureBrushSize_LostFocus;
             // 
             // cmbxTabPressureBrushSize
             // 
-            this.cmbxTabPressureBrushSize.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBrushSize.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBrushSize.DropDownHeight = 140;
-            this.cmbxTabPressureBrushSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBrushSize.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBrushSize, "cmbxTabPressureBrushSize");
-            this.cmbxTabPressureBrushSize.FormattingEnabled = true;
-            this.cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
-            this.cmbxTabPressureBrushSize.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
-            this.cmbxTabPressureBrushSize.SelectedIndexChanged += CmbxTabPressureBrushSize_SelectedIndexChanged;
+            cmbxTabPressureBrushSize.BackColor = Color.White;
+            cmbxTabPressureBrushSize.DisplayMember = "DisplayMember";
+            cmbxTabPressureBrushSize.DropDownHeight = 140;
+            cmbxTabPressureBrushSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureBrushSize.DropDownWidth = 20;
+            cmbxTabPressureBrushSize.FormattingEnabled = true;
+            cmbxTabPressureBrushSize.Name = "cmbxTabPressureBrushSize";
+            cmbxTabPressureBrushSize.ValueMember = "ValueMember";
+            cmbxTabPressureBrushSize.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushSize.SelectedIndexChanged += CmbxTabPressureBrushSize_SelectedIndexChanged;
             // 
             // panelTabPressureBrushRotation
             // 
-            resources.ApplyResources(this.panelTabPressureBrushRotation, "panelTabPressureBrushRotation");
-            this.panelTabPressureBrushRotation.Controls.Add(this.panel2);
-            this.panelTabPressureBrushRotation.Controls.Add(this.cmbxTabPressureBrushRotation);
-            this.panelTabPressureBrushRotation.Name = "panelTabPressureBrushRotation";
+            panelTabPressureBrushRotation.Controls.Add(panel2);
+            panelTabPressureBrushRotation.Controls.Add(cmbxTabPressureBrushRotation);
+            panelTabPressureBrushRotation.Name = "panelTabPressureBrushRotation";
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.txtTabPressureBrushRotation);
-            this.panel2.Controls.Add(this.spinTabPressureBrushRotation);
-            resources.ApplyResources(this.panel2, "panel2");
-            this.panel2.Name = "panel2";
+            panel2.Controls.Add(txtTabPressureBrushRotation);
+            panel2.Controls.Add(spinTabPressureBrushRotation);
+            panel2.Name = "panel2";
             // 
             // txtTabPressureBrushRotation
             // 
-            resources.ApplyResources(this.txtTabPressureBrushRotation, "txtTabPressureBrushRotation");
-            this.txtTabPressureBrushRotation.Name = "txtTabPressureBrushRotation";
+            txtTabPressureBrushRotation.Name = "txtTabPressureBrushRotation";
+            txtTabPressureBrushRotation.Text = Strings.Rotation;
             // 
             // spinTabPressureBrushRotation
             // 
-            resources.ApplyResources(this.spinTabPressureBrushRotation, "spinTabPressureBrushRotation");
-            this.spinTabPressureBrushRotation.Maximum = new decimal(new int[] {
+            spinTabPressureBrushRotation.Maximum = new decimal(new int[] {
             180,
             0,
             0,
             0});
-            this.spinTabPressureBrushRotation.Minimum = new decimal(new int[] {
+            spinTabPressureBrushRotation.Minimum = new decimal(new int[] {
             180,
             0,
             0,
             -2147483648});
-            this.spinTabPressureBrushRotation.Name = "spinTabPressureBrushRotation";
+            spinTabPressureBrushRotation.Name = "spinTabPressureBrushRotation";
             // 
             // cmbxTabPressureBrushRotation
             // 
-            this.cmbxTabPressureBrushRotation.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBrushRotation.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBrushRotation.DropDownHeight = 140;
-            this.cmbxTabPressureBrushRotation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBrushRotation.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBrushRotation, "cmbxTabPressureBrushRotation");
-            this.cmbxTabPressureBrushRotation.FormattingEnabled = true;
-            this.cmbxTabPressureBrushRotation.Name = "cmbxTabPressureBrushRotation";
-            this.cmbxTabPressureBrushRotation.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushRotation.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushRotation.BackColor = Color.White;
+            cmbxTabPressureBrushRotation.DisplayMember = "DisplayMember";
+            cmbxTabPressureBrushRotation.DropDownHeight = 140;
+            cmbxTabPressureBrushRotation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureBrushRotation.DropDownWidth = 20;
+            cmbxTabPressureBrushRotation.FormattingEnabled = true;
+            cmbxTabPressureBrushRotation.Name = "cmbxTabPressureBrushRotation";
+            cmbxTabPressureBrushRotation.ValueMember = "ValueMember";
+            cmbxTabPressureBrushRotation.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureMinDrawDistance
             // 
-            resources.ApplyResources(this.panelTabPressureMinDrawDistance, "panelTabPressureMinDrawDistance");
-            this.panelTabPressureMinDrawDistance.Controls.Add(this.panel1);
-            this.panelTabPressureMinDrawDistance.Controls.Add(this.cmbxTabPressureMinDrawDistance);
-            this.panelTabPressureMinDrawDistance.Name = "panelTabPressureMinDrawDistance";
+            panelTabPressureMinDrawDistance.Controls.Add(panel1);
+            panelTabPressureMinDrawDistance.Controls.Add(cmbxTabPressureMinDrawDistance);
+            panelTabPressureMinDrawDistance.Name = "panelTabPressureMinDrawDistance";
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.lblTabPressureMinDrawDistance);
-            this.panel1.Controls.Add(this.spinTabPressureMinDrawDistance);
-            resources.ApplyResources(this.panel1, "panel1");
-            this.panel1.Name = "panel1";
+            panel1.Controls.Add(lblTabPressureMinDrawDistance);
+            panel1.Controls.Add(spinTabPressureMinDrawDistance);
+            panel1.Name = "panel1";
             // 
             // lblTabPressureMinDrawDistance
             // 
-            resources.ApplyResources(this.lblTabPressureMinDrawDistance, "lblTabPressureMinDrawDistance");
-            this.lblTabPressureMinDrawDistance.Name = "lblTabPressureMinDrawDistance";
+            lblTabPressureMinDrawDistance.Name = "lblTabPressureMinDrawDistance";
+            lblTabPressureMinDrawDistance.Text = Strings.MinDrawDistance;
             // 
             // spinTabPressureMinDrawDistance
             // 
-            resources.ApplyResources(this.spinTabPressureMinDrawDistance, "spinTabPressureMinDrawDistance");
-            this.spinTabPressureMinDrawDistance.Minimum = new decimal(new int[] {
+            spinTabPressureMinDrawDistance.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMinDrawDistance.Name = "spinTabPressureMinDrawDistance";
+            spinTabPressureMinDrawDistance.Name = "spinTabPressureMinDrawDistance";
             // 
             // cmbxTabPressureMinDrawDistance
             // 
-            this.cmbxTabPressureMinDrawDistance.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureMinDrawDistance.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureMinDrawDistance.DropDownHeight = 140;
-            this.cmbxTabPressureMinDrawDistance.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureMinDrawDistance.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureMinDrawDistance, "cmbxTabPressureMinDrawDistance");
-            this.cmbxTabPressureMinDrawDistance.FormattingEnabled = true;
-            this.cmbxTabPressureMinDrawDistance.Name = "cmbxTabPressureMinDrawDistance";
-            this.cmbxTabPressureMinDrawDistance.ValueMember = "ValueMember";
-            this.cmbxTabPressureMinDrawDistance.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureMinDrawDistance.BackColor = Color.White;
+            cmbxTabPressureMinDrawDistance.DisplayMember = "DisplayMember";
+            cmbxTabPressureMinDrawDistance.DropDownHeight = 140;
+            cmbxTabPressureMinDrawDistance.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureMinDrawDistance.DropDownWidth = 20;
+            cmbxTabPressureMinDrawDistance.FormattingEnabled = true;
+            cmbxTabPressureMinDrawDistance.Name = "cmbxTabPressureMinDrawDistance";
+            cmbxTabPressureMinDrawDistance.ValueMember = "ValueMember";
+            cmbxTabPressureMinDrawDistance.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBrushDensity
             // 
-            resources.ApplyResources(this.panelTabPressureBrushDensity, "panelTabPressureBrushDensity");
-            this.panelTabPressureBrushDensity.Controls.Add(this.panel4);
-            this.panelTabPressureBrushDensity.Controls.Add(this.cmbxTabPressureBrushDensity);
-            this.panelTabPressureBrushDensity.Name = "panelTabPressureBrushDensity";
+            panelTabPressureBrushDensity.Controls.Add(panel4);
+            panelTabPressureBrushDensity.Controls.Add(cmbxTabPressureBrushDensity);
+            panelTabPressureBrushDensity.Name = "panelTabPressureBrushDensity";
             // 
             // panel4
             // 
-            this.panel4.Controls.Add(this.lblTabPressureBrushDensity);
-            this.panel4.Controls.Add(this.spinTabPressureBrushDensity);
-            resources.ApplyResources(this.panel4, "panel4");
-            this.panel4.Name = "panel4";
+            panel4.Controls.Add(lblTabPressureBrushDensity);
+            panel4.Controls.Add(spinTabPressureBrushDensity);
+            panel4.Name = "panel4";
             // 
             // lblTabPressureBrushDensity
             // 
-            resources.ApplyResources(this.lblTabPressureBrushDensity, "lblTabPressureBrushDensity");
-            this.lblTabPressureBrushDensity.Name = "lblTabPressureBrushDensity";
+            lblTabPressureBrushDensity.Name = "lblTabPressureBrushDensity";
+            lblTabPressureBrushDensity.Text = Strings.BrushDensity;
             // 
             // spinTabPressureBrushDensity
             // 
-            resources.ApplyResources(this.spinTabPressureBrushDensity, "spinTabPressureBrushDensity");
-            this.spinTabPressureBrushDensity.Maximum = new decimal(new int[] {
+            spinTabPressureBrushDensity.Maximum = new decimal(new int[] {
             50,
             0,
             0,
             0});
-            this.spinTabPressureBrushDensity.Minimum = new decimal(new int[] {
+            spinTabPressureBrushDensity.Minimum = new decimal(new int[] {
             50,
             0,
             0,
             -2147483648});
-            this.spinTabPressureBrushDensity.Name = "spinTabPressureBrushDensity";
+            spinTabPressureBrushDensity.Name = "spinTabPressureBrushDensity";
             // 
             // cmbxTabPressureBrushDensity
             // 
-            this.cmbxTabPressureBrushDensity.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBrushDensity.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBrushDensity.DropDownHeight = 140;
-            this.cmbxTabPressureBrushDensity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBrushDensity.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBrushDensity, "cmbxTabPressureBrushDensity");
-            this.cmbxTabPressureBrushDensity.FormattingEnabled = true;
-            this.cmbxTabPressureBrushDensity.Name = "cmbxTabPressureBrushDensity";
-            this.cmbxTabPressureBrushDensity.ValueMember = "ValueMember";
-            this.cmbxTabPressureBrushDensity.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushDensity.BackColor = Color.White;
+            cmbxTabPressureBrushDensity.DisplayMember = "DisplayMember";
+            cmbxTabPressureBrushDensity.DropDownHeight = 140;
+            cmbxTabPressureBrushDensity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureBrushDensity.DropDownWidth = 20;
+            cmbxTabPressureBrushDensity.FormattingEnabled = true;
+            cmbxTabPressureBrushDensity.Name = "cmbxTabPressureBrushDensity";
+            cmbxTabPressureBrushDensity.ValueMember = "ValueMember";
+            cmbxTabPressureBrushDensity.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMinSize
             // 
-            resources.ApplyResources(this.panelTabPressureRandMinSize, "panelTabPressureRandMinSize");
-            this.panelTabPressureRandMinSize.Controls.Add(this.panel5);
-            this.panelTabPressureRandMinSize.Controls.Add(this.cmbxTabPressureRandMinSize);
-            this.panelTabPressureRandMinSize.Name = "panelTabPressureRandMinSize";
+            panelTabPressureRandMinSize.Controls.Add(panel5);
+            panelTabPressureRandMinSize.Controls.Add(cmbxTabPressureRandMinSize);
+            panelTabPressureRandMinSize.Name = "panelTabPressureRandMinSize";
             // 
             // panel5
             // 
-            this.panel5.Controls.Add(this.lblTabPressureRandMinSize);
-            this.panel5.Controls.Add(this.spinTabPressureRandMinSize);
-            resources.ApplyResources(this.panel5, "panel5");
-            this.panel5.Name = "panel5";
+            panel5.Controls.Add(lblTabPressureRandMinSize);
+            panel5.Controls.Add(spinTabPressureRandMinSize);
+            panel5.Name = "panel5";
             // 
             // lblTabPressureRandMinSize
             // 
-            resources.ApplyResources(this.lblTabPressureRandMinSize, "lblTabPressureRandMinSize");
-            this.lblTabPressureRandMinSize.Name = "lblTabPressureRandMinSize";
+            lblTabPressureRandMinSize.Name = "lblTabPressureRandMinSize";
+            lblTabPressureRandMinSize.Text = Strings.RandMinSize;
             // 
             // spinTabPressureRandMinSize
             // 
-            resources.ApplyResources(this.spinTabPressureRandMinSize, "spinTabPressureRandMinSize");
-            this.spinTabPressureRandMinSize.Maximum = new decimal(new int[] {
+            spinTabPressureRandMinSize.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-            this.spinTabPressureRandMinSize.Minimum = new decimal(new int[] {
+            spinTabPressureRandMinSize.Minimum = new decimal(new int[] {
             1000,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandMinSize.Name = "spinTabPressureRandMinSize";
+            spinTabPressureRandMinSize.Name = "spinTabPressureRandMinSize";
             // 
             // cmbxTabPressureRandMinSize
             // 
-            this.cmbxTabPressureRandMinSize.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandMinSize.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandMinSize.DropDownHeight = 140;
-            this.cmbxTabPressureRandMinSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandMinSize.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandMinSize, "cmbxTabPressureRandMinSize");
-            this.cmbxTabPressureRandMinSize.FormattingEnabled = true;
-            this.cmbxTabPressureRandMinSize.Name = "cmbxTabPressureRandMinSize";
-            this.cmbxTabPressureRandMinSize.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandMinSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandMinSize.BackColor = Color.White;
+            cmbxTabPressureRandMinSize.DisplayMember = "DisplayMember";
+            cmbxTabPressureRandMinSize.DropDownHeight = 140;
+            cmbxTabPressureRandMinSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRandMinSize.DropDownWidth = 20;
+            cmbxTabPressureRandMinSize.FormattingEnabled = true;
+            cmbxTabPressureRandMinSize.Name = "cmbxTabPressureRandMinSize";
+            cmbxTabPressureRandMinSize.ValueMember = "ValueMember";
+            cmbxTabPressureRandMinSize.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandMaxSize
             // 
-            resources.ApplyResources(this.panelTabPressureRandMaxSize, "panelTabPressureRandMaxSize");
-            this.panelTabPressureRandMaxSize.Controls.Add(this.panel6);
-            this.panelTabPressureRandMaxSize.Controls.Add(this.cmbxTabPressureRandMaxSize);
-            this.panelTabPressureRandMaxSize.Name = "panelTabPressureRandMaxSize";
+            panelTabPressureRandMaxSize.Controls.Add(panel6);
+            panelTabPressureRandMaxSize.Controls.Add(cmbxTabPressureRandMaxSize);
+            panelTabPressureRandMaxSize.Name = "panelTabPressureRandMaxSize";
             // 
             // panel6
             // 
-            this.panel6.Controls.Add(this.lblTabPressureRandMaxSize);
-            this.panel6.Controls.Add(this.spinTabPressureRandMaxSize);
-            resources.ApplyResources(this.panel6, "panel6");
-            this.panel6.Name = "panel6";
+            panel6.Controls.Add(lblTabPressureRandMaxSize);
+            panel6.Controls.Add(spinTabPressureRandMaxSize);
+            panel6.Name = "panel6";
             // 
             // lblTabPressureRandMaxSize
             // 
-            resources.ApplyResources(this.lblTabPressureRandMaxSize, "lblTabPressureRandMaxSize");
-            this.lblTabPressureRandMaxSize.Name = "lblTabPressureRandMaxSize";
+            lblTabPressureRandMaxSize.Name = "lblTabPressureRandMaxSize";
+            lblTabPressureRandMaxSize.Text = Strings.RandMaxSize;
             // 
             // spinTabPressureRandMaxSize
             // 
-            resources.ApplyResources(this.spinTabPressureRandMaxSize, "spinTabPressureRandMaxSize");
-            this.spinTabPressureRandMaxSize.Maximum = new decimal(new int[] {
+            spinTabPressureRandMaxSize.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-            this.spinTabPressureRandMaxSize.Minimum = new decimal(new int[] {
+            spinTabPressureRandMaxSize.Minimum = new decimal(new int[] {
             1000,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandMaxSize.Name = "spinTabPressureRandMaxSize";
+            spinTabPressureRandMaxSize.Name = "spinTabPressureRandMaxSize";
             // 
             // cmbxTabPressureRandMaxSize
             // 
-            this.cmbxTabPressureRandMaxSize.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandMaxSize.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandMaxSize.DropDownHeight = 140;
-            this.cmbxTabPressureRandMaxSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandMaxSize.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandMaxSize, "cmbxTabPressureRandMaxSize");
-            this.cmbxTabPressureRandMaxSize.FormattingEnabled = true;
-            this.cmbxTabPressureRandMaxSize.Name = "cmbxTabPressureRandMaxSize";
-            this.cmbxTabPressureRandMaxSize.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandMaxSize.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandMaxSize.BackColor = Color.White;
+            cmbxTabPressureRandMaxSize.DisplayMember = "DisplayMember";
+            cmbxTabPressureRandMaxSize.DropDownHeight = 140;
+            cmbxTabPressureRandMaxSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRandMaxSize.DropDownWidth = 20;
+            cmbxTabPressureRandMaxSize.FormattingEnabled = true;
+            cmbxTabPressureRandMaxSize.Name = "cmbxTabPressureRandMaxSize";
+            cmbxTabPressureRandMaxSize.ValueMember = "ValueMember";
+            cmbxTabPressureRandMaxSize.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandRotLeft
             // 
-            resources.ApplyResources(this.panelTabPressureRandRotLeft, "panelTabPressureRandRotLeft");
-            this.panelTabPressureRandRotLeft.Controls.Add(this.panel7);
-            this.panelTabPressureRandRotLeft.Controls.Add(this.cmbxTabPressureRandRotLeft);
-            this.panelTabPressureRandRotLeft.Name = "panelTabPressureRandRotLeft";
+            panelTabPressureRandRotLeft.Controls.Add(panel7);
+            panelTabPressureRandRotLeft.Controls.Add(cmbxTabPressureRandRotLeft);
+            panelTabPressureRandRotLeft.Name = "panelTabPressureRandRotLeft";
             // 
             // panel7
             // 
-            this.panel7.Controls.Add(this.lblTabPressureRandRotLeft);
-            this.panel7.Controls.Add(this.spinTabPressureRandRotLeft);
-            resources.ApplyResources(this.panel7, "panel7");
-            this.panel7.Name = "panel7";
+            panel7.Controls.Add(lblTabPressureRandRotLeft);
+            panel7.Controls.Add(spinTabPressureRandRotLeft);
+            panel7.Name = "panel7";
             // 
             // lblTabPressureRandRotLeft
             // 
-            resources.ApplyResources(this.lblTabPressureRandRotLeft, "lblTabPressureRandRotLeft");
-            this.lblTabPressureRandRotLeft.Name = "lblTabPressureRandRotLeft";
+            lblTabPressureRandRotLeft.Name = "lblTabPressureRandRotLeft";
+            lblTabPressureRandRotLeft.Text = Strings.RandRotLeft;
             // 
             // spinTabPressureRandRotLeft
             // 
-            resources.ApplyResources(this.spinTabPressureRandRotLeft, "spinTabPressureRandRotLeft");
-            this.spinTabPressureRandRotLeft.Maximum = new decimal(new int[] {
+            spinTabPressureRandRotLeft.Maximum = new decimal(new int[] {
             360,
             0,
             0,
             0});
-            this.spinTabPressureRandRotLeft.Minimum = new decimal(new int[] {
+            spinTabPressureRandRotLeft.Minimum = new decimal(new int[] {
             360,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandRotLeft.Name = "spinTabPressureRandRotLeft";
+            spinTabPressureRandRotLeft.Name = "spinTabPressureRandRotLeft";
             // 
             // cmbxTabPressureRandRotLeft
             // 
-            this.cmbxTabPressureRandRotLeft.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandRotLeft.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandRotLeft.DropDownHeight = 140;
-            this.cmbxTabPressureRandRotLeft.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandRotLeft.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandRotLeft, "cmbxTabPressureRandRotLeft");
-            this.cmbxTabPressureRandRotLeft.FormattingEnabled = true;
-            this.cmbxTabPressureRandRotLeft.Name = "cmbxTabPressureRandRotLeft";
-            this.cmbxTabPressureRandRotLeft.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandRotLeft.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandRotLeft.BackColor = Color.White;
+            cmbxTabPressureRandRotLeft.DisplayMember = "DisplayMember";
+            cmbxTabPressureRandRotLeft.DropDownHeight = 140;
+            cmbxTabPressureRandRotLeft.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRandRotLeft.DropDownWidth = 20;
+            cmbxTabPressureRandRotLeft.FormattingEnabled = true;
+            cmbxTabPressureRandRotLeft.Name = "cmbxTabPressureRandRotLeft";
+            cmbxTabPressureRandRotLeft.ValueMember = "ValueMember";
+            cmbxTabPressureRandRotLeft.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandRotRight
             // 
-            resources.ApplyResources(this.panelTabPressureRandRotRight, "panelTabPressureRandRotRight");
-            this.panelTabPressureRandRotRight.Controls.Add(this.panel9);
-            this.panelTabPressureRandRotRight.Controls.Add(this.cmbxTabPressureRandRotRight);
-            this.panelTabPressureRandRotRight.Name = "panelTabPressureRandRotRight";
+            panelTabPressureRandRotRight.Controls.Add(panel9);
+            panelTabPressureRandRotRight.Controls.Add(cmbxTabPressureRandRotRight);
+            panelTabPressureRandRotRight.Name = "panelTabPressureRandRotRight";
             // 
             // panel9
             // 
-            this.panel9.Controls.Add(this.lblTabPressureRandRotRight);
-            this.panel9.Controls.Add(this.spinTabPressureRandRotRight);
-            resources.ApplyResources(this.panel9, "panel9");
-            this.panel9.Name = "panel9";
+            panel9.Controls.Add(lblTabPressureRandRotRight);
+            panel9.Controls.Add(spinTabPressureRandRotRight);
+            panel9.Name = "panel9";
             // 
             // lblTabPressureRandRotRight
             // 
-            resources.ApplyResources(this.lblTabPressureRandRotRight, "lblTabPressureRandRotRight");
-            this.lblTabPressureRandRotRight.Name = "lblTabPressureRandRotRight";
+            lblTabPressureRandRotRight.Name = "lblTabPressureRandRotRight";
+            lblTabPressureRandRotRight.Text = Strings.RandRotRight;
             // 
             // spinTabPressureRandRotRight
             // 
-            resources.ApplyResources(this.spinTabPressureRandRotRight, "spinTabPressureRandRotRight");
-            this.spinTabPressureRandRotRight.Maximum = new decimal(new int[] {
+            spinTabPressureRandRotRight.Maximum = new decimal(new int[] {
             360,
             0,
             0,
             0});
-            this.spinTabPressureRandRotRight.Minimum = new decimal(new int[] {
+            spinTabPressureRandRotRight.Minimum = new decimal(new int[] {
             360,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandRotRight.Name = "spinTabPressureRandRotRight";
+            spinTabPressureRandRotRight.Name = "spinTabPressureRandRotRight";
             // 
             // cmbxTabPressureRandRotRight
             // 
-            this.cmbxTabPressureRandRotRight.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandRotRight.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandRotRight.DropDownHeight = 140;
-            this.cmbxTabPressureRandRotRight.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandRotRight.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandRotRight, "cmbxTabPressureRandRotRight");
-            this.cmbxTabPressureRandRotRight.FormattingEnabled = true;
-            this.cmbxTabPressureRandRotRight.Name = "cmbxTabPressureRandRotRight";
-            this.cmbxTabPressureRandRotRight.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandRotRight.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandRotRight.BackColor = Color.White;
+            cmbxTabPressureRandRotRight.DisplayMember = "DisplayMember";
+            cmbxTabPressureRandRotRight.DropDownHeight = 140;
+            cmbxTabPressureRandRotRight.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRandRotRight.DropDownWidth = 20;
+            cmbxTabPressureRandRotRight.FormattingEnabled = true;
+            cmbxTabPressureRandRotRight.Name = "cmbxTabPressureRandRotRight";
+            cmbxTabPressureRandRotRight.ValueMember = "ValueMember";
+            cmbxTabPressureRandRotRight.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandFlowLoss
             // 
-            resources.ApplyResources(this.panelTabPressureRandFlowLoss, "panelTabPressureRandFlowLoss");
-            this.panelTabPressureRandFlowLoss.Controls.Add(this.panel10);
-            this.panelTabPressureRandFlowLoss.Controls.Add(this.cmbxTabPressureRandFlowLoss);
-            this.panelTabPressureRandFlowLoss.Name = "panelTabPressureRandFlowLoss";
+            panelTabPressureRandFlowLoss.Controls.Add(panel10);
+            panelTabPressureRandFlowLoss.Controls.Add(cmbxTabPressureRandFlowLoss);
+            panelTabPressureRandFlowLoss.Name = "panelTabPressureRandFlowLoss";
             // 
             // panel10
             // 
-            this.panel10.Controls.Add(this.lblTabPressureRandFlowLoss);
-            this.panel10.Controls.Add(this.spinTabPressureRandFlowLoss);
-            resources.ApplyResources(this.panel10, "panel10");
-            this.panel10.Name = "panel10";
+            panel10.Controls.Add(lblTabPressureRandFlowLoss);
+            panel10.Controls.Add(spinTabPressureRandFlowLoss);
+            panel10.Name = "panel10";
             // 
             // lblTabPressureRandFlowLoss
             // 
-            resources.ApplyResources(this.lblTabPressureRandFlowLoss, "lblTabPressureRandFlowLoss");
-            this.lblTabPressureRandFlowLoss.Name = "lblTabPressureRandFlowLoss";
+            lblTabPressureRandFlowLoss.Name = "lblTabPressureRandFlowLoss";
+            lblTabPressureRandFlowLoss.Text = Strings.RandFlowLoss;
             // 
             // spinTabPressureRandFlowLoss
             // 
-            resources.ApplyResources(this.spinTabPressureRandFlowLoss, "spinTabPressureRandFlowLoss");
-            this.spinTabPressureRandFlowLoss.Minimum = new decimal(new int[] {
+            spinTabPressureRandFlowLoss.Minimum = new decimal(new int[] {
             255,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandFlowLoss.Name = "spinTabPressureRandFlowLoss";
+            spinTabPressureRandFlowLoss.Name = "spinTabPressureRandFlowLoss";
             // 
             // cmbxTabPressureRandFlowLoss
             // 
-            this.cmbxTabPressureRandFlowLoss.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandFlowLoss.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandFlowLoss.DropDownHeight = 140;
-            this.cmbxTabPressureRandFlowLoss.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandFlowLoss.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandFlowLoss, "cmbxTabPressureRandFlowLoss");
-            this.cmbxTabPressureRandFlowLoss.FormattingEnabled = true;
-            this.cmbxTabPressureRandFlowLoss.Name = "cmbxTabPressureRandFlowLoss";
-            this.cmbxTabPressureRandFlowLoss.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandFlowLoss.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandFlowLoss.BackColor = Color.White;
+            cmbxTabPressureRandFlowLoss.DisplayMember = "DisplayMember";
+            cmbxTabPressureRandFlowLoss.DropDownHeight = 140;
+            cmbxTabPressureRandFlowLoss.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRandFlowLoss.DropDownWidth = 20;
+            cmbxTabPressureRandFlowLoss.FormattingEnabled = true;
+            cmbxTabPressureRandFlowLoss.Name = "cmbxTabPressureRandFlowLoss";
+            cmbxTabPressureRandFlowLoss.ValueMember = "ValueMember";
+            cmbxTabPressureRandFlowLoss.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandHorShift
             // 
-            resources.ApplyResources(this.panelTabPressureRandHorShift, "panelTabPressureRandHorShift");
-            this.panelTabPressureRandHorShift.Controls.Add(this.panel12);
-            this.panelTabPressureRandHorShift.Controls.Add(this.cmbxTabPressureRandHorShift);
-            this.panelTabPressureRandHorShift.Name = "panelTabPressureRandHorShift";
+            panelTabPressureRandHorShift.Controls.Add(panel12);
+            panelTabPressureRandHorShift.Controls.Add(cmbxTabPressureRandHorShift);
+            panelTabPressureRandHorShift.Name = "panelTabPressureRandHorShift";
             // 
             // panel12
             // 
-            this.panel12.Controls.Add(this.lblTabPressureRandHorShift);
-            this.panel12.Controls.Add(this.spinTabPressureRandHorShift);
-            resources.ApplyResources(this.panel12, "panel12");
-            this.panel12.Name = "panel12";
+            panel12.Controls.Add(lblTabPressureRandHorShift);
+            panel12.Controls.Add(spinTabPressureRandHorShift);
+            panel12.Name = "panel12";
             // 
             // lblTabPressureRandHorShift
             // 
-            resources.ApplyResources(this.lblTabPressureRandHorShift, "lblTabPressureRandHorShift");
-            this.lblTabPressureRandHorShift.Name = "lblTabPressureRandHorShift";
+            lblTabPressureRandHorShift.Name = "lblTabPressureRandHorShift";
+            lblTabPressureRandHorShift.Text = Strings.RandHorzShift;
             // 
             // spinTabPressureRandHorShift
             // 
-            resources.ApplyResources(this.spinTabPressureRandHorShift, "spinTabPressureRandHorShift");
-            this.spinTabPressureRandHorShift.Minimum = new decimal(new int[] {
+            spinTabPressureRandHorShift.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandHorShift.Name = "spinTabPressureRandHorShift";
+            spinTabPressureRandHorShift.Name = "spinTabPressureRandHorShift";
             // 
             // cmbxTabPressureRandHorShift
             // 
-            this.cmbxTabPressureRandHorShift.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandHorShift.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandHorShift.DropDownHeight = 140;
-            this.cmbxTabPressureRandHorShift.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandHorShift.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandHorShift, "cmbxTabPressureRandHorShift");
-            this.cmbxTabPressureRandHorShift.FormattingEnabled = true;
-            this.cmbxTabPressureRandHorShift.Name = "cmbxTabPressureRandHorShift";
-            this.cmbxTabPressureRandHorShift.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandHorShift.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandHorShift.BackColor = Color.White;
+            cmbxTabPressureRandHorShift.DisplayMember = "DisplayMember";
+            cmbxTabPressureRandHorShift.DropDownHeight = 140;
+            cmbxTabPressureRandHorShift.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRandHorShift.DropDownWidth = 20;
+            cmbxTabPressureRandHorShift.FormattingEnabled = true;
+            cmbxTabPressureRandHorShift.Name = "cmbxTabPressureRandHorShift";
+            cmbxTabPressureRandHorShift.ValueMember = "ValueMember";
+            cmbxTabPressureRandHorShift.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRandVerShift
             // 
-            resources.ApplyResources(this.panelTabPressureRandVerShift, "panelTabPressureRandVerShift");
-            this.panelTabPressureRandVerShift.Controls.Add(this.panel11);
-            this.panelTabPressureRandVerShift.Controls.Add(this.cmbxTabPressureRandVerShift);
-            this.panelTabPressureRandVerShift.Name = "panelTabPressureRandVerShift";
+            panelTabPressureRandVerShift.Controls.Add(panel11);
+            panelTabPressureRandVerShift.Controls.Add(cmbxTabPressureRandVerShift);
+            panelTabPressureRandVerShift.Name = "panelTabPressureRandVerShift";
             // 
             // panel11
             // 
-            this.panel11.Controls.Add(this.lblTabPressureRandVerShift);
-            this.panel11.Controls.Add(this.spinTabPressureRandVerShift);
-            resources.ApplyResources(this.panel11, "panel11");
-            this.panel11.Name = "panel11";
+            panel11.Controls.Add(lblTabPressureRandVerShift);
+            panel11.Controls.Add(spinTabPressureRandVerShift);
+            panel11.Name = "panel11";
             // 
             // lblTabPressureRandVerShift
             // 
-            resources.ApplyResources(this.lblTabPressureRandVerShift, "lblTabPressureRandVerShift");
-            this.lblTabPressureRandVerShift.Name = "lblTabPressureRandVerShift";
+            lblTabPressureRandVerShift.Name = "lblTabPressureRandVerShift";
+            lblTabPressureRandVerShift.Text = Strings.RandVertShift;
             // 
             // spinTabPressureRandVerShift
             // 
-            resources.ApplyResources(this.spinTabPressureRandVerShift, "spinTabPressureRandVerShift");
-            this.spinTabPressureRandVerShift.Minimum = new decimal(new int[] {
+            spinTabPressureRandVerShift.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureRandVerShift.Name = "spinTabPressureRandVerShift";
+            spinTabPressureRandVerShift.Name = "spinTabPressureRandVerShift";
             // 
             // cmbxTabPressureRandVerShift
             // 
-            this.cmbxTabPressureRandVerShift.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRandVerShift.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRandVerShift.DropDownHeight = 140;
-            this.cmbxTabPressureRandVerShift.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRandVerShift.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRandVerShift, "cmbxTabPressureRandVerShift");
-            this.cmbxTabPressureRandVerShift.FormattingEnabled = true;
-            this.cmbxTabPressureRandVerShift.Name = "cmbxTabPressureRandVerShift";
-            this.cmbxTabPressureRandVerShift.ValueMember = "ValueMember";
-            this.cmbxTabPressureRandVerShift.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandVerShift.BackColor = Color.White;
+            cmbxTabPressureRandVerShift.DisplayMember = "DisplayMember";
+            cmbxTabPressureRandVerShift.DropDownHeight = 140;
+            cmbxTabPressureRandVerShift.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRandVerShift.DropDownWidth = 20;
+            cmbxTabPressureRandVerShift.FormattingEnabled = true;
+            cmbxTabPressureRandVerShift.Name = "cmbxTabPressureRandVerShift";
+            cmbxTabPressureRandVerShift.ValueMember = "ValueMember";
+            cmbxTabPressureRandVerShift.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureRedJitter
             // 
-            resources.ApplyResources(this.panelTabPressureRedJitter, "panelTabPressureRedJitter");
-            this.panelTabPressureRedJitter.Controls.Add(this.panel13);
-            this.panelTabPressureRedJitter.Controls.Add(this.cmbxTabPressureRedJitter);
-            this.panelTabPressureRedJitter.Name = "panelTabPressureRedJitter";
+            panelTabPressureRedJitter.Controls.Add(panel13);
+            panelTabPressureRedJitter.Controls.Add(cmbxTabPressureRedJitter);
+            panelTabPressureRedJitter.Name = "panelTabPressureRedJitter";
             // 
             // panel13
             // 
-            this.panel13.Controls.Add(this.spinTabPressureMinRedJitter);
-            this.panel13.Controls.Add(this.lblTabPressureRedJitter);
-            this.panel13.Controls.Add(this.spinTabPressureMaxRedJitter);
-            resources.ApplyResources(this.panel13, "panel13");
-            this.panel13.Name = "panel13";
+            panel13.Controls.Add(spinTabPressureMinRedJitter);
+            panel13.Controls.Add(lblTabPressureRedJitter);
+            panel13.Controls.Add(spinTabPressureMaxRedJitter);
+            panel13.Name = "panel13";
             // 
             // spinTabPressureMinRedJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMinRedJitter, "spinTabPressureMinRedJitter");
-            this.spinTabPressureMinRedJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMinRedJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMinRedJitter.Name = "spinTabPressureMinRedJitter";
+            spinTabPressureMinRedJitter.Name = "spinTabPressureMinRedJitter";
             // 
             // lblTabPressureRedJitter
             // 
-            resources.ApplyResources(this.lblTabPressureRedJitter, "lblTabPressureRedJitter");
-            this.lblTabPressureRedJitter.Name = "lblTabPressureRedJitter";
+            lblTabPressureRedJitter.Name = "lblTabPressureRedJitter";
+            lblTabPressureRedJitter.Text = Strings.JitterRed;
             // 
             // spinTabPressureMaxRedJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMaxRedJitter, "spinTabPressureMaxRedJitter");
-            this.spinTabPressureMaxRedJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMaxRedJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMaxRedJitter.Name = "spinTabPressureMaxRedJitter";
+            spinTabPressureMaxRedJitter.Name = "spinTabPressureMaxRedJitter";
             // 
             // cmbxTabPressureRedJitter
             // 
-            this.cmbxTabPressureRedJitter.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureRedJitter.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureRedJitter.DropDownHeight = 140;
-            this.cmbxTabPressureRedJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureRedJitter.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureRedJitter, "cmbxTabPressureRedJitter");
-            this.cmbxTabPressureRedJitter.FormattingEnabled = true;
-            this.cmbxTabPressureRedJitter.Name = "cmbxTabPressureRedJitter";
-            this.cmbxTabPressureRedJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureRedJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureRedJitter.BackColor = Color.White;
+            cmbxTabPressureRedJitter.DisplayMember = "DisplayMember";
+            cmbxTabPressureRedJitter.DropDownHeight = 140;
+            cmbxTabPressureRedJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureRedJitter.DropDownWidth = 20;
+            cmbxTabPressureRedJitter.FormattingEnabled = true;
+            cmbxTabPressureRedJitter.Name = "cmbxTabPressureRedJitter";
+            cmbxTabPressureRedJitter.ValueMember = "ValueMember";
+            cmbxTabPressureRedJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureGreenJitter
             // 
-            resources.ApplyResources(this.panelTabPressureGreenJitter, "panelTabPressureGreenJitter");
-            this.panelTabPressureGreenJitter.Controls.Add(this.panel14);
-            this.panelTabPressureGreenJitter.Controls.Add(this.cmbxTabPressureGreenJitter);
-            this.panelTabPressureGreenJitter.Name = "panelTabPressureGreenJitter";
+            panelTabPressureGreenJitter.Controls.Add(panel14);
+            panelTabPressureGreenJitter.Controls.Add(cmbxTabPressureGreenJitter);
+            panelTabPressureGreenJitter.Name = "panelTabPressureGreenJitter";
             // 
             // panel14
             // 
-            this.panel14.Controls.Add(this.spinTabPressureMinGreenJitter);
-            this.panel14.Controls.Add(this.lblTabPressureGreenJitter);
-            this.panel14.Controls.Add(this.spinTabPressureMaxGreenJitter);
-            resources.ApplyResources(this.panel14, "panel14");
-            this.panel14.Name = "panel14";
+            panel14.Controls.Add(spinTabPressureMinGreenJitter);
+            panel14.Controls.Add(lblTabPressureGreenJitter);
+            panel14.Controls.Add(spinTabPressureMaxGreenJitter);
+            panel14.Name = "panel14";
             // 
             // spinTabPressureMinGreenJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMinGreenJitter, "spinTabPressureMinGreenJitter");
-            this.spinTabPressureMinGreenJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMinGreenJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMinGreenJitter.Name = "spinTabPressureMinGreenJitter";
+            spinTabPressureMinGreenJitter.Name = "spinTabPressureMinGreenJitter";
             // 
             // lblTabPressureGreenJitter
             // 
-            resources.ApplyResources(this.lblTabPressureGreenJitter, "lblTabPressureGreenJitter");
-            this.lblTabPressureGreenJitter.Name = "lblTabPressureGreenJitter";
+            lblTabPressureGreenJitter.Name = "lblTabPressureGreenJitter";
+            lblTabPressureGreenJitter.Text = Strings.JitterGreen;
             // 
             // spinTabPressureMaxGreenJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMaxGreenJitter, "spinTabPressureMaxGreenJitter");
-            this.spinTabPressureMaxGreenJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMaxGreenJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMaxGreenJitter.Name = "spinTabPressureMaxGreenJitter";
+            spinTabPressureMaxGreenJitter.Name = "spinTabPressureMaxGreenJitter";
             // 
             // cmbxTabPressureGreenJitter
             // 
-            this.cmbxTabPressureGreenJitter.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureGreenJitter.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureGreenJitter.DropDownHeight = 140;
-            this.cmbxTabPressureGreenJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureGreenJitter.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureGreenJitter, "cmbxTabPressureGreenJitter");
-            this.cmbxTabPressureGreenJitter.FormattingEnabled = true;
-            this.cmbxTabPressureGreenJitter.Name = "cmbxTabPressureGreenJitter";
-            this.cmbxTabPressureGreenJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureGreenJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureGreenJitter.BackColor = Color.White;
+            cmbxTabPressureGreenJitter.DisplayMember = "DisplayMember";
+            cmbxTabPressureGreenJitter.DropDownHeight = 140;
+            cmbxTabPressureGreenJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureGreenJitter.DropDownWidth = 20;
+            cmbxTabPressureGreenJitter.FormattingEnabled = true;
+            cmbxTabPressureGreenJitter.Name = "cmbxTabPressureGreenJitter";
+            cmbxTabPressureGreenJitter.ValueMember = "ValueMember";
+            cmbxTabPressureGreenJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureBlueJitter
             // 
-            resources.ApplyResources(this.panelTabPressureBlueJitter, "panelTabPressureBlueJitter");
-            this.panelTabPressureBlueJitter.Controls.Add(this.panel15);
-            this.panelTabPressureBlueJitter.Controls.Add(this.cmbxTabPressureBlueJitter);
-            this.panelTabPressureBlueJitter.Name = "panelTabPressureBlueJitter";
+            panelTabPressureBlueJitter.Controls.Add(panel15);
+            panelTabPressureBlueJitter.Controls.Add(cmbxTabPressureBlueJitter);
+            panelTabPressureBlueJitter.Name = "panelTabPressureBlueJitter";
             // 
             // panel15
             // 
-            this.panel15.Controls.Add(this.spinTabPressureMinBlueJitter);
-            this.panel15.Controls.Add(this.lblTabPressureBlueJitter);
-            this.panel15.Controls.Add(this.spinTabPressureMaxBlueJitter);
-            resources.ApplyResources(this.panel15, "panel15");
-            this.panel15.Name = "panel15";
+            panel15.Controls.Add(spinTabPressureMinBlueJitter);
+            panel15.Controls.Add(lblTabPressureBlueJitter);
+            panel15.Controls.Add(spinTabPressureMaxBlueJitter);
+            panel15.Name = "panel15";
             // 
             // spinTabPressureMinBlueJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMinBlueJitter, "spinTabPressureMinBlueJitter");
-            this.spinTabPressureMinBlueJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMinBlueJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMinBlueJitter.Name = "spinTabPressureMinBlueJitter";
+            spinTabPressureMinBlueJitter.Name = "spinTabPressureMinBlueJitter";
             // 
             // lblTabPressureBlueJitter
             // 
-            resources.ApplyResources(this.lblTabPressureBlueJitter, "lblTabPressureBlueJitter");
-            this.lblTabPressureBlueJitter.Name = "lblTabPressureBlueJitter";
+            lblTabPressureBlueJitter.Name = "lblTabPressureBlueJitter";
+            lblTabPressureBlueJitter.Text = Strings.JitterBlue;
             // 
             // spinTabPressureMaxBlueJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMaxBlueJitter, "spinTabPressureMaxBlueJitter");
-            this.spinTabPressureMaxBlueJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMaxBlueJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMaxBlueJitter.Name = "spinTabPressureMaxBlueJitter";
+            spinTabPressureMaxBlueJitter.Name = "spinTabPressureMaxBlueJitter";
             // 
             // cmbxTabPressureBlueJitter
             // 
-            this.cmbxTabPressureBlueJitter.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureBlueJitter.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureBlueJitter.DropDownHeight = 140;
-            this.cmbxTabPressureBlueJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureBlueJitter.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureBlueJitter, "cmbxTabPressureBlueJitter");
-            this.cmbxTabPressureBlueJitter.FormattingEnabled = true;
-            this.cmbxTabPressureBlueJitter.Name = "cmbxTabPressureBlueJitter";
-            this.cmbxTabPressureBlueJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureBlueJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureBlueJitter.BackColor = Color.White;
+            cmbxTabPressureBlueJitter.DisplayMember = "DisplayMember";
+            cmbxTabPressureBlueJitter.DropDownHeight = 140;
+            cmbxTabPressureBlueJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureBlueJitter.DropDownWidth = 20;
+            cmbxTabPressureBlueJitter.FormattingEnabled = true;
+            cmbxTabPressureBlueJitter.Name = "cmbxTabPressureBlueJitter";
+            cmbxTabPressureBlueJitter.ValueMember = "ValueMember";
+            cmbxTabPressureBlueJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureHueJitter
             // 
-            resources.ApplyResources(this.panelTabPressureHueJitter, "panelTabPressureHueJitter");
-            this.panelTabPressureHueJitter.Controls.Add(this.panel16);
-            this.panelTabPressureHueJitter.Controls.Add(this.cmbxTabPressureHueJitter);
-            this.panelTabPressureHueJitter.Name = "panelTabPressureHueJitter";
+            panelTabPressureHueJitter.Controls.Add(panel16);
+            panelTabPressureHueJitter.Controls.Add(cmbxTabPressureHueJitter);
+            panelTabPressureHueJitter.Name = "panelTabPressureHueJitter";
             // 
             // panel16
             // 
-            this.panel16.Controls.Add(this.spinTabPressureMinHueJitter);
-            this.panel16.Controls.Add(this.lblTabPressureHueJitter);
-            this.panel16.Controls.Add(this.spinTabPressureMaxHueJitter);
-            resources.ApplyResources(this.panel16, "panel16");
-            this.panel16.Name = "panel16";
+            panel16.Controls.Add(spinTabPressureMinHueJitter);
+            panel16.Controls.Add(lblTabPressureHueJitter);
+            panel16.Controls.Add(spinTabPressureMaxHueJitter);
+            panel16.Name = "panel16";
             // 
             // spinTabPressureMinHueJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMinHueJitter, "spinTabPressureMinHueJitter");
-            this.spinTabPressureMinHueJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMinHueJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMinHueJitter.Name = "spinTabPressureMinHueJitter";
+            spinTabPressureMinHueJitter.Name = "spinTabPressureMinHueJitter";
             // 
             // lblTabPressureHueJitter
             // 
-            resources.ApplyResources(this.lblTabPressureHueJitter, "lblTabPressureHueJitter");
-            this.lblTabPressureHueJitter.Name = "lblTabPressureHueJitter";
+            lblTabPressureHueJitter.Name = "lblTabPressureHueJitter";
+            lblTabPressureHueJitter.Text = Strings.JitterHue;
             // 
             // spinTabPressureMaxHueJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMaxHueJitter, "spinTabPressureMaxHueJitter");
-            this.spinTabPressureMaxHueJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMaxHueJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMaxHueJitter.Name = "spinTabPressureMaxHueJitter";
+            spinTabPressureMaxHueJitter.Name = "spinTabPressureMaxHueJitter";
             // 
             // cmbxTabPressureHueJitter
             // 
-            this.cmbxTabPressureHueJitter.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureHueJitter.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureHueJitter.DropDownHeight = 140;
-            this.cmbxTabPressureHueJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureHueJitter.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureHueJitter, "cmbxTabPressureHueJitter");
-            this.cmbxTabPressureHueJitter.FormattingEnabled = true;
-            this.cmbxTabPressureHueJitter.Name = "cmbxTabPressureHueJitter";
-            this.cmbxTabPressureHueJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureHueJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureHueJitter.BackColor = Color.White;
+            cmbxTabPressureHueJitter.DisplayMember = "DisplayMember";
+            cmbxTabPressureHueJitter.DropDownHeight = 140;
+            cmbxTabPressureHueJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureHueJitter.DropDownWidth = 20;
+            cmbxTabPressureHueJitter.FormattingEnabled = true;
+            cmbxTabPressureHueJitter.Name = "cmbxTabPressureHueJitter";
+            cmbxTabPressureHueJitter.ValueMember = "ValueMember";
+            cmbxTabPressureHueJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureSatJitter
             // 
-            resources.ApplyResources(this.panelTabPressureSatJitter, "panelTabPressureSatJitter");
-            this.panelTabPressureSatJitter.Controls.Add(this.panel17);
-            this.panelTabPressureSatJitter.Controls.Add(this.cmbxTabPressureSatJitter);
-            this.panelTabPressureSatJitter.Name = "panelTabPressureSatJitter";
+            panelTabPressureSatJitter.Controls.Add(panel17);
+            panelTabPressureSatJitter.Controls.Add(cmbxTabPressureSatJitter);
+            panelTabPressureSatJitter.Name = "panelTabPressureSatJitter";
             // 
             // panel17
             // 
-            this.panel17.Controls.Add(this.spinTabPressureMinSatJitter);
-            this.panel17.Controls.Add(this.lblTabPressureSatJitter);
-            this.panel17.Controls.Add(this.spinTabPressureMaxSatJitter);
-            resources.ApplyResources(this.panel17, "panel17");
-            this.panel17.Name = "panel17";
+            panel17.Controls.Add(spinTabPressureMinSatJitter);
+            panel17.Controls.Add(lblTabPressureSatJitter);
+            panel17.Controls.Add(spinTabPressureMaxSatJitter);
+            panel17.Name = "panel17";
             // 
             // spinTabPressureMinSatJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMinSatJitter, "spinTabPressureMinSatJitter");
-            this.spinTabPressureMinSatJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMinSatJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMinSatJitter.Name = "spinTabPressureMinSatJitter";
+            spinTabPressureMinSatJitter.Name = "spinTabPressureMinSatJitter";
             // 
             // lblTabPressureSatJitter
             // 
-            resources.ApplyResources(this.lblTabPressureSatJitter, "lblTabPressureSatJitter");
-            this.lblTabPressureSatJitter.Name = "lblTabPressureSatJitter";
+            lblTabPressureSatJitter.Name = "lblTabPressureSatJitter";
+            lblTabPressureSatJitter.Text = Strings.JitterSaturation;
             // 
             // spinTabPressureMaxSatJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMaxSatJitter, "spinTabPressureMaxSatJitter");
-            this.spinTabPressureMaxSatJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMaxSatJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMaxSatJitter.Name = "spinTabPressureMaxSatJitter";
+            spinTabPressureMaxSatJitter.Name = "spinTabPressureMaxSatJitter";
             // 
             // cmbxTabPressureSatJitter
             // 
-            this.cmbxTabPressureSatJitter.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureSatJitter.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureSatJitter.DropDownHeight = 140;
-            this.cmbxTabPressureSatJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureSatJitter.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureSatJitter, "cmbxTabPressureSatJitter");
-            this.cmbxTabPressureSatJitter.FormattingEnabled = true;
-            this.cmbxTabPressureSatJitter.Name = "cmbxTabPressureSatJitter";
-            this.cmbxTabPressureSatJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureSatJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureSatJitter.BackColor = Color.White;
+            cmbxTabPressureSatJitter.DisplayMember = "DisplayMember";
+            cmbxTabPressureSatJitter.DropDownHeight = 140;
+            cmbxTabPressureSatJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureSatJitter.DropDownWidth = 20;
+            cmbxTabPressureSatJitter.FormattingEnabled = true;
+            cmbxTabPressureSatJitter.Name = "cmbxTabPressureSatJitter";
+            cmbxTabPressureSatJitter.ValueMember = "ValueMember";
+            cmbxTabPressureSatJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // panelTabPressureValueJitter
             // 
-            resources.ApplyResources(this.panelTabPressureValueJitter, "panelTabPressureValueJitter");
-            this.panelTabPressureValueJitter.Controls.Add(this.panel18);
-            this.panelTabPressureValueJitter.Controls.Add(this.cmbxTabPressureValueJitter);
-            this.panelTabPressureValueJitter.Name = "panelTabPressureValueJitter";
+            panelTabPressureValueJitter.Controls.Add(panel18);
+            panelTabPressureValueJitter.Controls.Add(cmbxTabPressureValueJitter);
+            panelTabPressureValueJitter.Name = "panelTabPressureValueJitter";
             // 
             // panel18
             // 
-            this.panel18.Controls.Add(this.spinTabPressureMinValueJitter);
-            this.panel18.Controls.Add(this.lblTabPressureValueJitter);
-            this.panel18.Controls.Add(this.spinTabPressureMaxValueJitter);
-            resources.ApplyResources(this.panel18, "panel18");
-            this.panel18.Name = "panel18";
+            panel18.Controls.Add(spinTabPressureMinValueJitter);
+            panel18.Controls.Add(lblTabPressureValueJitter);
+            panel18.Controls.Add(spinTabPressureMaxValueJitter);
+            panel18.Name = "panel18";
             // 
             // spinTabPressureMinValueJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMinValueJitter, "spinTabPressureMinValueJitter");
-            this.spinTabPressureMinValueJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMinValueJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMinValueJitter.Name = "spinTabPressureMinValueJitter";
+            spinTabPressureMinValueJitter.Name = "spinTabPressureMinValueJitter";
             // 
             // lblTabPressureValueJitter
             // 
-            resources.ApplyResources(this.lblTabPressureValueJitter, "lblTabPressureValueJitter");
-            this.lblTabPressureValueJitter.Name = "lblTabPressureValueJitter";
+            lblTabPressureValueJitter.Name = "lblTabPressureValueJitter";
+            lblTabPressureValueJitter.Text = Strings.JitterValue;
             // 
             // spinTabPressureMaxValueJitter
             // 
-            resources.ApplyResources(this.spinTabPressureMaxValueJitter, "spinTabPressureMaxValueJitter");
-            this.spinTabPressureMaxValueJitter.Minimum = new decimal(new int[] {
+            spinTabPressureMaxValueJitter.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
-            this.spinTabPressureMaxValueJitter.Name = "spinTabPressureMaxValueJitter";
+            spinTabPressureMaxValueJitter.Name = "spinTabPressureMaxValueJitter";
             // 
             // cmbxTabPressureValueJitter
             // 
-            this.cmbxTabPressureValueJitter.BackColor = System.Drawing.Color.White;
-            this.cmbxTabPressureValueJitter.DisplayMember = "DisplayMember";
-            this.cmbxTabPressureValueJitter.DropDownHeight = 140;
-            this.cmbxTabPressureValueJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbxTabPressureValueJitter.DropDownWidth = 20;
-            resources.ApplyResources(this.cmbxTabPressureValueJitter, "cmbxTabPressureValueJitter");
-            this.cmbxTabPressureValueJitter.FormattingEnabled = true;
-            this.cmbxTabPressureValueJitter.Name = "cmbxTabPressureValueJitter";
-            this.cmbxTabPressureValueJitter.ValueMember = "ValueMember";
-            this.cmbxTabPressureValueJitter.MouseHover += new EventHandler(this.CmbxTabPressure_MouseHover);
+            cmbxTabPressureValueJitter.BackColor = Color.White;
+            cmbxTabPressureValueJitter.DisplayMember = "DisplayMember";
+            cmbxTabPressureValueJitter.DropDownHeight = 140;
+            cmbxTabPressureValueJitter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbxTabPressureValueJitter.DropDownWidth = 20;
+            cmbxTabPressureValueJitter.FormattingEnabled = true;
+            cmbxTabPressureValueJitter.Name = "cmbxTabPressureValueJitter";
+            cmbxTabPressureValueJitter.ValueMember = "ValueMember";
+            cmbxTabPressureValueJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
             // 
             // bttnSettings
             // 
-            this.bttnSettings.BackColor = System.Drawing.Color.Black;
-            this.bttnSettings.ForeColor = System.Drawing.Color.WhiteSmoke;
-            resources.ApplyResources(this.bttnSettings, "bttnSettings");
-            this.bttnSettings.Name = "bttnSettings";
-            this.bttnSettings.UseVisualStyleBackColor = false;
+            bttnSettings.BackColor = Color.Black;
+            bttnSettings.ForeColor = Color.WhiteSmoke;
+            bttnSettings.Name = "bttnSettings";
+            bttnSettings.UseVisualStyleBackColor = false;
             // 
             // panelSettings
             // 
-            resources.ApplyResources(this.panelSettings, "panelSettings");
-            this.panelSettings.BackColor = System.Drawing.SystemColors.Control;
-            this.panelSettings.Controls.Add(this.bttnUpdateCurrentBrush);
-            this.panelSettings.Controls.Add(this.bttnClearSettings);
-            this.panelSettings.Controls.Add(this.bttnDeleteBrush);
-            this.panelSettings.Controls.Add(this.bttnSaveBrush);
-            this.panelSettings.Name = "panelSettings";
+            panelSettings.BackColor = SystemColors.Control;
+            panelSettings.Controls.Add(bttnUpdateCurrentBrush);
+            panelSettings.Controls.Add(bttnClearSettings);
+            panelSettings.Controls.Add(bttnDeleteBrush);
+            panelSettings.Controls.Add(bttnSaveBrush);
+            panelSettings.Name = "panelSettings";
             // 
             // bttnUpdateCurrentBrush
             // 
-            resources.ApplyResources(this.bttnUpdateCurrentBrush, "bttnUpdateCurrentBrush");
-            this.bttnUpdateCurrentBrush.Enabled = false;
-            this.bttnUpdateCurrentBrush.Name = "bttnUpdateCurrentBrush";
-            this.bttnUpdateCurrentBrush.UseVisualStyleBackColor = true;
-            this.bttnUpdateCurrentBrush.Click += new EventHandler(this.BttnUpdateCurrentBrush_Click);
-            this.bttnUpdateCurrentBrush.MouseEnter += new EventHandler(this.BttnUpdateCurrentBrush_MouseEnter);
+            bttnUpdateCurrentBrush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bttnUpdateCurrentBrush.Enabled = false;
+            bttnUpdateCurrentBrush.Name = "bttnUpdateCurrentBrush";
+            bttnUpdateCurrentBrush.UseVisualStyleBackColor = true;
+            bttnUpdateCurrentBrush.Click += new EventHandler(BttnUpdateCurrentBrush_Click);
+            bttnUpdateCurrentBrush.MouseEnter += new EventHandler(BttnUpdateCurrentBrush_MouseEnter);
             // 
             // bttnClearSettings
             // 
-            resources.ApplyResources(this.bttnClearSettings, "bttnClearSettings");
-            this.bttnClearSettings.Name = "bttnClearSettings";
-            this.bttnClearSettings.UseVisualStyleBackColor = true;
-            this.bttnClearSettings.Click += new EventHandler(this.BttnClearSettings_Click);
-            this.bttnClearSettings.MouseEnter += new EventHandler(this.BttnClearSettings_MouseEnter);
+            bttnClearSettings.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bttnClearSettings.Name = "bttnClearSettings";
+            bttnClearSettings.UseVisualStyleBackColor = true;
+            bttnClearSettings.Click += new EventHandler(BttnClearSettings_Click);
+            bttnClearSettings.MouseEnter += new EventHandler(BttnClearSettings_MouseEnter);
             // 
             // bttnDeleteBrush
             // 
-            resources.ApplyResources(this.bttnDeleteBrush, "bttnDeleteBrush");
-            this.bttnDeleteBrush.Name = "bttnDeleteBrush";
-            this.bttnDeleteBrush.UseVisualStyleBackColor = true;
-            this.bttnDeleteBrush.Click += new EventHandler(this.BttnDeleteBrush_Click);
-            this.bttnDeleteBrush.MouseEnter += new EventHandler(this.BttnDeleteBrush_MouseEnter);
+            bttnDeleteBrush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bttnDeleteBrush.Name = "bttnDeleteBrush";
+            bttnDeleteBrush.UseVisualStyleBackColor = true;
+            bttnDeleteBrush.Click += new EventHandler(BttnDeleteBrush_Click);
+            bttnDeleteBrush.MouseEnter += new EventHandler(BttnDeleteBrush_MouseEnter);
             // 
             // bttnSaveBrush
             // 
-            resources.ApplyResources(this.bttnSaveBrush, "bttnSaveBrush");
-            this.bttnSaveBrush.Name = "bttnSaveBrush";
-            this.bttnSaveBrush.UseVisualStyleBackColor = true;
-            this.bttnSaveBrush.Click += new EventHandler(this.BttnSaveBrush_Click);
-            this.bttnSaveBrush.MouseEnter += new EventHandler(this.BttnSaveBrush_MouseEnter);
+            bttnSaveBrush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bttnSaveBrush.Name = "bttnSaveBrush";
+            bttnSaveBrush.UseVisualStyleBackColor = true;
+            bttnSaveBrush.Click += new EventHandler(BttnSaveBrush_Click);
+            bttnSaveBrush.MouseEnter += new EventHandler(BttnSaveBrush_MouseEnter);
             // 
             // WinDynamicDraw
             // 
-            this.AcceptButton = this.bttnOk;
-            resources.ApplyResources(this, "$this");
-            this.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.CancelButton = this.bttnCancel;
-            this.Controls.Add(this.panelAllSettingsContainer);
-            this.Controls.Add(this.topMenu);
-            this.Controls.Add(this.displayCanvas);
-            this.DoubleBuffered = true;
-            this.KeyPreview = true;
-            this.FormBorderStyle = FormBorderStyle.Sizable;
-            this.Load += new System.EventHandler(this.DynamicDrawWindow_Load);
-            this.MaximizeBox = true;
-            this.MinimizeBox = true;
-            this.Name = "WinDynamicDraw";
-            this.Resize += WinDynamicDraw_Resize;
-            this.SizeGripStyle = SizeGripStyle.Auto;
-            this.topMenu.ResumeLayout(false);
-            this.topMenu.PerformLayout();
-            this.displayCanvas.ResumeLayout(false);
-            this.displayCanvas.PerformLayout();
-            ((ISupportInitialize)(this.displayCanvas)).EndInit();
-            this.panelUndoRedoOkCancel.ResumeLayout(false);
-            this.panelAllSettingsContainer.ResumeLayout(false);
-            this.panelDockSettingsContainer.ResumeLayout(false);
-            this.panelDockSettingsContainer.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.panelSettingsContainer.ResumeLayout(false);
-            this.panelSettingsContainer.PerformLayout();
-            this.panelBrush.ResumeLayout(false);
-            this.panelBrush.PerformLayout();
-            ((ISupportInitialize)(this.sliderCanvasAngle)).EndInit();
-            this.panelBrushAddPickColor.ResumeLayout(false);
-            this.panelBrushAddPickColor.PerformLayout();
-            ((ISupportInitialize)(this.sliderColorInfluence)).EndInit();
-            this.panelColorInfluenceHSV.ResumeLayout(false);
-            this.panelColorInfluenceHSV.PerformLayout();
-            ((ISupportInitialize)(this.sliderBrushOpacity)).EndInit();
-            ((ISupportInitialize)(this.sliderBrushFlow)).EndInit();
-            ((ISupportInitialize)(this.sliderBrushRotation)).EndInit();
-            ((ISupportInitialize)(this.sliderBrushSize)).EndInit();
-            this.panelSpecialSettings.ResumeLayout(false);
-            this.panelSpecialSettings.PerformLayout();
-            this.panelChosenEffect.ResumeLayout(false);
-            this.panelChosenEffect.PerformLayout();
-            this.panelRGBLocks.ResumeLayout(false);
-            this.panelRGBLocks.PerformLayout();
-            this.panelHSVLocks.ResumeLayout(false);
-            this.panelHSVLocks.PerformLayout();
-            ((ISupportInitialize)(this.sliderMinDrawDistance)).EndInit();
-            ((ISupportInitialize)(this.sliderBrushDensity)).EndInit();
-            this.panelJitterBasics.ResumeLayout(false);
-            ((ISupportInitialize)(this.sliderRandMinSize)).EndInit();
-            ((ISupportInitialize)(this.sliderRandMaxSize)).EndInit();
-            ((ISupportInitialize)(this.sliderRandRotLeft)).EndInit();
-            ((ISupportInitialize)(this.sliderRandRotRight)).EndInit();
-            ((ISupportInitialize)(this.sliderRandFlowLoss)).EndInit();
-            ((ISupportInitialize)(this.sliderRandHorzShift)).EndInit();
-            ((ISupportInitialize)(this.sliderRandVertShift)).EndInit();
-            this.panelJitterColor.ResumeLayout(false);
-            ((ISupportInitialize)(this.sliderJitterMinRed)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMaxRed)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMinGreen)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMaxGreen)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMinBlue)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMaxBlue)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMinHue)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMaxHue)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMinSat)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMaxSat)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMinVal)).EndInit();
-            ((ISupportInitialize)(this.sliderJitterMaxVal)).EndInit();
-            this.panelShiftBasics.ResumeLayout(false);
-            ((ISupportInitialize)(this.sliderShiftSize)).EndInit();
-            ((ISupportInitialize)(this.sliderShiftRotation)).EndInit();
-            ((ISupportInitialize)(this.sliderShiftFlow)).EndInit();
-            this.panelTabletAssignPressure.ResumeLayout(false);
-            this.panelTabletAssignPressure.PerformLayout();
-            this.panelTabPressureBrushOpacity.ResumeLayout(false);
-            this.panel19.ResumeLayout(false);
-            this.panel19.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushOpacity)).EndInit();
-            this.panelTabPressureBrushFlow.ResumeLayout(false);
-            this.panel3.ResumeLayout(false);
-            this.panel3.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushFlow)).EndInit();
-            this.panelTabPressureBrushSize.ResumeLayout(false);
-            this.panel8.ResumeLayout(false);
-            this.panel8.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushSize)).EndInit();
-            this.panelTabPressureBrushRotation.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushRotation)).EndInit();
-            this.panelTabPressureMinDrawDistance.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinDrawDistance)).EndInit();
-            this.panelTabPressureBrushDensity.ResumeLayout(false);
-            this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureBrushDensity)).EndInit();
-            this.panelTabPressureRandMinSize.ResumeLayout(false);
-            this.panel5.ResumeLayout(false);
-            this.panel5.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandMinSize)).EndInit();
-            this.panelTabPressureRandMaxSize.ResumeLayout(false);
-            this.panel6.ResumeLayout(false);
-            this.panel6.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandMaxSize)).EndInit();
-            this.panelTabPressureRandRotLeft.ResumeLayout(false);
-            this.panel7.ResumeLayout(false);
-            this.panel7.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandRotLeft)).EndInit();
-            this.panelTabPressureRandRotRight.ResumeLayout(false);
-            this.panel9.ResumeLayout(false);
-            this.panel9.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandRotRight)).EndInit();
-            this.panelTabPressureRandFlowLoss.ResumeLayout(false);
-            this.panel10.ResumeLayout(false);
-            this.panel10.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandFlowLoss)).EndInit();
-            this.panelTabPressureRandHorShift.ResumeLayout(false);
-            this.panel12.ResumeLayout(false);
-            this.panel12.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandHorShift)).EndInit();
-            this.panelTabPressureRandVerShift.ResumeLayout(false);
-            this.panel11.ResumeLayout(false);
-            this.panel11.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureRandVerShift)).EndInit();
-            this.panelTabPressureRedJitter.ResumeLayout(false);
-            this.panel13.ResumeLayout(false);
-            this.panel13.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinRedJitter)).EndInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxRedJitter)).EndInit();
-            this.panelTabPressureGreenJitter.ResumeLayout(false);
-            this.panel14.ResumeLayout(false);
-            this.panel14.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinGreenJitter)).EndInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxGreenJitter)).EndInit();
-            this.panelTabPressureBlueJitter.ResumeLayout(false);
-            this.panel15.ResumeLayout(false);
-            this.panel15.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinBlueJitter)).EndInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxBlueJitter)).EndInit();
-            this.panelTabPressureHueJitter.ResumeLayout(false);
-            this.panel16.ResumeLayout(false);
-            this.panel16.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinHueJitter)).EndInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxHueJitter)).EndInit();
-            this.panelTabPressureSatJitter.ResumeLayout(false);
-            this.panel17.ResumeLayout(false);
-            this.panel17.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinSatJitter)).EndInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxSatJitter)).EndInit();
-            this.panelTabPressureValueJitter.ResumeLayout(false);
-            this.panel18.ResumeLayout(false);
-            this.panel18.PerformLayout();
-            ((ISupportInitialize)(this.spinTabPressureMinValueJitter)).EndInit();
-            ((ISupportInitialize)(this.spinTabPressureMaxValueJitter)).EndInit();
-            this.panelSettings.ResumeLayout(false);
-            this.ResumeLayout(false);
-
+            AcceptButton = bttnOk;
+            BackColor = SystemColors.ControlLight;
+            CancelButton = bttnCancel;
+            Controls.Add(panelAllSettingsContainer);
+            Controls.Add(topMenu);
+            Controls.Add(displayCanvas);
+            DoubleBuffered = true;
+            KeyPreview = true;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            Load += new System.EventHandler(DynamicDrawWindow_Load);
+            MaximizeBox = true;
+            MinimizeBox = true;
+            Name = "WinDynamicDraw";
+            Resize += WinDynamicDraw_Resize;
+            SizeGripStyle = SizeGripStyle.Auto;
+            topMenu.ResumeLayout(false);
+            topMenu.PerformLayout();
+            displayCanvas.ResumeLayout(false);
+            displayCanvas.PerformLayout();
+            ((ISupportInitialize)(displayCanvas)).EndInit();
+            panelUndoRedoOkCancel.ResumeLayout(false);
+            panelAllSettingsContainer.ResumeLayout(false);
+            panelDockSettingsContainer.ResumeLayout(false);
+            panelDockSettingsContainer.PerformLayout();
+            panelSettingsContainer.ResumeLayout(false);
+            panelSettingsContainer.PerformLayout();
+            panelBrush.ResumeLayout(false);
+            panelBrush.PerformLayout();
+            panelBrushAddPickColor.ResumeLayout(false);
+            panelBrushAddPickColor.PerformLayout();
+            ((ISupportInitialize)(sliderColorInfluence)).EndInit();
+            panelColorInfluenceHSV.ResumeLayout(false);
+            panelColorInfluenceHSV.PerformLayout();
+            ((ISupportInitialize)(sliderBrushOpacity)).EndInit();
+            ((ISupportInitialize)(sliderBrushFlow)).EndInit();
+            ((ISupportInitialize)(sliderBrushRotation)).EndInit();
+            ((ISupportInitialize)(sliderBrushSize)).EndInit();
+            panelSpecialSettings.ResumeLayout(false);
+            panelSpecialSettings.PerformLayout();
+            panelChosenEffect.ResumeLayout(false);
+            panelChosenEffect.PerformLayout();
+            panelRGBLocks.ResumeLayout(false);
+            panelRGBLocks.PerformLayout();
+            panelHSVLocks.ResumeLayout(false);
+            panelHSVLocks.PerformLayout();
+            ((ISupportInitialize)(sliderMinDrawDistance)).EndInit();
+            ((ISupportInitialize)(sliderBrushDensity)).EndInit();
+            panelJitterBasics.ResumeLayout(false);
+            ((ISupportInitialize)(sliderRandMinSize)).EndInit();
+            ((ISupportInitialize)(sliderRandMaxSize)).EndInit();
+            ((ISupportInitialize)(sliderRandRotLeft)).EndInit();
+            ((ISupportInitialize)(sliderRandRotRight)).EndInit();
+            ((ISupportInitialize)(sliderRandFlowLoss)).EndInit();
+            ((ISupportInitialize)(sliderRandHorzShift)).EndInit();
+            ((ISupportInitialize)(sliderRandVertShift)).EndInit();
+            panelJitterColor.ResumeLayout(false);
+            ((ISupportInitialize)(sliderJitterMinRed)).EndInit();
+            ((ISupportInitialize)(sliderJitterMaxRed)).EndInit();
+            ((ISupportInitialize)(sliderJitterMinGreen)).EndInit();
+            ((ISupportInitialize)(sliderJitterMaxGreen)).EndInit();
+            ((ISupportInitialize)(sliderJitterMinBlue)).EndInit();
+            ((ISupportInitialize)(sliderJitterMaxBlue)).EndInit();
+            ((ISupportInitialize)(sliderJitterMinHue)).EndInit();
+            ((ISupportInitialize)(sliderJitterMaxHue)).EndInit();
+            ((ISupportInitialize)(sliderJitterMinSat)).EndInit();
+            ((ISupportInitialize)(sliderJitterMaxSat)).EndInit();
+            ((ISupportInitialize)(sliderJitterMinVal)).EndInit();
+            ((ISupportInitialize)(sliderJitterMaxVal)).EndInit();
+            panelShiftBasics.ResumeLayout(false);
+            ((ISupportInitialize)(sliderShiftSize)).EndInit();
+            ((ISupportInitialize)(sliderShiftRotation)).EndInit();
+            ((ISupportInitialize)(sliderShiftFlow)).EndInit();
+            panelTabletAssignPressure.ResumeLayout(false);
+            panelTabletAssignPressure.PerformLayout();
+            panelTabPressureBrushOpacity.ResumeLayout(false);
+            panel19.ResumeLayout(false);
+            panel19.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureBrushOpacity)).EndInit();
+            panelTabPressureBrushFlow.ResumeLayout(false);
+            panel3.ResumeLayout(false);
+            panel3.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureBrushFlow)).EndInit();
+            panelTabPressureBrushSize.ResumeLayout(false);
+            panel8.ResumeLayout(false);
+            panel8.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureBrushSize)).EndInit();
+            panelTabPressureBrushRotation.ResumeLayout(false);
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureBrushRotation)).EndInit();
+            panelTabPressureMinDrawDistance.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureMinDrawDistance)).EndInit();
+            panelTabPressureBrushDensity.ResumeLayout(false);
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureBrushDensity)).EndInit();
+            panelTabPressureRandMinSize.ResumeLayout(false);
+            panel5.ResumeLayout(false);
+            panel5.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureRandMinSize)).EndInit();
+            panelTabPressureRandMaxSize.ResumeLayout(false);
+            panel6.ResumeLayout(false);
+            panel6.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureRandMaxSize)).EndInit();
+            panelTabPressureRandRotLeft.ResumeLayout(false);
+            panel7.ResumeLayout(false);
+            panel7.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureRandRotLeft)).EndInit();
+            panelTabPressureRandRotRight.ResumeLayout(false);
+            panel9.ResumeLayout(false);
+            panel9.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureRandRotRight)).EndInit();
+            panelTabPressureRandFlowLoss.ResumeLayout(false);
+            panel10.ResumeLayout(false);
+            panel10.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureRandFlowLoss)).EndInit();
+            panelTabPressureRandHorShift.ResumeLayout(false);
+            panel12.ResumeLayout(false);
+            panel12.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureRandHorShift)).EndInit();
+            panelTabPressureRandVerShift.ResumeLayout(false);
+            panel11.ResumeLayout(false);
+            panel11.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureRandVerShift)).EndInit();
+            panelTabPressureRedJitter.ResumeLayout(false);
+            panel13.ResumeLayout(false);
+            panel13.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureMinRedJitter)).EndInit();
+            ((ISupportInitialize)(spinTabPressureMaxRedJitter)).EndInit();
+            panelTabPressureGreenJitter.ResumeLayout(false);
+            panel14.ResumeLayout(false);
+            panel14.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureMinGreenJitter)).EndInit();
+            ((ISupportInitialize)(spinTabPressureMaxGreenJitter)).EndInit();
+            panelTabPressureBlueJitter.ResumeLayout(false);
+            panel15.ResumeLayout(false);
+            panel15.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureMinBlueJitter)).EndInit();
+            ((ISupportInitialize)(spinTabPressureMaxBlueJitter)).EndInit();
+            panelTabPressureHueJitter.ResumeLayout(false);
+            panel16.ResumeLayout(false);
+            panel16.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureMinHueJitter)).EndInit();
+            ((ISupportInitialize)(spinTabPressureMaxHueJitter)).EndInit();
+            panelTabPressureSatJitter.ResumeLayout(false);
+            panel17.ResumeLayout(false);
+            panel17.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureMinSatJitter)).EndInit();
+            ((ISupportInitialize)(spinTabPressureMaxSatJitter)).EndInit();
+            panelTabPressureValueJitter.ResumeLayout(false);
+            panel18.ResumeLayout(false);
+            panel18.PerformLayout();
+            ((ISupportInitialize)(spinTabPressureMinValueJitter)).EndInit();
+            ((ISupportInitialize)(spinTabPressureMaxValueJitter)).EndInit();
+            panelSettings.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
         /// <summary>
@@ -6360,7 +7416,7 @@ namespace DynamicDraw
             double angle = Math.Atan2(deltaY, deltaX);
 
             // subtracts canvas rotation angle to get the coordinates rotated w.r.t. the canvas.
-            angle -= sliderCanvasAngle.Value * Math.PI / 180;
+            angle -= sliderCanvasAngle.ValueInt * Math.PI / 180;
 
             if (doClamp)
             {
@@ -7274,7 +8330,7 @@ namespace DynamicDraw
                 GraphicsPath path = new GraphicsPath();
                 path.AddRectangle(range);
                 Matrix m = new Matrix();
-                m.RotateAt(sliderCanvasAngle.Value, new PointF(range.X + range.Width / 2f, range.Y + range.Height / 2f));
+                m.RotateAt(sliderCanvasAngle.ValueInt, new PointF(range.X + range.Width / 2f, range.Y + range.Height / 2f));
                 path.Transform(m);
 
                 //Moves the drawing region.
@@ -7458,7 +8514,7 @@ namespace DynamicDraw
             float drawingOffsetY = EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom;
 
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
-            e.Graphics.RotateTransform(sliderCanvasAngle.Value);
+            e.Graphics.RotateTransform(sliderCanvasAngle.ValueInt);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
             // Computes the visible region of the image. This speed optimization is only used for unrotated canvases
@@ -7470,7 +8526,7 @@ namespace DynamicDraw
             float lCutoffUnzoomed = leftCutoff / canvasZoom;
             float tCutoffUnzoomed = topCutoff / canvasZoom;
 
-            Rectangle visibleBounds = (sliderCanvasAngle.Value == 0)
+            Rectangle visibleBounds = (sliderCanvasAngle.ValueInt == 0)
                 ? new Rectangle(
                     leftCutoff, topCutoff,
                     canvas.width - overshootX - leftCutoff,
@@ -7492,7 +8548,7 @@ namespace DynamicDraw
                     bmpBackgroundClipboard.Width == bmpCommitted.Width &&
                     bmpBackgroundClipboard.Height == bmpCommitted.Height)))
             {
-                if (sliderCanvasAngle.Value == 0)
+                if (sliderCanvasAngle.ValueInt == 0)
                 {
                     e.Graphics.DrawImage(
                         bmpBackgroundClipboard,
@@ -7548,7 +8604,7 @@ namespace DynamicDraw
                 isPreviewingEffect.settingsOpen || isPreviewingEffect.hoverPreview ? bmpStaged :
                 isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
 
-            if (sliderCanvasAngle.Value == 0)
+            if (sliderCanvasAngle.ValueInt == 0)
             {
                 e.Graphics.DrawImage(
                     bmpToDraw,
@@ -7667,7 +8723,7 @@ namespace DynamicDraw
             }
 
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
-            e.Graphics.RotateTransform(sliderCanvasAngle.Value);
+            e.Graphics.RotateTransform(sliderCanvasAngle.ValueInt);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
             // Draws the symmetry origins for symmetry modes when it's enabled.
@@ -7745,7 +8801,7 @@ namespace DynamicDraw
                                 float offsetY = pointsDrawnY + symmetryOrigins[i].Y;
                                 double dist = Math.Sqrt(offsetX * offsetX + offsetY * offsetY);
                                 double angle = Math.Atan2(offsetY, offsetX);
-                                angle -= sliderCanvasAngle.Value * Math.PI / 180;
+                                angle -= sliderCanvasAngle.ValueInt * Math.PI / 180;
                                 e.Graphics.DrawRectangle(
                                     Pens.Red,
                                     (float)(EnvironmentParameters.SourceSurface.Width / 2 + dist * Math.Cos(angle) - 1),
@@ -7776,9 +8832,9 @@ namespace DynamicDraw
         /// </summary>
         private void DynamicDrawWindow_Load(object sender, EventArgs e)
         {
-            this.DesktopLocation = Owner.PointToScreen(new Point(0, 30));
-            this.Size = new Size(Owner.ClientSize.Width, Owner.ClientSize.Height - 30);
-            this.WindowState = Owner.WindowState;
+            DesktopLocation = Owner.PointToScreen(new Point(0, 30));
+            Size = new Size(Owner.ClientSize.Width, Owner.ClientSize.Height - 30);
+            WindowState = Owner.WindowState;
         }
 
         /// <summary>
@@ -7934,7 +8990,7 @@ namespace DynamicDraw
         /// </summary>
         private void WinDynamicDraw_Resize(object sender, EventArgs e)
         {
-            this.txtTooltip.MaximumSize = new Size(displayCanvas.Width, displayCanvas.Height);
+            txtTooltip.MaximumSize = new Size(displayCanvas.Width, displayCanvas.Height);
             displayCanvas.Refresh();
         }
         #endregion
@@ -8108,7 +9164,7 @@ namespace DynamicDraw
             //Disables the button so it can't accidentally be called twice.
             bttnCancel.Enabled = false;
 
-            this.Close();
+            Close();
         }
 
         private void BttnCancel_MouseEnter(object sender, EventArgs e)
@@ -8177,7 +9233,7 @@ namespace DynamicDraw
             RenderSettings.DoApplyEffect = true;
             FinishTokenUpdate();
 
-            this.Close();
+            Close();
         }
 
         private void BttnOk_MouseEnter(object sender, EventArgs e)
@@ -8886,12 +9942,8 @@ namespace DynamicDraw
             UpdateTooltip(Strings.CanvasAngleTip);
         }
 
-        private void SliderCanvasAngle_ValueChanged(object sender, EventArgs e)
+        private void SliderCanvasAngle_ValueChanged(object sender, float e)
         {
-            txtCanvasAngle.Text = String.Format("{0} {1}°",
-                Strings.CanvasAngle,
-                sliderCanvasAngle.Value);
-
             displayCanvas.Refresh();
         }
 

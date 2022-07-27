@@ -17,6 +17,7 @@ namespace DynamicDraw.Gui
         private List<float> numericStops;
         private bool discreteStops;
 
+        private bool mouseOver;
         private bool mouseHeld;
         private bool didMouseMove;
         private bool isTypingNewValue;
@@ -259,12 +260,16 @@ namespace DynamicDraw.Gui
             discreteStops = false;
             integerOnly = false;
 
+            mouseOver = false;
             mouseHeld = false;
             didMouseMove = false;
             isTypingNewValue = false;
             newValueString = "";
 
             ComputeText = null;
+            LostFocus += Slider_LostFocus;
+            MouseEnter += Slider_MouseEnter;
+            MouseLeave += Slider_MouseLeave;
             MouseDown += Slider_MouseDown;
             MouseMove += Slider_MouseMove;
             MouseUp += Slider_MouseUp;
@@ -297,12 +302,15 @@ namespace DynamicDraw.Gui
             discreteStops = false;
             integerOnly = false;
 
+            mouseOver = false;
             mouseHeld = false;
             didMouseMove = false;
             isTypingNewValue = false;
             newValueString = "";
 
             ComputeText = null;
+            MouseEnter += Slider_MouseEnter;
+            MouseLeave += Slider_MouseLeave;
             MouseDown += Slider_MouseDown;
             MouseMove += Slider_MouseMove;
             MouseUp += Slider_MouseUp;
@@ -315,7 +323,7 @@ namespace DynamicDraw.Gui
 
             // Uses the value for the filled bar if not typing a new value, else tries to use that value.
             float valueToComputeWith = value;
-            if (isTypingNewValue)
+            if (newValueString != "" && (isTypingNewValue || mouseOver))
             {
                 if (float.TryParse(newValueString, out float newValueNumeric))
                 {
@@ -357,22 +365,42 @@ namespace DynamicDraw.Gui
         /// </summary>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (Focused || mouseHeld)
+            if (Focused || mouseOver || isTypingNewValue)
             {
-                if (isTypingNewValue)
+                // enters typing mode and deletes a character.
+                if (keyData == Keys.Back)
                 {
-                    // discards the typed value.
-                    if (keyData == Keys.Escape)
+                    if (!isTypingNewValue)
+                    {
+                        newValueString = Value.ToString();
+                        isTypingNewValue = true;
+                    }
+
+                    if (newValueString.Length > 0)
+                    {
+                        newValueString = newValueString[..^1];
+                    }
+
+                    Refresh();
+                    return true;
+                }
+
+                // exits typing mode, discarding any typed changes.
+                if (keyData == Keys.Escape)
+                {
+                    if (isTypingNewValue)
                     {
                         isTypingNewValue = false;
                         newValueString = "";
                         Refresh();
-
-                        return base.ProcessCmdKey(ref msg, keyData);
+                        return true;
                     }
+                }
 
-                    // accepts the typed value (if possible).
-                    else if (keyData == Keys.Enter || keyData == Keys.Space)
+                // if interactively typing, accepts a valid typed value bound to the min/max.
+                else if (keyData == Keys.Enter || keyData == Keys.Space)
+                {
+                    if (isTypingNewValue)
                     {
                         if (newValueString != "" && float.TryParse(newValueString, out float result))
                         {
@@ -383,31 +411,15 @@ namespace DynamicDraw.Gui
 
                         }
 
-                        newValueString = "";
                         isTypingNewValue = false;
+                        newValueString = "";
+                        Refresh();
+                        return true;
                     }
-
-                    // deletes a character (if possible).
-                    else if (keyData == Keys.Back)
-                    {
-                        if (newValueString.Length > 0)
-                        {
-                            newValueString = newValueString.Substring(0, newValueString.Length - 1);
-                        }
-                    }
-
-                    // appends a character (if possible).
-                    else
-                    {
-                        newValueString += KeyboardShortcut.GetPrintableKey(keyData);
-                    }
-
-                    Refresh();
-                    return true;
                 }
 
-                // Nudges the value.
-                if (keyData == Keys.Left || keyData == Keys.Right)
+                // if not typing, nudges the value.
+                else if (!isTypingNewValue && (keyData == Keys.Left || keyData == Keys.Right))
                 {
                     float nudge = (keyData == Keys.Left) ? -0.01f : 0.01f;
 
@@ -443,33 +455,24 @@ namespace DynamicDraw.Gui
                         valuePercent = CalculatePercent(value);
                     }
 
+                    Refresh();
                     return true;
                 }
 
-                // Starts or confirms a typed value.
-                if (keyData == Keys.Enter || keyData == Keys.Space)
+                // enters typing mode and appends a character.
+                else
                 {
-                    // confirms the typed value, setting it if possible.
-                    if (isTypingNewValue)
+                    string newChar = KeyboardShortcut.GetPrintableKey(keyData);
+
+                    if (newChar != "")
                     {
-                        if (float.TryParse(newValueString, out float result))
-                        {
-                            Value = Math.Clamp(
-                                integerOnly ? (int)result : result,
-                                numericStops[0],
-                                numericStops[^1]);
-                        }
-
-                        newValueString = "";
+                        newValueString += isTypingNewValue
+                            ? newChar
+                            : Value.ToString() + newChar;
+                        isTypingNewValue = true;
+                        Refresh();
+                        return true;
                     }
-
-                    // begins typing a new value.
-                    else
-                    {
-                        newValueString = Value.ToString();
-                    }
-
-                    isTypingNewValue = !isTypingNewValue;
                 }
             }
 
@@ -478,6 +481,26 @@ namespace DynamicDraw.Gui
         #endregion
 
         #region Event handlers
+        private void Slider_MouseEnter(object sender, EventArgs e)
+        {
+            mouseOver = true;
+        }
+
+        private void Slider_MouseLeave(object sender, EventArgs e)
+        {
+            mouseOver = false;
+        }
+
+        private void Slider_LostFocus(object sender, EventArgs e)
+        {
+            mouseOver = false;
+            mouseHeld = false;
+            didMouseMove = false;
+            isTypingNewValue = false;
+            newValueString = "";
+            Refresh();
+        }
+
         /// <summary>
         /// Updates the tracked value based on click location.
         /// </summary>
@@ -495,7 +518,7 @@ namespace DynamicDraw.Gui
         /// </summary>
         private void Slider_MouseUp(object sender, MouseEventArgs e)
         {
-            // Perform click.
+            // Performs a click if the mouse was depressed and released without triggering it via mouse move.
             if (mouseHeld && !didMouseMove)
             {
                 AdjustValue();

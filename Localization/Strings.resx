@@ -567,7 +567,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Saves the current brush settings as a brush under a unique name.</value>
   </data>
   <data name="MinDrawDistance" xml:space="preserve">
-    <value>Min. Draw Distance</value>
+    <value>Min. Draw Distance:</value>
   </data>
   <data name="CustomBrushDialogDescription" xml:space="preserve">
     <value>Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved).</value>
@@ -1089,5 +1089,92 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="ShortcutCanvasZoomFit" xml:space="preserve">
     <value>Fit To Window</value>
+  </data>
+  <data name="ShortcutCanvasAngle" xml:space="preserve">
+    <value>Canvas Angle</value>
+  </data>
+  <data name="MenuCanvasBgStretchToFit" xml:space="preserve">
+    <value>stretch to fit</value>
+  </data>
+  <data name="MenuCanvasBgUseOnlyIfSameSize" xml:space="preserve">
+    <value>use only if same size</value>
+  </data>
+  <data name="MenuColorPickerCopiesTransparency" xml:space="preserve">
+    <value>color picker copies transparency</value>
+  </data>
+  <data name="MenuColorPickerSwitches" xml:space="preserve">
+    <value>color picker switches to last tool when used</value>
+  </data>
+  <data name="MenuCustomBrushImages" xml:space="preserve">
+    <value>custom brush images...</value>
+  </data>
+  <data name="MenuDisplayBrushIndicator" xml:space="preserve">
+    <value>brush indicator</value>
+  </data>
+  <data name="MenuDisplayBrushIndicatorPreview" xml:space="preserve">
+    <value>brush preview</value>
+  </data>
+  <data name="MenuDisplayBrushIndicatorSquare" xml:space="preserve">
+    <value>square</value>
+  </data>
+  <data name="MenuDisplaySettings" xml:space="preserve">
+    <value>display settings</value>
+  </data>
+  <data name="MenuDisplayShowMinDistCircle" xml:space="preserve">
+    <value>show the circle for minimum distance when in use</value>
+  </data>
+  <data name="MenuDisplayShowSymmetryLines" xml:space="preserve">
+    <value>show symmetry lines when in use</value>
+  </data>
+  <data name="MenuDontConfirmCloseSave" xml:space="preserve">
+    <value>don't ask to confirm when closing/saving</value>
+  </data>
+  <data name="MenuKeyboardShortcuts" xml:space="preserve">
+    <value>keyboard shortcuts...</value>
+  </data>
+  <data name="MenuOptions" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="MenuRecenterTheCanvas" xml:space="preserve">
+    <value>re-center the canvas</value>
+  </data>
+  <data name="MenuRemoveUnfoundImagePaths" xml:space="preserve">
+    <value>remove brush image paths when not found</value>
+  </data>
+  <data name="MenuRotate180" xml:space="preserve">
+    <value>rotate to 180</value>
+  </data>
+  <data name="MenuRotate270" xml:space="preserve">
+    <value>rotate to 270</value>
+  </data>
+  <data name="MenuRotate90" xml:space="preserve">
+    <value>rotate to 90</value>
+  </data>
+  <data name="MenuRotateReset" xml:space="preserve">
+    <value>reset canvas angle</value>
+  </data>
+  <data name="MenuRotateTo" xml:space="preserve">
+    <value>rotate to...</value>
+  </data>
+  <data name="MenuSetCanvasBackground" xml:space="preserve">
+    <value>set canvas background</value>
+  </data>
+  <data name="MenuZoomFit" xml:space="preserve">
+    <value>fit to window</value>
+  </data>
+  <data name="MenuZoomReset" xml:space="preserve">
+    <value>reset zoom</value>
+  </data>
+  <data name="MenuZoomTo" xml:space="preserve">
+    <value>zoom to...</value>
+  </data>
+  <data name="TextboxDialogRangeInvalid" xml:space="preserve">
+    <value>Number has to lie in range {0} to {1}.</value>
+  </data>
+  <data name="VersionString" xml:space="preserve">
+    <value>{0} (version {1}.{2})</value>
+  </data>
+  <data name="ShortcutMinDrawDist" xml:space="preserve">
+    <value>Min. Draw Distance</value>
   </data>
 </root>

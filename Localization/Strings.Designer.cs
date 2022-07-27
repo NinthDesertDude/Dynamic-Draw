@@ -1499,7 +1499,232 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Min. Draw Distance.
+        ///   Looks up a localized string similar to stretch to fit.
+        /// </summary>
+        internal static string MenuCanvasBgStretchToFit {
+            get {
+                return ResourceManager.GetString("MenuCanvasBgStretchToFit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to use only if same size.
+        /// </summary>
+        internal static string MenuCanvasBgUseOnlyIfSameSize {
+            get {
+                return ResourceManager.GetString("MenuCanvasBgUseOnlyIfSameSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to color picker copies transparency.
+        /// </summary>
+        internal static string MenuColorPickerCopiesTransparency {
+            get {
+                return ResourceManager.GetString("MenuColorPickerCopiesTransparency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to color picker switches to last tool when used.
+        /// </summary>
+        internal static string MenuColorPickerSwitches {
+            get {
+                return ResourceManager.GetString("MenuColorPickerSwitches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to custom brush images....
+        /// </summary>
+        internal static string MenuCustomBrushImages {
+            get {
+                return ResourceManager.GetString("MenuCustomBrushImages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to brush indicator.
+        /// </summary>
+        internal static string MenuDisplayBrushIndicator {
+            get {
+                return ResourceManager.GetString("MenuDisplayBrushIndicator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to brush preview.
+        /// </summary>
+        internal static string MenuDisplayBrushIndicatorPreview {
+            get {
+                return ResourceManager.GetString("MenuDisplayBrushIndicatorPreview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to square.
+        /// </summary>
+        internal static string MenuDisplayBrushIndicatorSquare {
+            get {
+                return ResourceManager.GetString("MenuDisplayBrushIndicatorSquare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to display settings.
+        /// </summary>
+        internal static string MenuDisplaySettings {
+            get {
+                return ResourceManager.GetString("MenuDisplaySettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to show the circle for minimum distance when in use.
+        /// </summary>
+        internal static string MenuDisplayShowMinDistCircle {
+            get {
+                return ResourceManager.GetString("MenuDisplayShowMinDistCircle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to show symmetry lines when in use.
+        /// </summary>
+        internal static string MenuDisplayShowSymmetryLines {
+            get {
+                return ResourceManager.GetString("MenuDisplayShowSymmetryLines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to don&apos;t ask to confirm when closing/saving.
+        /// </summary>
+        internal static string MenuDontConfirmCloseSave {
+            get {
+                return ResourceManager.GetString("MenuDontConfirmCloseSave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to keyboard shortcuts....
+        /// </summary>
+        internal static string MenuKeyboardShortcuts {
+            get {
+                return ResourceManager.GetString("MenuKeyboardShortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        internal static string MenuOptions {
+            get {
+                return ResourceManager.GetString("MenuOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to re-center the canvas.
+        /// </summary>
+        internal static string MenuRecenterTheCanvas {
+            get {
+                return ResourceManager.GetString("MenuRecenterTheCanvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to remove brush image paths when not found.
+        /// </summary>
+        internal static string MenuRemoveUnfoundImagePaths {
+            get {
+                return ResourceManager.GetString("MenuRemoveUnfoundImagePaths", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to 180.
+        /// </summary>
+        internal static string MenuRotate180 {
+            get {
+                return ResourceManager.GetString("MenuRotate180", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to 270.
+        /// </summary>
+        internal static string MenuRotate270 {
+            get {
+                return ResourceManager.GetString("MenuRotate270", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to 90.
+        /// </summary>
+        internal static string MenuRotate90 {
+            get {
+                return ResourceManager.GetString("MenuRotate90", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to reset canvas angle.
+        /// </summary>
+        internal static string MenuRotateReset {
+            get {
+                return ResourceManager.GetString("MenuRotateReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to....
+        /// </summary>
+        internal static string MenuRotateTo {
+            get {
+                return ResourceManager.GetString("MenuRotateTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to set canvas background.
+        /// </summary>
+        internal static string MenuSetCanvasBackground {
+            get {
+                return ResourceManager.GetString("MenuSetCanvasBackground", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to fit to window.
+        /// </summary>
+        internal static string MenuZoomFit {
+            get {
+                return ResourceManager.GetString("MenuZoomFit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to reset zoom.
+        /// </summary>
+        internal static string MenuZoomReset {
+            get {
+                return ResourceManager.GetString("MenuZoomReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to zoom to....
+        /// </summary>
+        internal static string MenuZoomTo {
+            get {
+                return ResourceManager.GetString("MenuZoomTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Min. Draw Distance:.
         /// </summary>
         internal static string MinDrawDistance {
             get {
@@ -1909,6 +2134,15 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutBrushSmoothing {
             get {
                 return ResourceManager.GetString("ShortcutBrushSmoothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canvas Angle.
+        /// </summary>
+        internal static string ShortcutCanvasAngle {
+            get {
+                return ResourceManager.GetString("ShortcutCanvasAngle", resourceCulture);
             }
         }
         
@@ -2444,6 +2678,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Min. Draw Distance.
+        /// </summary>
+        internal static string ShortcutMinDrawDist {
+            get {
+                return ResourceManager.GetString("ShortcutMinDrawDist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nudge Canvas Horizontally.
         /// </summary>
         internal static string ShortcutNudgeCanvasX {
@@ -2768,6 +3011,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Number has to lie in range {0} to {1}..
+        /// </summary>
+        internal static string TextboxDialogRangeInvalid {
+            get {
+                return ResourceManager.GetString("TextboxDialogRangeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dynamic Draw.
         /// </summary>
         internal static string Title {
@@ -2962,6 +3214,15 @@ namespace DynamicDraw.Localization {
         internal static string ValueTypeNothingTip {
             get {
                 return ResourceManager.GetString("ValueTypeNothingTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (version {1}.{2}).
+        /// </summary>
+        internal static string VersionString {
+            get {
+                return ResourceManager.GetString("VersionString", resourceCulture);
             }
         }
     }
