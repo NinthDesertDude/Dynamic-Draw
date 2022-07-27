@@ -25,9 +25,6 @@
     <OutputPath></OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Remove="Gui\Main\DynamicDrawWindow.resx" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="PaintDotNet.Base">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
     </Reference>
@@ -105,9 +102,6 @@
   <ItemGroup>
     <Content Include="TabletSupport\WintabDN.dll" />
     <Content Include="Resources\icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Gui\Main\DynamicDrawWindow.resx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Gui\EditKeyboardShortcuts.resx">
