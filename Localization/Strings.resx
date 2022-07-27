@@ -857,7 +857,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Square</value>
   </data>
   <data name="DitherDraw" xml:space="preserve">
-    <value>Checkerboard Dithering</value>
+    <value>Checkered Dithering</value>
   </data>
   <data name="DitherDrawTip" xml:space="preserve">
     <value>Only draw every other pixel, in a checkerboard pattern. Useful for pixel art.</value>

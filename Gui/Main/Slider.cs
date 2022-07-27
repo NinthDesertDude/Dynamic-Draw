@@ -236,6 +236,16 @@ namespace DynamicDraw.Gui
         public event EventHandler<float> ValueChanged;
 
         /// <summary>
+        /// Creates a new slider using the min/max range associated with the given shortcut target.
+        /// </summary>
+        /// <param name="value">The current value of the slider.</param>
+        public Slider(ShortcutTarget target, float value)
+            : this(Setting.AllSettings[target].MinMaxRangeF?.Item1 ?? Setting.AllSettings[target].MinMaxRange.Item1,
+                  Setting.AllSettings[target].MinMaxRangeF?.Item2 ?? Setting.AllSettings[target].MinMaxRange.Item2,
+                  value)
+        { }
+
+        /// <summary>
         /// Creates a new slider with a min and max range.
         /// </summary>
         /// <param name="value">The current value of the slider.</param>
@@ -538,7 +548,7 @@ namespace DynamicDraw.Gui
         }
         #endregion
 
-        #region Non-event handlers
+        #region Not event handlers
         /// <summary>
         /// Finds where the slider was clicked and sets the correct value based on the numeric stops.
         /// </summary>

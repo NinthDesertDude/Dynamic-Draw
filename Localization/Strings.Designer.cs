@@ -1148,7 +1148,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Checkerboard Dithering.
+        ///   Looks up a localized string similar to Checkered Dithering.
         /// </summary>
         internal static string DitherDraw {
             get {
