@@ -54,6 +54,13 @@
     <Compile Update="Gui\EditKeyboardShortcuts.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Gui\Main\BasicButton - Copy.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Main\BasicButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Main\ToggleButton.cs" />
     <Compile Update="Gui\Main\Slider.cs">
       <SubType>Component</SubType>
     </Compile>

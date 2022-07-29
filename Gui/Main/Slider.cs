@@ -127,7 +127,8 @@ namespace DynamicDraw.Gui
                     return;
                 }
 
-                this.value = integerOnly ? (int)value : value;
+                // Rounds to int or 4 decimal places
+                this.value = integerOnly ? (int)value : (int)(value * 1000) / 1000f;
 
                 if (this.value < numericStops[0])
                 {
@@ -349,13 +350,17 @@ namespace DynamicDraw.Gui
             // Draws the filled bar according to the value, in disabled or non-disabled mode.
             if (!Enabled)
             {
-                e.Graphics.FillRectangle(SystemBrushes.ControlDark, fill, 0, ClientSize.Width - fill, ClientSize.Height);
-                e.Graphics.FillRectangle(SystemBrushes.ControlLight, 0, 0, fill, ClientSize.Height);
+                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled),
+                    fill, 0, ClientSize.Width - fill, ClientSize.Height);
+                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlightDisabled),
+                    0, 0, fill, ClientSize.Height);
             }
             else
             {
-                e.Graphics.FillRectangle(SystemBrushes.ControlDarkDark, fill, 0, ClientSize.Width - fill, ClientSize.Height);
-                e.Graphics.FillRectangle(SystemBrushes.Highlight, 0, 0, fill, ClientSize.Height);
+                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
+                    fill, 0, ClientSize.Width - fill, ClientSize.Height);
+                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
+                    0, 0, fill, ClientSize.Height);
             }
 
             // Formats the text based on some minor, or custom user logic. Displays centered.
@@ -365,7 +370,7 @@ namespace DynamicDraw.Gui
 
             SizeF measures = e.Graphics.MeasureString(formatted, Font);
 
-            e.Graphics.DrawString(formatted, Font, Brushes.White,
+            e.Graphics.DrawString(formatted, Font, SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
                 (ClientSize.Width - measures.Width) / 2,
                 (ClientSize.Height - measures.Height) / 2);
         }
@@ -436,7 +441,7 @@ namespace DynamicDraw.Gui
                     if (discreteStops)
                     {
                         float interval = 1f / (numericStops.Count - 1);
-                        int leftStopIndex = (int)(valuePercent / interval);
+                        int leftStopIndex = (int)Math.Round(valuePercent / interval);
 
                         if (keyData == Keys.Left && leftStopIndex != 0)
                         {

@@ -17,6 +17,7 @@ namespace DynamicDraw
         /// </summary>
         public DoubleBufferedListView()
         {
+            BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
             DoubleBuffered = true;
             previousItemIndex = -1;
             currentItemIndex = -1;
