@@ -51,26 +51,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Gui\EditKeyboardShortcuts.cs">
+    <Compile Update="Gui\Forms\EditKeyboardShortcuts.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Gui\Main\BasicButton - Copy.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Main\BasicButton.cs">
+    <Compile Update="Gui\Components\BasicButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Main\ToggleButton.cs" />
-    <Compile Update="Gui\Main\Slider.cs">
+    <Compile Update="Gui\Components\ToggleButton.cs" />
+    <Compile Update="Gui\Components\Slider.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Main\CmbxTabletValueType.cs">
+    <Compile Update="Gui\Components\CmbxTabletValueType.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Main\Accordion.cs">
+    <Compile Update="Gui\Components\Accordion.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Main\DoubleBufferedListView.cs">
+    <Compile Update="Gui\Components\DoubleBufferedListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Localization\Strings.Designer.cs">
@@ -111,7 +111,7 @@
     <Content Include="Resources\icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Gui\EditKeyboardShortcuts.resx">
+    <EmbeddedResource Update="Gui\Forms\EditKeyboardShortcuts.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="Localization\Strings.resx">

@@ -249,6 +249,11 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Tracks whatever the theme inherited from paint.net was, so it can be used if set.
+        /// </summary>
+        private ThemeName detectedTheme;
+
+        /// <summary>
         /// Shortcuts deserialize asynchronously (and can fail sometimes). This returns that object if it exists, else
         /// it returns a copy of the shortcut defaults (so any changes are discarded).
         /// </summary>
@@ -345,21 +350,21 @@ namespace DynamicDraw
         #endregion
 
         #region Fields (Gui)
-
         /// <summary>
         /// An empty image list that allows the brush thumbnail size to be changed.
         /// </summary>
         private ImageList dummyImageList;
         private BasicButton bttnCancel;
         private BasicButton bttnOk;
-        private BasicButton bttnRedo;
-        private BasicButton bttnUndo;
 
         private IContainer components;
         internal PictureBox displayCanvas;
 
         private FlowLayoutPanel topMenu;
         private BasicButton menuOptions;
+        private BasicButton menuRedo;
+        private BasicButton menuUndo;
+        private ToolStripMenuItem menuSetTheme, menuSetThemeDefault, menuSetThemeLight, menuSetThemeDark;
         private ToolStripMenuItem menuResetCanvas, menuSetCanvasBackground, menuDisplaySettings;
         private ToolStripMenuItem menuSetCanvasBgImage, menuSetCanvasBgImageFit, menuSetCanvasBgImageOnlyIfFits;
         private ToolStripMenuItem menuSetCanvasBgTransparent, menuSetCanvasBgGray, menuSetCanvasBgWhite, menuSetCanvasBgBlack;
@@ -386,7 +391,7 @@ namespace DynamicDraw
         /// </summary>
         private Timer timerClipboardDataCheck;
 
-        private FlowLayoutPanel panelUndoRedoOkCancel;
+        private FlowLayoutPanel panelOkCancel;
         private ToggleButton bttnColorPicker;
         private Panel panelAllSettingsContainer;
         private Panel panelDockSettingsContainer;
@@ -889,14 +894,6 @@ namespace DynamicDraw
             //Loads globalization texts for regional support.
             UpdateTooltip(string.Empty);
 
-            bttnBrushColor.Text = Strings.BrushColor;
-            bttnCancel.Text = Strings.Cancel;
-            bttnClearSettings.Text = Strings.ClearSettings;
-            bttnOk.Text = Strings.Ok;
-            bttnUndo.Text = Strings.Undo;
-            bttnUpdateCurrentBrush.Text = Strings.UpdateCurrentBrush;
-            bttnRedo.Text = Strings.Redo;
-
             chkbxColorizeBrush.Text = Strings.ColorizeBrush;
             chkbxColorInfluenceHue.Text = Strings.HueAbbr;
             chkbxColorInfluenceSat.Text = Strings.SatAbbr;
@@ -953,7 +950,7 @@ namespace DynamicDraw
             KeyShortcutManager.FireShortcuts(KeyboardShortcuts, currentKeysPressed, false, false, contexts);
 
             // Display a hand icon while panning.
-            if (e.KeyCode == Keys.Control || e.KeyCode == Keys.Space)
+            if (!isUserDrawing.started && (e.Control || e.KeyCode == Keys.Space))
             {
                 Cursor = Cursors.Hand;
             }
@@ -972,7 +969,7 @@ namespace DynamicDraw
         {
             currentKeysPressed.Remove(e.KeyCode & Keys.KeyCode);
 
-            if (!e.Control && e.KeyCode != Keys.Space)
+            if (!e.Control && !currentKeysPressed.Contains(Keys.Space) && !isUserPanning)
             {
                 Cursor = Cursors.Default;
             }
@@ -1029,6 +1026,7 @@ namespace DynamicDraw
                 // to be used if an error occurs.
                 settings.LoadSavedSettings();
                 InitKeyboardShortcuts(KeyboardShortcuts);
+
                 UpdateTopMenuState();
 
                 // Populates the brush picker with saved brush names, which will be used to look up the settings later.
@@ -1465,9 +1463,9 @@ namespace DynamicDraw
                 //Saves the drawing to the file and saves the file path.
                 bmpCommitted.Save(path);
                 undoHistory.Push(path);
-                if (!bttnUndo.Enabled)
+                if (!menuUndo.Enabled)
                 {
-                    bttnUndo.Enabled = true;
+                    menuUndo.Enabled = true;
                 }
 
                 //Removes all redo history.
@@ -2587,7 +2585,7 @@ namespace DynamicDraw
         private void GetColorFromCanvas(Point loc)
         {
             PointF rotatedLoc = TransformPoint(
-                new PointF(loc.X + 1 + halfPixelOffset, loc.Y + 1 + halfPixelOffset),
+                new PointF(loc.X + halfPixelOffset, loc.Y + halfPixelOffset),
                 true, true, false);
 
             if (rotatedLoc.X >= 0 && rotatedLoc.Y >= 0 &&
@@ -3169,6 +3167,7 @@ namespace DynamicDraw
             components = new Container();
             ComponentResourceManager resources = new ComponentResourceManager(typeof(WinDynamicDraw));
 
+            Font boldFont = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             Font detailsFont = new Font("Microsoft Sans Serif", 8.25f);
 
             #region initialize every component at once
@@ -3179,11 +3178,11 @@ namespace DynamicDraw
             topMenu = new FlowLayoutPanel();
             bttnToolBrush = new ToggleButton(false);
             dummyImageList = new ImageList(components);
-            panelUndoRedoOkCancel = new FlowLayoutPanel();
-            bttnUndo = new BasicButton();
-            bttnRedo = new BasicButton();
-            bttnOk = new BasicButton();
-            bttnCancel = new BasicButton();
+            panelOkCancel = new FlowLayoutPanel();
+            menuUndo = new BasicButton();
+            menuRedo = new BasicButton();
+            bttnOk = new BasicButton(false, true);
+            bttnCancel = new BasicButton(false, true);
             brushImageLoadingWorker = new BackgroundWorker();
             bttnColorPicker = new ToggleButton(false);
             panelAllSettingsContainer = new Panel();
@@ -3191,7 +3190,7 @@ namespace DynamicDraw
             bttnToolEraser = new ToggleButton(false);
             bttnToolOrigin = new ToggleButton(false);
             panelSettingsContainer = new FlowLayoutPanel();
-            bttnBrushControls = new Accordion();
+            bttnBrushControls = new Accordion(true);
             panelBrush = new FlowLayoutPanel();
             listviewBrushPicker = new ListView();
             listviewBrushImagePicker = new DoubleBufferedListView();
@@ -3210,7 +3209,7 @@ namespace DynamicDraw
             sliderBrushFlow = new Slider(ShortcutTarget.Flow, 255f);
             sliderBrushRotation = new Slider(ShortcutTarget.Rotation, 0f);
             sliderBrushSize = new Slider(ShortcutTarget.Size, 10f);
-            bttnSpecialSettings = new Accordion();
+            bttnSpecialSettings = new Accordion(true);
             panelSpecialSettings = new FlowLayoutPanel();
             panelChosenEffect = new Panel();
             cmbxChosenEffect = new ComboBox();
@@ -3222,16 +3221,16 @@ namespace DynamicDraw
             chkbxSeamlessDrawing = new ToggleButton();
             chkbxOrientToMouse = new ToggleButton();
             chkbxDitherDraw = new ToggleButton();
-            chkbxLockAlpha = new ToggleButton();
+            chkbxLockAlpha = new ToggleButton(false);
             panelRGBLocks = new Panel();
-            chkbxLockR = new ToggleButton();
-            chkbxLockG = new ToggleButton();
-            chkbxLockB = new ToggleButton();
+            chkbxLockR = new ToggleButton(false);
+            chkbxLockG = new ToggleButton(false);
+            chkbxLockB = new ToggleButton(false);
             panelHSVLocks = new Panel();
-            chkbxLockHue = new ToggleButton();
-            chkbxLockSat = new ToggleButton();
-            chkbxLockVal = new ToggleButton();
-            bttnJitterBasicsControls = new Accordion();
+            chkbxLockHue = new ToggleButton(false);
+            chkbxLockSat = new ToggleButton(false);
+            chkbxLockVal = new ToggleButton(false);
+            bttnJitterBasicsControls = new Accordion(true);
             panelJitterBasics = new FlowLayoutPanel();
             sliderRandMinSize = new Slider(ShortcutTarget.JitterMinSize, 0f);
             sliderRandMaxSize = new Slider(ShortcutTarget.JitterMaxSize, 0f);
@@ -3240,7 +3239,7 @@ namespace DynamicDraw
             sliderRandFlowLoss = new Slider(ShortcutTarget.JitterFlowLoss, 0f);
             sliderRandHorzShift = new Slider(ShortcutTarget.JitterHorSpray, 0f);
             sliderRandVertShift = new Slider(ShortcutTarget.JitterVerSpray, 0f);
-            bttnJitterColorControls = new Accordion();
+            bttnJitterColorControls = new Accordion(true);
             panelJitterColor = new FlowLayoutPanel();
             sliderJitterMinRed = new Slider(ShortcutTarget.JitterRedMin, 0f);
             sliderJitterMaxRed = new Slider(ShortcutTarget.JitterRedMin, 0f);
@@ -3254,12 +3253,12 @@ namespace DynamicDraw
             sliderJitterMaxSat = new Slider(ShortcutTarget.JitterSatMax, 0f);
             sliderJitterMinVal = new Slider(ShortcutTarget.JitterValMin, 0f);
             sliderJitterMaxVal = new Slider(ShortcutTarget.JitterValMax, 0f);
-            bttnShiftBasicsControls = new Accordion();
+            bttnShiftBasicsControls = new Accordion(true);
             panelShiftBasics = new FlowLayoutPanel();
             sliderShiftSize = new Slider(ShortcutTarget.SizeShift, 0f);
             sliderShiftRotation = new Slider(ShortcutTarget.RotShift, 0f);
             sliderShiftFlow = new Slider(ShortcutTarget.FlowShift, 0f);
-            bttnTabAssignPressureControls = new Accordion();
+            bttnTabAssignPressureControls = new Accordion(true);
             panelTabletAssignPressure = new FlowLayoutPanel();
             panelTabPressureBrushOpacity = new FlowLayoutPanel();
             panel19 = new Panel();
@@ -3362,7 +3361,7 @@ namespace DynamicDraw
             lblTabPressureValueJitter = new Label();
             spinTabPressureMaxValueJitter = new NumericUpDown();
             cmbxTabPressureValueJitter = new CmbxTabletValueType();
-            bttnSettings = new Accordion();
+            bttnSettings = new Accordion(true);
             panelSettings = new FlowLayoutPanel();
             bttnUpdateCurrentBrush = new BasicButton();
             bttnClearSettings = new BasicButton();
@@ -3375,7 +3374,7 @@ namespace DynamicDraw
             topMenu.SuspendLayout();
             displayCanvas.SuspendLayout();
             ((ISupportInitialize)(displayCanvas)).BeginInit();
-            panelUndoRedoOkCancel.SuspendLayout();
+            panelOkCancel.SuspendLayout();
             panelAllSettingsContainer.SuspendLayout();
             panelDockSettingsContainer.SuspendLayout();
             panelSettingsContainer.SuspendLayout();
@@ -3459,12 +3458,12 @@ namespace DynamicDraw
 
             #region timerRepositionUpdate
             timerRepositionUpdate.Interval = 5;
-            timerRepositionUpdate.Tick += new EventHandler(RepositionUpdate_Tick);
+            timerRepositionUpdate.Tick += RepositionUpdate_Tick;
             #endregion
 
             #region timerClipboardDataCheck
             timerClipboardDataCheck.Interval = 1000;
-            timerClipboardDataCheck.Tick += new EventHandler(ClipboardDataCheck_Tick);
+            timerClipboardDataCheck.Tick += ClipboardDataCheck_Tick;
             timerClipboardDataCheck.Enabled = true;
             #endregion
 
@@ -3480,23 +3479,20 @@ namespace DynamicDraw
             #endregion
 
             #region displayCanvas
-            displayCanvas.BackColor = SemanticTheme.GetColor(ThemeSlot.CanvasBg);
             displayCanvas.Controls.Add(txtTooltip);
             displayCanvas.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             displayCanvas.Location = new Point(0, 29);
             displayCanvas.Margin = Padding.Empty;
             displayCanvas.Size = new Size(656, 512);
             displayCanvas.TabStop = false;
-            displayCanvas.Paint += new PaintEventHandler(DisplayCanvas_Paint);
-            displayCanvas.MouseDown += new MouseEventHandler(DisplayCanvas_MouseDown);
-            displayCanvas.MouseEnter += new EventHandler(DisplayCanvas_MouseEnter);
-            displayCanvas.MouseMove += new MouseEventHandler(DisplayCanvas_MouseMove);
-            displayCanvas.MouseUp += new MouseEventHandler(DisplayCanvas_MouseUp);
+            displayCanvas.Paint += DisplayCanvas_Paint;
+            displayCanvas.MouseDown += DisplayCanvas_MouseDown;
+            displayCanvas.MouseEnter += DisplayCanvas_MouseEnter;
+            displayCanvas.MouseMove += DisplayCanvas_MouseMove;
+            displayCanvas.MouseUp += DisplayCanvas_MouseUp;
             #endregion
 
             #region topMenu
-            topMenu.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
-            topMenu.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             topMenu.FlowDirection = FlowDirection.LeftToRight;
             topMenu.Width = displayCanvas.Width;
             topMenu.Height = 29;
@@ -3511,8 +3507,6 @@ namespace DynamicDraw
                 Padding = Padding.Empty
             };
             ContextMenuStrip preferencesContextMenu = new ContextMenuStrip();
-            preferencesContextMenu.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            preferencesContextMenu.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
 
             // Options -> custom brush images...
             menuBrushImageDirectories = new ToolStripMenuItem(Strings.MenuCustomBrushImages);
@@ -3520,7 +3514,7 @@ namespace DynamicDraw
             {
                 if (settings != null)
                 {
-                    if (new DynamicDrawPreferences(settings).ShowDialog() == DialogResult.OK)
+                    if (new EditCustomBrushImages(settings).ShowDialog() == DialogResult.OK)
                     {
                         InitBrushes();
                     }
@@ -3636,7 +3630,6 @@ namespace DynamicDraw
             menuBrushIndicator.DropDown.Items.Add(menuBrushIndicatorPreview);
 
             menuDisplaySettings.DropDown.Items.Add(menuBrushIndicator);
-            preferencesContextMenu.Items.Add(menuDisplaySettings);
 
             // Options -> display settings -> show symmetry lines when in use
             menuShowSymmetryLinesInUse = new ToolStripMenuItem(Strings.MenuDisplayShowSymmetryLines);
@@ -3655,6 +3648,39 @@ namespace DynamicDraw
                 UpdateTopMenuState();
             };
             menuDisplaySettings.DropDown.Items.Add(menuShowMinDistanceInUse);
+            preferencesContextMenu.Items.Add(menuDisplaySettings);
+
+            // Options -> Set theme
+            menuSetTheme = new ToolStripMenuItem(Strings.MenuSetTheme);
+            menuSetThemeDefault = new ToolStripMenuItem(Strings.MenuSetThemeDefault);
+            menuSetThemeLight = new ToolStripMenuItem(Strings.MenuSetThemeLight);
+            menuSetThemeDark = new ToolStripMenuItem(Strings.MenuSetThemeDark);
+
+            // Options -> Set theme -> Default
+            menuSetThemeDefault.Click += (a, b) =>
+            {
+                UserSettings.PreferredTheme = ThemePreference.Inherited;
+                UpdateTopMenuState();
+            };
+            menuSetTheme.DropDown.Items.Add(menuSetThemeDefault);
+
+            // Options -> Set theme -> Light
+            menuSetThemeLight.Click += (a, b) =>
+            {
+                UserSettings.PreferredTheme = ThemePreference.Light;
+                UpdateTopMenuState();
+            };
+            menuSetTheme.DropDown.Items.Add(menuSetThemeLight);
+
+            // Options -> Set theme -> Dark
+            menuSetThemeDark.Click += (a, b) =>
+            {
+                UserSettings.PreferredTheme = ThemePreference.Dark;
+                UpdateTopMenuState();
+            };
+            menuSetTheme.DropDown.Items.Add(menuSetThemeDark);
+
+            preferencesContextMenu.Items.Add(menuSetTheme);
 
             // Separator
             preferencesContextMenu.Items.Add(new ToolStripSeparator());
@@ -3700,6 +3726,11 @@ namespace DynamicDraw
             };
 
             topMenu.Controls.Add(menuOptions);
+
+            // Adds the undo and redo buttons
+            topMenu.Controls.Add(new PanelSeparator(true, 22, 29));
+            topMenu.Controls.Add(menuUndo);
+            topMenu.Controls.Add(menuRedo);
 
             // sets up the canvas zoom button
             menuCanvasZoomBttn = new BasicButton(true)
@@ -3753,7 +3784,7 @@ namespace DynamicDraw
                                 Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item2);
                         }
 
-                        return "";
+                        return null;
                     });
 
                 if (dlg.ShowDialog() == DialogResult.OK)
@@ -3895,11 +3926,33 @@ namespace DynamicDraw
 
             #endregion
 
+            #region menuUndo
+            menuUndo.Enabled = false;
+            menuUndo.Font = boldFont;
+            menuUndo.Margin = new Padding(3, 0, 0, 0);
+            menuUndo.Size = new Size(29, 29);
+            menuUndo.TabIndex = 141;
+            menuUndo.Text = "⮌";
+            menuUndo.Click += BttnUndo_Click;
+            menuUndo.MouseEnter += BttnUndo_MouseEnter;
+            #endregion
+
+            #region menuRedo
+            menuRedo.Enabled = false;
+            menuRedo.Font = boldFont;
+            menuRedo.Margin = new Padding(0, 0, 3, 0);
+            menuRedo.Size = new Size(29, 29);
+            menuRedo.TabIndex = 142;
+            menuRedo.Text = "⮎";
+            menuRedo.Click += BttnRedo_Click;
+            menuRedo.MouseEnter += BttnRedo_MouseEnter;
+            #endregion
+
             #region bttnToolBrush
             bttnToolBrush.Checked = true;
             bttnToolBrush.Image = Resources.ToolBrush;
-            bttnToolBrush.Click += new EventHandler(BttnToolBrush_Click);
-            bttnToolBrush.MouseEnter += new EventHandler(BttnToolBrush_MouseEnter);
+            bttnToolBrush.Click += BttnToolBrush_Click;
+            bttnToolBrush.MouseEnter += BttnToolBrush_MouseEnter;
             bttnToolBrush.Location = new Point(8, 3);
             bttnToolBrush.Margin = Padding.Empty;
             bttnToolBrush.Size = new Size(29, 29);
@@ -3912,38 +3965,14 @@ namespace DynamicDraw
             dummyImageList.ImageSize = new Size(24, 24);
             #endregion
 
-            #region panelUndoRedoOkCancel
-            panelUndoRedoOkCancel.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
-            panelUndoRedoOkCancel.Controls.Add(bttnUndo);
-            panelUndoRedoOkCancel.Controls.Add(bttnRedo);
-            panelUndoRedoOkCancel.Controls.Add(bttnOk);
-            panelUndoRedoOkCancel.Controls.Add(bttnCancel);
-            panelUndoRedoOkCancel.Dock = DockStyle.Bottom;
-            panelUndoRedoOkCancel.Location = new Point(0, 484);
-            panelUndoRedoOkCancel.Margin = new Padding(0, 3, 0, 3);
-            panelUndoRedoOkCancel.Size = new Size(173, 57);
-            panelUndoRedoOkCancel.TabIndex = 145;
-            #endregion
-
-            #region bttnUndo
-            bttnUndo.Enabled = false;
-            bttnUndo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            bttnUndo.Margin = new Padding(3, 3, 13, 3);
-            bttnUndo.Size = new Size(77, 23);
-            bttnUndo.TabIndex = 141;
-            bttnUndo.Click += new EventHandler(BttnUndo_Click);
-            bttnUndo.MouseEnter += new EventHandler(BttnUndo_MouseEnter);
-            #endregion
-
-            #region bttnRedo
-            bttnRedo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            bttnRedo.Enabled = false;
-            bttnRedo.Location = new Point(93, 3);
-            bttnRedo.Margin = new Padding(0, 3, 0, 3);
-            bttnRedo.Size = new Size(77, 23);
-            bttnRedo.TabIndex = 142;
-            bttnRedo.Click += new EventHandler(BttnRedo_Click);
-            bttnRedo.MouseEnter += new EventHandler(BttnRedo_MouseEnter);
+            #region panelOkCancel
+            panelOkCancel.Controls.Add(bttnOk);
+            panelOkCancel.Controls.Add(bttnCancel);
+            panelOkCancel.Dock = DockStyle.Bottom;
+            panelOkCancel.Location = new Point(0, 484);
+            panelOkCancel.Margin = new Padding(0, 3, 0, 3);
+            panelOkCancel.Size = new Size(173, 32);
+            panelOkCancel.TabIndex = 145;
             #endregion
 
             #region bttnOk
@@ -3951,9 +3980,9 @@ namespace DynamicDraw
             bttnOk.Margin = new Padding(3, 3, 13, 3);
             bttnOk.Size = new Size(77, 23);
             bttnOk.TabIndex = 143;
-            bttnOk.UseVisualStyleBackColor = false;
-            bttnOk.Click += new EventHandler(BttnOk_Click);
-            bttnOk.MouseEnter += new EventHandler(BttnOk_MouseEnter);
+            bttnOk.Text = Strings.Ok;
+            bttnOk.Click += BttnOk_Click;
+            bttnOk.MouseEnter += BttnOk_MouseEnter;
             #endregion
 
             #region bttnCancel
@@ -3963,9 +3992,9 @@ namespace DynamicDraw
             bttnCancel.Margin = new Padding(0, 3, 0, 3);
             bttnCancel.Size = new Size(77, 23);
             bttnCancel.TabIndex = 144;
-            bttnCancel.UseVisualStyleBackColor = false;
-            bttnCancel.Click += new EventHandler(BttnCancel_Click);
-            bttnCancel.MouseEnter += new EventHandler(BttnCancel_MouseEnter);
+            bttnCancel.Text = Strings.Cancel;
+            bttnCancel.Click += BttnCancel_Click;
+            bttnCancel.MouseEnter += BttnCancel_MouseEnter;
             #endregion
 
             #region brushImageLoadingWorker
@@ -3982,9 +4011,8 @@ namespace DynamicDraw
             bttnColorPicker.Margin = Padding.Empty;
             bttnColorPicker.Size = new Size(29, 29);
             bttnColorPicker.TabIndex = 3;
-            bttnColorPicker.UseVisualStyleBackColor = true;
-            bttnColorPicker.Click += new EventHandler(BttnToolColorPicker_Click);
-            bttnColorPicker.MouseEnter += new EventHandler(BttnToolColorPicker_MouseEnter);
+            bttnColorPicker.Click += BttnToolColorPicker_Click;
+            bttnColorPicker.MouseEnter += BttnToolColorPicker_MouseEnter;
             #endregion
 
             #region panelAllSettingsContainer
@@ -3993,14 +4021,12 @@ namespace DynamicDraw
             panelAllSettingsContainer.Size = new Size(173, 541);
             panelAllSettingsContainer.TabIndex = 140;
             panelAllSettingsContainer.Controls.Add(panelDockSettingsContainer);
-            panelAllSettingsContainer.Controls.Add(panelUndoRedoOkCancel);
+            panelAllSettingsContainer.Controls.Add(panelOkCancel);
             #endregion
 
             #region panelDockSettingsContainer
             panelDockSettingsContainer.AutoScroll = true;
-            panelDockSettingsContainer.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             panelDockSettingsContainer.Dock = DockStyle.Fill;
-            panelDockSettingsContainer.Location = new Point(0, 0);
             panelDockSettingsContainer.Size = new Size(173, 484);
             panelDockSettingsContainer.TabIndex = 139;
             panelDockSettingsContainer.Controls.Add(panelSettingsContainer);
@@ -4012,7 +4038,6 @@ namespace DynamicDraw
             bttnToolEraser.Margin = Padding.Empty;
             bttnToolEraser.Size = new Size(29, 29);
             bttnToolEraser.TabIndex = 2;
-            bttnToolEraser.UseVisualStyleBackColor = true;
             bttnToolEraser.Click += BttnToolEraser_Click;
             bttnToolEraser.MouseEnter += BttnToolEraser_MouseEnter;
             #endregion
@@ -4023,7 +4048,6 @@ namespace DynamicDraw
             bttnToolOrigin.Margin = Padding.Empty;
             bttnToolOrigin.Size = new Size(29, 29);
             bttnToolOrigin.TabIndex = 4;
-            bttnToolOrigin.UseVisualStyleBackColor = true;
             bttnToolOrigin.Click += BttnToolOrigin_Click;
             bttnToolOrigin.MouseEnter += BttnToolOrigin_MouseEnter;
             #endregion
@@ -4053,15 +4077,11 @@ namespace DynamicDraw
             #endregion
 
             #region bttnBrushControls
-            bttnBrushControls.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBgHighlight);
-            bttnBrushControls.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            bttnBrushControls.FlatStyle = FlatStyle.Flat;
             bttnBrushControls.Location = new Point(0, 3);
             bttnBrushControls.Margin = new Padding(0, 3, 0, 3);
             bttnBrushControls.Size = new Size(155, 23);
             bttnBrushControls.TabIndex = 5;
             bttnBrushControls.TextAlign = ContentAlignment.MiddleLeft;
-            bttnBrushControls.UseVisualStyleBackColor = true;
             bttnBrushControls.UpdateAccordion(Strings.AccordionBrush, false, new Control[] { panelBrush });
             #endregion
 
@@ -4085,8 +4105,6 @@ namespace DynamicDraw
             #endregion
 
             #region listviewBrushPicker
-            listviewBrushPicker.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            listviewBrushPicker.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             listviewBrushPicker.HideSelection = true;
             listviewBrushPicker.Location = new Point(0, 98);
             listviewBrushPicker.Margin = new Padding(0, 0, 0, 3);
@@ -4117,8 +4135,8 @@ namespace DynamicDraw
             listviewBrushImagePicker.DrawItem += new DrawListViewItemEventHandler(ListViewBrushImagePicker_DrawItem);
             listviewBrushImagePicker.DrawSubItem += new DrawListViewSubItemEventHandler(ListViewBrushImagePicker_DrawSubItem);
             listviewBrushImagePicker.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(ListViewBrushImagePicker_RetrieveVirtualItem);
-            listviewBrushImagePicker.SelectedIndexChanged += new EventHandler(ListViewBrushImagePicker_SelectedIndexChanged);
-            listviewBrushImagePicker.MouseEnter += new EventHandler(ListViewBrushImagePicker_MouseEnter);
+            listviewBrushImagePicker.SelectedIndexChanged += ListViewBrushImagePicker_SelectedIndexChanged;
+            listviewBrushImagePicker.MouseEnter += ListViewBrushImagePicker_MouseEnter;
             #endregion
 
             #region panelBrushAddPickColor
@@ -4138,41 +4156,33 @@ namespace DynamicDraw
             bttnChooseEffectSettings.Enabled = false;
             bttnChooseEffectSettings.Image = Resources.EffectSettingsIcon;
             bttnChooseEffectSettings.Location = new Point(123, 0);
-            bttnChooseEffectSettings.Margin = new Padding(0, 0, 0, 0);
+            bttnChooseEffectSettings.Margin = Padding.Empty;
             bttnChooseEffectSettings.Size = new Size(29, 29);
             bttnChooseEffectSettings.TabIndex = 1;
-            bttnChooseEffectSettings.UseVisualStyleBackColor = true;
-            bttnChooseEffectSettings.Click += new EventHandler(BttnChooseEffectSettings_Click);
-            bttnChooseEffectSettings.MouseEnter += new EventHandler(BttnChooseEffectSettings_MouseEnter);
-            bttnChooseEffectSettings.MouseLeave += new EventHandler(BttnChooseEffectSettings_MouseLeave);
+            bttnChooseEffectSettings.Click += BttnChooseEffectSettings_Click;
+            bttnChooseEffectSettings.MouseEnter += BttnChooseEffectSettings_MouseEnter;
+            bttnChooseEffectSettings.MouseLeave += BttnChooseEffectSettings_MouseLeave;
             #endregion
 
             #region chkbxColorizeBrush
-            chkbxColorizeBrush.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             chkbxColorizeBrush.AutoSize = true;
             chkbxColorizeBrush.Checked = true;
             chkbxColorizeBrush.Location = new Point(10, 48);
             chkbxColorizeBrush.Size = new Size(93, 17);
             chkbxColorizeBrush.TabIndex = 12;
-            chkbxColorizeBrush.EnabledChanged += (a,b) =>
-            {
-                chkbxColorizeBrush.ForeColor = chkbxColorizeBrush.Enabled
-                    ? SemanticTheme.GetColor(ThemeSlot.MenuControlText)
-                    : SemanticTheme.GetColor(ThemeSlot.MenuControlTextDisabled);
-            };
-            chkbxColorizeBrush.CheckedChanged += new EventHandler(ChkbxColorizeBrush_CheckedChanged);
-            chkbxColorizeBrush.MouseEnter += new EventHandler(ChkbxColorizeBrush_MouseEnter);
+            chkbxColorizeBrush.CheckedChanged += ChkbxColorizeBrush_CheckedChanged;
+            chkbxColorizeBrush.MouseEnter += ChkbxColorizeBrush_MouseEnter;
             #endregion
 
             #region bttnAddBrushImages
             bttnAddBrushImages.Image = Resources.AddBrushIcon;
             bttnAddBrushImages.ImageAlign = ContentAlignment.MiddleLeft;
-            bttnAddBrushImages.Location = new Point(0, 3);
-            bttnAddBrushImages.Size = new Size(153, 32);
+            bttnAddBrushImages.Location = new Point(3, 3);
+            bttnAddBrushImages.Size = new Size(150, 32);
             bttnAddBrushImages.TabIndex = 11;
             bttnAddBrushImages.Text = Strings.AddBrushImages;
-            bttnAddBrushImages.Click += new EventHandler(BttnAddBrushImages_Click);
-            bttnAddBrushImages.MouseEnter += new EventHandler(BttnAddBrushImages_MouseEnter);
+            bttnAddBrushImages.Click += BttnAddBrushImages_Click;
+            bttnAddBrushImages.MouseEnter += BttnAddBrushImages_MouseEnter;
             #endregion
 
             #region brushImageLoadProgressBar
@@ -4189,9 +4199,9 @@ namespace DynamicDraw
             bttnBrushColor.Margin = new Padding(3, 3, 0, 3);
             bttnBrushColor.Size = new Size(47, 28);
             bttnBrushColor.TabIndex = 13;
-            bttnBrushColor.UseVisualStyleBackColor = false;
-            bttnBrushColor.Click += new EventHandler(BttnBrushColor_Click);
-            bttnBrushColor.MouseEnter += new EventHandler(BttnBrushColor_MouseEnter);
+            bttnBrushColor.Text = Strings.BrushColor;
+            bttnBrushColor.Click += BttnBrushColor_Click;
+            bttnBrushColor.MouseEnter += BttnBrushColor_MouseEnter;
             #endregion
 
             #region sliderColorInfluence
@@ -4216,31 +4226,22 @@ namespace DynamicDraw
 
             #region chkbxColorInfluenceHue
             chkbxColorInfluenceHue.AutoSize = true;
-            chkbxColorInfluenceHue.Location = new Point(0, 0);
-            chkbxColorInfluenceHue.Size = new Size(32, 17);
             chkbxColorInfluenceHue.TabIndex = 16;
             chkbxColorInfluenceHue.Checked = true;
-            chkbxColorInfluenceHue.UseVisualStyleBackColor = true;
-            chkbxColorInfluenceHue.MouseEnter += new EventHandler(ChkbxColorInfluenceHue_MouseEnter);
+            chkbxColorInfluenceHue.MouseEnter += ChkbxColorInfluenceHue_MouseEnter;
             #endregion
 
             #region chkbxColorInfluenceSat
             chkbxColorInfluenceSat.AutoSize = true;
-            chkbxColorInfluenceSat.Location = new Point(0, 0);
-            chkbxColorInfluenceSat.Size = new Size(32, 17);
             chkbxColorInfluenceSat.TabIndex = 17;
             chkbxColorInfluenceSat.Checked = true;
-            chkbxColorInfluenceSat.UseVisualStyleBackColor = true;
-            chkbxColorInfluenceSat.MouseEnter += new EventHandler(ChkbxColorInfluenceSat_MouseEnter);
+            chkbxColorInfluenceSat.MouseEnter += ChkbxColorInfluenceSat_MouseEnter;
             #endregion
 
             #region chkbxColorInfluenceVal
             chkbxColorInfluenceVal.AutoSize = true;
-            chkbxColorInfluenceVal.Location = new Point(0, 0);
-            chkbxColorInfluenceVal.Size = new Size(32, 17);
             chkbxColorInfluenceVal.TabIndex = 18;
-            chkbxColorInfluenceVal.UseVisualStyleBackColor = true;
-            chkbxColorInfluenceVal.MouseEnter += new EventHandler(ChkbxColorInfluenceVal_MouseEnter);
+            chkbxColorInfluenceVal.MouseEnter += ChkbxColorInfluenceVal_MouseEnter;
             #endregion
 
             #region cmbxBlendMode
@@ -4252,15 +4253,13 @@ namespace DynamicDraw
             cmbxBlendMode.Size = new Size(153, 21);
             cmbxBlendMode.TabIndex = 19;
             cmbxBlendMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            cmbxBlendMode.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxBlendMode.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             cmbxBlendMode.FlatStyle = FlatStyle.Flat;
             cmbxBlendMode.DropDownHeight = 140;
             cmbxBlendMode.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbxBlendMode.DropDownWidth = 20;
             cmbxBlendMode.FormattingEnabled = true;
-            cmbxBlendMode.SelectedIndexChanged += new EventHandler(BttnBlendMode_SelectedIndexChanged);
-            cmbxBlendMode.MouseEnter += new EventHandler(BttnBlendMode_MouseEnter);
+            cmbxBlendMode.SelectedIndexChanged += BttnBlendMode_SelectedIndexChanged;
+            cmbxBlendMode.MouseEnter += BttnBlendMode_MouseEnter;
             cmbxBlendMode.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -4271,7 +4270,7 @@ namespace DynamicDraw
             sliderBrushOpacity.Size = new Size(150, 25);
             sliderBrushOpacity.TabIndex = 20;
             sliderBrushOpacity.ValueChanged += SliderBrushOpacity_ValueChanged;
-            sliderBrushOpacity.MouseEnter += new EventHandler(SliderBrushOpacity_MouseEnter);
+            sliderBrushOpacity.MouseEnter += SliderBrushOpacity_MouseEnter;
             sliderBrushOpacity.ComputeText = (val) => string.Format("{0} {1}", Strings.BrushOpacity, val);
             #endregion
 
@@ -4282,7 +4281,7 @@ namespace DynamicDraw
             sliderBrushFlow.Size = new Size(150, 25);
             sliderBrushFlow.TabIndex = 21;
             sliderBrushFlow.ValueChanged += SliderBrushFlow_ValueChanged;
-            sliderBrushFlow.MouseEnter += new EventHandler(SliderBrushFlow_MouseEnter);
+            sliderBrushFlow.MouseEnter += SliderBrushFlow_MouseEnter;
             sliderBrushFlow.ComputeText = (val) =>
             {
                 if ((BlendMode)cmbxBlendMode.SelectedIndex == BlendMode.Overwrite &&
@@ -4303,7 +4302,7 @@ namespace DynamicDraw
             sliderBrushRotation.Size = new Size(150, 25);
             sliderBrushRotation.TabIndex = 22;
             sliderBrushRotation.ValueChanged += SliderBrushRotation_ValueChanged;
-            sliderBrushRotation.MouseEnter += new EventHandler(SliderBrushRotation_MouseEnter);
+            sliderBrushRotation.MouseEnter += SliderBrushRotation_MouseEnter;
             sliderBrushRotation.ComputeText = (val) => string.Format("{0} {1}°", Strings.Rotation, val);
             #endregion
 
@@ -4314,19 +4313,16 @@ namespace DynamicDraw
             sliderBrushSize.Size = new Size(150, 25);
             sliderBrushSize.TabIndex = 23;
             sliderBrushSize.ValueChanged += SliderBrushSize_ValueChanged;
-            sliderBrushSize.MouseEnter += new EventHandler(SliderBrushSize_MouseEnter);
+            sliderBrushSize.MouseEnter += SliderBrushSize_MouseEnter;
             sliderBrushSize.ComputeText = (val) => string.Format("{0} {1}", Strings.Size, val);
             #endregion
 
             #region bttnSpecialSettings
-            bttnSpecialSettings.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBgHighlight);
-            bttnSpecialSettings.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             bttnSpecialSettings.Location = new Point(0, 584);
             bttnSpecialSettings.Margin = new Padding(0, 3, 0, 3);
             bttnSpecialSettings.Size = new Size(155, 23);
             bttnSpecialSettings.TabIndex = 18;
             bttnSpecialSettings.TextAlign = ContentAlignment.MiddleLeft;
-            bttnSpecialSettings.UseVisualStyleBackColor = false;
             bttnSpecialSettings.UpdateAccordion(Strings.AccordionSpecialSettings, true, new Control[] { panelSpecialSettings });
             #endregion
 
@@ -4363,8 +4359,6 @@ namespace DynamicDraw
 
             #region cmbxChosenEffect
             cmbxChosenEffect.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            cmbxChosenEffect.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxChosenEffect.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             cmbxChosenEffect.FlatStyle = FlatStyle.Flat;
             cmbxChosenEffect.DrawMode = DrawMode.OwnerDrawFixed;
             cmbxChosenEffect.DropDownHeight = 140;
@@ -4379,9 +4373,9 @@ namespace DynamicDraw
             cmbxChosenEffect.Size = new Size(121, 21);
             cmbxChosenEffect.TabIndex = 0;
             cmbxChosenEffect.DrawItem += new DrawItemEventHandler(CmbxChosenEffect_DrawItem);
-            cmbxChosenEffect.MouseEnter += new EventHandler(CmbxChosenEffect_MouseEnter);
-            cmbxChosenEffect.MouseLeave += new EventHandler(CmbxChosenEffect_MouseLeave);
-            cmbxChosenEffect.SelectedIndexChanged += new EventHandler(CmbxChosenEffect_SelectedIndexChanged);
+            cmbxChosenEffect.MouseEnter += CmbxChosenEffect_MouseEnter;
+            cmbxChosenEffect.MouseLeave += CmbxChosenEffect_MouseLeave;
+            cmbxChosenEffect.SelectedIndexChanged += CmbxChosenEffect_SelectedIndexChanged;
             cmbxChosenEffect.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -4392,15 +4386,15 @@ namespace DynamicDraw
             sliderMinDrawDistance.Size = new Size(150, 25);
             sliderMinDrawDistance.TabIndex = 21;
             sliderMinDrawDistance.ComputeText = (val) => string.Format("{0} {1}", Strings.MinDrawDistance, val);
-            sliderMinDrawDistance.MouseEnter += new EventHandler(SliderMinDrawDistance_MouseEnter);
+            sliderMinDrawDistance.MouseEnter += SliderMinDrawDistance_MouseEnter;
             #endregion
 
             #region chkbxAutomaticBrushDensity
             chkbxAutomaticBrushDensity.AutoSize = false;
             chkbxAutomaticBrushDensity.Size = new Size(150, 24);
             chkbxAutomaticBrushDensity.Checked = true;
-            chkbxAutomaticBrushDensity.MouseEnter += new EventHandler(AutomaticBrushDensity_MouseEnter);
-            chkbxAutomaticBrushDensity.CheckedChanged += new EventHandler(AutomaticBrushDensity_CheckedChanged);
+            chkbxAutomaticBrushDensity.MouseEnter += AutomaticBrushDensity_MouseEnter;
+            chkbxAutomaticBrushDensity.CheckedChanged += AutomaticBrushDensity_CheckedChanged;
             chkbxAutomaticBrushDensity.TabIndex = 20;
             #endregion
 
@@ -4412,12 +4406,10 @@ namespace DynamicDraw
             sliderBrushDensity.Size = new Size(150, 25);
             sliderBrushDensity.TabIndex = 22;
             sliderBrushDensity.ComputeText = (val) => string.Format("{0} {1}", Strings.BrushDensity, val);
-            sliderBrushDensity.MouseEnter += new EventHandler(SliderBrushDensity_MouseEnter);
+            sliderBrushDensity.MouseEnter += SliderBrushDensity_MouseEnter;
             #endregion
 
             #region cmbxSymmetry
-            cmbxSymmetry.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxSymmetry.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             cmbxSymmetry.FlatStyle = FlatStyle.Flat;
             cmbxSymmetry.DropDownHeight = 140;
             cmbxSymmetry.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -4429,13 +4421,11 @@ namespace DynamicDraw
             cmbxSymmetry.Location = new Point(3, 99);
             cmbxSymmetry.Size = new Size(150, 21);
             cmbxSymmetry.TabIndex = 24;
-            cmbxSymmetry.MouseEnter += new EventHandler(BttnSymmetry_MouseEnter);
+            cmbxSymmetry.MouseEnter += BttnSymmetry_MouseEnter;
             cmbxSymmetry.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
             #region cmbxBrushSmoothing
-            cmbxBrushSmoothing.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxBrushSmoothing.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             cmbxBrushSmoothing.FlatStyle = FlatStyle.Flat;
             cmbxBrushSmoothing.DropDownHeight = 140;
             cmbxBrushSmoothing.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -4447,7 +4437,7 @@ namespace DynamicDraw
             cmbxBrushSmoothing.Location = new Point(3, 126);
             cmbxBrushSmoothing.Size = new Size(150, 21);
             cmbxBrushSmoothing.TabIndex = 23;
-            cmbxBrushSmoothing.MouseEnter += new EventHandler(BttnBrushSmoothing_MouseEnter);
+            cmbxBrushSmoothing.MouseEnter += BttnBrushSmoothing_MouseEnter;
             cmbxBrushSmoothing.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -4455,21 +4445,21 @@ namespace DynamicDraw
             chkbxSeamlessDrawing.AutoSize = true;
             chkbxSeamlessDrawing.Location = new Point(0, 153);
             chkbxSeamlessDrawing.TabIndex = 25;
-            chkbxSeamlessDrawing.MouseEnter += new EventHandler(ChkbxSeamlessDrawing_MouseEnter);
+            chkbxSeamlessDrawing.MouseEnter += ChkbxSeamlessDrawing_MouseEnter;
             #endregion
 
             #region chkbxOrientToMouse
             chkbxOrientToMouse.AutoSize = true;
             chkbxOrientToMouse.Location = new Point(0, 176);
             chkbxOrientToMouse.TabIndex = 26;
-            chkbxOrientToMouse.MouseEnter += new EventHandler(ChkbxOrientToMouse_MouseEnter);
+            chkbxOrientToMouse.MouseEnter += ChkbxOrientToMouse_MouseEnter;
             #endregion
 
             #region chkbxDitherDraw
             chkbxDitherDraw.AutoSize = true;
             chkbxDitherDraw.Location = new Point(0, 199);
             chkbxDitherDraw.TabIndex = 27;
-            chkbxDitherDraw.MouseEnter += new EventHandler(ChkbxDitherDraw_MouseEnter);
+            chkbxDitherDraw.MouseEnter += ChkbxDitherDraw_MouseEnter;
             #endregion
 
             #region panelRGBLocks
@@ -4493,75 +4483,80 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockAlpha
+            chkbxLockAlpha.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockAlpha.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockAlpha.AutoSize = true;
             chkbxLockAlpha.Location = new Point(3, 222);
             chkbxLockAlpha.TabIndex = 28;
-            chkbxLockAlpha.MouseEnter += new EventHandler(ChkbxLockAlpha_MouseEnter);
+            chkbxLockAlpha.MouseEnter += ChkbxLockAlpha_MouseEnter;
             #endregion
 
             #region chkbxLockR
+            chkbxLockR.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockR.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockR.AutoSize = true;
             chkbxLockR.Location = new Point(3, 0);
             chkbxLockR.Size = new Size(80, 17);
             chkbxLockR.TabIndex = 1;
-            chkbxLockR.UseVisualStyleBackColor = true;
-            chkbxLockR.MouseEnter += new EventHandler(ChkbxLockR_MouseEnter);
+            chkbxLockR.MouseEnter += ChkbxLockR_MouseEnter;
             #endregion
 
             #region chkbxLockG
+            chkbxLockG.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockG.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockG.AutoSize = true;
             chkbxLockG.Location = new Point(44, 0);
             chkbxLockG.Size = new Size(80, 17);
             chkbxLockG.TabIndex = 2;
-            chkbxLockG.UseVisualStyleBackColor = true;
-            chkbxLockG.MouseEnter += new EventHandler(ChkbxLockG_MouseEnter);
+            chkbxLockG.MouseEnter += ChkbxLockG_MouseEnter;
             #endregion
 
             #region chkbxLockB
+            chkbxLockB.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockB.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockB.AutoSize = true;
             chkbxLockB.Location = new Point(82, 0);
             chkbxLockB.Size = new Size(80, 17);
             chkbxLockB.TabIndex = 3;
-            chkbxLockB.UseVisualStyleBackColor = true;
-            chkbxLockB.MouseEnter += new EventHandler(ChkbxLockB_MouseEnter);
+            chkbxLockB.MouseEnter += ChkbxLockB_MouseEnter;
             #endregion
 
             #region chkbxLockHue
+            chkbxLockHue.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockHue.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockHue.AutoSize = true;
             chkbxLockHue.Location = new Point(3, 0);
             chkbxLockHue.Size = new Size(80, 17);
             chkbxLockHue.TabIndex = 1;
-            chkbxLockHue.UseVisualStyleBackColor = true;
-            chkbxLockHue.MouseEnter += new EventHandler(ChkbxLockHue_MouseEnter);
+            chkbxLockHue.MouseEnter += ChkbxLockHue_MouseEnter;
             #endregion
 
             #region chkbxLockSat
+            chkbxLockSat.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockSat.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockSat.AutoSize = true;
             chkbxLockSat.Location = new Point(44, 0);
             chkbxLockSat.Size = new Size(80, 17);
             chkbxLockSat.TabIndex = 2;
-            chkbxLockSat.UseVisualStyleBackColor = true;
-            chkbxLockSat.MouseEnter += new EventHandler(ChkbxLockSat_MouseEnter);
+            chkbxLockSat.MouseEnter += ChkbxLockSat_MouseEnter;
             #endregion
 
             #region chkbxLockVal
+            chkbxLockVal.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockVal.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockVal.AutoSize = true;
             chkbxLockVal.Location = new Point(82, 0);
             chkbxLockVal.Size = new Size(80, 17);
             chkbxLockVal.TabIndex = 3;
-            chkbxLockVal.UseVisualStyleBackColor = true;
-            chkbxLockVal.MouseEnter += new EventHandler(ChkbxLockVal_MouseEnter);
+            chkbxLockVal.MouseEnter += ChkbxLockVal_MouseEnter;
             #endregion
 
             #region bttnJitterBasicsControls
-            bttnJitterBasicsControls.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBgHighlight);
-            bttnJitterBasicsControls.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             bttnJitterBasicsControls.Location = new Point(0, 815);
             bttnJitterBasicsControls.Margin = new Padding(0, 3, 0, 3);
             bttnJitterBasicsControls.Size = new Size(155, 23);
             bttnJitterBasicsControls.TabIndex = 27;
             bttnJitterBasicsControls.TextAlign = ContentAlignment.MiddleLeft;
-            bttnJitterBasicsControls.UseVisualStyleBackColor = false;
             bttnJitterBasicsControls.UpdateAccordion(Strings.AccordionJitterBasics, true, new Control[] { panelJitterBasics });
             #endregion
 
@@ -4589,7 +4584,7 @@ namespace DynamicDraw
             sliderRandMinSize.Size = new Size(150, 25);
             sliderRandMinSize.TabIndex = 29;
             sliderRandMinSize.ComputeText = (val) => string.Format("{0} {1}", Strings.RandMinSize, val);
-            sliderRandMinSize.MouseEnter += new EventHandler(SliderRandMinSize_MouseEnter);
+            sliderRandMinSize.MouseEnter += SliderRandMinSize_MouseEnter;
             #endregion
 
             #region sliderRandMaxSize
@@ -4599,7 +4594,7 @@ namespace DynamicDraw
             sliderRandMaxSize.Size = new Size(150, 25);
             sliderRandMaxSize.TabIndex = 30;
             sliderRandMaxSize.ComputeText = (val) => string.Format("{0} {1}", Strings.RandMaxSize, val);
-            sliderRandMaxSize.MouseEnter += new EventHandler(SliderRandMaxSize_MouseEnter);
+            sliderRandMaxSize.MouseEnter += SliderRandMaxSize_MouseEnter;
             #endregion
 
             #region sliderRandRotLeft
@@ -4609,7 +4604,7 @@ namespace DynamicDraw
             sliderRandRotLeft.Size = new Size(150, 25);
             sliderRandRotLeft.TabIndex = 31;
             sliderRandRotLeft.ComputeText = (val) => string.Format("{0} {1}°", Strings.RandRotLeft, val);
-            sliderRandRotLeft.MouseEnter += new EventHandler(SliderRandRotLeft_MouseEnter);
+            sliderRandRotLeft.MouseEnter += SliderRandRotLeft_MouseEnter;
             #endregion
 
             #region sliderRandRotRight
@@ -4619,7 +4614,7 @@ namespace DynamicDraw
             sliderRandRotRight.Size = new Size(150, 25);
             sliderRandRotRight.TabIndex = 32;
             sliderRandRotRight.ComputeText = (val) => string.Format("{0} {1}°", Strings.RandRotRight, val);
-            sliderRandRotRight.MouseEnter += new EventHandler(SliderRandRotRight_MouseEnter);
+            sliderRandRotRight.MouseEnter += SliderRandRotRight_MouseEnter;
             #endregion
 
             #region sliderRandFlowLoss
@@ -4629,7 +4624,7 @@ namespace DynamicDraw
             sliderRandFlowLoss.Size = new Size(150, 25);
             sliderRandFlowLoss.TabIndex = 33;
             sliderRandFlowLoss.ComputeText = (val) => string.Format("{0} {1}", Strings.RandFlowLoss, val);
-            sliderRandFlowLoss.MouseEnter += new EventHandler(SliderRandFlowLoss_MouseEnter);
+            sliderRandFlowLoss.MouseEnter += SliderRandFlowLoss_MouseEnter;
             #endregion
 
             #region sliderRandHorzShift
@@ -4639,7 +4634,7 @@ namespace DynamicDraw
             sliderRandHorzShift.Size = new Size(150, 25);
             sliderRandHorzShift.TabIndex = 34;
             sliderRandHorzShift.ComputeText = (val) => string.Format("{0} {1}%", Strings.RandHorzShift, val);
-            sliderRandHorzShift.MouseEnter += new EventHandler(SliderRandHorzShift_MouseEnter);
+            sliderRandHorzShift.MouseEnter += SliderRandHorzShift_MouseEnter;
             #endregion
 
             #region sliderRandVertShift
@@ -4649,18 +4644,15 @@ namespace DynamicDraw
             sliderRandVertShift.Size = new Size(150, 25);
             sliderRandVertShift.TabIndex = 35;
             sliderRandVertShift.ComputeText = (val) => string.Format("{0} {1}%", Strings.RandVertShift, val);
-            sliderRandVertShift.MouseEnter += new EventHandler(SliderRandVertShift_MouseEnter);
+            sliderRandVertShift.MouseEnter += SliderRandVertShift_MouseEnter;
             #endregion
 
             #region bttnJitterColorControls
-            bttnJitterColorControls.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBgHighlight);
-            bttnJitterColorControls.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             bttnJitterColorControls.Location = new Point(0, 1186);
             bttnJitterColorControls.Margin = new Padding(0, 3, 0, 3);
             bttnJitterColorControls.Size = new Size(155, 23);
             bttnJitterColorControls.TabIndex = 36;
             bttnJitterColorControls.TextAlign = ContentAlignment.MiddleLeft;
-            bttnJitterColorControls.UseVisualStyleBackColor = false;
             bttnJitterColorControls.UpdateAccordion(Strings.AccordionJitterColor, true, new Control[] { panelJitterColor });
             #endregion
 
@@ -4693,7 +4685,7 @@ namespace DynamicDraw
             sliderJitterMinRed.Size = new Size(150, 25);
             sliderJitterMinRed.TabIndex = 38;
             sliderJitterMinRed.ComputeText = (val) => string.Format("{0} -{1}%", Strings.JitterRed, val);
-            sliderJitterMinRed.MouseEnter += new EventHandler(SliderJitterMinRed_MouseEnter);
+            sliderJitterMinRed.MouseEnter += SliderJitterMinRed_MouseEnter;
             #endregion
 
             #region sliderJitterMaxRed
@@ -4703,7 +4695,7 @@ namespace DynamicDraw
             sliderJitterMaxRed.Size = new Size(150, 25);
             sliderJitterMaxRed.TabIndex = 39;
             sliderJitterMaxRed.ComputeText = (val) => string.Format("{0} +{1}%", Strings.JitterRed, val);
-            sliderJitterMaxRed.MouseEnter += new EventHandler(SliderJitterMaxRed_MouseEnter);
+            sliderJitterMaxRed.MouseEnter += SliderJitterMaxRed_MouseEnter;
             #endregion
 
             #region sliderJitterMinGreen
@@ -4713,7 +4705,7 @@ namespace DynamicDraw
             sliderJitterMinGreen.Size = new Size(150, 25);
             sliderJitterMinGreen.TabIndex = 40;
             sliderJitterMinGreen.ComputeText = (val) => string.Format("{0} -{1}%", Strings.JitterGreen, val);
-            sliderJitterMinGreen.MouseEnter += new EventHandler(SliderJitterMinGreen_MouseEnter);
+            sliderJitterMinGreen.MouseEnter += SliderJitterMinGreen_MouseEnter;
             #endregion
 
             #region sliderJitterMaxGreen
@@ -4723,7 +4715,7 @@ namespace DynamicDraw
             sliderJitterMaxGreen.Size = new Size(150, 25);
             sliderJitterMaxGreen.TabIndex = 41;
             sliderJitterMaxGreen.ComputeText = (val) => string.Format("{0} +{1}%", Strings.JitterGreen, val);
-            sliderJitterMaxGreen.MouseEnter += new EventHandler(SliderJitterMaxGreen_MouseEnter);
+            sliderJitterMaxGreen.MouseEnter += SliderJitterMaxGreen_MouseEnter;
             #endregion
 
             #region sliderJitterMinBlue
@@ -4733,7 +4725,7 @@ namespace DynamicDraw
             sliderJitterMinBlue.Size = new Size(150, 25);
             sliderJitterMinBlue.TabIndex = 42;
             sliderJitterMinBlue.ComputeText = (val) => string.Format("{0} -{1}%", Strings.JitterBlue, val);
-            sliderJitterMinBlue.MouseEnter += new EventHandler(SliderJitterMinBlue_MouseEnter);
+            sliderJitterMinBlue.MouseEnter += SliderJitterMinBlue_MouseEnter;
             #endregion
 
             #region sliderJitterMaxBlue
@@ -4743,7 +4735,7 @@ namespace DynamicDraw
             sliderJitterMaxBlue.Size = new Size(150, 25);
             sliderJitterMaxBlue.TabIndex = 43;
             sliderJitterMaxBlue.ComputeText = (val) => string.Format("{0} +{1}%", Strings.JitterBlue, val);
-            sliderJitterMaxBlue.MouseEnter += new EventHandler(SliderJitterMaxBlue_MouseEnter);
+            sliderJitterMaxBlue.MouseEnter += SliderJitterMaxBlue_MouseEnter;
             #endregion
 
             #region sliderJitterMinHue
@@ -4753,7 +4745,7 @@ namespace DynamicDraw
             sliderJitterMinHue.Size = new Size(150, 25);
             sliderJitterMinHue.TabIndex = 44;
             sliderJitterMinHue.ComputeText = (val) => string.Format("{0} -{1}%", Strings.JitterHue, val);
-            sliderJitterMinHue.MouseEnter += new EventHandler(SliderJitterMinHue_MouseEnter);
+            sliderJitterMinHue.MouseEnter += SliderJitterMinHue_MouseEnter;
             #endregion
 
             #region sliderJitterMaxHue
@@ -4763,7 +4755,7 @@ namespace DynamicDraw
             sliderJitterMaxHue.Size = new Size(150, 25);
             sliderJitterMaxHue.TabIndex = 45;
             sliderJitterMaxHue.ComputeText = (val) => string.Format("{0} +{1}%", Strings.JitterHue, val);
-            sliderJitterMaxHue.MouseEnter += new EventHandler(SliderJitterMaxHue_MouseEnter);
+            sliderJitterMaxHue.MouseEnter += SliderJitterMaxHue_MouseEnter;
             #endregion
 
             #region sliderJitterMinSat
@@ -4773,7 +4765,7 @@ namespace DynamicDraw
             sliderJitterMinSat.Size = new Size(150, 25);
             sliderJitterMinSat.TabIndex = 46;
             sliderJitterMinSat.ComputeText = (val) => string.Format("{0} -{1}%", Strings.JitterSaturation, val);
-            sliderJitterMinSat.MouseEnter += new EventHandler(SliderJitterMinSat_MouseEnter);
+            sliderJitterMinSat.MouseEnter += SliderJitterMinSat_MouseEnter;
             #endregion
 
             #region sliderJitterMaxSat
@@ -4783,7 +4775,7 @@ namespace DynamicDraw
             sliderJitterMaxSat.Size = new Size(150, 25);
             sliderJitterMaxSat.TabIndex = 47;
             sliderJitterMaxSat.ComputeText = (val) => string.Format("{0} +{1}%", Strings.JitterSaturation, val);
-            sliderJitterMaxSat.MouseEnter += new EventHandler(SliderJitterMaxSat_MouseEnter);
+            sliderJitterMaxSat.MouseEnter += SliderJitterMaxSat_MouseEnter;
             #endregion
 
             #region sliderJitterMinVal
@@ -4793,7 +4785,7 @@ namespace DynamicDraw
             sliderJitterMinVal.Size = new Size(150, 25);
             sliderJitterMinVal.TabIndex = 48;
             sliderJitterMinVal.ComputeText = (val) => string.Format("{0} -{1}%", Strings.JitterValue, val);
-            sliderJitterMinVal.MouseEnter += new EventHandler(SliderJitterMinVal_MouseEnter);
+            sliderJitterMinVal.MouseEnter += SliderJitterMinVal_MouseEnter;
             #endregion
 
             #region sliderJitterMaxVal
@@ -4803,18 +4795,15 @@ namespace DynamicDraw
             sliderJitterMaxVal.Size = new Size(150, 25);
             sliderJitterMaxVal.TabIndex = 49;
             sliderJitterMaxVal.ComputeText = (val) => string.Format("{0} +{1}%", Strings.JitterValue, val);
-            sliderJitterMaxVal.MouseEnter += new EventHandler(SliderJitterMaxVal_MouseEnter);
+            sliderJitterMaxVal.MouseEnter += SliderJitterMaxVal_MouseEnter;
             #endregion
 
             #region bttnShiftBasicsControls
-            bttnShiftBasicsControls.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBgHighlight);
-            bttnShiftBasicsControls.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             bttnShiftBasicsControls.Location = new Point(0, 1695);
             bttnShiftBasicsControls.Margin = new Padding(0, 3, 0, 3);
             bttnShiftBasicsControls.Size = new Size(155, 23);
             bttnShiftBasicsControls.TabIndex = 50;
             bttnShiftBasicsControls.TextAlign = ContentAlignment.MiddleLeft;
-            bttnShiftBasicsControls.UseVisualStyleBackColor = false;
             bttnShiftBasicsControls.UpdateAccordion(Strings.AccordionShiftBasics, true, new Control[] { panelShiftBasics });
             #endregion
 
@@ -4838,7 +4827,7 @@ namespace DynamicDraw
             sliderShiftSize.Size = new Size(150, 25);
             sliderShiftSize.TabIndex = 52;
             sliderShiftSize.ComputeText = (val) => string.Format("{0} {1}", Strings.ShiftSize, val);
-            sliderShiftSize.MouseEnter += new EventHandler(SliderShiftSize_MouseEnter);
+            sliderShiftSize.MouseEnter += SliderShiftSize_MouseEnter;
             #endregion
 
             #region sliderShiftRotation
@@ -4848,7 +4837,7 @@ namespace DynamicDraw
             sliderShiftRotation.Size = new Size(150, 25);
             sliderShiftRotation.TabIndex = 53;
             sliderShiftRotation.ComputeText = (val) => string.Format("{0} {1}°", Strings.ShiftRotation, val);
-            sliderShiftRotation.MouseEnter += new EventHandler(SliderShiftRotation_MouseEnter);
+            sliderShiftRotation.MouseEnter += SliderShiftRotation_MouseEnter;
             #endregion
 
             #region sliderShiftFlow
@@ -4858,18 +4847,15 @@ namespace DynamicDraw
             sliderShiftFlow.Size = new Size(150, 25);
             sliderShiftFlow.TabIndex = 54;
             sliderShiftFlow.ComputeText = (val) => string.Format("{0} {1}", Strings.ShiftFlow, val);
-            sliderShiftFlow.MouseEnter += new EventHandler(SliderShiftFlow_MouseEnter);
+            sliderShiftFlow.MouseEnter += SliderShiftFlow_MouseEnter;
             #endregion
 
             #region bttnTabAssignPressureControls
-            bttnTabAssignPressureControls.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBgHighlight);
-            bttnTabAssignPressureControls.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             bttnTabAssignPressureControls.Location = new Point(0, 1874);
             bttnTabAssignPressureControls.Margin = new Padding(0, 3, 0, 3);
             bttnTabAssignPressureControls.Size = new Size(155, 23);
             bttnTabAssignPressureControls.TabIndex = 55;
             bttnTabAssignPressureControls.TextAlign = ContentAlignment.MiddleLeft;
-            bttnTabAssignPressureControls.UseVisualStyleBackColor = false;
             bttnTabAssignPressureControls.UpdateAccordion(Strings.AccordionTabPressureControls, true, new Control[] { panelTabletAssignPressure });
             #endregion
 
@@ -4922,11 +4908,10 @@ namespace DynamicDraw
             #endregion
 
             #region txtTabPressureBrushOpacity
-            txtTabPressureBrushOpacity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             txtTabPressureBrushOpacity.AutoSize = true;
             txtTabPressureBrushOpacity.Dock = DockStyle.Left;
             txtTabPressureBrushOpacity.Font = detailsFont;
-            txtTabPressureBrushOpacity.Location = new Point(0, 0);
+            txtTabPressureBrushOpacity.Location = Point.Empty;
             txtTabPressureBrushOpacity.Margin = new Padding(3, 3, 3, 3);
             txtTabPressureBrushOpacity.Size = new Size(105, 13);
             txtTabPressureBrushOpacity.TabIndex = 0;
@@ -4934,8 +4919,7 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureBrushOpacity
-            spinTabPressureBrushOpacity.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureBrushOpacity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureBrushOpacity.BorderStyle = BorderStyle.FixedSingle;
             spinTabPressureBrushOpacity.Dock = DockStyle.Right;
             spinTabPressureBrushOpacity.Location = new Point(105, 0);
             spinTabPressureBrushOpacity.Margin = new Padding(3, 3, 0, 3);
@@ -4947,23 +4931,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureBrushOpacity
-            cmbxTabPressureBrushOpacity.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureBrushOpacity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureBrushOpacity.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureBrushOpacity.Font = detailsFont;
-            cmbxTabPressureBrushOpacity.IntegralHeight = false;
-            cmbxTabPressureBrushOpacity.ItemHeight = 13;
             cmbxTabPressureBrushOpacity.Location = new Point(0, 25);
             cmbxTabPressureBrushOpacity.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureBrushOpacity.Size = new Size(156, 21);
             cmbxTabPressureBrushOpacity.TabIndex = 59;
-            cmbxTabPressureBrushOpacity.DisplayMember = "DisplayMember";
-            cmbxTabPressureBrushOpacity.DropDownHeight = 140;
-            cmbxTabPressureBrushOpacity.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureBrushOpacity.DropDownWidth = 20;
-            cmbxTabPressureBrushOpacity.FormattingEnabled = true;
-            cmbxTabPressureBrushOpacity.ValueMember = "ValueMember";
-            cmbxTabPressureBrushOpacity.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushOpacity.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureBrushOpacity.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -4989,20 +4962,16 @@ namespace DynamicDraw
             #endregion
 
             #region txtTabPressureBrushFlow
-            txtTabPressureBrushFlow.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             txtTabPressureBrushFlow.Text = Strings.BrushFlow;
             txtTabPressureBrushFlow.AutoSize = true;
             txtTabPressureBrushFlow.Dock = DockStyle.Left;
             txtTabPressureBrushFlow.Font = detailsFont;
-            txtTabPressureBrushFlow.Location = new Point(0, 0);
             txtTabPressureBrushFlow.Margin = new Padding(3, 3, 3, 3);
             txtTabPressureBrushFlow.Size = new Size(105, 13);
             txtTabPressureBrushFlow.TabIndex = 0;
             #endregion
 
             #region spinTabPressureBrushFlow
-            spinTabPressureBrushFlow.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureBrushFlow.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureBrushFlow.Dock = DockStyle.Right;
             spinTabPressureBrushFlow.Location = new Point(105, 0);
             spinTabPressureBrushFlow.Margin = new Padding(3, 3, 0, 3);
@@ -5014,23 +4983,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureBrushFlow
-            cmbxTabPressureBrushFlow.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureBrushFlow.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureBrushFlow.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureBrushFlow.Font = detailsFont;
-            cmbxTabPressureBrushFlow.IntegralHeight = false;
-            cmbxTabPressureBrushFlow.ItemHeight = 13;
             cmbxTabPressureBrushFlow.Location = new Point(0, 25);
             cmbxTabPressureBrushFlow.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureBrushFlow.Size = new Size(156, 21);
             cmbxTabPressureBrushFlow.TabIndex = 59;
-            cmbxTabPressureBrushFlow.DisplayMember = "DisplayMember";
-            cmbxTabPressureBrushFlow.DropDownHeight = 140;
-            cmbxTabPressureBrushFlow.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureBrushFlow.DropDownWidth = 20;
-            cmbxTabPressureBrushFlow.FormattingEnabled = true;
-            cmbxTabPressureBrushFlow.ValueMember = "ValueMember";
-            cmbxTabPressureBrushFlow.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushFlow.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureBrushFlow.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5056,20 +5014,16 @@ namespace DynamicDraw
             #endregion
 
             #region txtTabPressureBrushSize
-            txtTabPressureBrushSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             txtTabPressureBrushSize.Text = Strings.Size;
             txtTabPressureBrushSize.AutoSize = true;
             txtTabPressureBrushSize.Dock = DockStyle.Left;
             txtTabPressureBrushSize.Font = detailsFont;
-            txtTabPressureBrushSize.Location = new Point(0, 0);
             txtTabPressureBrushSize.Margin = new Padding(3, 3, 3, 3);
             txtTabPressureBrushSize.Size = new Size(60, 13);
             txtTabPressureBrushSize.TabIndex = 0;
             #endregion
 
             #region spinTabPressureBrushSize
-            spinTabPressureBrushSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureBrushSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureBrushSize.Dock = DockStyle.Right;
             spinTabPressureBrushSize.Location = new Point(105, 0);
             spinTabPressureBrushSize.Margin = new Padding(3, 3, 0, 3);
@@ -5082,23 +5036,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureBrushSize
-            cmbxTabPressureBrushSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureBrushSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureBrushSize.FlatStyle = FlatStyle.Flat;
-            cmbxTabPressureBrushSize.DisplayMember = "DisplayMember";
-            cmbxTabPressureBrushSize.DropDownHeight = 140;
-            cmbxTabPressureBrushSize.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureBrushSize.DropDownWidth = 20;
-            cmbxTabPressureBrushSize.FormattingEnabled = true;
-            cmbxTabPressureBrushSize.ValueMember = "ValueMember";
             cmbxTabPressureBrushSize.Font = detailsFont;
-            cmbxTabPressureBrushSize.IntegralHeight = false;
-            cmbxTabPressureBrushSize.ItemHeight = 13;
             cmbxTabPressureBrushSize.Location = new Point(0, 25);
             cmbxTabPressureBrushSize.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureBrushSize.Size = new Size(156, 21);
             cmbxTabPressureBrushSize.TabIndex = 63;
-            cmbxTabPressureBrushSize.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushSize.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureBrushSize.SelectedIndexChanged += CmbxTabPressureBrushSize_SelectedIndexChanged;
             cmbxTabPressureBrushSize.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
@@ -5125,20 +5068,16 @@ namespace DynamicDraw
             #endregion
 
             #region txtTabPressureBrushRotation
-            txtTabPressureBrushRotation.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             txtTabPressureBrushRotation.Text = Strings.Rotation;
             txtTabPressureBrushRotation.AutoSize = true;
             txtTabPressureBrushRotation.Dock = DockStyle.Left;
             txtTabPressureBrushRotation.Font = detailsFont;
-            txtTabPressureBrushRotation.Location = new Point(0, 0);
             txtTabPressureBrushRotation.Margin = new Padding(3, 3, 3, 3);
             txtTabPressureBrushRotation.Size = new Size(80, 13);
             txtTabPressureBrushRotation.TabIndex = 0;
             #endregion
 
             #region spinTabPressureBrushRotation
-            spinTabPressureBrushRotation.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureBrushRotation.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureBrushRotation.Dock = DockStyle.Right;
             spinTabPressureBrushRotation.Location = new Point(105, 0);
             spinTabPressureBrushRotation.Margin = new Padding(3, 3, 0, 3);
@@ -5150,23 +5089,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureBrushRotation
-            cmbxTabPressureBrushRotation.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureBrushRotation.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureBrushRotation.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureBrushRotation.Font = detailsFont;
-            cmbxTabPressureBrushRotation.IntegralHeight = false;
-            cmbxTabPressureBrushRotation.ItemHeight = 13;
             cmbxTabPressureBrushRotation.Location = new Point(0, 25);
             cmbxTabPressureBrushRotation.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureBrushRotation.Size = new Size(156, 21);
             cmbxTabPressureBrushRotation.TabIndex = 68;
-            cmbxTabPressureBrushRotation.DisplayMember = "DisplayMember";
-            cmbxTabPressureBrushRotation.DropDownHeight = 140;
-            cmbxTabPressureBrushRotation.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureBrushRotation.DropDownWidth = 20;
-            cmbxTabPressureBrushRotation.FormattingEnabled = true;
-            cmbxTabPressureBrushRotation.ValueMember = "ValueMember";
-            cmbxTabPressureBrushRotation.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushRotation.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureBrushRotation.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5196,16 +5124,12 @@ namespace DynamicDraw
             lblTabPressureMinDrawDistance.AutoSize = true;
             lblTabPressureMinDrawDistance.Dock = DockStyle.Left;
             lblTabPressureMinDrawDistance.Font = detailsFont;
-            lblTabPressureMinDrawDistance.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureMinDrawDistance.Location = new Point(0, 0);
             lblTabPressureMinDrawDistance.Margin = new Padding(3, 3, 3, 3);
             lblTabPressureMinDrawDistance.Size = new Size(103, 13);
             lblTabPressureMinDrawDistance.TabIndex = 0;
             #endregion
 
             #region spinTabPressureMinDrawDistance
-            spinTabPressureMinDrawDistance.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMinDrawDistance.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMinDrawDistance.Dock = DockStyle.Right;
             spinTabPressureMinDrawDistance.Location = new Point(105, 0);
             spinTabPressureMinDrawDistance.Margin = new Padding(3, 3, 0, 3);
@@ -5216,23 +5140,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureMinDrawDistance
-            cmbxTabPressureMinDrawDistance.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureMinDrawDistance.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureMinDrawDistance.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureMinDrawDistance.Font = detailsFont;
-            cmbxTabPressureMinDrawDistance.IntegralHeight = false;
-            cmbxTabPressureMinDrawDistance.ItemHeight = 13;
             cmbxTabPressureMinDrawDistance.Location = new Point(0, 25);
             cmbxTabPressureMinDrawDistance.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureMinDrawDistance.Size = new Size(156, 21);
             cmbxTabPressureMinDrawDistance.TabIndex = 72;
-            cmbxTabPressureMinDrawDistance.DisplayMember = "DisplayMember";
-            cmbxTabPressureMinDrawDistance.DropDownHeight = 140;
-            cmbxTabPressureMinDrawDistance.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureMinDrawDistance.DropDownWidth = 20;
-            cmbxTabPressureMinDrawDistance.FormattingEnabled = true;
-            cmbxTabPressureMinDrawDistance.ValueMember = "ValueMember";
-            cmbxTabPressureMinDrawDistance.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureMinDrawDistance.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureMinDrawDistance.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5262,16 +5175,12 @@ namespace DynamicDraw
             lblTabPressureBrushDensity.AutoSize = true;
             lblTabPressureBrushDensity.Dock = DockStyle.Left;
             lblTabPressureBrushDensity.Font = detailsFont;
-            lblTabPressureBrushDensity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureBrushDensity.Location = new Point(0, 0);
             lblTabPressureBrushDensity.Margin = new Padding(3, 3, 3, 3);
             lblTabPressureBrushDensity.Size = new Size(75, 13);
             lblTabPressureBrushDensity.TabIndex = 0;
             #endregion
 
             #region spinTabPressureBrushDensity
-            spinTabPressureBrushDensity.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureBrushDensity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureBrushDensity.Dock = DockStyle.Right;
             spinTabPressureBrushDensity.Location = new Point(105, 0);
             spinTabPressureBrushDensity.Margin = new Padding(3, 3, 0, 3);
@@ -5283,23 +5192,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureBrushDensity
-            cmbxTabPressureBrushDensity.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureBrushDensity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureBrushDensity.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureBrushDensity.Font = detailsFont;
-            cmbxTabPressureBrushDensity.IntegralHeight = false;
-            cmbxTabPressureBrushDensity.ItemHeight = 13;
             cmbxTabPressureBrushDensity.Location = new Point(0, 25);
             cmbxTabPressureBrushDensity.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureBrushDensity.Size = new Size(156, 21);
             cmbxTabPressureBrushDensity.TabIndex = 76;
-            cmbxTabPressureBrushDensity.DisplayMember = "DisplayMember";
-            cmbxTabPressureBrushDensity.DropDownHeight = 140;
-            cmbxTabPressureBrushDensity.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureBrushDensity.DropDownWidth = 20;
-            cmbxTabPressureBrushDensity.FormattingEnabled = true;
-            cmbxTabPressureBrushDensity.ValueMember = "ValueMember";
-            cmbxTabPressureBrushDensity.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureBrushDensity.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureBrushDensity.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5329,16 +5227,12 @@ namespace DynamicDraw
             lblTabPressureRandMinSize.AutoSize = true;
             lblTabPressureRandMinSize.Dock = DockStyle.Left;
             lblTabPressureRandMinSize.Font = detailsFont;
-            lblTabPressureRandMinSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRandMinSize.Location = new Point(0, 0);
             lblTabPressureRandMinSize.Margin = new Padding(3, 3, 3, 3);
             lblTabPressureRandMinSize.Size = new Size(93, 13);
             lblTabPressureRandMinSize.TabIndex = 0;
             #endregion
 
             #region spinTabPressureRandMinSize
-            spinTabPressureRandMinSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureRandMinSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureRandMinSize.Dock = DockStyle.Right;
             spinTabPressureRandMinSize.Location = new Point(105, 0);
             spinTabPressureRandMinSize.Margin = new Padding(3, 3, 0, 3);
@@ -5350,23 +5244,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRandMinSize
-            cmbxTabPressureRandMinSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRandMinSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRandMinSize.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRandMinSize.Font = detailsFont;
-            cmbxTabPressureRandMinSize.IntegralHeight = false;
-            cmbxTabPressureRandMinSize.ItemHeight = 13;
             cmbxTabPressureRandMinSize.Location = new Point(0, 25);
             cmbxTabPressureRandMinSize.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRandMinSize.Size = new Size(156, 21);
             cmbxTabPressureRandMinSize.TabIndex = 80;
-            cmbxTabPressureRandMinSize.DisplayMember = "DisplayMember";
-            cmbxTabPressureRandMinSize.DropDownHeight = 140;
-            cmbxTabPressureRandMinSize.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRandMinSize.DropDownWidth = 20;
-            cmbxTabPressureRandMinSize.FormattingEnabled = true;
-            cmbxTabPressureRandMinSize.ValueMember = "ValueMember";
-            cmbxTabPressureRandMinSize.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandMinSize.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRandMinSize.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5396,16 +5279,12 @@ namespace DynamicDraw
             lblTabPressureRandMaxSize.AutoSize = true;
             lblTabPressureRandMaxSize.Dock = DockStyle.Left;
             lblTabPressureRandMaxSize.Font = detailsFont;
-            lblTabPressureRandMaxSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRandMaxSize.Location = new Point(0, 0);
             lblTabPressureRandMaxSize.Margin = new Padding(3, 3, 3, 3);
             lblTabPressureRandMaxSize.Size = new Size(96, 13);
             lblTabPressureRandMaxSize.TabIndex = 0;
             #endregion
 
             #region spinTabPressureRandMaxSize
-            spinTabPressureRandMaxSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureRandMaxSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureRandMaxSize.Dock = DockStyle.Right;
             spinTabPressureRandMaxSize.Location = new Point(105, 0);
             spinTabPressureRandMaxSize.Margin = new Padding(3, 3, 0, 3);
@@ -5417,23 +5296,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRandMaxSize
-            cmbxTabPressureRandMaxSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRandMaxSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRandMaxSize.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRandMaxSize.Font = detailsFont;
-            cmbxTabPressureRandMaxSize.IntegralHeight = false;
-            cmbxTabPressureRandMaxSize.ItemHeight = 13;
             cmbxTabPressureRandMaxSize.Location = new Point(0, 25);
             cmbxTabPressureRandMaxSize.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRandMaxSize.Size = new Size(156, 21);
             cmbxTabPressureRandMaxSize.TabIndex = 84;
-            cmbxTabPressureRandMaxSize.DisplayMember = "DisplayMember";
-            cmbxTabPressureRandMaxSize.DropDownHeight = 140;
-            cmbxTabPressureRandMaxSize.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRandMaxSize.DropDownWidth = 20;
-            cmbxTabPressureRandMaxSize.FormattingEnabled = true;
-            cmbxTabPressureRandMaxSize.ValueMember = "ValueMember";
-            cmbxTabPressureRandMaxSize.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandMaxSize.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRandMaxSize.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5463,16 +5331,12 @@ namespace DynamicDraw
             lblTabPressureRandRotLeft.AutoSize = true;
             lblTabPressureRandRotLeft.Dock = DockStyle.Left;
             lblTabPressureRandRotLeft.Font = detailsFont;
-            lblTabPressureRandRotLeft.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRandRotLeft.Location = new Point(0, 0);
             lblTabPressureRandRotLeft.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureRandRotLeft.Size = new Size(91, 13);
             lblTabPressureRandRotLeft.TabIndex = 0;
             #endregion
 
             #region spinTabPressureRandRotLeft
-            spinTabPressureRandRotLeft.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureRandRotLeft.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureRandRotLeft.Dock = DockStyle.Right;
             spinTabPressureRandRotLeft.Location = new Point(105, 0);
             spinTabPressureRandRotLeft.Margin = new Padding(3, 3, 0, 3);
@@ -5484,23 +5348,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRandRotLeft
-            cmbxTabPressureRandRotLeft.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRandRotLeft.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRandRotLeft.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRandRotLeft.Font = detailsFont;
-            cmbxTabPressureRandRotLeft.IntegralHeight = false;
-            cmbxTabPressureRandRotLeft.ItemHeight = 13;
             cmbxTabPressureRandRotLeft.Location = new Point(0, 25);
             cmbxTabPressureRandRotLeft.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRandRotLeft.Size = new Size(156, 21);
             cmbxTabPressureRandRotLeft.TabIndex = 87;
-            cmbxTabPressureRandRotLeft.DisplayMember = "DisplayMember";
-            cmbxTabPressureRandRotLeft.DropDownHeight = 140;
-            cmbxTabPressureRandRotLeft.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRandRotLeft.DropDownWidth = 20;
-            cmbxTabPressureRandRotLeft.FormattingEnabled = true;
-            cmbxTabPressureRandRotLeft.ValueMember = "ValueMember";
-            cmbxTabPressureRandRotLeft.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandRotLeft.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRandRotLeft.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5530,16 +5383,12 @@ namespace DynamicDraw
             lblTabPressureRandRotRight.AutoSize = true;
             lblTabPressureRandRotRight.Dock = DockStyle.Left;
             lblTabPressureRandRotRight.Font = detailsFont;
-            lblTabPressureRandRotRight.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRandRotRight.Location = new Point(0, 0);
             lblTabPressureRandRotRight.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureRandRotRight.Size = new Size(98, 13);
             lblTabPressureRandRotRight.TabIndex = 0;
             #endregion
 
             #region spinTabPressureRandRotRight
-            spinTabPressureRandRotRight.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureRandRotRight.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureRandRotRight.Dock = DockStyle.Right;
             spinTabPressureRandRotRight.Location = new Point(105, 0);
             spinTabPressureRandRotRight.Margin = new Padding(3, 3, 0, 3);
@@ -5551,23 +5400,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRandRotRight
-            cmbxTabPressureRandRotRight.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRandRotRight.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRandRotRight.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRandRotRight.Font = detailsFont;
-            cmbxTabPressureRandRotRight.IntegralHeight = false;
-            cmbxTabPressureRandRotRight.ItemHeight = 13;
             cmbxTabPressureRandRotRight.Location = new Point(0, 25);
             cmbxTabPressureRandRotRight.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRandRotRight.Size = new Size(156, 21);
             cmbxTabPressureRandRotRight.TabIndex = 91;
-            cmbxTabPressureRandRotRight.DisplayMember = "DisplayMember";
-            cmbxTabPressureRandRotRight.DropDownHeight = 140;
-            cmbxTabPressureRandRotRight.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRandRotRight.DropDownWidth = 20;
-            cmbxTabPressureRandRotRight.FormattingEnabled = true;
-            cmbxTabPressureRandRotRight.ValueMember = "ValueMember";
-            cmbxTabPressureRandRotRight.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandRotRight.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRandRotRight.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5597,16 +5435,12 @@ namespace DynamicDraw
             lblTabPressureRandFlowLoss.AutoSize = true;
             lblTabPressureRandFlowLoss.Dock = DockStyle.Left;
             lblTabPressureRandFlowLoss.Font = detailsFont;
-            lblTabPressureRandFlowLoss.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRandFlowLoss.Location = new Point(0, 0);
             lblTabPressureRandFlowLoss.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureRandFlowLoss.Size = new Size(100, 13);
             lblTabPressureRandFlowLoss.TabIndex = 0;
             #endregion
 
             #region spinTabPressureRandFlowLoss
-            spinTabPressureRandFlowLoss.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureRandFlowLoss.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureRandFlowLoss.Dock = DockStyle.Right;
             spinTabPressureRandFlowLoss.Location = new Point(105, 0);
             spinTabPressureRandFlowLoss.Margin = new Padding(3, 3, 0, 3);
@@ -5617,23 +5451,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRandFlowLoss
-            cmbxTabPressureRandFlowLoss.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRandFlowLoss.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRandFlowLoss.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRandFlowLoss.Font = detailsFont;
-            cmbxTabPressureRandFlowLoss.IntegralHeight = false;
-            cmbxTabPressureRandFlowLoss.ItemHeight = 13;
             cmbxTabPressureRandFlowLoss.Location = new Point(0, 25);
             cmbxTabPressureRandFlowLoss.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRandFlowLoss.Size = new Size(156, 21);
             cmbxTabPressureRandFlowLoss.TabIndex = 95;
-            cmbxTabPressureRandFlowLoss.DisplayMember = "DisplayMember";
-            cmbxTabPressureRandFlowLoss.DropDownHeight = 140;
-            cmbxTabPressureRandFlowLoss.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRandFlowLoss.DropDownWidth = 20;
-            cmbxTabPressureRandFlowLoss.FormattingEnabled = true;
-            cmbxTabPressureRandFlowLoss.ValueMember = "ValueMember";
-            cmbxTabPressureRandFlowLoss.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandFlowLoss.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRandFlowLoss.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5663,16 +5486,12 @@ namespace DynamicDraw
             lblTabPressureRandHorShift.AutoSize = true;
             lblTabPressureRandHorShift.Dock = DockStyle.Left;
             lblTabPressureRandHorShift.Font = detailsFont;
-            lblTabPressureRandHorShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRandHorShift.Location = new Point(0, 0);
             lblTabPressureRandHorShift.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureRandHorShift.Size = new Size(97, 13);
             lblTabPressureRandHorShift.TabIndex = 0;
             #endregion
 
             #region spinTabPressureRandHorShift
-            spinTabPressureRandHorShift.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureRandHorShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureRandHorShift.Dock = DockStyle.Right;
             spinTabPressureRandHorShift.Location = new Point(105, 0);
             spinTabPressureRandHorShift.Margin = new Padding(3, 3, 0, 3);
@@ -5683,23 +5502,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRandHorShift
-            cmbxTabPressureRandHorShift.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRandHorShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRandHorShift.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRandHorShift.Font = detailsFont;
-            cmbxTabPressureRandHorShift.IntegralHeight = false;
-            cmbxTabPressureRandHorShift.ItemHeight = 13;
             cmbxTabPressureRandHorShift.Location = new Point(0, 25);
             cmbxTabPressureRandHorShift.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRandHorShift.Size = new Size(156, 21);
             cmbxTabPressureRandHorShift.TabIndex = 99;
-            cmbxTabPressureRandHorShift.DisplayMember = "DisplayMember";
-            cmbxTabPressureRandHorShift.DropDownHeight = 140;
-            cmbxTabPressureRandHorShift.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRandHorShift.DropDownWidth = 20;
-            cmbxTabPressureRandHorShift.FormattingEnabled = true;
-            cmbxTabPressureRandHorShift.ValueMember = "ValueMember";
-            cmbxTabPressureRandHorShift.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandHorShift.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRandHorShift.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5729,16 +5537,12 @@ namespace DynamicDraw
             lblTabPressureRandVerShift.AutoSize = true;
             lblTabPressureRandVerShift.Dock = DockStyle.Left;
             lblTabPressureRandVerShift.Font = detailsFont;
-            lblTabPressureRandVerShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRandVerShift.Location = new Point(0, 0);
             lblTabPressureRandVerShift.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureRandVerShift.Size = new Size(96, 13);
             lblTabPressureRandVerShift.TabIndex = 0;
             #endregion
 
             #region spinTabPressureRandVerShift
-            spinTabPressureRandVerShift.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureRandVerShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureRandVerShift.Dock = DockStyle.Right;
             spinTabPressureRandVerShift.Location = new Point(105, 0);
             spinTabPressureRandVerShift.Margin = new Padding(3, 3, 0, 3);
@@ -5749,23 +5553,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRandVerShift
-            cmbxTabPressureRandVerShift.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRandVerShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRandVerShift.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRandVerShift.Font = detailsFont;
-            cmbxTabPressureRandVerShift.IntegralHeight = false;
-            cmbxTabPressureRandVerShift.ItemHeight = 13;
             cmbxTabPressureRandVerShift.Location = new Point(0, 25);
             cmbxTabPressureRandVerShift.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRandVerShift.Size = new Size(156, 21);
             cmbxTabPressureRandVerShift.TabIndex = 103;
-            cmbxTabPressureRandVerShift.DisplayMember = "DisplayMember";
-            cmbxTabPressureRandVerShift.DropDownHeight = 140;
-            cmbxTabPressureRandVerShift.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRandVerShift.DropDownWidth = 20;
-            cmbxTabPressureRandVerShift.FormattingEnabled = true;
-            cmbxTabPressureRandVerShift.ValueMember = "ValueMember";
-            cmbxTabPressureRandVerShift.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRandVerShift.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRandVerShift.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5792,8 +5585,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMinRedJitter
-            spinTabPressureMinRedJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMinRedJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMinRedJitter.Dock = DockStyle.Right;
             spinTabPressureMinRedJitter.Location = new Point(74, 0);
             spinTabPressureMinRedJitter.Margin = new Padding(3, 3, 0, 3);
@@ -5808,16 +5599,12 @@ namespace DynamicDraw
             lblTabPressureRedJitter.AutoSize = true;
             lblTabPressureRedJitter.Dock = DockStyle.Left;
             lblTabPressureRedJitter.Font = detailsFont;
-            lblTabPressureRedJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureRedJitter.Location = new Point(0, 0);
             lblTabPressureRedJitter.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureRedJitter.Size = new Size(55, 13);
             lblTabPressureRedJitter.TabIndex = 0;
             #endregion
 
             #region spinTabPressureMaxRedJitter
-            spinTabPressureMaxRedJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMaxRedJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMaxRedJitter.Dock = DockStyle.Right;
             spinTabPressureMaxRedJitter.Location = new Point(115, 0);
             spinTabPressureMaxRedJitter.Margin = new Padding(3, 3, 0, 3);
@@ -5828,23 +5615,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureRedJitter
-            cmbxTabPressureRedJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureRedJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureRedJitter.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureRedJitter.Font = detailsFont;
-            cmbxTabPressureRedJitter.IntegralHeight = false;
-            cmbxTabPressureRedJitter.ItemHeight = 13;
             cmbxTabPressureRedJitter.Location = new Point(0, 25);
             cmbxTabPressureRedJitter.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureRedJitter.Size = new Size(156, 21);
             cmbxTabPressureRedJitter.TabIndex = 107;
-            cmbxTabPressureRedJitter.DisplayMember = "DisplayMember";
-            cmbxTabPressureRedJitter.DropDownHeight = 140;
-            cmbxTabPressureRedJitter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureRedJitter.DropDownWidth = 20;
-            cmbxTabPressureRedJitter.FormattingEnabled = true;
-            cmbxTabPressureRedJitter.ValueMember = "ValueMember";
-            cmbxTabPressureRedJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureRedJitter.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureRedJitter.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5871,8 +5647,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMinGreenJitter
-            spinTabPressureMinGreenJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMinGreenJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMinGreenJitter.Dock = DockStyle.Right;
             spinTabPressureMinGreenJitter.Location = new Point(74, 0);
             spinTabPressureMinGreenJitter.Margin = new Padding(3, 3, 0, 3);
@@ -5886,8 +5660,6 @@ namespace DynamicDraw
             lblTabPressureGreenJitter.AutoSize = true;
             lblTabPressureGreenJitter.Dock = DockStyle.Left;
             lblTabPressureGreenJitter.Font = detailsFont;
-            lblTabPressureGreenJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureGreenJitter.Location = new Point(0, 0);
             lblTabPressureGreenJitter.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureGreenJitter.Size = new Size(64, 13);
             lblTabPressureGreenJitter.TabIndex = 0;
@@ -5895,8 +5667,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMaxGreenJitter
-            spinTabPressureMaxGreenJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMaxGreenJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMaxGreenJitter.Dock = DockStyle.Right;
             spinTabPressureMaxGreenJitter.Location = new Point(115, 0);
             spinTabPressureMaxGreenJitter.Margin = new Padding(3, 3, 0, 3);
@@ -5907,23 +5677,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureGreenJitter
-            cmbxTabPressureGreenJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureGreenJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureGreenJitter.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureGreenJitter.Font = detailsFont;
-            cmbxTabPressureGreenJitter.IntegralHeight = false;
-            cmbxTabPressureGreenJitter.ItemHeight = 13;
             cmbxTabPressureGreenJitter.Location = new Point(0, 25);
             cmbxTabPressureGreenJitter.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureGreenJitter.Size = new Size(156, 21);
             cmbxTabPressureGreenJitter.TabIndex = 111;
-            cmbxTabPressureGreenJitter.DisplayMember = "DisplayMember";
-            cmbxTabPressureGreenJitter.DropDownHeight = 140;
-            cmbxTabPressureGreenJitter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureGreenJitter.DropDownWidth = 20;
-            cmbxTabPressureGreenJitter.FormattingEnabled = true;
-            cmbxTabPressureGreenJitter.ValueMember = "ValueMember";
-            cmbxTabPressureGreenJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureGreenJitter.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureGreenJitter.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -5950,8 +5709,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMinBlueJitter
-            spinTabPressureMinBlueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMinBlueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMinBlueJitter.Dock = DockStyle.Right;
             spinTabPressureMinBlueJitter.Location = new Point(74, 0);
             spinTabPressureMinBlueJitter.Margin = new Padding(3, 3, 0, 3);
@@ -5965,8 +5722,6 @@ namespace DynamicDraw
             lblTabPressureBlueJitter.AutoSize = true;
             lblTabPressureBlueJitter.Dock = DockStyle.Left;
             lblTabPressureBlueJitter.Font = detailsFont;
-            lblTabPressureBlueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureBlueJitter.Location = new Point(0, 0);
             lblTabPressureBlueJitter.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureBlueJitter.Size = new Size(56, 13);
             lblTabPressureBlueJitter.TabIndex = 0;
@@ -5974,8 +5729,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMaxBlueJitter
-            spinTabPressureMaxBlueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMaxBlueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMaxBlueJitter.Dock = DockStyle.Right;
             spinTabPressureMaxBlueJitter.Location = new Point(115, 0);
             spinTabPressureMaxBlueJitter.Margin = new Padding(3, 3, 0, 3);
@@ -5986,23 +5739,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureBlueJitter
-            cmbxTabPressureBlueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureBlueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureBlueJitter.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureBlueJitter.Font = detailsFont;
-            cmbxTabPressureBlueJitter.IntegralHeight = false;
-            cmbxTabPressureBlueJitter.ItemHeight = 13;
             cmbxTabPressureBlueJitter.Location = new Point(0, 25);
             cmbxTabPressureBlueJitter.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureBlueJitter.Size = new Size(156, 21);
             cmbxTabPressureBlueJitter.TabIndex = 116;
-            cmbxTabPressureBlueJitter.DisplayMember = "DisplayMember";
-            cmbxTabPressureBlueJitter.DropDownHeight = 140;
-            cmbxTabPressureBlueJitter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureBlueJitter.DropDownWidth = 20;
-            cmbxTabPressureBlueJitter.FormattingEnabled = true;
-            cmbxTabPressureBlueJitter.ValueMember = "ValueMember";
-            cmbxTabPressureBlueJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureBlueJitter.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureBlueJitter.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -6029,8 +5771,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMinHueJitter
-            spinTabPressureMinHueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMinHueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMinHueJitter.Dock = DockStyle.Right;
             spinTabPressureMinHueJitter.Location = new Point(74, 0);
             spinTabPressureMinHueJitter.Margin = new Padding(3, 3, 0, 3);
@@ -6045,16 +5785,12 @@ namespace DynamicDraw
             lblTabPressureHueJitter.AutoSize = true;
             lblTabPressureHueJitter.Dock = DockStyle.Left;
             lblTabPressureHueJitter.Font = detailsFont;
-            lblTabPressureHueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureHueJitter.Location = new Point(0, 0);
             lblTabPressureHueJitter.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureHueJitter.Size = new Size(55, 13);
             lblTabPressureHueJitter.TabIndex = 0;
             #endregion
 
             #region spinTabPressureMaxHueJitter
-            spinTabPressureMaxHueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMaxHueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMaxHueJitter.Dock = DockStyle.Right;
             spinTabPressureMaxHueJitter.Location = new Point(115, 0);
             spinTabPressureMaxHueJitter.Margin = new Padding(3, 3, 0, 3);
@@ -6065,23 +5801,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureHueJitter
-            cmbxTabPressureHueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureHueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureHueJitter.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureHueJitter.Font = detailsFont;
-            cmbxTabPressureHueJitter.IntegralHeight = false;
-            cmbxTabPressureHueJitter.ItemHeight = 13;
             cmbxTabPressureHueJitter.Location = new Point(0, 25);
             cmbxTabPressureHueJitter.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureHueJitter.Size = new Size(156, 21);
             cmbxTabPressureHueJitter.TabIndex = 121;
-            cmbxTabPressureHueJitter.DisplayMember = "DisplayMember";
-            cmbxTabPressureHueJitter.DropDownHeight = 140;
-            cmbxTabPressureHueJitter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureHueJitter.DropDownWidth = 20;
-            cmbxTabPressureHueJitter.FormattingEnabled = true;
-            cmbxTabPressureHueJitter.ValueMember = "ValueMember";
-            cmbxTabPressureHueJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureHueJitter.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureHueJitter.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -6108,8 +5833,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMinSatJitter
-            spinTabPressureMinSatJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMinSatJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMinSatJitter.Dock = DockStyle.Right;
             spinTabPressureMinSatJitter.Location = new Point(74, 0);
             spinTabPressureMinSatJitter.Margin = new Padding(3, 3, 0, 3);
@@ -6123,8 +5846,6 @@ namespace DynamicDraw
             lblTabPressureSatJitter.AutoSize = true;
             lblTabPressureSatJitter.Dock = DockStyle.Left;
             lblTabPressureSatJitter.Font = detailsFont;
-            lblTabPressureSatJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureSatJitter.Location = new Point(0, 0);
             lblTabPressureSatJitter.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureSatJitter.Size = new Size(54, 13);
             lblTabPressureSatJitter.TabIndex = 0;
@@ -6132,8 +5853,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMaxSatJitter
-            spinTabPressureMaxSatJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMaxSatJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMaxSatJitter.Dock = DockStyle.Right;
             spinTabPressureMaxSatJitter.Location = new Point(115, 0);
             spinTabPressureMaxSatJitter.Margin = new Padding(3, 3, 0, 3);
@@ -6144,23 +5863,12 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureSatJitter
-            cmbxTabPressureSatJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureSatJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureSatJitter.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureSatJitter.Font = detailsFont;
-            cmbxTabPressureSatJitter.IntegralHeight = false;
-            cmbxTabPressureSatJitter.ItemHeight = 13;
             cmbxTabPressureSatJitter.Location = new Point(0, 25);
             cmbxTabPressureSatJitter.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureSatJitter.Size = new Size(156, 21);
             cmbxTabPressureSatJitter.TabIndex = 126;
-            cmbxTabPressureSatJitter.DisplayMember = "DisplayMember";
-            cmbxTabPressureSatJitter.DropDownHeight = 140;
-            cmbxTabPressureSatJitter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureSatJitter.DropDownWidth = 20;
-            cmbxTabPressureSatJitter.FormattingEnabled = true;
-            cmbxTabPressureSatJitter.ValueMember = "ValueMember";
-            cmbxTabPressureSatJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureSatJitter.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureSatJitter.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
@@ -6187,8 +5895,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMinValueJitter
-            spinTabPressureMinValueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMinValueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMinValueJitter.Dock = DockStyle.Right;
             spinTabPressureMinValueJitter.Location = new Point(74, 0);
             spinTabPressureMinValueJitter.Margin = new Padding(3, 3, 0, 3);
@@ -6202,8 +5908,6 @@ namespace DynamicDraw
             lblTabPressureValueJitter.AutoSize = true;
             lblTabPressureValueJitter.Dock = DockStyle.Left;
             lblTabPressureValueJitter.Font = detailsFont;
-            lblTabPressureValueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            lblTabPressureValueJitter.Location = new Point(0, 0);
             lblTabPressureValueJitter.Margin = new Padding(0, 3, 0, 3);
             lblTabPressureValueJitter.Size = new Size(62, 13);
             lblTabPressureValueJitter.TabIndex = 0;
@@ -6211,8 +5915,6 @@ namespace DynamicDraw
             #endregion
 
             #region spinTabPressureMaxValueJitter
-            spinTabPressureMaxValueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            spinTabPressureMaxValueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             spinTabPressureMaxValueJitter.Dock = DockStyle.Right;
             spinTabPressureMaxValueJitter.Location = new Point(115, 0);
             spinTabPressureMaxValueJitter.Margin = new Padding(3, 3, 0, 3);
@@ -6223,35 +5925,21 @@ namespace DynamicDraw
             #endregion
 
             #region cmbxTabPressureValueJitter
-            cmbxTabPressureValueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxTabPressureValueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxTabPressureValueJitter.FlatStyle = FlatStyle.Flat;
             cmbxTabPressureValueJitter.Font = detailsFont;
-            cmbxTabPressureValueJitter.IntegralHeight = false;
-            cmbxTabPressureValueJitter.ItemHeight = 13;
             cmbxTabPressureValueJitter.Location = new Point(0, 25);
             cmbxTabPressureValueJitter.Margin = new Padding(0, 0, 0, 3);
             cmbxTabPressureValueJitter.Size = new Size(156, 21);
             cmbxTabPressureValueJitter.TabIndex = 131;
-            cmbxTabPressureValueJitter.DisplayMember = "DisplayMember";
-            cmbxTabPressureValueJitter.DropDownHeight = 140;
-            cmbxTabPressureValueJitter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbxTabPressureValueJitter.DropDownWidth = 20;
-            cmbxTabPressureValueJitter.FormattingEnabled = true;
-            cmbxTabPressureValueJitter.ValueMember = "ValueMember";
-            cmbxTabPressureValueJitter.MouseHover += new EventHandler(CmbxTabPressure_MouseHover);
+            cmbxTabPressureValueJitter.MouseHover += CmbxTabPressure_MouseHover;
             cmbxTabPressureValueJitter.MouseWheel += IgnoreMouseWheelEvent;
             #endregion
 
             #region bttnSettings
-            bttnSettings.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBgHighlight);
-            bttnSettings.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             bttnSettings.Location = new Point(0, 2899);
             bttnSettings.Margin = new Padding(0, 3, 0, 3);
             bttnSettings.Size = new Size(155, 23);
             bttnSettings.TabIndex = 132;
             bttnSettings.TextAlign = ContentAlignment.MiddleLeft;
-            bttnSettings.UseVisualStyleBackColor = false;
             bttnSettings.UpdateAccordion(Strings.AccordionSettingsBrush, true, new Control[] { panelSettings });
             #endregion
 
@@ -6270,59 +5958,51 @@ namespace DynamicDraw
             #endregion
 
             #region bttnUpdateCurrentBrush
-            bttnUpdateCurrentBrush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             bttnUpdateCurrentBrush.Enabled = false;
             bttnUpdateCurrentBrush.Location = new Point(0, 3);
-            bttnUpdateCurrentBrush.Margin = new Padding(0, 3, 0, 3);
-            bttnUpdateCurrentBrush.Size = new Size(156, 23);
+            bttnUpdateCurrentBrush.Margin = new Padding(3, 3, 3, 3);
+            bttnUpdateCurrentBrush.Size = new Size(150, 23);
             bttnUpdateCurrentBrush.TabIndex = 133;
-            bttnUpdateCurrentBrush.UseVisualStyleBackColor = true;
-            bttnUpdateCurrentBrush.Click += new EventHandler(BttnUpdateCurrentBrush_Click);
-            bttnUpdateCurrentBrush.MouseEnter += new EventHandler(BttnUpdateCurrentBrush_MouseEnter);
+            bttnUpdateCurrentBrush.Text = Strings.UpdateCurrentBrush;
+            bttnUpdateCurrentBrush.Click += BttnUpdateCurrentBrush_Click;
+            bttnUpdateCurrentBrush.MouseEnter += BttnUpdateCurrentBrush_MouseEnter;
             #endregion
 
             #region bttnClearSettings
-            bttnClearSettings.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             bttnClearSettings.Location = new Point(0, 61);
-            bttnClearSettings.Margin = new Padding(0, 3, 0, 3);
-            bttnClearSettings.Size = new Size(156, 23);
+            bttnClearSettings.Margin = new Padding(3, 3, 3, 3);
+            bttnClearSettings.Size = new Size(150, 23);
             bttnClearSettings.TabIndex = 135;
-            bttnClearSettings.UseVisualStyleBackColor = true;
-            bttnClearSettings.Click += new EventHandler(BttnClearSettings_Click);
-            bttnClearSettings.MouseEnter += new EventHandler(BttnClearSettings_MouseEnter);
+            bttnClearSettings.Text = Strings.ClearSettings;
+            bttnClearSettings.Click += BttnClearSettings_Click;
+            bttnClearSettings.MouseEnter += BttnClearSettings_MouseEnter;
             #endregion
 
             #region bttnDeleteBrush
-            bttnDeleteBrush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             bttnDeleteBrush.Enabled = false;
             bttnDeleteBrush.Location = new Point(0, 90);
-            bttnDeleteBrush.Margin = new Padding(0, 3, 0, 3);
-            bttnDeleteBrush.Size = new Size(156, 23);
+            bttnDeleteBrush.Margin = new Padding(3, 3, 3, 3);
+            bttnDeleteBrush.Size = new Size(150, 23);
             bttnDeleteBrush.TabIndex = 136;
-            bttnDeleteBrush.UseVisualStyleBackColor = true;
-            bttnDeleteBrush.Click += new EventHandler(BttnDeleteBrush_Click);
-            bttnDeleteBrush.MouseEnter += new EventHandler(BttnDeleteBrush_MouseEnter);
+            bttnDeleteBrush.Click += BttnDeleteBrush_Click;
+            bttnDeleteBrush.MouseEnter += BttnDeleteBrush_MouseEnter;
             #endregion
 
             #region bttnSaveBrush
             bttnSaveBrush.Location = new Point(0, 119);
-            bttnSaveBrush.Margin = new Padding(0, 3, 0, 3);
-            bttnSaveBrush.Size = new Size(156, 23);
+            bttnSaveBrush.Margin = new Padding(3, 3, 3, 3);
+            bttnSaveBrush.Size = new Size(150, 23);
             bttnSaveBrush.TabIndex = 137;
-            bttnSaveBrush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            bttnSaveBrush.UseVisualStyleBackColor = true;
-            bttnSaveBrush.Click += new EventHandler(BttnSaveBrush_Click);
-            bttnSaveBrush.MouseEnter += new EventHandler(BttnSaveBrush_MouseEnter);
+            bttnSaveBrush.Click += BttnSaveBrush_Click;
+            bttnSaveBrush.MouseEnter += BttnSaveBrush_MouseEnter;
             #endregion
 
             #region WinDynamicDraw
             AcceptButton = bttnOk;
             AutoScaleDimensions = new SizeF(96f, 96f);
             BackgroundImageLayout = ImageLayout.None;
-            BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             CancelButton = bttnCancel;
             ClientSize = new Size(829, 541);
-            Location = new Point(0, 0);
             Margin = new Padding(5, 5, 5, 5);
             DoubleBuffered = true;
             KeyPreview = true;
@@ -6333,9 +6013,21 @@ namespace DynamicDraw
             Controls.Add(panelAllSettingsContainer);
             Controls.Add(topMenu);
             Controls.Add(displayCanvas);
-            Load += new System.EventHandler(DynamicDrawWindow_Load);
+            Load += DynamicDrawWindow_Load;
             Resize += WinDynamicDraw_Resize;
             #endregion
+
+            // Detects and uses the theme inherited from paint.net, which is either a very light or very dark color for
+            // light and dark mode, respectively. So it just assumes the mode based on this color.
+            UseAppThemeColors = true;
+            detectedTheme = (BackColor.R > 128)
+                ? ThemeName.Light
+                : ThemeName.Dark;
+            UseAppThemeColors = false;
+            SemanticTheme.CurrentTheme = detectedTheme;
+
+            SemanticTheme.ThemeChanged += HandleTheme;
+            HandleTheme();
 
             #region Resume and perform layout on them all, order is VERY delicate
             topMenu.ResumeLayout(false);
@@ -6343,7 +6035,7 @@ namespace DynamicDraw
             displayCanvas.ResumeLayout(false);
             displayCanvas.PerformLayout();
             ((ISupportInitialize)(displayCanvas)).EndInit();
-            panelUndoRedoOkCancel.ResumeLayout(false);
+            panelOkCancel.ResumeLayout(false);
             panelAllSettingsContainer.ResumeLayout(false);
             panelDockSettingsContainer.ResumeLayout(false);
             panelDockSettingsContainer.PerformLayout();
@@ -6687,6 +6379,19 @@ namespace DynamicDraw
         /// </summary>
         private void UpdateTopMenuState()
         {
+            if (UserSettings.PreferredTheme == ThemePreference.Inherited)
+            {
+                SemanticTheme.CurrentTheme = detectedTheme;
+            }
+            else if (UserSettings.PreferredTheme == ThemePreference.Light)
+            {
+                SemanticTheme.CurrentTheme = ThemeName.Light;
+            }
+            else if (UserSettings.PreferredTheme == ThemePreference.Dark)
+            {
+                SemanticTheme.CurrentTheme = ThemeName.Dark;
+            }
+
             menuSetCanvasBgImageFit.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit;
             menuSetCanvasBgImageOnlyIfFits.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits;
             menuSetCanvasBgTransparent.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Transparent;
@@ -6695,6 +6400,9 @@ namespace DynamicDraw
             menuSetCanvasBgBlack.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Black;
             menuBrushIndicatorSquare.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Square;
             menuBrushIndicatorPreview.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Preview;
+            menuSetThemeDefault.Checked = UserSettings.PreferredTheme == ThemePreference.Inherited;
+            menuSetThemeLight.Checked = UserSettings.PreferredTheme == ThemePreference.Light;
+            menuSetThemeDark.Checked = UserSettings.PreferredTheme == ThemePreference.Dark;
             menuShowSymmetryLinesInUse.Checked = UserSettings.ShowSymmetryLinesWhenUsingSymmetry;
             menuShowMinDistanceInUse.Checked = UserSettings.ShowCircleRadiusWhenUsingMinDistance;
             menuConfirmCloseSave.Checked = UserSettings.DisableConfirmationOnCloseOrSave;
@@ -6963,6 +6671,63 @@ namespace DynamicDraw
             {
                 listviewBrushImagePicker.VirtualListSize = count;
             }
+        }
+
+        /// <summary>
+        /// Updates the tooltip popup (reused for all tooltips) and its visibility. It's visible when non-null and non
+        /// empty. Up to the first 4 registered shortcuts with a matching shortcut target are appended to the end of
+        /// the tooltip.
+        /// </summary>
+        private void UpdateTooltip(ShortcutTarget target, string newTooltip)
+        {
+            UpdateTooltip((kbTarget) => kbTarget.Target == target, newTooltip);
+        }
+
+        /// <summary>
+        /// Updates the tooltip popup (reused for all tooltips) and its visibility. It's visible when non-null and non
+        /// empty. Up to the first 4 registered shortcuts for which the filter function returns true are appended to
+        /// the end of the tooltip.
+        /// </summary>
+        private void UpdateTooltip(Func<KeyboardShortcut, bool> filterFunc, string newTooltip)
+        {
+            string finalTooltip = newTooltip;
+            List<string> shortcuts = new List<string>();
+
+            // Creates a list of up to 4 bound keyboard shortcuts for the shortcut target.
+            int extraCount = 0;
+            foreach (KeyboardShortcut shortcut in KeyboardShortcuts)
+            {
+                if (filterFunc?.Invoke(shortcut) ?? false)
+                {
+                    if (shortcuts.Count == 4)
+                    {
+                        extraCount++;
+                        continue;
+                    }
+
+                    shortcuts.Add(KeyboardShortcut.GetShortcutKeysString(
+                        shortcut.Keys,
+                        shortcut.RequireCtrl,
+                        shortcut.RequireShift,
+                        shortcut.RequireAlt,
+                        shortcut.RequireWheel,
+                        shortcut.RequireWheelUp,
+                        shortcut.RequireWheelDown));
+                }
+            }
+
+            if (shortcuts.Count != 0)
+            {
+                if (extraCount != 0)
+                {
+                    shortcuts.Add(string.Format(Strings.ShortcutsOver3Tip, extraCount));
+                }
+
+                finalTooltip += $"\n\n{Strings.ShortcutsTooltipTip}";
+                finalTooltip += $"\n{string.Join("\n", shortcuts)}";
+            }
+
+            UpdateTooltip(finalTooltip);
         }
 
         /// <summary>
@@ -7681,7 +7446,12 @@ namespace DynamicDraw
                 ActiveEffectRender();
             }
 
-            isUserPanning = false;
+            if (isUserPanning)
+            {
+                isUserPanning = false;
+                Cursor = Cursors.Default;
+            }
+
             isUserDrawing.started = false;
             isUserDrawing.canvasChanged = false;
             isUserDrawing.stagedChanged = false;
@@ -8035,6 +7805,99 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Any color logic that gets set only once, dependent on the current theme, needs to subscribe to the theme
+        /// changed event so it can be recalculated when theme preference loads from asynchronous user settings.
+        /// </summary>
+        private void HandleTheme()
+        {
+            BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
+            cmbxBlendMode.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            cmbxBlendMode.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            cmbxBrushSmoothing.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            cmbxBrushSmoothing.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            cmbxChosenEffect.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            cmbxChosenEffect.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            cmbxSymmetry.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            cmbxSymmetry.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            displayCanvas.BackColor = SemanticTheme.GetColor(ThemeSlot.CanvasBg);
+            lblTabPressureBlueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureBrushDensity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureGreenJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureHueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureMinDrawDistance.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRandFlowLoss.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRandHorShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRandMaxSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRandMinSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRandRotLeft.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRandRotRight.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRandVerShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureRedJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureSatJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            lblTabPressureValueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            listviewBrushPicker.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            listviewBrushPicker.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            panelDockSettingsContainer.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
+            spinTabPressureBrushDensity.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureBrushDensity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureBrushFlow.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureBrushFlow.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureBrushOpacity.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureBrushOpacity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureBrushRotation.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureBrushRotation.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureBrushSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureBrushSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMaxBlueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMaxBlueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMaxGreenJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMaxGreenJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMaxHueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMaxHueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMaxRedJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMaxRedJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMaxSatJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMaxSatJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMaxValueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMaxValueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMinBlueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMinBlueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMinDrawDistance.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMinDrawDistance.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMinGreenJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMinGreenJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMinHueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMinHueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMinRedJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMinRedJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMinSatJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMinSatJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureMinValueJitter.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureMinValueJitter.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureRandFlowLoss.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureRandFlowLoss.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureRandHorShift.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureRandHorShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureRandMaxSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureRandMaxSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureRandMinSize.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureRandMinSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureRandRotLeft.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureRandRotLeft.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureRandRotRight.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureRandRotRight.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            spinTabPressureRandVerShift.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            spinTabPressureRandVerShift.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            topMenu.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
+            topMenu.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            txtTabPressureBrushFlow.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            txtTabPressureBrushOpacity.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            txtTabPressureBrushRotation.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            txtTabPressureBrushSize.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            Refresh();
+        }
+
+        /// <summary>
         /// Spin buttons and comboboxes (among others) handle the mouse wheel event, which makes it hard to scroll across
         /// the controls in the right-side pane. Since these controls are more traditionally used with left-clicking,
         /// being able to scroll the window with the mouse wheel is more important. This prevents handling.
@@ -8171,11 +8034,11 @@ namespace DynamicDraw
             // button since winforms doesn't support touch events.
             if (tabletPressureRatio < deadzone && newPressureRatio >= deadzone)
             {
-                Theme.SimulateClick(Theme.MouseEvents.LeftDown);
+                ExternalOps.SimulateClick(ExternalOps.MouseEvents.LeftDown);
             }
             else if (tabletPressureRatio > deadzone && newPressureRatio <= deadzone)
             {
-                Theme.SimulateClick(Theme.MouseEvents.LeftUp);
+                ExternalOps.SimulateClick(ExternalOps.MouseEvents.LeftUp);
             }
 
             // Updates the pressure.
@@ -8195,7 +8058,7 @@ namespace DynamicDraw
         #region Methods (button event handlers)
         private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.AutomaticBrushDensityTip);
+            UpdateTooltip(ShortcutTarget.AutomaticBrushDensity, Strings.AutomaticBrushDensityTip);
         }
 
         private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e)
@@ -8242,7 +8105,7 @@ namespace DynamicDraw
 
         private void BttnBlendMode_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BlendModeTip);
+            UpdateTooltip(ShortcutTarget.BlendMode, Strings.BlendModeTip);
         }
 
         private void BttnBlendMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -8272,12 +8135,12 @@ namespace DynamicDraw
 
         private void BttnBrushColor_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushColorTip);
+            UpdateTooltip(ShortcutTarget.Color, Strings.BrushColorTip);
         }
 
         private void CmbxChosenEffect_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ChosenEffectTip);
+            UpdateTooltip(ShortcutTarget.ChosenEffect, Strings.ChosenEffectTip);
             if (effectToDraw.Effect != null)
             {
                 isPreviewingEffect.hoverPreview = true;
@@ -8339,7 +8202,7 @@ namespace DynamicDraw
 
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushSmoothingTip);
+            UpdateTooltip(ShortcutTarget.SmoothingMode, Strings.BrushSmoothingTip);
         }
 
         /// <summary>
@@ -8439,7 +8302,7 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Opens the preferences dialog to define persistent settings.
+        /// Saves the current brush settings over the selected brush.
         /// </summary>
         private void BttnUpdateCurrentBrush_Click(object sender, EventArgs e)
         {
@@ -8503,17 +8366,17 @@ namespace DynamicDraw
             //Handles enabling undo or disabling redo for the user's clarity.
             if (redoHistory.Count == 0)
             {
-                bttnRedo.Enabled = false;
+                menuRedo.Enabled = false;
             }
-            if (!bttnUndo.Enabled && undoHistory.Count > 0)
+            if (!menuUndo.Enabled && undoHistory.Count > 0)
             {
-                bttnUndo.Enabled = true;
+                menuUndo.Enabled = true;
             }
         }
 
         private void BttnRedo_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RedoTip);
+            UpdateTooltip(ShortcutTarget.RedoAction, Strings.RedoTip);
         }
 
         /// <summary>
@@ -8563,7 +8426,7 @@ namespace DynamicDraw
 
         private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.SymmetryTip);
+            UpdateTooltip(ShortcutTarget.SymmetryMode, Strings.SymmetryTip);
         }
 
         private void BttnToolBrush_Click(object sender, EventArgs e)
@@ -8573,7 +8436,15 @@ namespace DynamicDraw
 
         private void BttnToolBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ToolBrushTip);
+            static bool filter(KeyboardShortcut shortcut)
+            {
+                int index = (int)Tool.Brush;
+                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                    (shortcut.ActionData.Contains($"{index}|set") ||
+                    (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
+            }
+
+            UpdateTooltip(filter, Strings.ToolBrushTip);
         }
 
         private void BttnToolColorPicker_Click(object sender, EventArgs e)
@@ -8583,7 +8454,15 @@ namespace DynamicDraw
 
         private void BttnToolColorPicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ColorPickerTip);
+            static bool filter(KeyboardShortcut shortcut)
+            {
+                int index = (int)Tool.ColorPicker;
+                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                    (shortcut.ActionData.Contains($"{index}|set") ||
+                    (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
+            }
+
+            UpdateTooltip(filter, Strings.ColorPickerTip);
         }
 
         private void BttnToolEraser_Click(object sender, EventArgs e)
@@ -8593,7 +8472,15 @@ namespace DynamicDraw
 
         private void BttnToolEraser_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ToolEraserTip);
+            static bool filter(KeyboardShortcut shortcut)
+            {
+                int index = (int)Tool.Eraser;
+                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                    (shortcut.ActionData.Contains($"{index}|set") ||
+                    (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
+            }
+
+            UpdateTooltip(filter, Strings.ToolEraserTip);
         }
 
         private void BttnToolOrigin_Click(object sender, EventArgs e)
@@ -8603,7 +8490,15 @@ namespace DynamicDraw
 
         private void BttnToolOrigin_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ToolOriginTip);
+            static bool filter(KeyboardShortcut shortcut)
+            {
+                int index = (int)Tool.SetSymmetryOrigin;
+                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                    (shortcut.ActionData.Contains($"{index}|set") ||
+                    (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
+            }
+
+            UpdateTooltip(filter, Strings.ToolOriginTip);
         }
 
         /// <summary>
@@ -8658,17 +8553,17 @@ namespace DynamicDraw
             //Handles enabling redo or disabling undo for the user's clarity.
             if (undoHistory.Count == 0)
             {
-                bttnUndo.Enabled = false;
+                menuUndo.Enabled = false;
             }
-            if (!bttnRedo.Enabled && redoHistory.Count > 0)
+            if (!menuRedo.Enabled && redoHistory.Count > 0)
             {
-                bttnRedo.Enabled = true;
+                menuRedo.Enabled = true;
             }
         }
 
         private void BttnUndo_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.UndoTip);
+            UpdateTooltip(ShortcutTarget.UndoAction, Strings.UndoTip);
         }
 
         /// <summary>
@@ -8683,27 +8578,27 @@ namespace DynamicDraw
 
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ColorizeBrushTip);
+            UpdateTooltip(ShortcutTarget.ColorizeBrush, Strings.ColorizeBrushTip);
         }
 
         private void ChkbxColorInfluenceHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ColorInfluenceHTip);
+            UpdateTooltip(ShortcutTarget.ColorInfluenceHue, Strings.ColorInfluenceHTip);
         }
 
         private void ChkbxColorInfluenceSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ColorInfluenceSTip);
+            UpdateTooltip(ShortcutTarget.ColorInfluenceSat, Strings.ColorInfluenceSTip);
         }
 
         private void ChkbxColorInfluenceVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ColorInfluenceVTip);
+            UpdateTooltip(ShortcutTarget.ColorInfluenceVal, Strings.ColorInfluenceVTip);
         }
 
         private void ChkbxDitherDraw_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.DitherDrawTip);
+            UpdateTooltip(ShortcutTarget.DitherDraw, Strings.DitherDrawTip);
         }
 
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
@@ -8713,42 +8608,42 @@ namespace DynamicDraw
 
         private void ChkbxLockR_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.LockRTip);
+            UpdateTooltip(ShortcutTarget.DoLockR, Strings.LockRTip);
         }
 
         private void ChkbxLockG_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.LockGTip);
+            UpdateTooltip(ShortcutTarget.DoLockG, Strings.LockGTip);
         }
 
         private void ChkbxLockB_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.LockBTip);
+            UpdateTooltip(ShortcutTarget.DoLockB, Strings.LockBTip);
         }
 
         private void ChkbxLockHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.LockHueTip);
+            UpdateTooltip(ShortcutTarget.DoLockHue, Strings.LockHueTip);
         }
 
         private void ChkbxLockSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.LockSatTip);
+            UpdateTooltip(ShortcutTarget.DoLockSat, Strings.LockSatTip);
         }
 
         private void ChkbxLockVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.LockValTip);
+            UpdateTooltip(ShortcutTarget.DoLockVal, Strings.LockValTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.OrientToMouseTip);
+            UpdateTooltip(ShortcutTarget.RotateWithMouse, Strings.OrientToMouseTip);
         }
 
         private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.SeamlessDrawingTip);
+            UpdateTooltip(ShortcutTarget.SeamlessDrawing, Strings.SeamlessDrawingTip);
         }
 
         private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
@@ -8879,7 +8774,7 @@ namespace DynamicDraw
 
         private void ListViewBrushImagePicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushImageSelectorTip);
+            UpdateTooltip(ShortcutTarget.SelectedBrushImage, Strings.BrushImageSelectorTip);
         }
 
         /// <summary>
@@ -8962,7 +8857,7 @@ namespace DynamicDraw
 
         private void ListviewBrushPicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushSelectorTip);
+            UpdateTooltip(ShortcutTarget.SelectedBrush, Strings.BrushSelectorTip);
         }
 
         /// <summary>
@@ -9046,12 +8941,12 @@ namespace DynamicDraw
 
         private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushDensityTip);
+            UpdateTooltip(ShortcutTarget.BrushStrokeDensity, Strings.BrushDensityTip);
         }
 
         private void SliderBrushFlow_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushFlowTip);
+            UpdateTooltip(ShortcutTarget.Flow, Strings.BrushFlowTip);
         }
 
         private void SliderBrushFlow_ValueChanged(object sender, float e)
@@ -9061,7 +8956,7 @@ namespace DynamicDraw
 
         private void SliderBrushOpacity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushOpacityTip);
+            UpdateTooltip(ShortcutTarget.BrushOpacity, Strings.BrushOpacityTip);
         }
 
         private void SliderBrushOpacity_ValueChanged(object sender, float e)
@@ -9071,7 +8966,7 @@ namespace DynamicDraw
 
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushSizeTip);
+            UpdateTooltip(ShortcutTarget.Size, Strings.BrushSizeTip);
         }
 
         private void SliderBrushSize_ValueChanged(object sender, float e)
@@ -9083,7 +8978,7 @@ namespace DynamicDraw
 
         private void SliderBrushRotation_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.BrushRotationTip);
+            UpdateTooltip(ShortcutTarget.Rotation, Strings.BrushRotationTip);
         }
 
         private void SliderBrushRotation_ValueChanged(object sender, float e)
@@ -9097,7 +8992,7 @@ namespace DynamicDraw
 
         private void SliderCanvasZoom_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.CanvasZoomTip);
+            UpdateTooltip(ShortcutTarget.CanvasZoom, Strings.CanvasZoomTip);
         }
 
         private void SliderCanvasZoom_ValueChanged(object sender, float e)
@@ -9107,7 +9002,7 @@ namespace DynamicDraw
 
         private void SliderCanvasAngle_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.CanvasAngleTip);
+            UpdateTooltip(ShortcutTarget.CanvasRotation, Strings.CanvasAngleTip);
         }
 
         private void SliderCanvasAngle_ValueChanged(object sender, float e)
@@ -9127,122 +9022,122 @@ namespace DynamicDraw
 
         private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ColorInfluenceTip);
+            UpdateTooltip(ShortcutTarget.ColorInfluence, Strings.ColorInfluenceTip);
         }
 
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.MinDrawDistanceTip);
+            UpdateTooltip(ShortcutTarget.MinDrawDistance, Strings.MinDrawDistanceTip);
         }
 
         private void SliderRandHorzShift_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RandHorzShiftTip);
+            UpdateTooltip(ShortcutTarget.JitterHorSpray, Strings.RandHorzShiftTip);
         }
 
         private void SliderJitterMaxBlue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterBlueTip);
+            UpdateTooltip(ShortcutTarget.JitterBlueMax, Strings.JitterBlueTip);
         }
 
         private void SliderJitterMaxGreen_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterGreenTip);
+            UpdateTooltip(ShortcutTarget.JitterGreenMax, Strings.JitterGreenTip);
         }
 
         private void SliderJitterMaxRed_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterRedTip);
+            UpdateTooltip(ShortcutTarget.JitterRedMax, Strings.JitterRedTip);
         }
 
         private void SliderRandFlowLoss_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RandFlowLossTip);
+            UpdateTooltip(ShortcutTarget.JitterFlowLoss, Strings.RandFlowLossTip);
         }
 
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RandMaxSizeTip);
+            UpdateTooltip(ShortcutTarget.JitterMaxSize, Strings.RandMaxSizeTip);
         }
 
         private void SliderJitterMinBlue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterBlueTip);
+            UpdateTooltip(ShortcutTarget.JitterBlueMin, Strings.JitterBlueTip);
         }
 
         private void SliderJitterMinGreen_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterGreenTip);
+            UpdateTooltip(ShortcutTarget.JitterGreenMin, Strings.JitterGreenTip);
         }
 
         private void SliderJitterMaxHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterHueTip);
+            UpdateTooltip(ShortcutTarget.JitterHueMax, Strings.JitterHueTip);
         }
 
         private void SliderJitterMinHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterHueTip);
+            UpdateTooltip(ShortcutTarget.JitterHueMin, Strings.JitterHueTip);
         }
 
         private void SliderJitterMinRed_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterRedTip);
+            UpdateTooltip(ShortcutTarget.JitterRedMin, Strings.JitterRedTip);
         }
 
         private void SliderJitterMaxSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterSaturationTip);
+            UpdateTooltip(ShortcutTarget.JitterSatMax, Strings.JitterSaturationTip);
         }
 
         private void SliderJitterMinSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterSaturationTip);
+            UpdateTooltip(ShortcutTarget.JitterSatMin, Strings.JitterSaturationTip);
         }
 
         private void SliderJitterMaxVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterValueTip);
+            UpdateTooltip(ShortcutTarget.JitterValMax, Strings.JitterValueTip);
         }
 
         private void SliderJitterMinVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.JitterValueTip);
+            UpdateTooltip(ShortcutTarget.JitterValMin, Strings.JitterValueTip);
         }
 
         private void SliderRandMinSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RandMinSizeTip);
+            UpdateTooltip(ShortcutTarget.JitterMinSize, Strings.RandMinSizeTip);
         }
 
         private void SliderRandRotLeft_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RandRotLeftTip);
+            UpdateTooltip(ShortcutTarget.JitterRotLeft, Strings.RandRotLeftTip);
         }
 
         private void SliderRandRotRight_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RandRotRightTip);
+            UpdateTooltip(ShortcutTarget.JitterRotRight, Strings.RandRotRightTip);
         }
 
         private void SliderRandVertShift_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.RandVertShiftTip);
+            UpdateTooltip(ShortcutTarget.JitterVerSpray, Strings.RandVertShiftTip);
         }
 
         private void SliderShiftFlow_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ShiftFlowTip);
+            UpdateTooltip(ShortcutTarget.FlowShift, Strings.ShiftFlowTip);
         }
 
         private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ShiftRotationTip);
+            UpdateTooltip(ShortcutTarget.RotShift, Strings.ShiftRotationTip);
         }
 
         private void SliderShiftSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.ShiftSizeTip);
+            UpdateTooltip(ShortcutTarget.SizeShift, Strings.ShiftSizeTip);
         }
 
         private void SpinTabPressureBrushSize_LostFocus(object sender, EventArgs e)

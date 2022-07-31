@@ -373,6 +373,26 @@ namespace DynamicDraw.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap sprLocked {
+            get {
+                object obj = ResourceManager.GetObject("sprLocked", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sprUnlocked {
+            get {
+                object obj = ResourceManager.GetObject("sprUnlocked", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ToolBrush {
             get {
                 object obj = ResourceManager.GetObject("ToolBrush", resourceCulture);

@@ -1,6 +1,4 @@
-using DynamicDraw.Gui;
 using DynamicDraw.Localization;
-using DynamicDraw.Logic;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.Json.Serialization;

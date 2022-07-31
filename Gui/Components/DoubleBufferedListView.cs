@@ -13,17 +13,6 @@ namespace DynamicDraw
         private int currentItemIndex;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DoubleBufferedListView"/> class.
-        /// </summary>
-        public DoubleBufferedListView()
-        {
-            BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            DoubleBuffered = true;
-            previousItemIndex = -1;
-            currentItemIndex = -1;
-        }
-
-        /// <summary>
         /// Gets the index of the previously selected item.
         /// </summary>
         public int PreviousItemIndex
@@ -56,6 +45,18 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="DoubleBufferedListView"/> class.
+        /// </summary>
+        public DoubleBufferedListView()
+        {
+            SemanticTheme.ThemeChanged += HandleTheme;
+            HandleTheme();
+            DoubleBuffered = true;
+            previousItemIndex = -1;
+            currentItemIndex = -1;
+        }
+
+        /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.ListView.SelectedIndexChanged" /> event.
         /// </summary>
         /// <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
@@ -72,6 +73,15 @@ namespace DynamicDraw
             }
 
             base.OnSelectedIndexChanged(e);
+        }
+
+        /// <summary>
+        /// Any color logic that gets set only once, dependent on the current theme, needs to subscribe to the theme
+        /// changed event so it can be recalculated when theme preference loads from asynchronous user settings.
+        /// </summary>
+        private void HandleTheme()
+        {
+            BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
         }
     }
 }

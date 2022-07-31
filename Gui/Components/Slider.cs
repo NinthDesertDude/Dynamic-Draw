@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace DynamicDraw.Gui
+namespace DynamicDraw
 {
     /// <summary>
     /// A button that acts like a track bar with a modern appearance.
@@ -373,6 +373,13 @@ namespace DynamicDraw.Gui
             e.Graphics.DrawString(formatted, Font, SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
                 (ClientSize.Width - measures.Width) / 2,
                 (ClientSize.Height - measures.Height) / 2);
+
+            // Draws a rectangle indicating focus (uses text color since the filled slider part is active color).
+            if (Enabled && Focused && ShowFocusCues)
+            {
+                e.Graphics.DrawRectangle(
+                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlText), 0, 0, Width - 1, Height - 1);
+            }
         }
 
         /// <summary>
@@ -481,10 +488,8 @@ namespace DynamicDraw.Gui
 
                     if (newChar != "")
                     {
-                        newValueString += isTypingNewValue
-                            ? newChar
-                            : Value.ToString() + newChar;
-                        isTypingNewValue = true;
+                        newValueString += newChar;
+                        isTypingNewValue = true;                        
                         Refresh();
                         return true;
                     }
@@ -498,6 +503,7 @@ namespace DynamicDraw.Gui
         #region Event handlers
         private void Slider_MouseEnter(object sender, EventArgs e)
         {
+            Focus(); // Focusing allows the user to hover and type a value without clicking first, very useful.
             mouseOver = true;
         }
 
@@ -506,6 +512,9 @@ namespace DynamicDraw.Gui
             mouseOver = false;
         }
 
+        /// <summary>
+        /// Discards any value being typed.
+        /// </summary>
         private void Slider_LostFocus(object sender, EventArgs e)
         {
             mouseOver = false;

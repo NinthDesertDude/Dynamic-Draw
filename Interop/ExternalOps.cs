@@ -4,7 +4,7 @@ using System.Security;
 namespace DynamicDraw.Interop
 {
     [SuppressUnmanagedCodeSecurity]
-    internal static class Theme
+    internal static class ExternalOps
     {
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         private static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
@@ -13,10 +13,10 @@ namespace DynamicDraw.Interop
         /// Mouse events that can be simulated.
         /// </summary>
         public enum MouseEvents
-        {
-            LeftDown,
-            LeftUp
-        }
+            {
+                LeftDown,
+                LeftUp
+            }
 
         /// <summary>
         /// Fires a mouse click event that will trigger everything underneath.
@@ -25,20 +25,20 @@ namespace DynamicDraw.Interop
         /// </summary>
         /// <param name="e">The mouse event to fire (from a limited pool).</param>
         public static void SimulateClick(MouseEvents e)
-        {
-            switch (e)
             {
-                case MouseEvents.LeftDown:
+                switch (e)
                 {
-                    mouse_event(0x02, 0, 0, 0, 0);
-                    break;
-                }
-                case MouseEvents.LeftUp:
-                {
-                    mouse_event(0x04, 0, 0, 0, 0);
-                    break;
+                    case MouseEvents.LeftDown:
+                    {
+                        mouse_event(0x02, 0, 0, 0, 0);
+                        break;
+                    }
+                    case MouseEvents.LeftUp:
+                    {
+                        mouse_event(0x04, 0, 0, 0, 0);
+                        break;
+                    }
                 }
             }
-        }
     }
 }

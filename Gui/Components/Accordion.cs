@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace DynamicDraw.Gui
+namespace DynamicDraw
 {
     /// <summary>
     /// A button that hides/shows associated controls when toggled.
@@ -14,14 +14,17 @@ namespace DynamicDraw.Gui
         private string title = "";
         private readonly List<Control> boundControls = new List<Control>();
         private bool isCollapsed = false;
+        private readonly bool redAccented = false;
 
         /// <summary>
         /// Creates a new accordion button.
         /// </summary>
         /// <param name="boundControls">The list of controls bound to the accordion.</param>
         /// <param name="isCollapsed">If true, controls bound to the accordion will not be visible.</param>
-        public Accordion()
+        public Accordion(bool redAccented = false)
         {
+            this.redAccented = redAccented;
+
             Click += (a, b) =>
             {
                 ToggleCollapsed(!isCollapsed);
@@ -47,7 +50,9 @@ namespace DynamicDraw.Gui
             Brush accordionBg =
                 (Enabled && isHovered)
                     ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlight)
-                : (Enabled)
+                : (Enabled && redAccented)
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlRedAccent)
+                : Enabled
                     ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
                 : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
 
@@ -57,19 +62,28 @@ namespace DynamicDraw.Gui
             e.Graphics.DrawString(
                 Text,
                 Font,
-                SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
+                Enabled && redAccented && !isHovered
+                ? SemanticTheme.Instance.GetBrush(ThemeName.Dark, ThemeSlot.MenuControlText)
+                : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
                 new Point(
                 4,
                 (int)((Height - measures.Height) / 2f)
             ));
 
-            string collapseStr = isCollapsed ? "▶" : "▼";
+            string collapseStr = isCollapsed ? "⮞" : "⮟";
             measures = e.Graphics.MeasureString(collapseStr, Font);
             e.Graphics.DrawString(
                 collapseStr,
                 Font,
                 SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextSubtle),
                 new Point(Width - 16, (int)((Height - measures.Height) / 2f)));
+
+            // Draws a rectangle indicating focus.
+            if (Enabled && Focused && ShowFocusCues)
+            {
+                e.Graphics.DrawRectangle(
+                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
+            }
         }
 
         /// <summary>

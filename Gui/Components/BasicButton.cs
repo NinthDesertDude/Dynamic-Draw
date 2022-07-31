@@ -2,19 +2,21 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace DynamicDraw.Gui
+namespace DynamicDraw
 {
     /// <summary>
     /// A themed variant of the button control that displays an image (with inverted color for light mode).
     /// </summary>
     public class BasicButton : Button
     {
-        private bool hideIdleBgColor = false;
+        private readonly bool hideIdleBgColor = false;
         private bool isHovered = false;
+        private readonly bool redAccented = false;
 
-        public BasicButton(bool hideIdleBgColor = false) : base()
+        public BasicButton(bool hideIdleBgColor = false, bool redAccented = false) : base()
         {
             this.hideIdleBgColor = hideIdleBgColor;
+            this.redAccented = redAccented;
             MouseEnter += BasicButton_MouseEnter;
             MouseLeave += BasicButton_MouseLeave;
         }
@@ -36,6 +38,8 @@ namespace DynamicDraw.Gui
                     ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlight)
                 : hideIdleBgColor
                     ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuBg)
+                : (Enabled && redAccented)
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlRedAccent)
                 : (Enabled)
                     ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
                 : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
@@ -68,10 +72,19 @@ namespace DynamicDraw.Gui
                 e.Graphics.DrawString(
                     Text,
                     Font,
-                    Enabled
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText)
+                    Enabled && redAccented && !isHovered && !hideIdleBgColor
+                        ? SemanticTheme.Instance.GetBrush(ThemeName.Dark, ThemeSlot.MenuControlText)
+                        : Enabled
+                            ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText)
                         : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextDisabled),
                     textPos);
+            }
+
+            // Draws a rectangle indicating focus.
+            if (Enabled && Focused && ShowFocusCues)
+            {
+                e.Graphics.DrawRectangle(
+                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
             }
         }
 
@@ -102,7 +115,7 @@ namespace DynamicDraw.Gui
                     return new Point(Width - elementWidth, Height - elementHeight);
             }
 
-            throw new System.Exception("Unexpected value for ContentAlignment.");
+            throw new Exception("Unexpected value for ContentAlignment.");
         }
     }
 }

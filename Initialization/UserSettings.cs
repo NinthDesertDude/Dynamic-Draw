@@ -1,4 +1,3 @@
-using System.Drawing;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -11,7 +10,6 @@ namespace DynamicDraw
     public class UserSettings
     {
         #region Fields
-
         /// <summary>
         /// How transparency will be displayed on canvas, e.g. white or checkered.
         /// </summary>
@@ -70,6 +68,13 @@ namespace DynamicDraw
         [JsonInclude]
         [JsonPropertyName("ShowSymmetryLinesWhenUsingSymmetry")]
         public bool ShowSymmetryLinesWhenUsingSymmetry { get; set; }
+
+        /// <summary>
+        /// The theme to use when setting up the form.
+        /// </summary>
+        [JsonInclude]
+        [JsonPropertyName("PreferredTheme")]
+        public ThemePreference PreferredTheme { get; set; }
         #endregion
 
         /// <summary>
@@ -85,6 +90,7 @@ namespace DynamicDraw
             RemoveBrushImagePathsWhenNotFound = false;
             ShowCircleRadiusWhenUsingMinDistance = true;
             ShowSymmetryLinesWhenUsingSymmetry = true;
+            PreferredTheme = ThemePreference.Inherited;
         }
 
         public UserSettings(UserSettings other)
@@ -97,6 +103,7 @@ namespace DynamicDraw
             RemoveBrushImagePathsWhenNotFound = other.RemoveBrushImagePathsWhenNotFound;
             ShowCircleRadiusWhenUsingMinDistance = other.ShowCircleRadiusWhenUsingMinDistance;
             ShowSymmetryLinesWhenUsingSymmetry = other.ShowSymmetryLinesWhenUsingSymmetry;
+            PreferredTheme = other.PreferredTheme;
         }
     }
 

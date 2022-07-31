@@ -12,13 +12,28 @@ namespace DynamicDraw
     public class SemanticTheme : IDisposable
     {
         #region Static
+        private static ThemeName currentTheme;
         private static SemanticTheme instance;
         private static readonly Dictionary<ThemeName, Dictionary<ThemeSlot, Color>> themeData;
 
         /// <summary>
         /// Gets or sets the current theme.
         /// </summary>
-        public static ThemeName CurrentTheme { get; set; }
+        public static ThemeName CurrentTheme
+        {
+            get
+            {
+                return currentTheme;
+            }
+            set
+            {
+                if (currentTheme != value)
+                {
+                    currentTheme = value;
+                    ThemeChanged?.Invoke();
+                }
+            }
+        }
 
         /// <summary>
         /// The singleton instance of this class (lazy-instantiated on access).
@@ -36,6 +51,11 @@ namespace DynamicDraw
             }
         }
 
+        /// <summary>
+        /// Invoked whenever the theme is set to a new value.
+        /// </summary>
+        public static event Action ThemeChanged;
+
         static SemanticTheme()
         {
             CurrentTheme = ThemeName.Light;
@@ -43,15 +63,16 @@ namespace DynamicDraw
             var lightTheme = new Dictionary<ThemeSlot, Color>()
             {
                 { ThemeSlot.CanvasBg, Color.FromArgb(255, 207, 207, 207) },
-                { ThemeSlot.MenuBg, Color.FromArgb(255, 227, 227, 227) },
+                { ThemeSlot.MenuBg, Color.FromArgb(255, 255, 255, 255) },
                 { ThemeSlot.MenuControlActive, Color.FromArgb(255, 40, 162, 255) },
                 { ThemeSlot.MenuControlActiveSelected, Color.FromArgb(255, 52, 58, 226) },
                 { ThemeSlot.MenuControlActiveHover, Color.FromArgb(255, 179, 207, 229) },
-                { ThemeSlot.MenuControlBg, Color.FromArgb(255, 255, 255, 255) },
+                { ThemeSlot.MenuControlBg, Color.FromArgb(255, 227, 227, 227) },
                 { ThemeSlot.MenuControlBgDisabled, Color.FromArgb(255, 204, 204, 204) },
                 { ThemeSlot.MenuControlBgHighlight, Color.FromArgb(255, 237, 237, 237) },
                 { ThemeSlot.MenuControlBgHighlightDisabled, Color.FromArgb(255, 187, 187, 187) },
                 { ThemeSlot.MenuControlText, Color.FromArgb(255, 28, 28, 28) },
+                { ThemeSlot.MenuControlRedAccent, Color.FromArgb(255, 188, 77, 77) },
                 { ThemeSlot.MenuControlTextDisabled, Color.FromArgb(255, 155, 155, 155) },
                 { ThemeSlot.MenuControlTextSubtle, Color.FromArgb(255, 55, 55, 55) }
             };
@@ -68,6 +89,7 @@ namespace DynamicDraw
                 { ThemeSlot.MenuControlBgHighlight, Color.FromArgb(255, 128, 128, 128) },
                 { ThemeSlot.MenuControlBgHighlightDisabled, Color.FromArgb(255, 48, 48, 48) },
                 { ThemeSlot.MenuControlText, Color.FromArgb(255, 227, 227, 227) },
+                { ThemeSlot.MenuControlRedAccent, Color.FromArgb(255, 188, 77, 77) },
                 { ThemeSlot.MenuControlTextDisabled, Color.FromArgb(255, 100, 100, 100) },
                 { ThemeSlot.MenuControlTextSubtle, Color.FromArgb(255, 200, 200, 200) }
             };

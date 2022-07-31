@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace DynamicDraw.Gui
+namespace DynamicDraw
 {
     /// <summary>
     /// A themed variant of the checkbox control that displays an image instead of a check mark, and may use different
@@ -131,8 +131,7 @@ namespace DynamicDraw.Gui
                 if (imagePos != Point.Empty)
                 {
                     int imageOverlapX = Math.Max(imagePos.X + imageToDraw.Width - textPos.X, 0);
-                    int imageOverlapY = Math.Max(imagePos.Y + imageToDraw.Height - textPos.Y, 0);
-                    textPos = new Point(textPos.X + imageOverlapX, textPos.Y + imageOverlapY);
+                    textPos = new Point(textPos.X + imageOverlapX, textPos.Y);
                 }
 
                 // Moves text out of the way of the checkbox drawing, if set.
@@ -146,6 +145,13 @@ namespace DynamicDraw.Gui
                         ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText)
                         : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextDisabled),
                     textPos);
+            }
+
+            // Draws a rectangle indicating focus.
+            if (Enabled && Focused && ShowFocusCues)
+            {
+                e.Graphics.DrawRectangle(
+                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
             }
         }
 
@@ -179,7 +185,7 @@ namespace DynamicDraw.Gui
                     return new Point(containerWidth - elementWidth, containerHeight - elementHeight);
             }
 
-            throw new System.Exception("Unexpected value for ContentAlignment.");
+            throw new Exception("Unexpected value for ContentAlignment.");
         }
     }
 }

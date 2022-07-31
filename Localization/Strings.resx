@@ -142,7 +142,7 @@
     <value>Brush Flow:</value>
   </data>
   <data name="BrushFlowTip" xml:space="preserve">
-    <value>Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color "builds up" as you draw. It's a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke.</value>
+    <value>This is how quickly the brush color "builds up" as you draw. It's a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke.</value>
   </data>
   <data name="BrushColor" xml:space="preserve">
     <value>Color</value>
@@ -163,13 +163,13 @@
     <value>Places to look for brush images appear here. Type a new address or use the add folders/files buttons to add your own.</value>
   </data>
   <data name="BrushRotationTip" xml:space="preserve">
-    <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
+    <value>Sets the brush rotation for tilting while drawing.</value>
   </data>
   <data name="BrushImageSelectorTip" xml:space="preserve">
     <value>Lets you choose another brush image to use.</value>
   </data>
   <data name="BrushSizeTip" xml:space="preserve">
-    <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>
+    <value>Sets the brush size to make it larger or smaller.</value>
   </data>
   <data name="BrushSmoothingTip" xml:space="preserve">
     <value>Determines smoothness at the brush edges while drawing, and the quality of rotation/scaling.
@@ -190,12 +190,10 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Canvas Zoom:</value>
   </data>
   <data name="CanvasZoomTip" xml:space="preserve">
-    <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
-
-Press Zero to reset the canvas position, zoom and angle.</value>
+    <value>Zooms the picture in and out to make editing easier.</value>
   </data>
   <data name="ClearSettings" xml:space="preserve">
-    <value>Clear Current Brush Settings</value>
+    <value>Clear Current Brush</value>
   </data>
   <data name="ClearSettingsTip" xml:space="preserve">
     <value>Clears all temporary changes to the current brush settings.</value>
@@ -213,7 +211,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Only the regular brush image colors are used at 0%. Only the active color is used at 100%. For values between, the active color is mixed into the brush image.</value>
   </data>
   <data name="ColorPickerTip" xml:space="preserve">
-    <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards.</value>
+    <value>Selects a color on the canvas and switches to the last-used tool afterwards.</value>
   </data>
   <data name="UpdateCurrentBrush" xml:space="preserve">
     <value>Update Current Brush</value>
@@ -336,7 +334,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Redo</value>
   </data>
   <data name="RedoTip" xml:space="preserve">
-    <value>Redo Shortcut: Ctrl + Y. Restores changes removed by undo, if possible.</value>
+    <value>Restores changes removed by undo, if possible.</value>
   </data>
   <data name="Rotation" xml:space="preserve">
     <value>Brush Rotation:</value>
@@ -378,7 +376,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Undo</value>
   </data>
   <data name="UndoTip" xml:space="preserve">
-    <value>Undo Shortcut: Ctrl + Z. Undo the last drawing, if possible.</value>
+    <value>Undo the last drawing, if possible.</value>
   </data>
   <data name="SettingsUnavailableError" xml:space="preserve">
     <value>The settings folder could not be located. Your settings may not be loaded or saved.</value>
@@ -540,13 +538,13 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Spiral</value>
   </data>
   <data name="ToolBrushTip" xml:space="preserve">
-    <value>Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings.</value>
+    <value>The brush tool allows you to draw on the canvas.</value>
   </data>
   <data name="ToolEraserTip" xml:space="preserve">
-    <value>Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image.</value>
+    <value>The eraser tool lets you erase to reveal the original image. (If you want to erase to transparent, change the blending mode to overwrite and set the alpha to zero.)</value>
   </data>
   <data name="ToolOriginTip" xml:space="preserve">
-    <value>Set Origin Shortcut: O. Activate this tool to change the symmetry origin.</value>
+    <value>The origin tool lets you set a point of interest for symmetry mode and other tools to make use of.</value>
   </data>
   <data name="CustomBrushImagesDirectoryFilter" xml:space="preserve">
     <value>Images and abr brushes</value>
@@ -585,7 +583,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Add files</value>
   </data>
   <data name="AddFilesTip" xml:space="preserve">
-    <value>Browse for files to load as custom brush images when Dynamic Draw starts.</value>
+    <value>Browse for files to load as custom brush images when {0} starts.</value>
   </data>
   <data name="ClipboardErrorUnusable" xml:space="preserve">
     <value>Could not use clipboard image.</value>
@@ -672,10 +670,10 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Red Jitter Min</value>
   </data>
   <data name="ShortcutJitterRotLeft" xml:space="preserve">
-    <value>Random Rot to Left</value>
+    <value>Random Rotate to Left</value>
   </data>
   <data name="ShortcutJitterRotRight" xml:space="preserve">
-    <value>Random Rot to Right</value>
+    <value>Random Rotate to Right</value>
   </data>
   <data name="ShortcutJitterSatMax" xml:space="preserve">
     <value>Saturation Jitter Max</value>
@@ -807,9 +805,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Canvas Angle:</value>
   </data>
   <data name="CanvasAngleTip" xml:space="preserve">
-    <value>Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
-
-Press Zero to reset the canvas position, zoom and angle.</value>
+    <value>Rotates the canvas around its center (this is mainly useful with a tablet).</value>
   </data>
   <data name="Confirm" xml:space="preserve">
     <value>Confirm</value>
@@ -944,7 +940,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Brush Opacity</value>
   </data>
   <data name="BrushOpacityTip" xml:space="preserve">
-    <value>Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here.</value>
+    <value>This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here.</value>
   </data>
   <data name="ChosenEffectTip" xml:space="preserve">
     <value>When an effect is chosen, it'll be applied in brush strokes according to its settings.</value>
@@ -1176,5 +1172,59 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   </data>
   <data name="ShortcutMinDrawDist" xml:space="preserve">
     <value>Min. Draw Distance</value>
+  </data>
+  <data name="ConfirmResetShortcuts" xml:space="preserve">
+    <value>All shortcuts will be reset to installation defaults. Are you sure?</value>
+  </data>
+  <data name="ConfirmResetShortcutsTitle" xml:space="preserve">
+    <value>Reset keyboard shortcuts</value>
+  </data>
+  <data name="DialogKeyboardShortcutsRecordKeys" xml:space="preserve">
+    <value>Recording keys...</value>
+  </data>
+  <data name="ShortcutLockB" xml:space="preserve">
+    <value>Lock Blue</value>
+  </data>
+  <data name="ShortcutLockG" xml:space="preserve">
+    <value>Lock Green</value>
+  </data>
+  <data name="ShortcutLockHue" xml:space="preserve">
+    <value>Lock Hue</value>
+  </data>
+  <data name="ShortcutLockR" xml:space="preserve">
+    <value>Lock Red</value>
+  </data>
+  <data name="ShortcutLockSat" xml:space="preserve">
+    <value>Lock Saturation</value>
+  </data>
+  <data name="ShortcutLockVal" xml:space="preserve">
+    <value>Lock Value</value>
+  </data>
+  <data name="ShortcutsOver3Tip" xml:space="preserve">
+    <value>... +{0} more</value>
+  </data>
+  <data name="ShortcutsTooltipTip" xml:space="preserve">
+    <value>Shortcuts:</value>
+  </data>
+  <data name="CloseWithoutSaving" xml:space="preserve">
+    <value>There are unsaved changes. Close without saving?</value>
+  </data>
+  <data name="CloseWithoutSavingTitle" xml:space="preserve">
+    <value>Close without saving</value>
+  </data>
+  <data name="KeyboardShortcutsSaveAndDiscardEdits" xml:space="preserve">
+    <value>Changes to shortcuts will be saved, but you also have unapplied edits that will be lost.</value>
+  </data>
+  <data name="MenuSetTheme" xml:space="preserve">
+    <value>Set theme</value>
+  </data>
+  <data name="MenuSetThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="MenuSetThemeDefault" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="MenuSetThemeLight" xml:space="preserve">
+    <value>Light</value>
   </data>
 </root>

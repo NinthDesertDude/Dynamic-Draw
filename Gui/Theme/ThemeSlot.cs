@@ -58,6 +58,11 @@
         MenuControlText,
 
         /// <summary>
+        /// A red accent used to draw attention or distinguish controls that need it. This should be used sparingly.
+        /// </summary>
+        MenuControlRedAccent,
+
+        /// <summary>
         /// The color of text belonging to and displayed over a disabled control.
         /// </summary>
         MenuControlTextDisabled,

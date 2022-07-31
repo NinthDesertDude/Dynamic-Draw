@@ -187,7 +187,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Dynamic Draw starts..
+        ///   Looks up a localized string similar to Browse for files to load as custom brush images when {0} starts..
         /// </summary>
         internal static string AddFilesTip {
             get {
@@ -475,7 +475,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color &quot;builds up&quot; as you draw. It&apos;s a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke..
+        ///   Looks up a localized string similar to This is how quickly the brush color &quot;builds up&quot; as you draw. It&apos;s a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke..
         /// </summary>
         internal static string BrushFlowTip {
             get {
@@ -520,7 +520,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here..
+        ///   Looks up a localized string similar to This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here..
         /// </summary>
         internal static string BrushOpacityTip {
             get {
@@ -529,7 +529,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing..
+        ///   Looks up a localized string similar to Sets the brush rotation for tilting while drawing..
         /// </summary>
         internal static string BrushRotationTip {
             get {
@@ -547,7 +547,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller..
+        ///   Looks up a localized string similar to Sets the brush size to make it larger or smaller..
         /// </summary>
         internal static string BrushSizeTip {
             get {
@@ -658,9 +658,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
-        ///
-        ///Press Zero to reset the canvas position, zoom and angle..
+        ///   Looks up a localized string similar to Rotates the canvas around its center (this is mainly useful with a tablet)..
         /// </summary>
         internal static string CanvasAngleTip {
             get {
@@ -705,9 +703,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
-        ///
-        ///Press Zero to reset the canvas position, zoom and angle..
+        ///   Looks up a localized string similar to Zooms the picture in and out to make editing easier..
         /// </summary>
         internal static string CanvasZoomTip {
             get {
@@ -734,7 +730,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear Current Brush Settings.
+        ///   Looks up a localized string similar to Clear Current Brush.
         /// </summary>
         internal static string ClearSettings {
             get {
@@ -757,6 +753,24 @@ namespace DynamicDraw.Localization {
         internal static string ClipboardErrorUnusable {
             get {
                 return ResourceManager.GetString("ClipboardErrorUnusable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are unsaved changes. Close without saving?.
+        /// </summary>
+        internal static string CloseWithoutSaving {
+            get {
+                return ResourceManager.GetString("CloseWithoutSaving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close without saving.
+        /// </summary>
+        internal static string CloseWithoutSavingTitle {
+            get {
+                return ResourceManager.GetString("CloseWithoutSavingTitle", resourceCulture);
             }
         }
         
@@ -824,7 +838,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards..
+        ///   Looks up a localized string similar to Selects a color on the canvas and switches to the last-used tool afterwards..
         /// </summary>
         internal static string ColorPickerTip {
             get {
@@ -856,6 +870,24 @@ namespace DynamicDraw.Localization {
         internal static string ConfirmChanges {
             get {
                 return ResourceManager.GetString("ConfirmChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All shortcuts will be reset to installation defaults. Are you sure?.
+        /// </summary>
+        internal static string ConfirmResetShortcuts {
+            get {
+                return ResourceManager.GetString("ConfirmResetShortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset keyboard shortcuts.
+        /// </summary>
+        internal static string ConfirmResetShortcutsTitle {
+            get {
+                return ResourceManager.GetString("ConfirmResetShortcutsTitle", resourceCulture);
             }
         }
         
@@ -1139,6 +1171,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Recording keys....
+        /// </summary>
+        internal static string DialogKeyboardShortcutsRecordKeys {
+            get {
+                return ResourceManager.GetString("DialogKeyboardShortcutsRecordKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Keyboard Shortcuts.
         /// </summary>
         internal static string DialogKeyboardShortcutsTitle {
@@ -1324,6 +1365,15 @@ namespace DynamicDraw.Localization {
         internal static string KeyboardShortcutsActionDataPlaceholder {
             get {
                 return ResourceManager.GetString("KeyboardShortcutsActionDataPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Changes to shortcuts will be saved, but you also have unapplied edits that will be lost..
+        /// </summary>
+        internal static string KeyboardShortcutsSaveAndDiscardEdits {
+            get {
+                return ResourceManager.GetString("KeyboardShortcutsSaveAndDiscardEdits", resourceCulture);
             }
         }
         
@@ -1697,6 +1747,42 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Set theme.
+        /// </summary>
+        internal static string MenuSetTheme {
+            get {
+                return ResourceManager.GetString("MenuSetTheme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dark.
+        /// </summary>
+        internal static string MenuSetThemeDark {
+            get {
+                return ResourceManager.GetString("MenuSetThemeDark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default.
+        /// </summary>
+        internal static string MenuSetThemeDefault {
+            get {
+                return ResourceManager.GetString("MenuSetThemeDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Light.
+        /// </summary>
+        internal static string MenuSetThemeLight {
+            get {
+                return ResourceManager.GetString("MenuSetThemeLight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to fit to window.
         /// </summary>
         internal static string MenuZoomFit {
@@ -1931,7 +2017,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Redo Shortcut: Ctrl + Y. Restores changes removed by undo, if possible..
+        ///   Looks up a localized string similar to Restores changes removed by undo, if possible..
         /// </summary>
         internal static string RedoTip {
             get {
@@ -2615,7 +2701,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Rot to Left.
+        ///   Looks up a localized string similar to Random Rotate to Left.
         /// </summary>
         internal static string ShortcutJitterRotLeft {
             get {
@@ -2624,7 +2710,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Rot to Right.
+        ///   Looks up a localized string similar to Random Rotate to Right.
         /// </summary>
         internal static string ShortcutJitterRotRight {
             get {
@@ -2674,6 +2760,60 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutJitterVerSpray {
             get {
                 return ResourceManager.GetString("ShortcutJitterVerSpray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Blue.
+        /// </summary>
+        internal static string ShortcutLockB {
+            get {
+                return ResourceManager.GetString("ShortcutLockB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Green.
+        /// </summary>
+        internal static string ShortcutLockG {
+            get {
+                return ResourceManager.GetString("ShortcutLockG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Hue.
+        /// </summary>
+        internal static string ShortcutLockHue {
+            get {
+                return ResourceManager.GetString("ShortcutLockHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Red.
+        /// </summary>
+        internal static string ShortcutLockR {
+            get {
+                return ResourceManager.GetString("ShortcutLockR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Saturation.
+        /// </summary>
+        internal static string ShortcutLockSat {
+            get {
+                return ResourceManager.GetString("ShortcutLockSat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Value.
+        /// </summary>
+        internal static string ShortcutLockVal {
+            get {
+                return ResourceManager.GetString("ShortcutLockVal", resourceCulture);
             }
         }
         
@@ -2800,6 +2940,24 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutSizeShift {
             get {
                 return ResourceManager.GetString("ShortcutSizeShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ... +{0} more.
+        /// </summary>
+        internal static string ShortcutsOver3Tip {
+            get {
+                return ResourceManager.GetString("ShortcutsOver3Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shortcuts:.
+        /// </summary>
+        internal static string ShortcutsTooltipTip {
+            get {
+                return ResourceManager.GetString("ShortcutsTooltipTip", resourceCulture);
             }
         }
         
@@ -3029,7 +3187,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings..
+        ///   Looks up a localized string similar to The brush tool allows you to draw on the canvas..
         /// </summary>
         internal static string ToolBrushTip {
             get {
@@ -3038,7 +3196,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image..
+        ///   Looks up a localized string similar to The eraser tool lets you erase to reveal the original image. (If you want to erase to transparent, change the blending mode to overwrite and set the alpha to zero.).
         /// </summary>
         internal static string ToolEraserTip {
             get {
@@ -3047,7 +3205,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Set Origin Shortcut: O. Activate this tool to change the symmetry origin..
+        ///   Looks up a localized string similar to The origin tool lets you set a point of interest for symmetry mode and other tools to make use of..
         /// </summary>
         internal static string ToolOriginTip {
             get {
@@ -3065,7 +3223,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Undo Shortcut: Ctrl + Z. Undo the last drawing, if possible..
+        ///   Looks up a localized string similar to Undo the last drawing, if possible..
         /// </summary>
         internal static string UndoTip {
             get {
