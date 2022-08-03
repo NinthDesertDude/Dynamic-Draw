@@ -148,7 +148,7 @@
     <value>Color</value>
   </data>
   <data name="BrushColorTip" xml:space="preserve">
-    <value>Lets you set the color of the brush.</value>
+    <value>Your brush colors (primary is top, secondary is bottom). Click primary to change colors, or secondary to swap.</value>
   </data>
   <data name="BrushDensity" xml:space="preserve">
     <value>Brush Stroke Density:</value>
@@ -199,7 +199,7 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Clears all temporary changes to the current brush settings.</value>
   </data>
   <data name="ColorizeBrush" xml:space="preserve">
-    <value>No Mixing</value>
+    <value>Draw Solid Color</value>
   </data>
   <data name="ColorizeBrushTip" xml:space="preserve">
     <value>When activated, the brush image is replaced entirely with a solid color. When off, the original brush color will be used with options to influence it using the active color.</value>
@@ -748,7 +748,7 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Subtract (wrap around)</value>
   </data>
   <data name="AutomaticBrushDensity" xml:space="preserve">
-    <value>Auto manage density</value>
+    <value>Auto Manage Density</value>
   </data>
   <data name="AutomaticBrushDensityTip" xml:space="preserve">
     <value>If this is toggled on, the density will automatically adjust based on the brush size to ensure a smooth line at any brush size.</value>
@@ -1241,5 +1241,8 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="RestoreDefaultsPaletteLocationsTip" xml:space="preserve">
     <value>Restores the default palette locations if they're missing. Does not remove any custom locations.</value>
+  </data>
+  <data name="ShortcutSwapColors" xml:space="preserve">
+    <value>Swap Colors</value>
   </data>
 </root>

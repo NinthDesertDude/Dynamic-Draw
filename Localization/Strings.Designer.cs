@@ -214,7 +214,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Auto manage density.
+        ///   Looks up a localized string similar to Auto Manage Density.
         /// </summary>
         internal static string AutomaticBrushDensity {
             get {
@@ -430,7 +430,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lets you set the color of the brush..
+        ///   Looks up a localized string similar to Your brush colors (primary is top, secondary is bottom). Click primary to change colors, or secondary to swap..
         /// </summary>
         internal static string BrushColorTip {
             get {
@@ -820,7 +820,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No Mixing.
+        ///   Looks up a localized string similar to Draw Solid Color.
         /// </summary>
         internal static string ColorizeBrush {
             get {
@@ -3003,6 +3003,15 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutsTooltipTip {
             get {
                 return ResourceManager.GetString("ShortcutsTooltipTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Swap Colors.
+        /// </summary>
+        internal static string ShortcutSwapColors {
+            get {
+                return ResourceManager.GetString("ShortcutSwapColors", resourceCulture);
             }
         }
         

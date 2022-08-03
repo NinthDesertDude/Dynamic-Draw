@@ -100,7 +100,8 @@ namespace DynamicDraw
                 { ShortcutTarget.BrushOpacity, new Setting(Localization.Strings.ShortcutBrushOpacity, 0, 255) },
                 { ShortcutTarget.CanvasZoomToMouse, new Setting(Localization.Strings.ShortcutCanvasZoom, 1, 6400) },
                 { ShortcutTarget.ChosenEffect, new Setting(Localization.Strings.ShortcutChosenEffect, 1, 1000) },
-                { ShortcutTarget.CanvasZoomFit, new Setting(Localization.Strings.ShortcutCanvasZoom, ShortcutTargetDataType.Action) }
+                { ShortcutTarget.CanvasZoomFit, new Setting(Localization.Strings.ShortcutCanvasZoom, ShortcutTargetDataType.Action) },
+                { ShortcutTarget.SwapPrimarySecondaryColors, new Setting(Localization.Strings.ShortcutSwapColors, ShortcutTargetDataType.Action) }
             };
         }
 

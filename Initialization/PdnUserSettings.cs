@@ -10,10 +10,18 @@ namespace DynamicDraw
     {
         #region Fields
         /// <summary>
-        /// Stores a copy of the user's primary color to pass to the dialog
-        /// when first used.
+        /// Stores a copy of the user's primary color to pass to the dialog.
         /// </summary>
         public static Color userPrimaryColor
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Stores a copy of the user's secondary color to pass to the dialog.
+        /// </summary>
+        public static Color userSecondaryColor
         {
             get;
             set;
@@ -24,6 +32,7 @@ namespace DynamicDraw
         static PdnUserSettings()
         {
             userPrimaryColor = Color.Transparent;
+            userSecondaryColor = Color.Transparent;
         }
         #endregion
     }

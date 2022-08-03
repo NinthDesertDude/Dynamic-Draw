@@ -35,7 +35,7 @@ namespace DynamicDraw
         /// <summary>
         /// The maximum number of colors allowed for a palette.
         /// </summary>
-        private const int paletteMaxColors = 128;
+        private const int paletteMaxColors = 256;
 
         /// <summary>
         /// The list of palettes, with the filename (no file extension) as the key, and the path to the file, including
@@ -388,7 +388,7 @@ namespace DynamicDraw
         private Slider sliderCanvasZoom, sliderCanvasAngle;
         private ToolStripMenuItem menuCanvasZoomReset, menuCanvasZoomFit, menuCanvasZoomTo;
         private ToolStripMenuItem menuCanvasAngleReset, menuCanvasAngle90, menuCanvasAngle180, menuCanvasAngle270, menuCanvasAngleTo;
-        private SwatchBox menuPalette;
+        private SwatchBox menuActiveColors, menuPalette;
         private ComboBox cmbxPaletteDropdown;
         private FlowLayoutPanel panelTools;
 
@@ -424,7 +424,6 @@ namespace DynamicDraw
         private ToggleButton chkbxColorInfluenceHue;
         private ToggleButton chkbxColorInfluenceSat;
         private ToggleButton chkbxColorInfluenceVal;
-        private Button bttnBrushColor;
         private Panel panelChosenEffect;
         private ComboBox cmbxChosenEffect;
         private BasicButton bttnChooseEffectSettings;
@@ -773,8 +772,8 @@ namespace DynamicDraw
             // Registers all current keyboard shortcuts.
             InitKeyboardShortcuts(token.KeyboardShortcuts);
 
-            token.CurrentBrushSettings.BrushFlow = PdnUserSettings.userPrimaryColor.A;
             token.CurrentBrushSettings.BrushColor = PdnUserSettings.userPrimaryColor;
+            token.CurrentBrushSettings.BrushOpacity = PdnUserSettings.userPrimaryColor.A;
 
             // Fetches and populates the available effects for the effect chooser combobox.
             if (effectOptions.Count == 1)
@@ -1352,8 +1351,8 @@ namespace DynamicDraw
 
             effectToDraw.Effect.Services = Services;
             effectToDraw.Effect.EnvironmentParameters = new EffectEnvironmentParameters(
-                bttnBrushColor.BackColor,
-                Color.Black,
+                menuActiveColors.Swatches[0],
+                menuActiveColors.Swatches[1],
                 sliderBrushSize.Value,
                 EnvironmentParameters.DocumentResolution,
                 new PdnRegion(EnvironmentParameters.GetSelectionAsPdnRegion().GetRegionData()),
@@ -1472,7 +1471,7 @@ namespace DynamicDraw
             {
                 AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked,
                 BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex,
-                BrushColor = bttnBrushColor.BackColor,
+                BrushColor = menuActiveColors.Swatches[0],
                 BrushDensity = sliderBrushDensity.ValueInt,
                 BrushFlow = sliderBrushFlow.ValueInt,
                 BrushImagePath = index >= 0
@@ -1690,7 +1689,7 @@ namespace DynamicDraw
                 != ConstraintValueHandlingMethod.DoNothing)
             {
                 // If not changing sliderBrushFlow already by shifting it in the if-statement above, the brush has to
-                // be manually redrawn when modifying brush alpha. This is done to avoid editing sliderBrushFlow and
+                // be manually redrawn when modifying brush flow. This is done to avoid editing sliderBrushFlow and
                 // having to use an extra variable to mitigate the cumulative effect it would cause.
                 UpdateBrushImage();
             }
@@ -1797,7 +1796,7 @@ namespace DynamicDraw
 
             #region apply color jitter
             ImageAttributes recolorMatrix = null;
-            ColorBgra adjustedColor = bttnBrushColor.BackColor;
+            ColorBgra adjustedColor = menuActiveColors.Swatches[0];
             int newFlowLoss = random.Next(finalRandFlowLoss);
             adjustedColor.A = (byte)Math.Round(Math.Clamp(sliderBrushFlow.Value - newFlowLoss, 0f, 255f));
 
@@ -1920,22 +1919,22 @@ namespace DynamicDraw
                         ? Math.Clamp((255 - newFlowLoss) / 255f, 0f, 1f)
                         : adjustedColor.A / 255f;
 
-                    float newRed = bttnBrushColor.BackColor.R / 255f;
-                    float newGreen = bttnBrushColor.BackColor.G / 255f;
-                    float newBlue = bttnBrushColor.BackColor.B / 255f;
+                    float newRed = menuActiveColors.Swatches[0].R / 255f;
+                    float newGreen = menuActiveColors.Swatches[0].G / 255f;
+                    float newBlue = menuActiveColors.Swatches[0].B / 255f;
 
                     //Sets RGB color jitter.
                     if (jitterRgb)
                     {
-                        newBlue = Math.Clamp((bttnBrushColor.BackColor.B / 2.55f
+                        newBlue = Math.Clamp((menuActiveColors.Swatches[0].B / 2.55f
                             - random.Next(finalJitterMinBlue)
                             + random.Next(finalJitterMaxBlue)) / 100f, 0, 1);
 
-                        newGreen = Math.Clamp((bttnBrushColor.BackColor.G / 2.55f
+                        newGreen = Math.Clamp((menuActiveColors.Swatches[0].G / 2.55f
                             - random.Next(finalJitterMinGreen)
                             + random.Next(finalJitterMaxGreen)) / 100f, 0, 1);
 
-                        newRed = Math.Clamp((bttnBrushColor.BackColor.R / 2.55f
+                        newRed = Math.Clamp((menuActiveColors.Swatches[0].R / 2.55f
                             - random.Next(finalJitterMinRed)
                             + random.Next(finalJitterMaxRed)) / 100f, 0, 1);
                     }
@@ -2728,12 +2727,12 @@ namespace DynamicDraw
                     (int)Math.Round(rotatedLoc.X),
                     (int)Math.Round(rotatedLoc.Y));
 
-                if (UserSettings.ColorPickerIncludesAlpha)
+                if (!UserSettings.ColorPickerIncludesAlpha)
                 {
-                    sliderBrushOpacity.Value = pixel.A;
+                    pixel = Color.FromArgb(sliderBrushOpacity.ValueInt, pixel);
                 }
 
-                UpdateBrushColor(pixel);
+                UpdateBrushColor(pixel, true);
             }
         }
 
@@ -2839,7 +2838,7 @@ namespace DynamicDraw
                         sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
                     break;
                 case ShortcutTarget.Color:
-                    UpdateBrushColor(shortcut.GetDataAsColor());
+                    UpdateBrushColor(shortcut.GetDataAsColor(), true);
                     break;
                 case ShortcutTarget.ColorizeBrush:
                     chkbxColorizeBrush.Checked = shortcut.GetDataAsBool(chkbxColorizeBrush.Checked);
@@ -3137,6 +3136,10 @@ namespace DynamicDraw
                     int result = (int)Math.Clamp(newZoom, sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
                     sliderCanvasZoom.ValueInt = result > 1 ? result : 1;
                     break;
+                case ShortcutTarget.SwapPrimarySecondaryColors:
+                    menuActiveColors.Swatches.Reverse();
+                    UpdateBrushColor(menuActiveColors.Swatches[0], true);
+                    break;
             };
         }
 
@@ -3335,7 +3338,6 @@ namespace DynamicDraw
             chkbxColorInfluenceVal = new ToggleButton();
             bttnAddBrushImages = new BasicButton();
             brushImageLoadProgressBar = new ProgressBar();
-            bttnBrushColor = new Button();
             cmbxBlendMode = new ComboBox();
             sliderBrushOpacity = new Slider(ShortcutTarget.BrushOpacity, 255f);
             sliderBrushFlow = new Slider(ShortcutTarget.Flow, 255f);
@@ -4058,16 +4060,36 @@ namespace DynamicDraw
             topMenu.Controls.Add(new PanelSeparator(true, 22, 29));
             topMenu.Controls.Add(panelTools);
 
+            // user's primary & secondary colors
+            menuActiveColors = new SwatchBox(new List<Color>() { Color.Black, Color.White }, 2);
+            menuActiveColors.Width = 29;
+            menuActiveColors.Height = 29;
+            menuActiveColors.Margin = new Padding(0, 0, 4, 0);
+            menuActiveColors.SwatchClicked += (col) =>
+            {
+                if (col == 0)
+                {
+                    // Opens a color dialog to change the primary color.
+                    MenuActiveColors_Click(null, null);
+                }
+                else
+                {
+                    HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.SwapPrimarySecondaryColors });
+                }
+            };
+            menuActiveColors.MouseEnter += MenuActiveColors_MouseEnter;
+
+            topMenu.Controls.Add(new PanelSeparator(true, 22, 29));
+            topMenu.Controls.Add(menuActiveColors);
+
             menuPalette = new SwatchBox(null, 3);
             menuPalette.Width = 264;
             menuPalette.Height = 29;
             menuPalette.SwatchClicked += (col) =>
             {
-                sliderBrushOpacity.Value = menuPalette.Swatches[col].A;
-                UpdateBrushColor(menuPalette.Swatches[col]);
+                UpdateBrushColor(menuPalette.Swatches[col], true);
             };
 
-            topMenu.Controls.Add(new PanelSeparator(true, 22, 29));
             topMenu.Controls.Add(menuPalette);
 
             cmbxPaletteDropdown = new ComboBox();
@@ -4298,7 +4320,6 @@ namespace DynamicDraw
             panelBrushAddPickColor.Controls.Add(chkbxColorizeBrush);
             panelBrushAddPickColor.Controls.Add(bttnAddBrushImages);
             panelBrushAddPickColor.Controls.Add(brushImageLoadProgressBar);
-            panelBrushAddPickColor.Controls.Add(bttnBrushColor);
             #endregion
 
             #region bttnChooseEffectSettings
@@ -4338,19 +4359,6 @@ namespace DynamicDraw
             brushImageLoadProgressBar.Location = new Point(0, 12);
             brushImageLoadProgressBar.Margin = new Padding(0, 3, 0, 3);
             brushImageLoadProgressBar.Size = new Size(153, 23);
-            #endregion
-
-            #region bttnBrushColor
-            bttnBrushColor.Anchor = AnchorStyles.Top;
-            bttnBrushColor.BackColor = Color.Black; // this is the source-of-truth for user's current color
-            bttnBrushColor.ForeColor = Color.White; // this just needs to be visible
-            bttnBrushColor.Location = new Point(109, 41);
-            bttnBrushColor.Margin = new Padding(3, 3, 0, 3);
-            bttnBrushColor.Size = new Size(47, 28);
-            bttnBrushColor.TabIndex = 13;
-            bttnBrushColor.Text = Strings.BrushColor;
-            bttnBrushColor.Click += BttnBrushColor_Click;
-            bttnBrushColor.MouseEnter += BttnBrushColor_MouseEnter;
             #endregion
 
             #region sliderColorInfluence
@@ -6575,6 +6583,9 @@ namespace DynamicDraw
             tokenSelectedBrushImagePath = settings.BrushImagePath;
 
             //Sets all other fields.
+            menuActiveColors.Swatches[0] = settings.BrushColor;
+            menuActiveColors.Swatches[1] = PdnUserSettings.userSecondaryColor;
+
             sliderBrushOpacity.Value = settings.BrushOpacity;
             sliderBrushDensity.Value = settings.BrushDensity;
             sliderBrushFlow.Value = settings.BrushFlow;
@@ -6668,25 +6679,27 @@ namespace DynamicDraw
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
 
             UpdateEnabledControls();
-            UpdateBrushColor(settings.BrushColor);
         }
 
         /// <summary>
-        /// Updates the current brush color to the desired color.
+        /// Updates the current brush color to the desired color, and optionally syncs the opacity slider.
         /// </summary>
         /// <param name="newColor">The new color to set the brush to.</param>
-        private void UpdateBrushColor(Color newColor)
+        private void UpdateBrushColor(Color newColor, bool updateOpacity = false)
         {
-            //Makes the text that says 'colors' almost always legible.
-            Color oppositeColor = Color.FromArgb(
-            (byte)(255 - newColor.R),
-            (byte)(255 - newColor.G),
-            (byte)(255 - newColor.B));
-            bttnBrushColor.ForeColor = oppositeColor;
+            //Sets the color and updates the brushes.
+            menuActiveColors.Swatches[0] = newColor;
+            menuActiveColors.Refresh();
 
-            //Sets the back color and updates the brushes.
-            bttnBrushColor.BackColor = Color.FromArgb(newColor.R, newColor.G, newColor.B);
-            UpdateBrushImage();
+            if (updateOpacity && (byte)sliderBrushOpacity.ValueInt != newColor.A)
+            {
+                sliderBrushOpacity.Value = newColor.A;
+                // else statement exists since it'll already execute by calling this function from ValueChanged.
+            }
+            else
+            {
+                UpdateBrushImage();
+            }
         }
 
         /// <summary>
@@ -6709,7 +6722,7 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Recreates the brush image with color and alpha effects applied.
+        /// Recreates the brush image with color and alpha effects (via brush flow) applied.
         /// </summary>
         private void UpdateBrushImage()
         {
@@ -6725,7 +6738,7 @@ namespace DynamicDraw
                 ((CmbxTabletValueType.CmbxEntry)cmbxTabPressureBrushFlow.SelectedItem).ValueMember), 0, 255);
 
             //Sets the color and alpha.
-            Color setColor = bttnBrushColor.BackColor;
+            Color setColor = menuActiveColors.Swatches[0];
             float multAlpha = (activeTool == Tool.Eraser || effectToDraw.Effect != null || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
                 ? finalBrushFlow / 255f
                 : 1;
@@ -6804,7 +6817,9 @@ namespace DynamicDraw
             panelTabPressureSatJitter.Enabled = enableColorJitter;
             panelTabPressureValueJitter.Enabled = enableColorJitter;
 
-            bttnBrushColor.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser && effectToDraw.Effect == null;
+            menuActiveColors.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser && effectToDraw.Effect == null;
+            menuPalette.Visible = menuActiveColors.Visible;
+            cmbxPaletteDropdown.Visible = menuActiveColors.Visible;
         }
 
         /// <summary>
@@ -8270,23 +8285,24 @@ namespace DynamicDraw
         /// <summary>
         /// Sets the new color of the brush.
         /// </summary>
-        private void BttnBrushColor_Click(object sender, EventArgs e)
+        private void MenuActiveColors_Click(object sender, EventArgs e)
         {
             //Creates and configures a color dialog to display.
             ColorDialog dialog = new ColorDialog
             {
                 FullOpen = true,
-                Color = bttnBrushColor.BackColor
+                Color = menuActiveColors.Swatches[0]
             };
 
             //If the user successfully chooses a color.
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                UpdateBrushColor(dialog.Color);
+                // TODO: until a color dialog with alpha is used, only change RGB channels.
+                UpdateBrushColor(Color.FromArgb(sliderBrushOpacity.ValueInt, dialog.Color));
             }
         }
 
-        private void BttnBrushColor_MouseEnter(object sender, EventArgs e)
+        private void MenuActiveColors_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(ShortcutTarget.Color, Strings.BrushColorTip);
         }
@@ -9154,7 +9170,7 @@ namespace DynamicDraw
 
         private void SliderBrushOpacity_ValueChanged(object sender, float e)
         {
-            UpdateBrushImage();
+            UpdateBrushColor(Color.FromArgb((int)sliderBrushOpacity.Value, menuActiveColors.Swatches[0]));
         }
 
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)

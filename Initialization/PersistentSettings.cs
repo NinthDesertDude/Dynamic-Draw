@@ -376,6 +376,12 @@ namespace DynamicDraw
                 RequireCtrl = true,
                 RequireShift = true
             },
+            new KeyboardShortcut() // C: swap colors
+            {
+                ActionData = null,
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.C },
+                Target = ShortcutTarget.SwapPrimarySecondaryColors
+            }
         };
 
         /// <summary>

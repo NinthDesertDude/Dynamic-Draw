@@ -7,8 +7,11 @@ using System.Windows.Forms;
 namespace DynamicDraw
 {
     /// <summary>
-    /// A themed variant of the checkbox control that displays an image instead of a check mark, and may use different
-    /// images depending on the check state.
+    /// A button that displays a table of colors in the given number of rows, dividing space evenly. Unused space may
+    /// occur on the right and bottom when the swatches don't evenly fill the button dimensions. Extra colors are
+    /// divided into the last row if there aren't enough to fill a row.
+    /// 
+    /// The hovered/focused colors are tracked, and clicking fires the clicked event.
     /// </summary>
     public class SwatchBox : Button
     {

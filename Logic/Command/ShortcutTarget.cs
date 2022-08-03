@@ -348,6 +348,11 @@
         /// <summary>
         /// Centers the canvas and zooms to fit the entire canvas in view.
         /// </summary>
-        CanvasZoomFit = 85
+        CanvasZoomFit = 85,
+
+        /// <summary>
+        /// Swaps the primary and secondary colors with each other.
+        /// </summary>
+        SwapPrimarySecondaryColors = 86
     }
 }

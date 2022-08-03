@@ -76,6 +76,7 @@ namespace DynamicDraw
         {
             //Copies necessary user variables for dialog access.
             PdnUserSettings.userPrimaryColor = EnvironmentParameters.PrimaryColor;
+            PdnUserSettings.userSecondaryColor = EnvironmentParameters.SecondaryColor;
 
             //Static variables are remembered between plugin calls, so clear them.
             RenderSettings.Clear();
