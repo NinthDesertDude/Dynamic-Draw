@@ -52,7 +52,7 @@ namespace DynamicDraw
                 Pen chkbxBorderColor =
                 (Enabled && isHovered)
                     ? SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive)
-                : (Enabled)
+                : Enabled
                     ? SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlBgHighlight)
                 : SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlBgHighlightDisabled);
 
@@ -61,7 +61,7 @@ namespace DynamicDraw
                         ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActiveHover)
                     : (Enabled && Checked)
                         ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActiveSelected)
-                    : (Enabled)
+                    : Enabled
                         ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
                     : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
 
@@ -99,7 +99,7 @@ namespace DynamicDraw
                         ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlight)
                     : (Enabled && Checked)
                         ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive)
-                    : (Enabled)
+                    : Enabled
                         ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
                     : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
 
@@ -158,7 +158,7 @@ namespace DynamicDraw
         /// <summary>
         /// Returns the position of a rectangle within the bounds of this control, according to the given alignment.
         /// </summary>
-        private Point PositionElement(
+        private static Point PositionElement(
             ContentAlignment alignment,
             int elementWidth, int elementHeight,
             int containerWidth, int containerHeight)

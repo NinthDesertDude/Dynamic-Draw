@@ -1,10 +1,6 @@
-﻿using DynamicDraw.Gui;
-using DynamicDraw.Gui.Constraints;
+﻿using DynamicDraw.Gui.Constraints;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace DynamicDraw
@@ -12,13 +8,13 @@ namespace DynamicDraw
     /// <summary>
     /// A dynamic constraint. Includes the affected property, the 
     /// </summary>
-    public class ConstraintDefinition
+    public class Constraint
     {
         #region Private variables
-        [IgnoreDataMember]
+        [JsonIgnore]
         private int strengthCurveResolution = 1000;
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         private PointF[] strengthCurveControlPoints = null;
         #endregion
 
@@ -122,6 +118,42 @@ namespace DynamicDraw
             }
 
             return CurveGraph.GetCurvedValue(StrengthCurveControlPoints, CurveTable, StrengthCurveResolution, input);
+        }
+        #endregion
+
+        #region Static Methods
+        /// <summary>
+        /// Takes a given setting value and adjusts it linearly via a target value using the given value-handling
+        /// method (which decides what the target value is). Returns the value unaffected if no mapping is set. This
+        /// doesn't clamp or prevent resulting invalid values.
+        /// </summary>
+        /// <param name="settingValue">The value of a setting, e.g. the brush transparency slider's value.</param>
+        /// <param name="targetValue">A number used to influence the setting value according to the handling.</param>
+        /// <param name="maxRange">The </param>
+        /// <param name="inputRatio"></param>
+        /// <param name="method"></param>
+        public static int GetStrengthMappedValue(
+            int settingValue,
+            int targetValue,
+            int maxRange,
+            float inputRatio,
+            ConstraintValueHandlingMethod method)
+        {
+            switch (method)
+            {
+                case ConstraintValueHandlingMethod.Add:
+                    return (int)(settingValue + inputRatio * targetValue);
+                case ConstraintValueHandlingMethod.AddPercent:
+                    return (int)(settingValue + inputRatio * targetValue / 100 * maxRange);
+                case ConstraintValueHandlingMethod.AddPercentCurrent:
+                    return (int)(settingValue + inputRatio * targetValue / 100 * settingValue);
+                case ConstraintValueHandlingMethod.MatchValue:
+                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue);
+                case ConstraintValueHandlingMethod.MatchPercent:
+                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue / 100 * maxRange);
+            }
+
+            return settingValue;
         }
         #endregion
     }

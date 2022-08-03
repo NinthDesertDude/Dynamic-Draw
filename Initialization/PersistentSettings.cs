@@ -2,6 +2,8 @@ using DynamicDraw.Localization;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.Json.Serialization;
+using System;
+using System.IO;
 
 namespace DynamicDraw
 {
@@ -436,6 +438,11 @@ namespace DynamicDraw
             }
         };
 
+        /// <summary>
+        /// The default list of palette locations to search for palettes in.
+        /// </summary>
+        public static readonly HashSet<string> defaultPalettePaths;
+
         #region Fields
         /// <summary>
         /// A chosen effect the user can render and draw on the canvas, and the combobox index for it.
@@ -467,6 +474,18 @@ namespace DynamicDraw
         /// </summary>
         public UserSettings UserSettings { get; set; }
         #endregion
+
+        static PersistentSettings()
+        {
+            string mainDir = AppDomain.CurrentDomain.BaseDirectory;
+            string documentsDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            defaultPalettePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                Path.Combine(documentsDir, "paint.net App Files\\Palettes"),
+                Path.Combine(mainDir, "UserFiles\\Palettes")
+            };
+        }
 
         /// <summary>
         /// Creates a new settings token.

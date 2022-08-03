@@ -385,7 +385,7 @@ namespace DynamicDraw.Abr
 
 							foreach (SampledBrush item in scaledBrushes.OrderByDescending(p => p.Diameter))
 							{
-								Size size = Utils.ComputeBrushSize(originalWidth, originalHeight, item.Diameter);
+								Size size = DrawingUtils.ComputeBrushSize(originalWidth, originalHeight, item.Diameter);
 
 								AbrBrush scaledBrush = new AbrBrush(size.Width, size.Height, item.Name);
 

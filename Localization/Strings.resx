@@ -136,7 +136,7 @@
     <value>Add folder</value>
   </data>
   <data name="AddFoldersTip" xml:space="preserve">
-    <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not.</value>
+    <value>Browse for folders to load from when {0} starts. Only files in the chosen folder will be added, no files from sub-folders.</value>
   </data>
   <data name="BrushFlow" xml:space="preserve">
     <value>Brush Flow:</value>
@@ -157,10 +157,10 @@
     <value>Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines.</value>
   </data>
   <data name="BrushLocations" xml:space="preserve">
-    <value>Brush image directories and files to load when Dynamic Draw starts</value>
+    <value>Images and folders with images to add to your brush images when {0} starts</value>
   </data>
   <data name="BrushLocationsTextboxTip" xml:space="preserve">
-    <value>Places to look for brush images appear here. Type a new address or use the add folders/files buttons to add your own.</value>
+    <value>When {0} starts, it will load all the images from these locations on your computer and make them available as brush images. You can add locations using the add file/folder buttons or by pasting them here.</value>
   </data>
   <data name="BrushRotationTip" xml:space="preserve">
     <value>Sets the brush rotation for tilting while drawing.</value>
@@ -583,7 +583,7 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Add files</value>
   </data>
   <data name="AddFilesTip" xml:space="preserve">
-    <value>Browse for files to load as custom brush images when {0} starts.</value>
+    <value>Browse for files to load when {0} starts.</value>
   </data>
   <data name="ClipboardErrorUnusable" xml:space="preserve">
     <value>Could not use clipboard image.</value>
@@ -961,7 +961,7 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Any changes to settings/preferences couldn't be saved.</value>
   </data>
   <data name="DialogCustomBrushImagesTitle" xml:space="preserve">
-    <value>Custom Brush Images</value>
+    <value>Image and Palette Paths</value>
   </data>
   <data name="DialogKeyboardShortcutsTitle" xml:space="preserve">
     <value>Keyboard Shortcuts</value>
@@ -1102,7 +1102,7 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>color picker switches to last tool when used</value>
   </data>
   <data name="MenuCustomBrushImages" xml:space="preserve">
-    <value>custom brush images...</value>
+    <value>brush images and palettes...</value>
   </data>
   <data name="MenuDisplayBrushIndicator" xml:space="preserve">
     <value>brush indicator</value>
@@ -1226,5 +1226,20 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="MenuSetThemeLight" xml:space="preserve">
     <value>Light</value>
+  </data>
+  <data name="Current" xml:space="preserve">
+    <value>Current</value>
+  </data>
+  <data name="PaletteLocations" xml:space="preserve">
+    <value>Palettes and folders with palettes to add to your available palettes when {0} starts</value>
+  </data>
+  <data name="PalettesTextboxTip" xml:space="preserve">
+    <value>When {0} starts, it will load all the palettes from these locations on your computer, up to 128 colors (Paint.NET stops at 96). You can add locations using the add file/folder buttons or by pasting them here.</value>
+  </data>
+  <data name="LoadPaletteError" xml:space="preserve">
+    <value>The palette couldn't be loaded.</value>
+  </data>
+  <data name="RestoreDefaultsPaletteLocationsTip" xml:space="preserve">
+    <value>Restores the default palette locations if they're missing. Does not remove any custom locations.</value>
   </data>
 </root>

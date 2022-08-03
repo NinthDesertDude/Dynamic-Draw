@@ -130,7 +130,7 @@ namespace DynamicDraw
                 destination[1] = new Point(x + image.Width, y);
                 destination[2] = new Point(x, y + image.Height);
 
-                using (var attrs = Utils.ColorImageAttr(0, 0, 0, disabled ? 0.5f : 1))
+                using (var attrs = DrawingUtils.ColorImageAttr(0, 0, 0, disabled ? 0.5f : 1))
                 {
                     g.DrawImage(
                         image,

@@ -20,6 +20,7 @@ namespace DynamicDraw
         private bool loadedSettings;
 
         private HashSet<string> customBrushDirectories;
+        private HashSet<string> paletteDirectories;
         private Dictionary<string, BrushSettings> customBrushes;
         private HashSet<KeyboardShortcut> keyboardShortcuts;
         private UserSettings preferences;
@@ -67,6 +68,28 @@ namespace DynamicDraw
                 if (!customBrushDirectories.SetEquals(value))
                 {
                     customBrushDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
+                }
+            }
+        }
+
+        [JsonInclude]
+        [JsonPropertyName("PalettePaths")]
+        public HashSet<string> PaletteDirectories
+        {
+            get
+            {
+                return paletteDirectories;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (!paletteDirectories.SetEquals(value))
+                {
+                    paletteDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
                 }
             }
         }
@@ -158,6 +181,13 @@ namespace DynamicDraw
         private void InitializeDefaultSettings()
         {
             customBrushDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            paletteDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string path in PersistentSettings.defaultPalettePaths)
+            {
+                paletteDirectories.Add(path);
+            }
+
             customBrushes = new Dictionary<string, BrushSettings>();
             keyboardShortcuts = PersistentSettings.GetShallowShortcutsList();
             preferences = new UserSettings();
@@ -196,6 +226,7 @@ namespace DynamicDraw
                         }
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
+                        paletteDirectories = new HashSet<string>(savedSettings.PaletteDirectories, StringComparer.OrdinalIgnoreCase);
                         customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
                         keyboardShortcuts = savedSettings.KeyboardShortcuts ?? PersistentSettings.GetShallowShortcutsList();
                         preferences = new UserSettings(savedSettings.Preferences);

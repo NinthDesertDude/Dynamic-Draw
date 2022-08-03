@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 namespace DynamicDraw
 {
     /// <summary>
-    /// Provides common functionality shared across multiple classes.
+    /// Contains drawing utility methods and lengthy standalone drawing routines.
     /// </summary>
-    static class Utils
+    static class DrawingUtils
     {
         /// <summary>
         /// Caches ROIs for fast lookup since it's constantly used.
         /// </summary>
-        private static Dictionary<(int, int), Rectangle[]> cachedRois = new Dictionary<(int, int), Rectangle[]>();
+        private static readonly Dictionary<(int, int), Rectangle[]> cachedRois = new Dictionary<(int, int), Rectangle[]>();
 
         #region Utility bitmap operations
         /// <summary>
@@ -686,12 +686,12 @@ namespace DynamicDraw
                             // HSV conversion and channel locks
                             if (hsvLocksInUse)
                             {
-                                dstColorHSV = HSVFFromBgra(destCol);
-                                srcColorHSV = HSVFFromBgra(srcCol);
+                                dstColorHSV = ColorUtils.HSVFFromBgra(destCol);
+                                srcColorHSV = ColorUtils.HSVFFromBgra(srcCol);
                                 if (channelLocks.H) { srcColorHSV.Hue = dstColorHSV.Hue; }
                                 if (channelLocks.S) { srcColorHSV.Saturation = dstColorHSV.Saturation; }
                                 if (channelLocks.V) { srcColorHSV.Value = dstColorHSV.Value; }
-                                newColor = HSVFToBgra(srcColorHSV);
+                                newColor = ColorUtils.HSVFToBgra(srcColorHSV);
                                 newColor.A = srcCol.A;
                             }
 
@@ -823,7 +823,7 @@ namespace DynamicDraw
             byte* brushRow = (byte*)brushData.Scan0;
 
             ColorBgra userColorAdj = userColor.Color.ConvertFromPremultipliedAlpha();
-            HsvColorF userColorAdjHSV = HSVFFromBgra(userColorAdj);
+            HsvColorF userColorAdjHSV = ColorUtils.HSVFFromBgra(userColorAdj);
 
             float minAlphaFactor = (255 - userColor.MinAlpha) / 255f;
             float userColorBlendFactor = colorInfluence != null ? colorInfluence.Value.Amount / 100f : 0;
@@ -871,7 +871,7 @@ namespace DynamicDraw
 
                                 if (colorInfluence.Value.Amount != 0)
                                 {
-                                    intermediateHSV = HSVFFromBgra(intermediateBGRA);
+                                    intermediateHSV = ColorUtils.HSVFFromBgra(intermediateBGRA);
 
                                     if (colorInfluence.Value.H && !channelLocks.H)
                                     {
@@ -892,7 +892,7 @@ namespace DynamicDraw
                                     if (colorInfluence.Value.Amount != 0)
                                     {
                                         byte alpha = intermediateBGRA.A;
-                                        intermediateBGRA = HSVFToBgra(intermediateHSV);
+                                        intermediateBGRA = ColorUtils.HSVFToBgra(intermediateHSV);
                                         intermediateBGRA.A = alpha;
                                     }
                                 }
@@ -907,12 +907,12 @@ namespace DynamicDraw
                                 // HSV conversion and channel locks
                                 if (hsvLocksInUse)
                                 {
-                                    intermediateHSV = HSVFFromBgra(destCol);
-                                    intermediateHSV2 = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
+                                    intermediateHSV = ColorUtils.HSVFFromBgra(destCol);
+                                    intermediateHSV2 = ColorUtils.HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
                                     if (channelLocks.H) { intermediateHSV2.Hue = intermediateHSV.Hue; }
                                     if (channelLocks.S) { intermediateHSV2.Saturation = intermediateHSV.Saturation; }
                                     if (channelLocks.V) { intermediateHSV2.Value = intermediateHSV.Value; }
-                                    newColor = HSVFToBgra(userColorAdjHSV);
+                                    newColor = ColorUtils.HSVFToBgra(userColorAdjHSV);
                                 }
 
                                 newColor = ColorBgra.Blend(
@@ -940,12 +940,12 @@ namespace DynamicDraw
                                 // HSV conversion and channel locks
                                 if (hsvLocksInUse)
                                 {
-                                    intermediateHSV = HSVFFromBgra(destCol);
-                                    intermediateHSV2 = HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
+                                    intermediateHSV = ColorUtils.HSVFFromBgra(destCol);
+                                    intermediateHSV2 = ColorUtils.HSVFFromBgra(colorInfluence == null ? userColorAdj : intermediateBGRA);
                                     if (channelLocks.H) { intermediateHSV2.Hue = intermediateHSV.Hue; }
                                     if (channelLocks.S) { intermediateHSV2.Saturation = intermediateHSV.Saturation; }
                                     if (channelLocks.V) { intermediateHSV2.Value = intermediateHSV.Value; }
-                                    newColor = HSVFToBgra(intermediateHSV2);
+                                    newColor = ColorUtils.HSVFToBgra(intermediateHSV2);
                                 }
 
                                 // Brush flow
@@ -1117,12 +1117,12 @@ namespace DynamicDraw
                         // HSV conversion and channel locks
                         if (hsvLocksInUse)
                         {
-                            dstHSV = HSVFFromBgra(destPtr->ConvertFromPremultipliedAlpha());
-                            mergedHSV = HSVFFromBgra(final);
+                            dstHSV = ColorUtils.HSVFFromBgra(destPtr->ConvertFromPremultipliedAlpha());
+                            mergedHSV = ColorUtils.HSVFFromBgra(final);
                             if (channelLocks.H) { mergedHSV.Hue = dstHSV.Hue; }
                             if (channelLocks.S) { mergedHSV.Saturation = dstHSV.Saturation; }
                             if (channelLocks.V) { mergedHSV.Value = dstHSV.Value; }
-                            final = HSVFToBgra(mergedHSV);
+                            final = ColorUtils.HSVFToBgra(mergedHSV);
                         }
 
                         finalAlpha = final.A / 255f;
@@ -1147,7 +1147,7 @@ namespace DynamicDraw
         }
         #endregion
 
-        #region Methods
+        #region Miscellaneous utility methods
         /// <summary>
         /// Returns an ImageAttributes object containing info to set the
         /// RGB channels and multiply alpha. All values should be decimals
@@ -1306,60 +1306,6 @@ namespace DynamicDraw
 
             cachedRois.Add((width, height), rois.ToArray());
             return cachedRois[(width, height)];
-        }
-
-        /// <summary>
-        /// Takes a given setting value and adjusts it linearly via a target value using the given value-handling
-        /// method (which decides what the target value is). Returns the value unaffected if no mapping is set. This
-        /// doesn't clamp or prevent resulting invalid values.
-        /// </summary>
-        /// <param name="settingValue">The value of a setting, e.g. the brush transparency slider's value.</param>
-        /// <param name="targetValue">A number used to influence the setting value according to the handling.</param>
-        /// <param name="maxRange">The </param>
-        /// <param name="inputRatio"></param>
-        /// <param name="method"></param>
-        public static int GetStrengthMappedValue(
-            int settingValue,
-            int targetValue,
-            int maxRange,
-            float inputRatio,
-            ConstraintValueHandlingMethod method)
-        {
-            switch (method)
-            {
-                case ConstraintValueHandlingMethod.Add:
-                    return (int)(settingValue + inputRatio * targetValue);
-                case ConstraintValueHandlingMethod.AddPercent:
-                    return (int)(settingValue + inputRatio * targetValue / 100 * maxRange);
-                case ConstraintValueHandlingMethod.AddPercentCurrent:
-                    return (int)(settingValue + inputRatio * targetValue / 100 * settingValue);
-                case ConstraintValueHandlingMethod.MatchValue:
-                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue);
-                case ConstraintValueHandlingMethod.MatchPercent:
-                    return (int)((1 - inputRatio) * settingValue + inputRatio * targetValue / 100 * maxRange);
-            }
-
-            return settingValue;
-        }
-
-        /// <summary>
-        /// Lossless conversion from BGRA to HSV. Regular, non-float HSV conversion is lossy across the colorspace.
-        /// </summary>
-        public static HsvColorF HSVFFromBgra(ColorBgra color)
-        {
-            return new RgbColorF(color.R / 255f, color.G / 255f, color.B / 255f).ToHsvColorF();
-        }
-
-        /// <summary>
-        /// Lossless conversion from HSV to BGRA. Regular, non-float RGB  conversion is lossy across the colorspace.
-        /// </summary>
-        public static ColorBgra HSVFToBgra(HsvColorF color)
-        {
-            RgbColorF col = color.ToRgbColorF();
-            return ColorBgra.FromBgr(
-                (byte)Math.Round(col.Blue * 255),
-                (byte)Math.Round(col.Green * 255),
-                (byte)Math.Round(col.Red * 255));
         }
         #endregion
     }
