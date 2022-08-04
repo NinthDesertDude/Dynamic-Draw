@@ -8,6 +8,11 @@
     public enum ThemeSlot
     {
         /// <summary>
+        /// Same as <see cref="ThemeSlot.MenuControlBg"/>, but at half transparency.
+        /// </summary>
+        HalfAlphaMenuControlBg,
+
+        /// <summary>
         /// The background color of the canvas.
         /// </summary>
         CanvasBg,

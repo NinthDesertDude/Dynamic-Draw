@@ -214,6 +214,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Alpha.
+        /// </summary>
+        internal static string Alpha {
+            get {
+                return ResourceManager.GetString("Alpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How opaque the current color is..
+        /// </summary>
+        internal static string ATip {
+            get {
+                return ResourceManager.GetString("ATip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto Manage Density.
         /// </summary>
         internal static string AutomaticBrushDensity {
@@ -568,6 +586,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to How blue the current color is..
+        /// </summary>
+        internal static string BTip {
+            get {
+                return ResourceManager.GetString("BTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Built in.
         /// </summary>
         internal static string BuiltIn {
@@ -775,6 +802,33 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to B.
+        /// </summary>
+        internal static string ColorBlueAbbr {
+            get {
+                return ResourceManager.GetString("ColorBlueAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to G.
+        /// </summary>
+        internal static string ColorGreenAbbr {
+            get {
+                return ResourceManager.GetString("ColorGreenAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to H.
+        /// </summary>
+        internal static string ColorHueAbbr {
+            get {
+                return ResourceManager.GetString("ColorHueAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mix Color:.
         /// </summary>
         internal static string ColorInfluence {
@@ -843,6 +897,33 @@ namespace DynamicDraw.Localization {
         internal static string ColorPickerTip {
             get {
                 return ResourceManager.GetString("ColorPickerTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to R.
+        /// </summary>
+        internal static string ColorRedAbbr {
+            get {
+                return ResourceManager.GetString("ColorRedAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.
+        /// </summary>
+        internal static string ColorSatAbbr {
+            get {
+                return ResourceManager.GetString("ColorSatAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to V.
+        /// </summary>
+        internal static string ColorValAbbr {
+            get {
+                return ResourceManager.GetString("ColorValAbbr", resourceCulture);
             }
         }
         
@@ -1243,11 +1324,29 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to How green the current color is..
+        /// </summary>
+        internal static string GTip {
+            get {
+                return ResourceManager.GetString("GTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hue.
         /// </summary>
         internal static string HueAbbr {
             get {
                 return ResourceManager.GetString("HueAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The hue of the current color..
+        /// </summary>
+        internal static string HueTip {
+            get {
+                return ResourceManager.GetString("HueTip", resourceCulture);
             }
         }
         
@@ -1441,29 +1540,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to B.
-        /// </summary>
-        internal static string LockB {
-            get {
-                return ResourceManager.GetString("LockB", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa..
         /// </summary>
         internal static string LockBTip {
             get {
                 return ResourceManager.GetString("LockBTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to G.
-        /// </summary>
-        internal static string LockG {
-            get {
-                return ResourceManager.GetString("LockG", resourceCulture);
             }
         }
         
@@ -1477,29 +1558,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to H.
-        /// </summary>
-        internal static string LockHue {
-            get {
-                return ResourceManager.GetString("LockHue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results..
         /// </summary>
         internal static string LockHueTip {
             get {
                 return ResourceManager.GetString("LockHueTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to R.
-        /// </summary>
-        internal static string LockR {
-            get {
-                return ResourceManager.GetString("LockR", resourceCulture);
             }
         }
         
@@ -1513,29 +1576,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to S.
-        /// </summary>
-        internal static string LockSat {
-            get {
-                return ResourceManager.GetString("LockSat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation..
         /// </summary>
         internal static string LockSatTip {
             get {
                 return ResourceManager.GetString("LockSatTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to V.
-        /// </summary>
-        internal static string LockVal {
-            get {
-                return ResourceManager.GetString("LockVal", resourceCulture);
             }
         }
         
@@ -2098,11 +2143,29 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to How red the current color is..
+        /// </summary>
+        internal static string RTip {
+            get {
+                return ResourceManager.GetString("RTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sat.
         /// </summary>
         internal static string SatAbbr {
             get {
                 return ResourceManager.GetString("SatAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The saturation of the current color (vibrance)..
+        /// </summary>
+        internal static string SatTip {
+            get {
+                return ResourceManager.GetString("SatTip", resourceCulture);
             }
         }
         
@@ -3309,6 +3372,15 @@ namespace DynamicDraw.Localization {
         internal static string ValAbbr {
             get {
                 return ResourceManager.GetString("ValAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value of the current color (brightness)..
+        /// </summary>
+        internal static string ValTip {
+            get {
+                return ResourceManager.GetString("ValTip", resourceCulture);
             }
         }
         

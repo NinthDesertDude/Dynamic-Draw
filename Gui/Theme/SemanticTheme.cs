@@ -62,6 +62,7 @@ namespace DynamicDraw
 
             var lightTheme = new Dictionary<ThemeSlot, Color>()
             {
+                { ThemeSlot.HalfAlphaMenuControlBg, Color.FromArgb(128, 227, 227, 227) },
                 { ThemeSlot.CanvasBg, Color.FromArgb(255, 207, 207, 207) },
                 { ThemeSlot.MenuBg, Color.FromArgb(255, 255, 255, 255) },
                 { ThemeSlot.MenuControlActive, Color.FromArgb(255, 40, 162, 255) },
@@ -79,6 +80,7 @@ namespace DynamicDraw
 
             var darkTheme = new Dictionary<ThemeSlot, Color>()
             {
+                { ThemeSlot.HalfAlphaMenuControlBg, Color.FromArgb(128, 32, 32, 32) },
                 { ThemeSlot.CanvasBg, Color.FromArgb(255, 48, 48, 48) },
                 { ThemeSlot.MenuBg, Color.FromArgb(255, 37, 37, 37) },
                 { ThemeSlot.MenuControlActive, Color.FromArgb(255, 0, 120, 215) },

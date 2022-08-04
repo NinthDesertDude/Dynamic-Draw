@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Gui\Components\SliderColorMode.cs" />
     <Compile Update="Gui\Components\SwatchBox.cs" />
     <Compile Update="Gui\Forms\EditKeyboardShortcuts.cs">
       <SubType>Form</SubType>

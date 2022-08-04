@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace DynamicDraw
 {
     /// <summary>
-    /// A button that acts like a track bar with a modern appearance.
+    /// The modern UI equivalent of a track bar, that also allows directly typing a value.
     /// </summary>
     public class Slider : Button
     {
@@ -23,6 +24,99 @@ namespace DynamicDraw
         private bool isTypingNewValue;
         private string newValueString;
 
+        private (SliderSpecialType type, Color color)? specialMode;
+
+        /// <summary>
+        /// Whether to allow values between the numeric stops or not. When false, the value will
+        /// be exactly equal to the nearest stop instead of an interpolation of the two nearest.
+        /// </summary>
+        public bool DiscreteStops
+        {
+            get
+            {
+                return discreteStops;
+            }
+            set
+            {
+                discreteStops = value;
+            }
+        }
+
+        /// <summary>
+        /// Whether the data must be constrained to whole numbers or not. If true, all values set will automatically
+        /// be adjusted to integer values (without rounding) for all slider functionality.
+        /// </summary>
+        public bool IntegerOnly
+        {
+            get { return integerOnly; }
+            set
+            {
+                integerOnly = value;
+
+                if (value)
+                {
+                    for (int i = 0; i < numericStops.Count; i++)
+                    {
+                        numericStops[i] = (int)numericStops[i];
+                    }
+
+                    if (this.value != (int)this.value)
+                    {
+                        this.value = (int)this.value;
+                        ValueChanged?.Invoke(this, this.value);
+                        valuePercent = CalculatePercent(this.value);
+                    }
+                }
+
+                Refresh();
+            }
+        }
+
+        /// <summary>
+        /// The maximum allowed value, which can't be less than the min allowed value. Adjusts the current value if it
+        /// goes out of bounds after editing this.
+        /// </summary>
+        public float Maximum
+        {
+            get { return numericStops[^1]; }
+            set
+            {
+                if (specialMode != null) { return; }
+                if (numericStops[^1] == value) { return; }
+
+                numericStops[^1] = integerOnly ? (int)value : value;
+
+                if (numericStops[^1] < numericStops[0])
+                {
+                    throw new ArgumentOutOfRangeException("Max value must be greater than minimum value.");
+                }
+
+                if (this.value > numericStops[^1])
+                {
+                    this.value = numericStops[^1];
+                    ValueChanged?.Invoke(this, this.value);
+                    valuePercent = CalculatePercent(this.value);
+                }
+
+                Refresh();
+            }
+        }
+
+        /// <summary>
+        /// The maximum allowed value, constrained to an int. Get/set both deal with the value in ints.
+        /// </summary>
+        public int MaximumInt
+        {
+            get
+            {
+                return (int)numericStops[^1];
+            }
+            set
+            {
+                Maximum = value;
+            }
+        }
+
         /// <summary>
         /// The minimum allowed value, which can't be more than the max allowed value. Adjusts the current value if it
         /// goes out of bounds after editing this.
@@ -32,6 +126,7 @@ namespace DynamicDraw
             get { return numericStops[0]; }
             set
             {
+                if (specialMode != null) { return; }
                 if (numericStops[0] == value) { return; }
 
                 numericStops[0] = integerOnly ? (int)value : value;
@@ -68,46 +163,43 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// The maximum allowed value, which can't be less than the min allowed value. Adjusts the current value if it
-        /// goes out of bounds after editing this.
+        /// Gets a copy of the evenly-spaced numeric stops used by the slider.
+        /// 
+        /// Numeric stops are arbitrary values evenly-spaced along a slider. When the user clicks or drags along the
+        /// slider, the value is a linear interpolation between the two nearest sliders based on proximity.
         /// </summary>
-        public float Maximum
+        public List<float> NumericStops
         {
-            get { return numericStops[^1]; }
-            set
+            get
             {
-                if (numericStops[^1] == value) { return; }
-
-                numericStops[^1] = integerOnly ? (int)value : value;
-
-                if (numericStops[^1] < numericStops[0])
-                {
-                    throw new ArgumentOutOfRangeException("Max value must be greater than minimum value.");
-                }
-
-                if (this.value > numericStops[^1])
-                {
-                    this.value = numericStops[^1];
-                    ValueChanged?.Invoke(this, this.value);
-                    valuePercent = CalculatePercent(this.value);
-                }
-
-                Refresh();
+                return new List<float>(numericStops);
+            }
+            private set
+            {
+                if (specialMode != null) { return; }
+                numericStops = value;
             }
         }
 
         /// <summary>
-        /// The maximum allowed value, constrained to an int. Get/set both deal with the value in ints.
+        /// Gets the slider's current color for special sliders, if set, null otherwise.
         /// </summary>
-        public int MaximumInt
+        public Color? SliderColor
         {
             get
             {
-                return (int)numericStops[^1];
+                return specialMode != null ? GetColor() : null;
             }
-            set
+        }
+
+        /// <summary>
+        /// Gets the slider's special type if set, null otherwise.
+        /// </summary>
+        public SliderSpecialType? SliderType
+        {
+            get
             {
-                Maximum = value;
+                return specialMode?.type;
             }
         }
 
@@ -162,70 +254,6 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Gets a copy of the evenly-spaced numeric stops used by the slider.
-        /// 
-        /// Numeric stops are arbitrary values evenly-spaced along a slider. When the user clicks or drags along the
-        /// slider, the value is a linear interpolation between the two nearest sliders based on proximity.
-        /// </summary>
-        public List<float> NumericStops
-        {
-            get
-            {
-                return new List<float>(numericStops);
-            }
-            private set
-            {
-                numericStops = value;
-            }
-        }
-
-        /// <summary>
-        /// Whether to allow values between the numeric stops or not. When false, the value will
-        /// be exactly equal to the nearest stop instead of an interpolation of the two nearest.
-        /// </summary>
-        public bool DiscreteStops
-        {
-            get
-            {
-                return discreteStops;
-            }
-            set
-            {
-                discreteStops = value;
-            }
-        }
-
-        /// <summary>
-        /// Whether the data must be constrained to whole numbers or not. If true, all values set will automatically
-        /// be adjusted to integer values (without rounding) for all slider functionality.
-        /// </summary>
-        public bool IntegerOnly
-        {
-            get { return integerOnly; }
-            set
-            {
-                integerOnly = value;
-
-                if (value)
-                {
-                    for (int i = 0; i < numericStops.Count; i++)
-                    {
-                        numericStops[i] = (int)numericStops[i];
-                    }
-
-                    if (this.value != (int)this.value)
-                    {
-                        this.value = (int)this.value;
-                        ValueChanged?.Invoke(this, this.value);
-                        valuePercent = CalculatePercent(this.value);
-                    }
-                }
-
-                Refresh();
-            }
-        }
-
-        /// <summary>
         /// Fires when the text is going to be set. Provides the value that would be displayed as an argument, taking
         /// the text to display.
         /// </summary>
@@ -254,6 +282,7 @@ namespace DynamicDraw
         /// <param name="maximum">The maximum range allowed, which the current value can't exceed.</param>
         public Slider(float minimum, float maximum, float value)
         {
+            specialMode = null;
             numericStops = new List<float>() { minimum, maximum };
 
             if (minimum >= maximum)
@@ -297,6 +326,7 @@ namespace DynamicDraw
         /// <param name="value">The current value of the slider.</param>
         public Slider(IEnumerable<float> numericStops, float value)
         {
+            specialMode = null;
             this.value = value;
             SetNumericStops(numericStops, true);
             valuePercent = CalculatePercent(this.value);
@@ -327,6 +357,78 @@ namespace DynamicDraw
             MouseUp += Slider_MouseUp;
         }
 
+        /// <summary>
+        /// Creates a slider that represents a color channel, supporting RGBA and HSV. The min-max range is locked to
+        /// the channel range: 0-255 for RGBA, 360 for H, 100 for SV. The slider back color is drawn as a gradient from
+        /// min to max value for the given channel (using the associated color as the base).
+        /// 
+        /// Note: the color internally doesn't change when the value changes; this prevents the color from losing data
+        /// for cases like e.g. setting value to 0 on a saturation slider (you would normally lose the hue). For tasks
+        /// like linking up sliders, it's expected to call <see cref="GetColor"/> on value changed events and
+        /// use <see cref="SetColor"/> on the sliders that aren't being edited to keep them up-to-date.
+        /// </summary>
+        public Slider(SliderSpecialType type, Color color)
+        {
+            specialMode = new(type, color);
+            numericStops = new List<float>();
+
+            switch (type)
+            {
+                case SliderSpecialType.RedGraph:
+                    integerOnly = true;
+                    numericStops.AddRange(new float[] { 0, 255 });
+                    value = color.R;
+                    break;
+                case SliderSpecialType.GreenGraph:
+                    integerOnly = true;
+                    numericStops.AddRange(new float[] { 0, 255 });
+                    value = color.G;
+                    break;
+                case SliderSpecialType.BlueGraph:
+                    integerOnly = true;
+                    numericStops.AddRange(new float[] { 0, 255 });
+                    value = color.B;
+                    break;
+                case SliderSpecialType.AlphaGraph:
+                    integerOnly = true;
+                    numericStops.AddRange(new float[] { 0, 255 });
+                    value = color.A;
+                    break;
+                case SliderSpecialType.HueGraph:
+                    integerOnly = false;
+                    numericStops.AddRange(new float[] { 0, 360 });
+                    value = (float)ColorUtils.HSVFFromBgra(color).Hue;
+                    break;
+                case SliderSpecialType.SatGraph:
+                    integerOnly = false;
+                    numericStops.AddRange(new float[] { 0, 100 });
+                    value = (float)ColorUtils.HSVFFromBgra(color).Saturation;
+                    break;
+                case SliderSpecialType.ValGraph:
+                    integerOnly = false;
+                    numericStops.AddRange(new float[] { 0, 100 });
+                    value = (float)ColorUtils.HSVFFromBgra(color).Value;
+                    break;
+            }
+
+            discreteStops = false;
+            valuePercent = CalculatePercent(value);
+
+            mouseOver = false;
+            mouseHeld = false;
+            didMouseMove = false;
+            isTypingNewValue = false;
+            newValueString = "";
+
+            ComputeText = null;
+            LostFocus += Slider_LostFocus;
+            MouseEnter += Slider_MouseEnter;
+            MouseLeave += Slider_MouseLeave;
+            MouseDown += Slider_MouseDown;
+            MouseMove += Slider_MouseMove;
+            MouseUp += Slider_MouseUp;
+        }
+
         #region Overriden methods
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -347,20 +449,113 @@ namespace DynamicDraw
 
             float fill = ClientSize.Width * valuePercent;
 
-            // Draws the filled bar according to the value, in disabled or non-disabled mode.
-            if (!Enabled)
+            // Draws a specialized back color gradient for special sliders.
+            if (specialMode != null)
             {
-                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled),
-                    fill, 0, ClientSize.Width - fill, ClientSize.Height);
-                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlightDisabled),
-                    0, 0, fill, ClientSize.Height);
+                // Draws a single gradient between two colors, for all but the hue slider.
+                if (specialMode.Value.type != SliderSpecialType.HueGraph)
+                {
+                    Color computedColor1, computedColor2;
+                    PaintDotNet.HsvColorF colHsv, hsvCol1, hsvCol2;
+                    Color col = specialMode.Value.color;
+
+                    switch (specialMode.Value.type)
+                    {
+                        case SliderSpecialType.RedGraph:
+                            computedColor1 = Color.FromArgb(0, col.G, col.B);
+                            computedColor2 = Color.FromArgb(255, col.G, col.B);
+                            break;
+                        case SliderSpecialType.GreenGraph:
+                            computedColor1 = Color.FromArgb(col.R, 0, col.B);
+                            computedColor2 = Color.FromArgb(col.R, 255, col.B);
+                            break;
+                        case SliderSpecialType.BlueGraph:
+                            computedColor1 = Color.FromArgb(col.R, col.G, 0);
+                            computedColor2 = Color.FromArgb(col.R, col.G, 255);
+                            break;
+                        case SliderSpecialType.AlphaGraph:
+                            computedColor1 = Color.FromArgb(0, col.R, col.G, col.B);
+                            computedColor2 = Color.FromArgb(255, col.R, col.G, col.B);
+                            break;
+                        case SliderSpecialType.SatGraph:
+                            colHsv = ColorUtils.HSVFFromBgra(col);
+                            hsvCol1 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol2 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol1.Saturation = 0;
+                            hsvCol2.Saturation = 100;
+                            computedColor1 = ColorUtils.HSVFToBgra(hsvCol1);
+                            computedColor2 = ColorUtils.HSVFToBgra(hsvCol2);
+                            break;
+                        case SliderSpecialType.ValGraph:
+                            colHsv = ColorUtils.HSVFFromBgra(col);
+                            hsvCol1 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol2 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol1.Value = 0;
+                            hsvCol2.Value = 100;
+                            computedColor1 = ColorUtils.HSVFToBgra(hsvCol1);
+                            computedColor2 = ColorUtils.HSVFToBgra(hsvCol2);
+                            break;
+                        default:
+                            throw new Exception("Should never execute");
+                    }
+
+                    Rectangle bounds = new Rectangle(0, 0, Width, Height);
+
+                    // Draws a checkered underlying background only for the alpha graph.
+                    if (specialMode.Value.type == SliderSpecialType.AlphaGraph)
+                    {
+                        using HatchBrush hatchBrush = new HatchBrush(
+                            HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
+                        e.Graphics.FillRectangle(hatchBrush, bounds);
+                    }
+
+                    // Draws the gradient between the two colors for all graphs but hue.
+                    using (var brush = new LinearGradientBrush(bounds, computedColor1, computedColor2, 0f))
+                    {
+                        e.Graphics.FillRectangle(brush, bounds);
+                    }
+                }
+
+                // Draws the hue slider.
+                else
+                {
+                    PaintDotNet.HsvColorF hsvCol = ColorUtils.HSVFFromBgra(specialMode.Value.color);
+                    PaintDotNet.HsvColorF hsvColStaging;
+                    for (int i = 0; i < Width; i++)
+                    {
+                        hsvColStaging = new PaintDotNet.HsvColorF(hsvCol.Hue, hsvCol.Saturation, hsvCol.Value);
+                        hsvColStaging.Hue = (double)i / Width * MaximumInt;
+
+                        using (Pen pen = new Pen(ColorUtils.HSVFToBgra(hsvColStaging)))
+                        {
+                            e.Graphics.DrawLine(pen, i, 0, i, Height);
+                        }
+                    }
+                }
+
+                // Draws a line marking the active place.
+                float valWidthRatio = value / Maximum * Width;
+                e.Graphics.DrawLine(SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive),
+                    valWidthRatio, 0, valWidthRatio, Height);
             }
+
+            // Draws the filled bar according to the value, in disabled or non-disabled mode.
             else
             {
-                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
-                    fill, 0, ClientSize.Width - fill, ClientSize.Height);
-                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
-                    0, 0, fill, ClientSize.Height);
+                if (!Enabled)
+                {
+                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled),
+                        fill, 0, ClientSize.Width - fill, ClientSize.Height);
+                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlightDisabled),
+                        0, 0, fill, ClientSize.Height);
+                }
+                else
+                {
+                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
+                        fill, 0, ClientSize.Width - fill, ClientSize.Height);
+                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
+                        0, 0, fill, ClientSize.Height);
+                }
             }
 
             // Formats the text based on some minor, or custom user logic. Displays centered.
@@ -369,6 +564,17 @@ namespace DynamicDraw
                 : ComputeText?.Invoke(Value) ?? string.Format("{0:0.##}", Value);
 
             SizeF measures = e.Graphics.MeasureString(formatted, Font);
+
+            // For gradient sliders, draws a black background behind the text itself for visibility.
+            if (specialMode != null)
+            {
+                e.Graphics.FillRectangle(
+                    SemanticTheme.Instance.GetBrush(ThemeSlot.HalfAlphaMenuControlBg),
+                    (ClientSize.Width - measures.Width) / 2,
+                    (ClientSize.Height - measures.Height) / 2,
+                    measures.Width,
+                    measures.Height);
+            }
 
             e.Graphics.DrawString(formatted, Font, SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
                 (ClientSize.Width - measures.Width) / 2,
@@ -578,6 +784,7 @@ namespace DynamicDraw
         /// </summary>
         private void SetNumericStops(IEnumerable<float> stops, bool skipValueChecking)
         {
+            if (specialMode != null) { return; }
             if (stops.Count() < 2)
             {
                 throw new ArgumentOutOfRangeException(nameof(stops), "At least 2 stops are required, received " + stops.Count());
@@ -599,6 +806,23 @@ namespace DynamicDraw
             {
                 throw new Exception("Attempted to set value beyond maximum range.");
             }
+        }
+
+        /// <summary>
+        /// Changes the slider to a special slider type, or null to clear the special slider status. The number range
+        /// cannot change for special sliders and is 0-255 for RGBA, 0-360 for H, 0-100 for SV. If the slider isn't a
+        /// special type (and thus doesn't already have a color), the associated color is set to the given color.
+        /// </summary>
+        public void SetSliderType(SliderSpecialType? type, Color color)
+        {
+            if (type == null)
+            {
+                specialMode = null;
+                return;
+            }
+
+            specialMode = new((SliderSpecialType)type, specialMode?.color ?? color);
+            SetColor(specialMode.Value.color);
         }
 
         /// <summary>
@@ -691,6 +915,87 @@ namespace DynamicDraw
             // the slider covered up to the start of the left stop, plus the % from the left stop to right stop
             // multiplied by how much one interval is worth in terms of %.
             return (leftSideIndex + percentBetween) * evenIntervalOfEachStop;
+        }
+
+        /// <summary>
+        /// For sliders that define a <see cref="SliderSpecialType"/>, this gets the passed-in color, modified by
+        /// the slider value for its channel.
+        /// </summary>
+        public Color GetColor()
+        {
+            if (specialMode == null) { throw new ArgumentException("Only special sliders can get color from value."); }
+            Color col = specialMode.Value.color;
+            PaintDotNet.HsvColorF hsvCol;
+
+            switch (specialMode.Value.type)
+            {
+                case SliderSpecialType.RedGraph:
+                    return Color.FromArgb(col.A, (int)value, col.G, col.B);
+                case SliderSpecialType.GreenGraph:
+                    return Color.FromArgb(col.A, col.R, (int)value, col.B);
+                case SliderSpecialType.BlueGraph:
+                    return Color.FromArgb(col.A, col.R, col.G, (int)value);
+                case SliderSpecialType.AlphaGraph:
+                    return Color.FromArgb((int)value, col.R, col.G, col.B);
+                case SliderSpecialType.HueGraph:
+                    hsvCol = ColorUtils.HSVFFromBgra(col);
+                    hsvCol.Hue = Math.Round(value);
+                    return ColorUtils.HSVFToBgra(hsvCol, col.A);
+                case SliderSpecialType.SatGraph:
+                    hsvCol = ColorUtils.HSVFFromBgra(col);
+                    hsvCol.Saturation = Math.Round(value);
+                    return ColorUtils.HSVFToBgra(hsvCol, col.A);
+                case SliderSpecialType.ValGraph:
+                    hsvCol = ColorUtils.HSVFFromBgra(col);
+                    hsvCol.Value = Math.Round(value);
+                    return ColorUtils.HSVFToBgra(hsvCol, col.A);
+            }
+
+            throw new Exception("Shouldn't execute.");
+        }
+
+        /// <summary>
+        /// For sliders that define a <see cref="SliderSpecialType"/>, this updates the color and current value based
+        /// on it for this slider's channel of interest. This does not invoke <see cref="ValueChanged"/>.
+        /// </summary>
+        public void SetColor(Color col)
+        {
+            if (specialMode == null) { throw new ArgumentException("Only special sliders can set value from color."); }
+            specialMode = new(specialMode.Value.type, col);
+            PaintDotNet.HsvColorF hsvCol;
+
+            switch (specialMode.Value.type)
+            {
+                case SliderSpecialType.RedGraph:
+                    value = col.R;
+                    break;
+                case SliderSpecialType.GreenGraph:
+                    value = col.G;
+                    break;
+                case SliderSpecialType.BlueGraph:
+                    value = col.B;
+                    break;
+                case SliderSpecialType.AlphaGraph:
+                    value = col.A;
+                    break;
+                case SliderSpecialType.HueGraph:
+                    hsvCol = ColorUtils.HSVFFromBgra(col);
+                    value = (float)hsvCol.Hue;
+                    break;
+                case SliderSpecialType.SatGraph:
+                    hsvCol = ColorUtils.HSVFFromBgra(col);
+                    value = (float)hsvCol.Saturation;
+                    break;
+                case SliderSpecialType.ValGraph:
+                    hsvCol = ColorUtils.HSVFFromBgra(col);
+                    value = (float)hsvCol.Value;
+                    break;
+            }
+
+            // intentionally not calling ValueChanged, it creates call stack cycles in interdepent slider use-cases.
+            value = integerOnly ? (int)value : (int)(value * 1000) / 1000f;
+            valuePercent = CalculatePercent(this.value);
+            Refresh();
         }
         #endregion
     }

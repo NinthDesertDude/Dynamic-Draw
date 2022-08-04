@@ -858,37 +858,37 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="DitherDrawTip" xml:space="preserve">
     <value>Only draw every other pixel, in a checkerboard pattern. Useful for pixel art.</value>
   </data>
-  <data name="LockHue" xml:space="preserve">
+  <data name="ColorHueAbbr" xml:space="preserve">
     <value>H</value>
   </data>
   <data name="LockHueTip" xml:space="preserve">
     <value>Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results.</value>
   </data>
-  <data name="LockSat" xml:space="preserve">
+  <data name="ColorSatAbbr" xml:space="preserve">
     <value>S</value>
   </data>
   <data name="LockSatTip" xml:space="preserve">
     <value>Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation.</value>
   </data>
-  <data name="LockVal" xml:space="preserve">
+  <data name="ColorValAbbr" xml:space="preserve">
     <value>V</value>
   </data>
   <data name="LockValTip" xml:space="preserve">
     <value>Prevents drawing from affecting the value (brightness) of the image.</value>
   </data>
-  <data name="LockB" xml:space="preserve">
+  <data name="ColorBlueAbbr" xml:space="preserve">
     <value>B</value>
   </data>
   <data name="LockBTip" xml:space="preserve">
     <value>Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa.</value>
   </data>
-  <data name="LockG" xml:space="preserve">
+  <data name="ColorGreenAbbr" xml:space="preserve">
     <value>G</value>
   </data>
   <data name="LockGTip" xml:space="preserve">
     <value>Prevents drawing from affecting the greenness of the image. Note that bright values have more green and vice versa.</value>
   </data>
-  <data name="LockR" xml:space="preserve">
+  <data name="ColorRedAbbr" xml:space="preserve">
     <value>R</value>
   </data>
   <data name="LockRTip" xml:space="preserve">
@@ -1244,5 +1244,29 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="ShortcutSwapColors" xml:space="preserve">
     <value>Swap Colors</value>
+  </data>
+  <data name="Alpha" xml:space="preserve">
+    <value>Alpha</value>
+  </data>
+  <data name="ATip" xml:space="preserve">
+    <value>How opaque the current color is.</value>
+  </data>
+  <data name="BTip" xml:space="preserve">
+    <value>How blue the current color is.</value>
+  </data>
+  <data name="GTip" xml:space="preserve">
+    <value>How green the current color is.</value>
+  </data>
+  <data name="HueTip" xml:space="preserve">
+    <value>The hue of the current color.</value>
+  </data>
+  <data name="RTip" xml:space="preserve">
+    <value>How red the current color is.</value>
+  </data>
+  <data name="SatTip" xml:space="preserve">
+    <value>The saturation of the current color (vibrance).</value>
+  </data>
+  <data name="ValTip" xml:space="preserve">
+    <value>The value of the current color (brightness).</value>
   </data>
 </root>

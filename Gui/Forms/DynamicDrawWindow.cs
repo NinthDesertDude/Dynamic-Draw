@@ -432,6 +432,10 @@ namespace DynamicDraw
         private Slider sliderBrushFlow;
         private Slider sliderBrushRotation;
         private Slider sliderBrushSize;
+        private Accordion bttnColorControls;
+        private FlowLayoutPanel panelColorControls;
+        private Slider sliderColorR, sliderColorG, sliderColorB, sliderColorA;
+        private Slider sliderColorH, sliderColorS, sliderColorV;
         private Accordion bttnSpecialSettings;
         private FlowLayoutPanel panelSpecialSettings;
         private Slider sliderMinDrawDistance;
@@ -922,12 +926,12 @@ namespace DynamicDraw
             chkbxColorInfluenceSat.Text = Strings.SatAbbr;
             chkbxColorInfluenceVal.Text = Strings.ValAbbr;
             chkbxLockAlpha.Text = Strings.LockAlpha;
-            chkbxLockR.Text = Strings.LockR;
-            chkbxLockG.Text = Strings.LockG;
-            chkbxLockB.Text = Strings.LockB;
-            chkbxLockHue.Text = Strings.LockHue;
-            chkbxLockSat.Text = Strings.LockSat;
-            chkbxLockVal.Text = Strings.LockVal;
+            chkbxLockR.Text = Strings.ColorRedAbbr;
+            chkbxLockG.Text = Strings.ColorGreenAbbr;
+            chkbxLockB.Text = Strings.ColorBlueAbbr;
+            chkbxLockHue.Text = Strings.ColorHueAbbr;
+            chkbxLockSat.Text = Strings.ColorSatAbbr;
+            chkbxLockVal.Text = Strings.ColorValAbbr;
             chkbxDitherDraw.Text = Strings.DitherDraw;
             chkbxSeamlessDrawing.Text = Strings.SeamlessDrawing;
             chkbxOrientToMouse.Text = Strings.OrientToMouse;
@@ -3343,6 +3347,15 @@ namespace DynamicDraw
             sliderBrushFlow = new Slider(ShortcutTarget.Flow, 255f);
             sliderBrushRotation = new Slider(ShortcutTarget.Rotation, 0f);
             sliderBrushSize = new Slider(ShortcutTarget.Size, 10f);
+            bttnColorControls = new Accordion(true);
+            panelColorControls = new FlowLayoutPanel();
+            sliderColorR = new Slider(SliderSpecialType.RedGraph, Color.Black);
+            sliderColorG = new Slider(SliderSpecialType.GreenGraph, Color.Black);
+            sliderColorB = new Slider(SliderSpecialType.BlueGraph, Color.Black);
+            sliderColorA = new Slider(SliderSpecialType.AlphaGraph, Color.Black);
+            sliderColorH = new Slider(SliderSpecialType.HueGraph, Color.Black);
+            sliderColorS = new Slider(SliderSpecialType.SatGraph, Color.Black);
+            sliderColorV = new Slider(SliderSpecialType.ValGraph, Color.Black);
             bttnSpecialSettings = new Accordion(true);
             panelSpecialSettings = new FlowLayoutPanel();
             panelChosenEffect = new Panel();
@@ -3515,6 +3528,7 @@ namespace DynamicDraw
             panelBrush.SuspendLayout();
             panelBrushAddPickColor.SuspendLayout();
             panelColorInfluenceHSV.SuspendLayout();
+            panelColorControls.SuspendLayout();
             panelSpecialSettings.SuspendLayout();
             panelChosenEffect.SuspendLayout();
             panelRGBLocks.SuspendLayout();
@@ -4233,6 +4247,8 @@ namespace DynamicDraw
             panelSettingsContainer.TabIndex = 138;
             panelSettingsContainer.Controls.Add(bttnBrushControls);
             panelSettingsContainer.Controls.Add(panelBrush);
+            panelSettingsContainer.Controls.Add(bttnColorControls);
+            panelSettingsContainer.Controls.Add(panelColorControls);
             panelSettingsContainer.Controls.Add(bttnSpecialSettings);
             panelSettingsContainer.Controls.Add(panelSpecialSettings);
             panelSettingsContainer.Controls.Add(bttnJitterBasicsControls);
@@ -4245,15 +4261,6 @@ namespace DynamicDraw
             panelSettingsContainer.Controls.Add(panelTabletAssignPressure);
             panelSettingsContainer.Controls.Add(bttnSettings);
             panelSettingsContainer.Controls.Add(panelSettings);
-            #endregion
-
-            #region bttnBrushControls
-            bttnBrushControls.Location = new Point(0, 3);
-            bttnBrushControls.Margin = new Padding(0, 3, 0, 3);
-            bttnBrushControls.Size = new Size(155, 23);
-            bttnBrushControls.TabIndex = 5;
-            bttnBrushControls.TextAlign = ContentAlignment.MiddleLeft;
-            bttnBrushControls.UpdateAccordion(Strings.AccordionBrush, false, new Control[] { panelBrush });
             #endregion
 
             #region panelBrush
@@ -4472,6 +4479,111 @@ namespace DynamicDraw
             sliderBrushSize.ValueChanged += SliderBrushSize_ValueChanged;
             sliderBrushSize.MouseEnter += SliderBrushSize_MouseEnter;
             sliderBrushSize.ComputeText = (val) => string.Format("{0} {1}", Strings.Size, val);
+            #endregion
+
+            #region bttnBrushControls
+            bttnBrushControls.Location = new Point(0, 3);
+            bttnBrushControls.Margin = new Padding(0, 3, 0, 3);
+            bttnBrushControls.Size = new Size(155, 23);
+            bttnBrushControls.TabIndex = 5;
+            bttnBrushControls.TextAlign = ContentAlignment.MiddleLeft;
+            bttnBrushControls.UpdateAccordion(Strings.AccordionBrush, false, new Control[] { panelBrush });
+            #endregion
+
+            #region bttnColorControls
+            bttnColorControls.Location = new Point(0, 584);
+            bttnColorControls.Margin = new Padding(0, 3, 0, 3);
+            bttnColorControls.Size = new Size(155, 23);
+            bttnColorControls.TabIndex = 18;
+            bttnColorControls.TextAlign = ContentAlignment.MiddleLeft;
+            bttnColorControls.UpdateAccordion(Strings.BrushColor, true, new Control[] { panelColorControls });
+            #endregion
+
+            #region panelColorControls
+            panelColorControls.FlowDirection = FlowDirection.TopDown;
+            panelColorControls.Location = new Point(0, 613);
+            panelColorControls.Margin = new Padding(0, 3, 0, 3);
+            panelColorControls.Size = new Size(156, 196);
+            panelColorControls.TabIndex = 19;
+            panelColorControls.AutoSize = true;
+            panelColorControls.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelColorControls.Controls.Add(sliderColorR);
+            panelColorControls.Controls.Add(sliderColorG);
+            panelColorControls.Controls.Add(sliderColorB);
+            panelColorControls.Controls.Add(sliderColorA);
+            panelColorControls.Controls.Add(sliderColorH);
+            panelColorControls.Controls.Add(sliderColorS);
+            panelColorControls.Controls.Add(sliderColorV);
+            #endregion
+
+            #region sliderColorR
+            sliderColorR.AutoSize = false;
+            sliderColorR.Location = new Point(3, 52);
+            sliderColorR.Size = new Size(150, 25);
+            sliderColorR.TabIndex = 21;
+            sliderColorR.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.RedGraph);
+            sliderColorR.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorRedAbbr, val);
+            sliderColorR.MouseEnter += SliderColorR_MouseEnter;
+            #endregion
+
+            #region sliderColorG
+            sliderColorG.AutoSize = false;
+            sliderColorG.Location = new Point(3, 52);
+            sliderColorG.Size = new Size(150, 25);
+            sliderColorG.TabIndex = 21;
+            sliderColorG.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.GreenGraph);
+            sliderColorG.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorGreenAbbr, val);
+            sliderColorG.MouseEnter += SliderColorG_MouseEnter;
+            #endregion
+
+            #region sliderColorB
+            sliderColorB.AutoSize = false;
+            sliderColorB.Location = new Point(3, 52);
+            sliderColorB.Size = new Size(150, 25);
+            sliderColorB.TabIndex = 21;
+            sliderColorB.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.BlueGraph);
+            sliderColorB.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorBlueAbbr, val);
+            sliderColorB.MouseEnter += SliderColorB_MouseEnter;
+            #endregion
+
+            #region sliderColorA
+            sliderColorA.AutoSize = false;
+            sliderColorA.Location = new Point(3, 52);
+            sliderColorA.Size = new Size(150, 25);
+            sliderColorA.TabIndex = 21;
+            sliderColorA.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.AlphaGraph);
+            sliderColorA.ComputeText = (val) => string.Format("{0}: {1}", Strings.Alpha, val);
+            sliderColorA.MouseEnter += SliderColorA_MouseEnter;
+            #endregion
+
+            #region sliderColorH
+            sliderColorH.AutoSize = false;
+            sliderColorH.Location = new Point(3, 52);
+            sliderColorH.Size = new Size(150, 25);
+            sliderColorH.TabIndex = 21;
+            sliderColorH.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.HueGraph);
+            sliderColorH.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorHueAbbr, Math.Round(val));
+            sliderColorH.MouseEnter += SliderColorH_MouseEnter;
+            #endregion
+
+            #region sliderColorS
+            sliderColorS.AutoSize = false;
+            sliderColorS.Location = new Point(3, 52);
+            sliderColorS.Size = new Size(150, 25);
+            sliderColorS.TabIndex = 21;
+            sliderColorS.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.SatGraph);
+            sliderColorS.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorSatAbbr, Math.Round(val));
+            sliderColorS.MouseEnter += SliderColorS_MouseEnter;
+            #endregion
+
+            #region sliderColorV
+            sliderColorV.AutoSize = false;
+            sliderColorV.Location = new Point(3, 52);
+            sliderColorV.Size = new Size(150, 25);
+            sliderColorV.TabIndex = 21;
+            sliderColorV.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.ValGraph);
+            sliderColorV.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorValAbbr, Math.Round(val));
+            sliderColorV.MouseEnter += SliderColorV_MouseEnter;
             #endregion
 
             #region bttnSpecialSettings
@@ -6204,6 +6316,8 @@ namespace DynamicDraw
             panelBrushAddPickColor.PerformLayout();
             panelColorInfluenceHSV.ResumeLayout(false);
             panelColorInfluenceHSV.PerformLayout();
+            panelColorControls.ResumeLayout(false);
+            panelColorControls.PerformLayout();
             panelSpecialSettings.ResumeLayout(false);
             panelSpecialSettings.PerformLayout();
             panelChosenEffect.ResumeLayout(false);
@@ -6532,43 +6646,6 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Updates the top menu based on current preferences.
-        /// </summary>
-        private void UpdateTopMenuState()
-        {
-            if (UserSettings.PreferredTheme == ThemePreference.Inherited)
-            {
-                SemanticTheme.CurrentTheme = detectedTheme;
-            }
-            else if (UserSettings.PreferredTheme == ThemePreference.Light)
-            {
-                SemanticTheme.CurrentTheme = ThemeName.Light;
-            }
-            else if (UserSettings.PreferredTheme == ThemePreference.Dark)
-            {
-                SemanticTheme.CurrentTheme = ThemeName.Dark;
-            }
-
-            menuSetCanvasBgImageFit.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit;
-            menuSetCanvasBgImageOnlyIfFits.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits;
-            menuSetCanvasBgTransparent.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Transparent;
-            menuSetCanvasBgGray.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Gray;
-            menuSetCanvasBgWhite.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.White;
-            menuSetCanvasBgBlack.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Black;
-            menuBrushIndicatorSquare.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Square;
-            menuBrushIndicatorPreview.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Preview;
-            menuSetThemeDefault.Checked = UserSettings.PreferredTheme == ThemePreference.Inherited;
-            menuSetThemeLight.Checked = UserSettings.PreferredTheme == ThemePreference.Light;
-            menuSetThemeDark.Checked = UserSettings.PreferredTheme == ThemePreference.Dark;
-            menuShowSymmetryLinesInUse.Checked = UserSettings.ShowSymmetryLinesWhenUsingSymmetry;
-            menuShowMinDistanceInUse.Checked = UserSettings.ShowCircleRadiusWhenUsingMinDistance;
-            menuConfirmCloseSave.Checked = UserSettings.DisableConfirmationOnCloseOrSave;
-            menuColorPickerIncludesAlpha.Checked = UserSettings.ColorPickerIncludesAlpha;
-            menuColorPickerSwitchesToPrevTool.Checked = UserSettings.ColorPickerSwitchesToLastTool;
-            menuRemoveUnfoundImagePaths.Checked = UserSettings.RemoveBrushImagePathsWhenNotFound;
-        }
-
-        /// <summary>
         /// Updates all settings based on the currently selected brush.
         /// </summary>
         private void UpdateBrush(BrushSettings settings)
@@ -6678,6 +6755,7 @@ namespace DynamicDraw
             cmbxBrushSmoothing.SelectedIndex = (int)settings.Smoothing;
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
 
+            UpdateColorSelectionSliders(null);
             UpdateEnabledControls();
         }
 
@@ -6685,21 +6763,24 @@ namespace DynamicDraw
         /// Updates the current brush color to the desired color, and optionally syncs the opacity slider.
         /// </summary>
         /// <param name="newColor">The new color to set the brush to.</param>
-        private void UpdateBrushColor(Color newColor, bool updateOpacity = false)
+        private void UpdateBrushColor(Color newColor, bool updateOpacity = false,
+            bool fromOpacityChanging = false, bool fromColorSliderChanging = false)
         {
             //Sets the color and updates the brushes.
             menuActiveColors.Swatches[0] = newColor;
             menuActiveColors.Refresh();
 
-            if (updateOpacity && (byte)sliderBrushOpacity.ValueInt != newColor.A)
+            if (!fromOpacityChanging && updateOpacity && (byte)sliderBrushOpacity.ValueInt != newColor.A)
             {
                 sliderBrushOpacity.Value = newColor.A;
-                // else statement exists since it'll already execute by calling this function from ValueChanged.
             }
-            else
+
+            if (!fromColorSliderChanging)
             {
-                UpdateBrushImage();
+                UpdateColorSelectionSliders(null);
             }
+
+            UpdateBrushImage();
         }
 
         /// <summary>
@@ -6783,6 +6864,37 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Updates all sliders in tandem with each other, or based on the primary color changing.
+        /// </summary>
+        private void UpdateColorSelectionSliders(SliderSpecialType? sliderChanged)
+        {
+            // Gets the modified color from the slider that was changed, or the current primary color
+            Color newColor = menuActiveColors.Swatches[0];
+            if (sliderChanged == SliderSpecialType.RedGraph) { newColor = sliderColorR.GetColor(); }
+            else if (sliderChanged == SliderSpecialType.GreenGraph) { newColor = sliderColorG.GetColor(); }
+            else if (sliderChanged == SliderSpecialType.BlueGraph) { newColor = sliderColorB.GetColor(); }
+            else if (sliderChanged == SliderSpecialType.AlphaGraph) { newColor = sliderColorA.GetColor(); }
+            else if (sliderChanged == SliderSpecialType.HueGraph) { newColor = sliderColorH.GetColor(); }
+            else if (sliderChanged == SliderSpecialType.SatGraph) { newColor = sliderColorS.GetColor(); }
+            else if (sliderChanged == SliderSpecialType.ValGraph) { newColor = sliderColorV.GetColor(); }
+
+            // Updates every slider that isn't invoking this change to the new color
+            if (sliderChanged != SliderSpecialType.RedGraph) { sliderColorR.SetColor(newColor); }
+            if (sliderChanged != SliderSpecialType.GreenGraph) { sliderColorG.SetColor(newColor); }
+            if (sliderChanged != SliderSpecialType.BlueGraph) { sliderColorB.SetColor(newColor); }
+            if (sliderChanged != SliderSpecialType.AlphaGraph) { sliderColorA.SetColor(newColor); }
+            if (sliderChanged != SliderSpecialType.HueGraph) { sliderColorH.SetColor(newColor); }
+            if (sliderChanged != SliderSpecialType.SatGraph) { sliderColorS.SetColor(newColor); }
+            if (sliderChanged != SliderSpecialType.ValGraph) { sliderColorV.SetColor(newColor); }
+
+            // Updates the brush color if it changed.
+            if (sliderChanged != null)
+            {
+                UpdateBrushColor(newColor, sliderChanged == SliderSpecialType.AlphaGraph, false, true);
+            }
+        }
+
+        /// <summary>
         /// Updates which controls are enabled or not based on current settings.
         /// </summary>
         private void UpdateEnabledControls()
@@ -6820,6 +6932,13 @@ namespace DynamicDraw
             menuActiveColors.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser && effectToDraw.Effect == null;
             menuPalette.Visible = menuActiveColors.Visible;
             cmbxPaletteDropdown.Visible = menuActiveColors.Visible;
+            sliderColorR.Enabled = menuActiveColors.Visible;
+            sliderColorG.Enabled = menuActiveColors.Visible;
+            sliderColorB.Enabled = menuActiveColors.Visible;
+            sliderColorA.Enabled = menuActiveColors.Visible;
+            sliderColorH.Enabled = menuActiveColors.Visible;
+            sliderColorS.Enabled = menuActiveColors.Visible;
+            sliderColorV.Enabled = menuActiveColors.Visible;
         }
 
         /// <summary>
@@ -6910,6 +7029,43 @@ namespace DynamicDraw
                 txtTooltip.Visible = true;
                 txtTooltip.Text = newTooltip;
             }
+        }
+
+        /// <summary>
+        /// Updates the top menu GUI based on current preferences.
+        /// </summary>
+        private void UpdateTopMenuState()
+        {
+            if (UserSettings.PreferredTheme == ThemePreference.Inherited)
+            {
+                SemanticTheme.CurrentTheme = detectedTheme;
+            }
+            else if (UserSettings.PreferredTheme == ThemePreference.Light)
+            {
+                SemanticTheme.CurrentTheme = ThemeName.Light;
+            }
+            else if (UserSettings.PreferredTheme == ThemePreference.Dark)
+            {
+                SemanticTheme.CurrentTheme = ThemeName.Dark;
+            }
+
+            menuSetCanvasBgImageFit.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit;
+            menuSetCanvasBgImageOnlyIfFits.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits;
+            menuSetCanvasBgTransparent.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Transparent;
+            menuSetCanvasBgGray.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Gray;
+            menuSetCanvasBgWhite.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.White;
+            menuSetCanvasBgBlack.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Black;
+            menuBrushIndicatorSquare.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Square;
+            menuBrushIndicatorPreview.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Preview;
+            menuSetThemeDefault.Checked = UserSettings.PreferredTheme == ThemePreference.Inherited;
+            menuSetThemeLight.Checked = UserSettings.PreferredTheme == ThemePreference.Light;
+            menuSetThemeDark.Checked = UserSettings.PreferredTheme == ThemePreference.Dark;
+            menuShowSymmetryLinesInUse.Checked = UserSettings.ShowSymmetryLinesWhenUsingSymmetry;
+            menuShowMinDistanceInUse.Checked = UserSettings.ShowCircleRadiusWhenUsingMinDistance;
+            menuConfirmCloseSave.Checked = UserSettings.DisableConfirmationOnCloseOrSave;
+            menuColorPickerIncludesAlpha.Checked = UserSettings.ColorPickerIncludesAlpha;
+            menuColorPickerSwitchesToPrevTool.Checked = UserSettings.ColorPickerSwitchesToLastTool;
+            menuRemoveUnfoundImagePaths.Checked = UserSettings.RemoveBrushImagePathsWhenNotFound;
         }
 
         /// <summary>
@@ -9170,7 +9326,7 @@ namespace DynamicDraw
 
         private void SliderBrushOpacity_ValueChanged(object sender, float e)
         {
-            UpdateBrushColor(Color.FromArgb((int)sliderBrushOpacity.Value, menuActiveColors.Swatches[0]));
+            UpdateBrushColor(Color.FromArgb((int)sliderBrushOpacity.Value, menuActiveColors.Swatches[0]), false, true);
         }
 
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
@@ -9219,6 +9375,26 @@ namespace DynamicDraw
             displayCanvas.Refresh();
         }
 
+        private void SliderColorA_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ATip);
+        }
+
+        private void SliderColorB_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.BTip);
+        }
+
+        private void SliderColorG_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.GTip);
+        }
+
+        private void SliderColorH_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.HueTip);
+        }
+
         /// <summary>
         /// Resets the brush to reconfigure colorization. Colorization is
         /// applied when the brush is refreshed.
@@ -9232,6 +9408,21 @@ namespace DynamicDraw
         private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(ShortcutTarget.ColorInfluence, Strings.ColorInfluenceTip);
+        }
+
+        private void SliderColorR_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.RTip);
+        }
+
+        private void SliderColorS_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.SatTip);
+        }
+
+        private void SliderColorV_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.ValTip);
         }
 
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
