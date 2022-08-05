@@ -1,6 +1,7 @@
 using PaintDotNet;
 using System;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace DynamicDraw
 {
@@ -48,6 +49,48 @@ namespace DynamicDraw
                 (byte)Math.Round(col.Green * 255),
                 (byte)Math.Round(col.Red * 255),
                 alpha);
+        }
+
+        /// <summary>
+        /// Returns the parsed color from the text, or null if it's invalid. When allowAlpha is true, attempts to parse
+        /// as an 8-character color first before defaulting to a 6-character color.
+        /// </summary>
+        public static Color? GetColorFromText(string text, bool allowAlpha, byte? defaultAlpha = null)
+        {
+            if (text.StartsWith("#"))
+            {
+                text = text.Substring(1);
+            }
+
+            if (allowAlpha)
+            {
+                if (Regex.Match(text, "^([0-9]|[a-f]){8}$", RegexOptions.IgnoreCase).Success)
+                {
+                    return Color.FromArgb(int.Parse(text, System.Globalization.NumberStyles.HexNumber));
+                }
+            }
+
+            if (Regex.Match(text, "^([0-9]|[a-f]){6}$", RegexOptions.IgnoreCase).Success)
+            {
+                Color parsedColor = Color.FromArgb(int.Parse("ff" + text, System.Globalization.NumberStyles.HexNumber));
+
+                if (defaultAlpha != null)
+                {
+                    return Color.FromArgb(defaultAlpha.Value, parsedColor);
+                }
+
+                return parsedColor;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the color formatted as a hex string.
+        /// </summary>
+        public static string GetTextFromColor(Color col)
+        {
+            return ((ColorBgra)col).ToHexString();
         }
     }
 }

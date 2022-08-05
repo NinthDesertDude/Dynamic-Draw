@@ -51,8 +51,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Gui\Components\ColorWheel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Components\ColorTextbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Gui\Components\SliderColorMode.cs" />
     <Compile Update="Gui\Components\SwatchBox.cs" />
+    <Compile Update="Gui\Forms\ColorPickerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Gui\Forms\EditKeyboardShortcuts.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,9 +122,6 @@
     <Content Include="Resources\icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Gui\Forms\EditKeyboardShortcuts.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Update="Localization\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>

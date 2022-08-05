@@ -41,7 +41,7 @@ namespace DynamicDraw
         /// The list of palettes, with the filename (no file extension) as the key, and the path to the file, including
         /// extension, as the value.
         /// </summary>
-        private BindingList<Tuple<string, string>> paletteOptions;
+        private readonly BindingList<Tuple<string, string>> paletteOptions;
 
         /// <summary>
         /// Contains the list of all blend mode options for brush strokes.
@@ -434,8 +434,12 @@ namespace DynamicDraw
         private Slider sliderBrushSize;
         private Accordion bttnColorControls;
         private FlowLayoutPanel panelColorControls;
-        private Slider sliderColorR, sliderColorG, sliderColorB, sliderColorA;
-        private Slider sliderColorH, sliderColorS, sliderColorV;
+        private FlowLayoutPanel panelWheelWithValueSlider;
+        private ColorWheel wheelColor;
+        private Slider sliderColorValue;
+        private FlowLayoutPanel panelColorWithHexBox;
+        private SwatchBox swatchPrimaryColor;
+        private ColorTextbox txtbxColorHexfield;
         private Accordion bttnSpecialSettings;
         private FlowLayoutPanel panelSpecialSettings;
         private Slider sliderMinDrawDistance;
@@ -816,6 +820,7 @@ namespace DynamicDraw
 
             cmbxChosenEffect.SelectedIndex = token.ActiveEffect.index;
             effectToDraw = token.ActiveEffect.effect;
+            menuActiveColors.Swatches[1] = PdnUserSettings.userSecondaryColor;
 
             UpdateBrush(token.CurrentBrushSettings);
             UpdateBrushImage();
@@ -1099,9 +1104,10 @@ namespace DynamicDraw
                         for (int i = 0; i < lines.Length; i++)
                         {
                             string line = lines[i].Trim().ToLower();
-                            if (Regex.Match(line, "^([0-9]|[a-f]){8}$").Success)
+                            Color? result = ColorUtils.GetColorFromText(line, true);
+                            if (result != null)
                             {
-                                paletteColors.Add(Color.FromArgb(int.Parse(line, System.Globalization.NumberStyles.HexNumber)));
+                                paletteColors.Add(result.Value);
 
                                 if (paletteColors.Count == paletteMaxColors)
                                 {
@@ -3349,13 +3355,12 @@ namespace DynamicDraw
             sliderBrushSize = new Slider(ShortcutTarget.Size, 10f);
             bttnColorControls = new Accordion(true);
             panelColorControls = new FlowLayoutPanel();
-            sliderColorR = new Slider(SliderSpecialType.RedGraph, Color.Black);
-            sliderColorG = new Slider(SliderSpecialType.GreenGraph, Color.Black);
-            sliderColorB = new Slider(SliderSpecialType.BlueGraph, Color.Black);
-            sliderColorA = new Slider(SliderSpecialType.AlphaGraph, Color.Black);
-            sliderColorH = new Slider(SliderSpecialType.HueGraph, Color.Black);
-            sliderColorS = new Slider(SliderSpecialType.SatGraph, Color.Black);
-            sliderColorV = new Slider(SliderSpecialType.ValGraph, Color.Black);
+            panelWheelWithValueSlider = new FlowLayoutPanel();
+            wheelColor = new ColorWheel();
+            sliderColorValue = new Slider(SliderSpecialType.ValGraph, Color.Black);
+            panelColorWithHexBox = new FlowLayoutPanel();
+            swatchPrimaryColor = new SwatchBox(new List<Color>() { Color.Black }, 1);
+            txtbxColorHexfield = new ColorTextbox(Color.Black, true);
             bttnSpecialSettings = new Accordion(true);
             panelSpecialSettings = new FlowLayoutPanel();
             panelChosenEffect = new Panel();
@@ -3529,6 +3534,8 @@ namespace DynamicDraw
             panelBrushAddPickColor.SuspendLayout();
             panelColorInfluenceHSV.SuspendLayout();
             panelColorControls.SuspendLayout();
+            panelWheelWithValueSlider.SuspendLayout();
+            panelColorWithHexBox.SuspendLayout();
             panelSpecialSettings.SuspendLayout();
             panelChosenEffect.SuspendLayout();
             panelRGBLocks.SuspendLayout();
@@ -4507,83 +4514,63 @@ namespace DynamicDraw
             panelColorControls.TabIndex = 19;
             panelColorControls.AutoSize = true;
             panelColorControls.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            panelColorControls.Controls.Add(sliderColorR);
-            panelColorControls.Controls.Add(sliderColorG);
-            panelColorControls.Controls.Add(sliderColorB);
-            panelColorControls.Controls.Add(sliderColorA);
-            panelColorControls.Controls.Add(sliderColorH);
-            panelColorControls.Controls.Add(sliderColorS);
-            panelColorControls.Controls.Add(sliderColorV);
+            panelColorControls.Controls.Add(panelWheelWithValueSlider);
+            panelColorControls.Controls.Add(panelColorWithHexBox);
             #endregion
 
-            #region sliderColorR
-            sliderColorR.AutoSize = false;
-            sliderColorR.Location = new Point(3, 52);
-            sliderColorR.Size = new Size(150, 25);
-            sliderColorR.TabIndex = 21;
-            sliderColorR.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.RedGraph);
-            sliderColorR.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorRedAbbr, val);
-            sliderColorR.MouseEnter += SliderColorR_MouseEnter;
+            #region panelWheelWithValueSlider
+            panelWheelWithValueSlider.Margin = new Padding(0, 3, 0, 3);
+            panelWheelWithValueSlider.Size = new Size(156, 196);
+            panelWheelWithValueSlider.TabIndex = 19;
+            panelWheelWithValueSlider.AutoSize = true;
+            panelWheelWithValueSlider.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelWheelWithValueSlider.Controls.Add(wheelColor);
+            panelWheelWithValueSlider.Controls.Add(sliderColorValue);
             #endregion
 
-            #region sliderColorG
-            sliderColorG.AutoSize = false;
-            sliderColorG.Location = new Point(3, 52);
-            sliderColorG.Size = new Size(150, 25);
-            sliderColorG.TabIndex = 21;
-            sliderColorG.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.GreenGraph);
-            sliderColorG.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorGreenAbbr, val);
-            sliderColorG.MouseEnter += SliderColorG_MouseEnter;
-            #endregion
-
-            #region sliderColorB
-            sliderColorB.AutoSize = false;
-            sliderColorB.Location = new Point(3, 52);
-            sliderColorB.Size = new Size(150, 25);
-            sliderColorB.TabIndex = 21;
-            sliderColorB.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.BlueGraph);
-            sliderColorB.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorBlueAbbr, val);
-            sliderColorB.MouseEnter += SliderColorB_MouseEnter;
-            #endregion
-
-            #region sliderColorA
-            sliderColorA.AutoSize = false;
-            sliderColorA.Location = new Point(3, 52);
-            sliderColorA.Size = new Size(150, 25);
-            sliderColorA.TabIndex = 21;
-            sliderColorA.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.AlphaGraph);
-            sliderColorA.ComputeText = (val) => string.Format("{0}: {1}", Strings.Alpha, val);
-            sliderColorA.MouseEnter += SliderColorA_MouseEnter;
-            #endregion
-
-            #region sliderColorH
-            sliderColorH.AutoSize = false;
-            sliderColorH.Location = new Point(3, 52);
-            sliderColorH.Size = new Size(150, 25);
-            sliderColorH.TabIndex = 21;
-            sliderColorH.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.HueGraph);
-            sliderColorH.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorHueAbbr, Math.Round(val));
-            sliderColorH.MouseEnter += SliderColorH_MouseEnter;
-            #endregion
-
-            #region sliderColorS
-            sliderColorS.AutoSize = false;
-            sliderColorS.Location = new Point(3, 52);
-            sliderColorS.Size = new Size(150, 25);
-            sliderColorS.TabIndex = 21;
-            sliderColorS.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.SatGraph);
-            sliderColorS.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorSatAbbr, Math.Round(val));
-            sliderColorS.MouseEnter += SliderColorS_MouseEnter;
+            #region wheelColor
+            wheelColor.Width = 120;
+            wheelColor.Height = 120;
+            wheelColor.Margin = Padding.Empty;
+            wheelColor.Padding = Padding.Empty;
+            wheelColor.ColorChanged += (_1, _2) => UpdateColorSelectionSliders(null, true);
             #endregion
 
             #region sliderColorV
-            sliderColorV.AutoSize = false;
-            sliderColorV.Location = new Point(3, 52);
-            sliderColorV.Size = new Size(150, 25);
-            sliderColorV.TabIndex = 21;
-            sliderColorV.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.ValGraph);
-            sliderColorV.ComputeText = (val) => string.Format("{0}: {1}", Strings.ColorValAbbr, Math.Round(val));
-            sliderColorV.MouseEnter += SliderColorV_MouseEnter;
+            sliderColorValue.AutoSize = false;
+            sliderColorValue.Location = new Point(3, 52);
+            sliderColorValue.Size = new Size(22, 118);
+            sliderColorValue.TabIndex = 21;
+            sliderColorValue.ValueChanged += (_1, _2) => UpdateColorSelectionSliders(SliderSpecialType.ValGraph);
+            sliderColorValue.ComputeText = (val) => Math.Round(val).ToString();
+            sliderColorValue.MouseEnter += SliderColorV_MouseEnter;
+            #endregion
+
+            #region panelColorWithHexBox
+            panelColorWithHexBox.FlowDirection = FlowDirection.LeftToRight;
+            panelColorWithHexBox.Margin = new Padding(0, 3, 0, 3);
+            panelColorWithHexBox.Size = new Size(156, 196);
+            panelColorWithHexBox.TabIndex = 19;
+            panelColorWithHexBox.AutoSize = true;
+            panelColorWithHexBox.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelColorWithHexBox.Controls.Add(swatchPrimaryColor);
+            panelColorWithHexBox.Controls.Add(txtbxColorHexfield);
+            #endregion
+
+            #region swatchPrimaryColor
+            swatchPrimaryColor.Width = 32;
+            swatchPrimaryColor.Height = 32;
+            swatchPrimaryColor.Margin = new Padding(0, 4, 0, 0);
+            swatchPrimaryColor.SwatchClicked += (col) => { MenuActiveColors_Click(null, null); };
+            swatchPrimaryColor.MouseEnter += SwatchPrimaryColor_MouseEnter;
+            #endregion
+
+            #region txtbxColorHexfield
+            txtbxColorHexfield.Height = 24;
+            txtbxColorHexfield.Width = 68;
+            txtbxColorHexfield.Margin = new Padding(4, 4, 0, 0);
+            txtbxColorHexfield.Text = ColorUtils.GetTextFromColor(Color.Black);
+            txtbxColorHexfield.ColorUpdatedByText += TxtbxColorHexfield_ColorUpdatedByText;
             #endregion
 
             #region bttnSpecialSettings
@@ -6318,6 +6305,10 @@ namespace DynamicDraw
             panelColorInfluenceHSV.PerformLayout();
             panelColorControls.ResumeLayout(false);
             panelColorControls.PerformLayout();
+            panelWheelWithValueSlider.ResumeLayout(false);
+            panelWheelWithValueSlider.PerformLayout();
+            panelColorWithHexBox.ResumeLayout(false);
+            panelColorWithHexBox.PerformLayout();
             panelSpecialSettings.ResumeLayout(false);
             panelSpecialSettings.PerformLayout();
             panelChosenEffect.ResumeLayout(false);
@@ -6660,9 +6651,6 @@ namespace DynamicDraw
             tokenSelectedBrushImagePath = settings.BrushImagePath;
 
             //Sets all other fields.
-            menuActiveColors.Swatches[0] = settings.BrushColor;
-            menuActiveColors.Swatches[1] = PdnUserSettings.userSecondaryColor;
-
             sliderBrushOpacity.Value = settings.BrushOpacity;
             sliderBrushDensity.Value = settings.BrushDensity;
             sliderBrushFlow.Value = settings.BrushFlow;
@@ -6755,7 +6743,7 @@ namespace DynamicDraw
             cmbxBrushSmoothing.SelectedIndex = (int)settings.Smoothing;
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
 
-            UpdateColorSelectionSliders(null);
+            UpdateBrushColor(settings.BrushColor, true);
             UpdateEnabledControls();
         }
 
@@ -6769,6 +6757,10 @@ namespace DynamicDraw
             //Sets the color and updates the brushes.
             menuActiveColors.Swatches[0] = newColor;
             menuActiveColors.Refresh();
+            swatchPrimaryColor.Swatches[0] = newColor;
+            swatchPrimaryColor.Refresh();
+
+            txtbxColorHexfield.AssociatedColor = newColor;
 
             if (!fromOpacityChanging && updateOpacity && (byte)sliderBrushOpacity.ValueInt != newColor.A)
             {
@@ -6866,29 +6858,49 @@ namespace DynamicDraw
         /// <summary>
         /// Updates all sliders in tandem with each other, or based on the primary color changing.
         /// </summary>
-        private void UpdateColorSelectionSliders(SliderSpecialType? sliderChanged)
+        private void UpdateColorSelectionSliders(SliderSpecialType? sliderChanged, bool fromWheel = false)
         {
             // Gets the modified color from the slider that was changed, or the current primary color
             Color newColor = menuActiveColors.Swatches[0];
-            if (sliderChanged == SliderSpecialType.RedGraph) { newColor = sliderColorR.GetColor(); }
-            else if (sliderChanged == SliderSpecialType.GreenGraph) { newColor = sliderColorG.GetColor(); }
-            else if (sliderChanged == SliderSpecialType.BlueGraph) { newColor = sliderColorB.GetColor(); }
-            else if (sliderChanged == SliderSpecialType.AlphaGraph) { newColor = sliderColorA.GetColor(); }
-            else if (sliderChanged == SliderSpecialType.HueGraph) { newColor = sliderColorH.GetColor(); }
-            else if (sliderChanged == SliderSpecialType.SatGraph) { newColor = sliderColorS.GetColor(); }
-            else if (sliderChanged == SliderSpecialType.ValGraph) { newColor = sliderColorV.GetColor(); }
 
-            // Updates every slider that isn't invoking this change to the new color
-            if (sliderChanged != SliderSpecialType.RedGraph) { sliderColorR.SetColor(newColor); }
-            if (sliderChanged != SliderSpecialType.GreenGraph) { sliderColorG.SetColor(newColor); }
-            if (sliderChanged != SliderSpecialType.BlueGraph) { sliderColorB.SetColor(newColor); }
-            if (sliderChanged != SliderSpecialType.AlphaGraph) { sliderColorA.SetColor(newColor); }
-            if (sliderChanged != SliderSpecialType.HueGraph) { sliderColorH.SetColor(newColor); }
-            if (sliderChanged != SliderSpecialType.SatGraph) { sliderColorS.SetColor(newColor); }
-            if (sliderChanged != SliderSpecialType.ValGraph) { sliderColorV.SetColor(newColor); }
+            // Overwrite the hue and saturation of the new color from the wheel, if picking color from it.
+            if (fromWheel)
+            {
+                HsvColorF hsvCol = ColorUtils.HSVFFromBgra(newColor);
+                hsvCol.Hue = wheelColor.HsvColor.Hue;
+                hsvCol.Saturation = wheelColor.HsvColor.Saturation;
+
+                // Users often have pure black as their color and expect the color to change to match the hue wheel,
+                // but also expect it not to adjust value in other cases. So if it's pure black, change the value. This
+                // also matches Paint.NET's native behavior.
+                if (hsvCol.Value == 0)
+                {
+                    hsvCol.Value = wheelColor.HsvColor.Value;
+                }
+
+                newColor = ColorUtils.HSVFToBgra(hsvCol, newColor.A);
+            }
+            else
+            {
+                HsvColorF hsvCol = ColorUtils.HSVFFromBgra(newColor);
+                wheelColor.HsvColor = new HsvColor(
+                    (int)Math.Round(hsvCol.Hue),
+                    (int)Math.Round(hsvCol.Saturation),
+                    100);
+            }
+
+            // Get from, or update sliders.
+            if (sliderChanged == SliderSpecialType.ValGraph)
+            {
+                newColor = sliderColorValue.GetColor();
+            }
+            else
+            {
+                sliderColorValue.SetColor(newColor);
+            }
 
             // Updates the brush color if it changed.
-            if (sliderChanged != null)
+            if (sliderChanged != null || fromWheel)
             {
                 UpdateBrushColor(newColor, sliderChanged == SliderSpecialType.AlphaGraph, false, true);
             }
@@ -6910,18 +6922,7 @@ namespace DynamicDraw
             chkbxLockAlpha.Enabled = activeTool != Tool.Eraser && effectToDraw.Effect == null;
             cmbxBlendMode.Enabled = activeTool != Tool.Eraser && effectToDraw.Effect == null;
 
-            sliderJitterMaxRed.Enabled = enableColorJitter;
-            sliderJitterMinRed.Enabled = enableColorJitter;
-            sliderJitterMaxGreen.Enabled = enableColorJitter;
-            sliderJitterMinGreen.Enabled = enableColorJitter;
-            sliderJitterMaxBlue.Enabled = enableColorJitter;
-            sliderJitterMinBlue.Enabled = enableColorJitter;
-            sliderJitterMaxHue.Enabled = enableColorJitter;
-            sliderJitterMinHue.Enabled = enableColorJitter;
-            sliderJitterMaxSat.Enabled = enableColorJitter;
-            sliderJitterMinSat.Enabled = enableColorJitter;
-            sliderJitterMaxVal.Enabled = enableColorJitter;
-            sliderJitterMinVal.Enabled = enableColorJitter;
+            bttnJitterColorControls.Visible = enableColorJitter;
             panelTabPressureRedJitter.Enabled = enableColorJitter;
             panelTabPressureBlueJitter.Enabled = enableColorJitter;
             panelTabPressureGreenJitter.Enabled = enableColorJitter;
@@ -6932,13 +6933,7 @@ namespace DynamicDraw
             menuActiveColors.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser && effectToDraw.Effect == null;
             menuPalette.Visible = menuActiveColors.Visible;
             cmbxPaletteDropdown.Visible = menuActiveColors.Visible;
-            sliderColorR.Enabled = menuActiveColors.Visible;
-            sliderColorG.Enabled = menuActiveColors.Visible;
-            sliderColorB.Enabled = menuActiveColors.Visible;
-            sliderColorA.Enabled = menuActiveColors.Visible;
-            sliderColorH.Enabled = menuActiveColors.Visible;
-            sliderColorS.Enabled = menuActiveColors.Visible;
-            sliderColorV.Enabled = menuActiveColors.Visible;
+            bttnColorControls.Visible = menuActiveColors.Visible;
         }
 
         /// <summary>
@@ -8443,18 +8438,10 @@ namespace DynamicDraw
         /// </summary>
         private void MenuActiveColors_Click(object sender, EventArgs e)
         {
-            //Creates and configures a color dialog to display.
-            ColorDialog dialog = new ColorDialog
+            ColorPickerDialog dlg = new ColorPickerDialog(menuActiveColors.Swatches[0], true);
+            if (dlg.ShowDialog() == DialogResult.OK)
             {
-                FullOpen = true,
-                Color = menuActiveColors.Swatches[0]
-            };
-
-            //If the user successfully chooses a color.
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                // TODO: until a color dialog with alpha is used, only change RGB channels.
-                UpdateBrushColor(Color.FromArgb(sliderBrushOpacity.ValueInt, dialog.Color));
+                UpdateBrushColor(dlg.AssociatedColor, true);
             }
         }
 
@@ -8575,12 +8562,15 @@ namespace DynamicDraw
         /// </summary>
         private void BttnDeleteBrush_Click(object sender, EventArgs e)
         {
-            settings.CustomBrushes.Remove(currentBrushPath);
-            listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
-            listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
-            currentBrushPath = null;
-            bttnUpdateCurrentBrush.Enabled = false;
-            bttnDeleteBrush.Enabled = false;
+            if (MessageBox.Show(Strings.ConfirmDeleteBrush, "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                settings.CustomBrushes.Remove(currentBrushPath);
+                listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
+                listviewBrushPicker.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.ColumnContent);
+                currentBrushPath = null;
+                bttnUpdateCurrentBrush.Enabled = false;
+                bttnDeleteBrush.Enabled = false;
+            }
         }
 
         private void BttnDeleteBrush_MouseEnter(object sender, EventArgs e)
@@ -9380,21 +9370,6 @@ namespace DynamicDraw
             UpdateTooltip(Strings.ATip);
         }
 
-        private void SliderColorB_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.BTip);
-        }
-
-        private void SliderColorG_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.GTip);
-        }
-
-        private void SliderColorH_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.HueTip);
-        }
-
         /// <summary>
         /// Resets the brush to reconfigure colorization. Colorization is
         /// applied when the brush is refreshed.
@@ -9408,16 +9383,6 @@ namespace DynamicDraw
         private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(ShortcutTarget.ColorInfluence, Strings.ColorInfluenceTip);
-        }
-
-        private void SliderColorR_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.RTip);
-        }
-
-        private void SliderColorS_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.SatTip);
         }
 
         private void SliderColorV_MouseEnter(object sender, EventArgs e)
@@ -9548,6 +9513,16 @@ namespace DynamicDraw
             {
                 UpdateBrushImage();
             }
+        }
+
+        private void SwatchPrimaryColor_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(ShortcutTarget.Color, Strings.BrushPrimaryColorTip);
+        }
+
+        private void TxtbxColorHexfield_ColorUpdatedByText()
+        {
+            UpdateBrushColor(txtbxColorHexfield.AssociatedColor, true);
         }
         #endregion
     }

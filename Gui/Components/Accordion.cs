@@ -5,22 +5,20 @@ using System.Windows.Forms;
 namespace DynamicDraw
 {
     /// <summary>
-    /// A button that hides/shows associated controls when toggled.
+    /// A button that hides/shows associated controls when toggled. If the accordion is hidden, all its controls are
+    /// unbound from their parent controls and reinserted when the accordion is shown again. This method is prone to
+    /// causing differences if the order changes for sibling controls in a bound control's parent; this can be mostly
+    /// handled by encapsulating all into a container control that doesn't do this, then binding that instead.
     /// </summary>
     public class Accordion : Button
     {
         private bool isHovered = false;
 
         private string title = "";
-        private readonly List<Control> boundControls = new List<Control>();
+        private readonly List<(Control ctrl, Control parent, int ctrlIndex)> boundControls = new List<(Control, Control, int)>();
         private bool isCollapsed = false;
         private readonly bool redAccented = false;
 
-        /// <summary>
-        /// Creates a new accordion button.
-        /// </summary>
-        /// <param name="boundControls">The list of controls bound to the accordion.</param>
-        /// <param name="isCollapsed">If true, controls bound to the accordion will not be visible.</param>
         public Accordion(bool redAccented = false)
         {
             this.redAccented = redAccented;
@@ -33,6 +31,7 @@ namespace DynamicDraw
 
             MouseEnter += Accordion_MouseEnter;
             MouseLeave += Accordion_MouseLeave;
+            VisibleChanged += Accordion_VisibleChanged;
         }
 
         private void Accordion_MouseLeave(object sender, System.EventArgs e)
@@ -43,6 +42,34 @@ namespace DynamicDraw
         private void Accordion_MouseEnter(object sender, System.EventArgs e)
         {
             isHovered = true;
+        }
+
+        /// <summary>
+        /// Completely hides or restores bound controls along with the accordion if hidden/revealed.
+        /// </summary>
+        private void Accordion_VisibleChanged(object sender, System.EventArgs e)
+        {
+            for (int i = 0; i < boundControls.Count; i++)
+            {
+                var (ctrl, parent, ctrlIndex) = boundControls[i];
+                if (ctrl != null)
+                {
+                    // disconnects/reconnects the bound control from its parent.
+                    if (!Visible && ctrl.Parent != null)
+                    {
+                        parent.Controls.Remove(ctrl);
+                    }
+                    else if (Visible && ctrl.Parent == null)
+                    {
+                        // Suspend to avoid double-updating between adding & restoring index.
+                        parent.SuspendLayout();
+                        parent.Controls.Add(ctrl);
+                        parent.Controls.SetChildIndex(ctrl, ctrlIndex);
+                        parent.ResumeLayout();
+                        parent.PerformLayout();
+                    }
+                }
+            }
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -94,7 +121,12 @@ namespace DynamicDraw
             this.isCollapsed = isCollapsed;
             this.title = title;
             boundControls.Clear();
-            boundControls.AddRange(controls);
+
+            foreach (Control ctrl in controls)
+            {
+                boundControls.Add((ctrl, ctrl.Parent, ctrl.Parent.Controls.IndexOf(ctrl)));
+            }
+
             UpdateCollapsedState();
         }
 
@@ -107,9 +139,9 @@ namespace DynamicDraw
 
             for (int i = 0; i < boundControls.Count; i++)
             {
-                if (boundControls[i] != null)
+                if (boundControls[i].ctrl != null)
                 {
-                    boundControls[i].Visible = !isCollapsed;
+                    boundControls[i].ctrl.Visible = !isCollapsed;
                 }
             }
         }

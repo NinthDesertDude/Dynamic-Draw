@@ -471,10 +471,10 @@ namespace DynamicDraw
                 return actionData.Equals("t") || actionData.Equals("f") || actionData.Equals("toggle");
             }
 
-            // Colors must be 6 hexadecimal characters, lowercase alphabet.
+            // Colors must be 6 or 8 hexadecimal characters, lowercase alphabet.
             if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Color)
             {
-                return Regex.Match(actionData, "^([0-9]|[a-f]){6}$").Success;
+                return ColorUtils.GetColorFromText(actionData, true) != null;
             }
 
             // Strings must be non-null (already guaranteed by code logic above).

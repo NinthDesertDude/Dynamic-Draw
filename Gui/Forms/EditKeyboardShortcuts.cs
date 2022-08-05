@@ -571,6 +571,9 @@ namespace DynamicDraw
             Controls.Add(panelOuterContainer);
             Icon = Resources.Icon;
             Margin = new Padding(4, 3, 4, 3);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ShowInTaskbar = false;
             Text = Strings.DialogKeyboardShortcutsTitle;
             #endregion
 

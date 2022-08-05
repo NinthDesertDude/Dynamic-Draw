@@ -1269,4 +1269,13 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="ValTip" xml:space="preserve">
     <value>The value of the current color (brightness).</value>
   </data>
+  <data name="BrushPrimaryColorTip" xml:space="preserve">
+    <value>Your current color. Click to change colors.</value>
+  </data>
+  <data name="ConfirmDeleteBrush" xml:space="preserve">
+    <value>Delete this brush?</value>
+  </data>
+  <data name="PickAColor" xml:space="preserve">
+    <value>Pick a color</value>
+  </data>
 </root>

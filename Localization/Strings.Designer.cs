@@ -547,6 +547,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your current color. Click to change colors..
+        /// </summary>
+        internal static string BrushPrimaryColorTip {
+            get {
+                return ResourceManager.GetString("BrushPrimaryColorTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sets the brush rotation for tilting while drawing..
         /// </summary>
         internal static string BrushRotationTip {
@@ -951,6 +960,15 @@ namespace DynamicDraw.Localization {
         internal static string ConfirmChanges {
             get {
                 return ResourceManager.GetString("ConfirmChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete this brush?.
+        /// </summary>
+        internal static string ConfirmDeleteBrush {
+            get {
+                return ResourceManager.GetString("ConfirmDeleteBrush", resourceCulture);
             }
         }
         
@@ -1950,6 +1968,15 @@ namespace DynamicDraw.Localization {
         internal static string PalettesTextboxTip {
             get {
                 return ResourceManager.GetString("PalettesTextboxTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pick a color.
+        /// </summary>
+        internal static string PickAColor {
+            get {
+                return ResourceManager.GetString("PickAColor", resourceCulture);
             }
         }
         

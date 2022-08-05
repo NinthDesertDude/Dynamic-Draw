@@ -70,7 +70,7 @@ namespace DynamicDraw
                     SemanticTheme.Instance.GetBrush(ThemeSlot.MenuBg), 0, 0, Width, Height);
 
                 // Draws a checkbox background
-                Point chkbxPos = PositionElement(
+                Point chkbxPos = LayoutUtils.PositionElement(
                     ContentAlignment.MiddleLeft, chkbxSize, chkbxSize, Width, Height);
 
                 e.Graphics.FillRectangle(
@@ -83,7 +83,7 @@ namespace DynamicDraw
                     var measures = e.Graphics.MeasureString("✓", Font);
 
                     // Draws the check for a checked checkbox
-                    Point chkbxCheckPos = PositionElement(
+                    Point chkbxCheckPos = LayoutUtils.PositionElement(
                         ContentAlignment.MiddleCenter, (int)measures.Width, (int)measures.Height, chkbxSize, chkbxSize);
 
                     e.Graphics.DrawString("✓", Font, Enabled
@@ -117,7 +117,7 @@ namespace DynamicDraw
             Point imagePos = Point.Empty;
             if (imageToDraw != null)
             {
-                imagePos = PositionElement(ImageAlign, imageToDraw.Width, imageToDraw.Height, Width, Height);
+                imagePos = LayoutUtils.PositionElement(ImageAlign, imageToDraw.Width, imageToDraw.Height, Width, Height);
                 SemanticTheme.DrawImageForTheme(e.Graphics, imageToDraw, !Enabled, imagePos.X, imagePos.Y);
             }
 
@@ -125,7 +125,7 @@ namespace DynamicDraw
             if (!string.IsNullOrEmpty(Text))
             {
                 var measures = e.Graphics.MeasureString(Text, Font);
-                Point textPos = PositionElement(TextAlign, (int)measures.Width + padding, (int)measures.Height, Width, Height);
+                Point textPos = LayoutUtils.PositionElement(TextAlign, (int)measures.Width + padding, (int)measures.Height, Width, Height);
 
                 // Moves text out of the way of the image, if any.
                 if (imagePos != Point.Empty)
@@ -153,39 +153,6 @@ namespace DynamicDraw
                 e.Graphics.DrawRectangle(
                     SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
             }
-        }
-
-        /// <summary>
-        /// Returns the position of a rectangle within the bounds of this control, according to the given alignment.
-        /// </summary>
-        private static Point PositionElement(
-            ContentAlignment alignment,
-            int elementWidth, int elementHeight,
-            int containerWidth, int containerHeight)
-        {
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                    return Point.Empty;
-                case ContentAlignment.TopCenter:
-                    return new Point((int)((containerWidth - elementWidth) / 2f), 0);
-                case ContentAlignment.TopRight:
-                    return new Point(containerWidth - elementWidth, 0);
-                case ContentAlignment.MiddleLeft:
-                    return new Point(0, (int)((containerHeight - elementHeight) / 2f));
-                case ContentAlignment.MiddleCenter:
-                    return new Point((int)((containerWidth - elementWidth) / 2f), (int)((containerHeight - elementHeight) / 2f));
-                case ContentAlignment.MiddleRight:
-                    return new Point(containerWidth - elementWidth, (int)((containerHeight - elementHeight) / 2f));
-                case ContentAlignment.BottomLeft:
-                    return new Point(0, containerHeight - elementHeight);
-                case ContentAlignment.BottomCenter:
-                    return new Point((int)((containerWidth - elementWidth) / 2f), containerHeight - elementHeight);
-                case ContentAlignment.BottomRight:
-                    return new Point(containerWidth - elementWidth, containerHeight - elementHeight);
-            }
-
-            throw new Exception("Unexpected value for ContentAlignment.");
         }
     }
 }

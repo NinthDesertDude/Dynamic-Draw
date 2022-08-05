@@ -32,7 +32,7 @@ namespace DynamicDraw.Logic
                     (entry.RequireWheel != wheelDownFired && entry.RequireWheel != wheelUpFired) ||
                     (!entry.RequireWheel && entry.RequireWheelUp != wheelUpFired) ||
                     (!entry.RequireWheel && entry.RequireWheelDown != wheelDownFired) ||
-                    (entry.ContextsDenied.Overlaps(contexts)) ||
+                    entry.ContextsDenied.Overlaps(contexts) ||
                     (!entry.ContextsRequired.IsSubsetOf(contexts)))
                 {
                     continue;

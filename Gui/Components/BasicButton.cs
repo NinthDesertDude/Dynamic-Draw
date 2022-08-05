@@ -51,7 +51,7 @@ namespace DynamicDraw
 
             if (Image != null)
             {
-                imagePos = PositionElement(ImageAlign, Image.Width, Image.Height);
+                imagePos = LayoutUtils.PositionElement(ImageAlign, Image.Width, Image.Height, Width, Height);
                 SemanticTheme.DrawImageForTheme(e.Graphics, Image, !Enabled, imagePos.X, imagePos.Y);
             }
 
@@ -60,7 +60,7 @@ namespace DynamicDraw
             {
                 const int padding = 4;
                 var measures = e.Graphics.MeasureString(Text, Font);
-                Point textPos = PositionElement(TextAlign, (int)measures.Width + padding, (int)measures.Height);
+                Point textPos = LayoutUtils.PositionElement(TextAlign, (int)measures.Width + padding, (int)measures.Height, Width, Height);
 
                 // Moves text out of the way of the image, if any.
                 if (imagePos != Point.Empty)
@@ -86,36 +86,6 @@ namespace DynamicDraw
                 e.Graphics.DrawRectangle(
                     SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
             }
-        }
-
-        /// <summary>
-        /// Returns the position of a rectangle within the bounds of this control, according to the given alignment.
-        /// </summary>
-        private Point PositionElement(ContentAlignment alignment, int elementWidth, int elementHeight)
-        {
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                    return Point.Empty;
-                case ContentAlignment.TopCenter:
-                    return new Point((int)((Width - elementWidth) / 2f), 0);
-                case ContentAlignment.TopRight:
-                    return new Point(Width - elementWidth, 0);
-                case ContentAlignment.MiddleLeft:
-                    return new Point(0, (int)((Height - elementHeight) / 2f));
-                case ContentAlignment.MiddleCenter:
-                    return new Point((int)((Width - elementWidth) / 2f), (int)((Height - elementHeight) / 2f));
-                case ContentAlignment.MiddleRight:
-                    return new Point(Width - elementWidth, (int)((Height - elementHeight) / 2f));
-                case ContentAlignment.BottomLeft:
-                    return new Point(0, Height - elementHeight);
-                case ContentAlignment.BottomCenter:
-                    return new Point((int)((Width - elementWidth) / 2f), Height - elementHeight);
-                case ContentAlignment.BottomRight:
-                    return new Point(Width - elementWidth, Height - elementHeight);
-            }
-
-            throw new Exception("Unexpected value for ContentAlignment.");
         }
     }
 }

@@ -323,6 +323,9 @@ namespace DynamicDraw.Gui
             Icon = Resources.Icon;
             KeyPreview = true;
             Margin = new Padding(4, 3, 4, 3);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ShowInTaskbar = false;
             Text = Localization.Strings.DialogCustomBrushImagesTitle;
             KeyDown += EditCustomAssetDirectories_KeyDown;
             #endregion

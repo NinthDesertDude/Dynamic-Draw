@@ -12,6 +12,7 @@ namespace DynamicDraw
     /// </summary>
     public class Slider : Button
     {
+        private const int triangleIndicatorSize = 6;
         private bool integerOnly;
         private float value;
         private float valuePercent;
@@ -25,6 +26,28 @@ namespace DynamicDraw
         private string newValueString;
 
         private (SliderSpecialType type, Color color)? specialMode;
+
+        /// <summary>
+        /// The main dimension is whichever is largest -- determines slider layout.
+        /// </summary>
+        private int mainDimension
+        {
+            get
+            {
+                return Width > Height ? Width : Height;
+            }
+        }
+
+        /// <summary>
+        /// Angle of the linear gradient brush
+        /// </summary>
+        private int mainDimensionAngle
+        {
+            get
+            {
+                return Width > Height ? 0 : 270;
+            }
+        }
 
         /// <summary>
         /// Whether to allow values between the numeric stops or not. When false, the value will
@@ -69,6 +92,17 @@ namespace DynamicDraw
                 }
 
                 Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Returns whether the user is typing a value into the slider or not.
+        /// </summary>
+        public bool IsTyping
+        {
+            get
+            {
+                return isTypingNewValue;
             }
         }
 
@@ -447,11 +481,25 @@ namespace DynamicDraw
                 }
             }
 
-            float fill = ClientSize.Width * valuePercent;
+            float fill = mainDimension * valuePercent;
 
             // Draws a specialized back color gradient for special sliders.
             if (specialMode != null)
             {
+                // Fill the undrawn region.
+                if (Width > Height)
+                {
+                    e.Graphics.FillRectangle(
+                        SemanticTheme.Instance.GetBrush(ThemeSlot.MenuBg),
+                        0, Height - triangleIndicatorSize, Width, triangleIndicatorSize);
+                }
+                else
+                {
+                    e.Graphics.FillRectangle(
+                        SemanticTheme.Instance.GetBrush(ThemeSlot.MenuBg),
+                        Width - triangleIndicatorSize, 0, triangleIndicatorSize, Height);
+                }
+
                 // Draws a single gradient between two colors, for all but the hue slider.
                 if (specialMode.Value.type != SliderSpecialType.HueGraph)
                 {
@@ -499,7 +547,9 @@ namespace DynamicDraw
                             throw new Exception("Should never execute");
                     }
 
-                    Rectangle bounds = new Rectangle(0, 0, Width, Height);
+                    Rectangle bounds = new Rectangle(0, 0,
+                        (Width > Height) ? Width : Width - triangleIndicatorSize,
+                        (Width < Height) ? Height : Height - triangleIndicatorSize);
 
                     // Draws a checkered underlying background only for the alpha graph.
                     if (specialMode.Value.type == SliderSpecialType.AlphaGraph)
@@ -510,7 +560,7 @@ namespace DynamicDraw
                     }
 
                     // Draws the gradient between the two colors for all graphs but hue.
-                    using (var brush = new LinearGradientBrush(bounds, computedColor1, computedColor2, 0f))
+                    using (var brush = new LinearGradientBrush(bounds, computedColor1, computedColor2, mainDimensionAngle))
                     {
                         e.Graphics.FillRectangle(brush, bounds);
                     }
@@ -521,40 +571,61 @@ namespace DynamicDraw
                 {
                     PaintDotNet.HsvColorF hsvCol = ColorUtils.HSVFFromBgra(specialMode.Value.color);
                     PaintDotNet.HsvColorF hsvColStaging;
-                    for (int i = 0; i < Width; i++)
+                    for (int i = 0; i < mainDimension; i++)
                     {
                         hsvColStaging = new PaintDotNet.HsvColorF(hsvCol.Hue, hsvCol.Saturation, hsvCol.Value);
-                        hsvColStaging.Hue = (double)i / Width * MaximumInt;
+                        hsvColStaging.Hue = (double)i / mainDimension * MaximumInt;
 
                         using (Pen pen = new Pen(ColorUtils.HSVFToBgra(hsvColStaging)))
                         {
-                            e.Graphics.DrawLine(pen, i, 0, i, Height);
+                            if (Width > Height) { e.Graphics.DrawLine(pen, i, 0, i, Height - triangleIndicatorSize); }
+                            else { e.Graphics.DrawLine(pen, 0, i, Width - triangleIndicatorSize, i); }
                         }
                     }
                 }
 
-                // Draws a line marking the active place.
-                float valWidthRatio = value / Maximum * Width;
-                e.Graphics.DrawLine(SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive),
-                    valWidthRatio, 0, valWidthRatio, Height);
+                // Draws a triangle marking the active place.
+                float valSizeRatio = value / Maximum * mainDimension;
+                if (Width > Height)
+                {
+                    e.Graphics.FillPolygon(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
+                        new Point[] {
+                            new Point((int)valSizeRatio - triangleIndicatorSize, Height),
+                            new Point((int)valSizeRatio, Height - triangleIndicatorSize),
+                            new Point((int)valSizeRatio + triangleIndicatorSize, Height)
+                        });
+                }
+                else
+                {
+                    e.Graphics.FillPolygon(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
+                        new Point[] {
+                            new Point(Width, Height - (int)valSizeRatio - triangleIndicatorSize),
+                            new Point(Width - triangleIndicatorSize, Height - (int)valSizeRatio),
+                            new Point(Width, Height - (int)valSizeRatio + triangleIndicatorSize)
+                        });
+                }
             }
 
             // Draws the filled bar according to the value, in disabled or non-disabled mode.
             else
             {
-                if (!Enabled)
+                SolidBrush brushBg = !Enabled
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled)
+                    : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg);
+
+                SolidBrush brushBgHighlight = !Enabled
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlightDisabled)
+                    : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive);
+
+                if (Width > Height)
                 {
-                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled),
-                        fill, 0, ClientSize.Width - fill, ClientSize.Height);
-                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlightDisabled),
-                        0, 0, fill, ClientSize.Height);
+                    e.Graphics.FillRectangle(brushBg, fill, 0, ClientSize.Width - fill, ClientSize.Height);
+                    e.Graphics.FillRectangle(brushBgHighlight, 0, 0, fill, ClientSize.Height);
                 }
                 else
                 {
-                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
-                        fill, 0, ClientSize.Width - fill, ClientSize.Height);
-                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
-                        0, 0, fill, ClientSize.Height);
+                    e.Graphics.FillRectangle(brushBg, 0, fill, ClientSize.Width, ClientSize.Height - fill);
+                    e.Graphics.FillRectangle(brushBgHighlight, 0, 0, ClientSize.Width, fill);
                 }
             }
 
@@ -563,28 +634,49 @@ namespace DynamicDraw
                 ? newValueString + "..." // ... tells the user they're interactively typing.
                 : ComputeText?.Invoke(Value) ?? string.Format("{0:0.##}", Value);
 
-            SizeF measures = e.Graphics.MeasureString(formatted, Font);
-
-            // For gradient sliders, draws a black background behind the text itself for visibility.
-            if (specialMode != null)
+            // Draws the text if set.
+            if (!string.IsNullOrWhiteSpace(formatted))
             {
-                e.Graphics.FillRectangle(
-                    SemanticTheme.Instance.GetBrush(ThemeSlot.HalfAlphaMenuControlBg),
-                    (ClientSize.Width - measures.Width) / 2,
-                    (ClientSize.Height - measures.Height) / 2,
-                    measures.Width,
-                    measures.Height);
-            }
+                int triangleOffset = specialMode != null ? triangleIndicatorSize : 0;
+                int triangleOffsetX = Width > Height ? 0 : triangleOffset;
+                int triangleOffsetY = Width > Height ? triangleOffset : 0;
 
-            e.Graphics.DrawString(formatted, Font, SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
-                (ClientSize.Width - measures.Width) / 2,
-                (ClientSize.Height - measures.Height) / 2);
+                SizeF measures = e.Graphics.MeasureString(formatted, Font);
+                Point textPos = LayoutUtils.PositionElement(
+                    TextAlign,
+                    (int)Math.Ceiling(measures.Width),
+                    (int)Math.Ceiling(measures.Height),
+                    Width - triangleOffsetX,
+                    Height - triangleOffsetY);
+
+                // For gradient sliders, draws a black background behind the text itself for visibility.
+                if (specialMode != null)
+                {
+                    e.Graphics.FillRectangle(
+                        SemanticTheme.Instance.GetBrush(ThemeSlot.HalfAlphaMenuControlBg),
+                        textPos.X,
+                        textPos.Y,
+                        measures.Width,
+                        measures.Height);
+                }
+
+                e.Graphics.DrawString(
+                    formatted, Font, SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText), textPos.X, textPos.Y);
+            }
 
             // Draws a rectangle indicating focus (uses text color since the filled slider part is active color).
             if (Enabled && Focused && ShowFocusCues)
             {
+                int offsetW = 1;
+                int offsetH = 1;
+                if (specialMode != null)
+                {
+                    offsetW = Width > Height ? 1 : triangleIndicatorSize;
+                    offsetH = Width > Height ? triangleIndicatorSize : 1;
+                }
                 e.Graphics.DrawRectangle(
-                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlText), 0, 0, Width - 1, Height - 1);
+                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlText),
+                    0, 0, Width - offsetW, Height - offsetH);
             }
         }
 
@@ -593,26 +685,8 @@ namespace DynamicDraw
         /// </summary>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (Focused || mouseOver || isTypingNewValue)
+            if (isTypingNewValue)
             {
-                // enters typing mode and deletes a character.
-                if (keyData == Keys.Back)
-                {
-                    if (!isTypingNewValue)
-                    {
-                        newValueString = Value.ToString();
-                        isTypingNewValue = true;
-                    }
-
-                    if (newValueString.Length > 0)
-                    {
-                        newValueString = newValueString[..^1];
-                    }
-
-                    Refresh();
-                    return true;
-                }
-
                 // exits typing mode, discarding any typed changes.
                 if (keyData == Keys.Escape)
                 {
@@ -623,6 +697,8 @@ namespace DynamicDraw
                         Refresh();
                         return true;
                     }
+
+                    return false;
                 }
 
                 // if interactively typing, accepts a valid typed value bound to the min/max.
@@ -644,24 +720,49 @@ namespace DynamicDraw
                         Refresh();
                         return true;
                     }
+
+                    return false;
+                }
+            }
+            if (Focused || mouseOver)
+            {
+                // enters typing mode and deletes a character.
+                if (keyData == Keys.Back)
+                {
+                    if (!isTypingNewValue)
+                    {
+                        newValueString = Value.ToString();
+                        isTypingNewValue = true;
+                    }
+
+                    if (newValueString.Length > 0)
+                    {
+                        newValueString = newValueString[..^1];
+                    }
+
+                    Refresh();
+                    return true;
                 }
 
                 // if not typing, nudges the value.
-                else if (!isTypingNewValue && (keyData == Keys.Left || keyData == Keys.Right))
+                else if (!isTypingNewValue &&
+                    ((Width > Height && (keyData == Keys.Left || keyData == Keys.Right)) ||
+                    keyData == Keys.Down || keyData == Keys.Up))
                 {
-                    float nudge = (keyData == Keys.Left) ? -0.01f : 0.01f;
+                    bool isDown = keyData == Keys.Left || keyData == Keys.Down;
+                    float nudge = isDown ? -0.01f : 0.01f;
 
                     if (discreteStops)
                     {
                         float interval = 1f / (numericStops.Count - 1);
                         int leftStopIndex = (int)Math.Round(valuePercent / interval);
 
-                        if (keyData == Keys.Left && leftStopIndex != 0)
+                        if (isDown && leftStopIndex != 0)
                         {
                             Value = numericStops[leftStopIndex - 1];
                             valuePercent = interval * (leftStopIndex - 1);
                         }
-                        else if (keyData == Keys.Right && leftStopIndex < numericStops.Count - 1)
+                        else if (!isDown && leftStopIndex < numericStops.Count - 1)
                         {
                             Value = numericStops[leftStopIndex + 1];
                             valuePercent = interval * (leftStopIndex + 1);
@@ -695,7 +796,7 @@ namespace DynamicDraw
                     if (newChar != "")
                     {
                         newValueString += newChar;
-                        isTypingNewValue = true;                        
+                        isTypingNewValue = true;
                         Refresh();
                         return true;
                     }
@@ -774,8 +875,12 @@ namespace DynamicDraw
         /// </summary>
         private void AdjustValue()
         {
-            int pos = PointToClient(Cursor.Position).X;
-            float percent = Math.Clamp(pos / (float)ClientSize.Width, 0f, 1f);
+            int pos = Width > Height
+                ? PointToClient(Cursor.Position).X
+                : PointToClient(Cursor.Position).Y;
+            float percent = Width > Height
+                ? Math.Clamp(pos / (float)mainDimension, 0f, 1f)
+                : Math.Clamp((Height - pos) / (float)mainDimension, 0f, 1f);
             Value = CalculateValue(percent);
         }
 
@@ -861,13 +966,13 @@ namespace DynamicDraw
                 return numericStops[(int)Math.Round(fractionalIndex)];
             }
 
-            // Gets the actual indices of the nearest left and right stop, and how far "along" the old value is.
-            int leftStop = (int)fractionalIndex;
-            int rightStop = (int)Math.Ceiling(fractionalIndex);
-            float newPercent = fractionalIndex - leftStop;
+            // Gets the actual indices of the nearest stop on either side, and how far "along" the old value is.
+            int firstStop = (int)fractionalIndex;
+            int lastStop = (int)Math.Ceiling(fractionalIndex);
+            float newPercent = fractionalIndex - firstStop;
 
-            // Linear interpolation between the nearest left & right stops based on proximity.
-            float finalValue = numericStops[leftStop] + newPercent * (numericStops[rightStop] - numericStops[leftStop]);
+            // Linear interpolation between the nearest stops on either side based on proximity.
+            float finalValue = numericStops[firstStop] + newPercent * (numericStops[lastStop] - numericStops[firstStop]);
             return finalValue;
         }
 
@@ -886,35 +991,35 @@ namespace DynamicDraw
             }
 
             float evenIntervalOfEachStop = 1f / (numericStops.Count - 1f);
-            int leftSideIndex = numericStops.Count - 1;
+            int firstIndex = numericStops.Count - 1;
 
-            // Finds the index of the nearest numeric stop to the left.
+            // Finds the index of the previous stop.
             for (int i = 0; i < numericStops.Count; i++)
             {
                 if (value < numericStops[i])
                 {
-                    leftSideIndex = i - 1;
+                    firstIndex = i - 1;
                     break;
                 }
             }
 
-            // Catches edge case at 100% where there's no right-side numeric stop
+            // Catches edge case at 100% where there's no next numeric stop
             // Also skips lerping for exact matches, esp. useful when discrete steps is true.
-            if (value == numericStops[leftSideIndex])
+            if (value == numericStops[firstIndex])
             {
-                return leftSideIndex * evenIntervalOfEachStop;
+                return firstIndex * evenIntervalOfEachStop;
             }
 
             // This is the lerp function, but solved for t. Lerp function is a + t * (b - a)
-            // t in this case is the percent along from the left to the right stop.
-            float leftStop = numericStops[leftSideIndex];
-            float rightStop = numericStops[leftSideIndex + 1];
-            float percentBetween = (value - leftStop) / (rightStop - leftStop);
+            // t in this case is the percent along between the prev and next stops.
+            float prevStop = numericStops[firstIndex];
+            float nextStop = numericStops[firstIndex + 1];
+            float percentBetween = (value - prevStop) / (nextStop - prevStop);
 
-            // This is (left side * interval) + (percent * interval), but simplified by one operation. This is the % of
-            // the slider covered up to the start of the left stop, plus the % from the left stop to right stop
+            // This is (prev side * interval) + (percent * interval), but simplified by one operation. This is the % of
+            // the slider covered up to the start of the left stop, plus the % from the prev stop to next stop
             // multiplied by how much one interval is worth in terms of %.
-            return (leftSideIndex + percentBetween) * evenIntervalOfEachStop;
+            return (firstIndex + percentBetween) * evenIntervalOfEachStop;
         }
 
         /// <summary>
