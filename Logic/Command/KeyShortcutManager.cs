@@ -29,9 +29,8 @@ namespace DynamicDraw.Logic
                     entry.RequireCtrl != ctrlHeld ||
                     entry.RequireShift != shiftHeld ||
                     entry.RequireAlt != altHeld ||
-                    (entry.RequireWheel != wheelDownFired && entry.RequireWheel != wheelUpFired) ||
-                    (!entry.RequireWheel && entry.RequireWheelUp != wheelUpFired) ||
-                    (!entry.RequireWheel && entry.RequireWheelDown != wheelDownFired) ||
+                    entry.RequireWheelUp != wheelUpFired ||
+                    entry.RequireWheelDown != wheelDownFired ||
                     entry.ContextsDenied.Overlaps(contexts) ||
                     (!entry.ContextsRequired.IsSubsetOf(contexts)))
                 {

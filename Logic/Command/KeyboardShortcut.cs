@@ -84,6 +84,28 @@ namespace DynamicDraw
         };
 
         /// <summary>
+        /// A string used as data depending on the type of action. See <see cref="KeyShortcutAction"/>'s enum entries
+        /// for a description of how the string should be interpreted based on the named action.
+        /// </summary>
+        [JsonInclude]
+        [JsonPropertyName("ActionData")]
+        public string ActionData { get; set; }
+
+        /// <summary>
+        /// Only hardcoded shortcuts can set this value, which should be a positive integer for built-in commands,
+        /// otherwise -1. Once set, the value should not be updated because users can disable built-in shortcuts, and
+        /// they're identified by this value.
+        /// </summary>
+        [JsonIgnore]
+        public int BuiltInShortcutId { get; set; }
+
+        /// <summary>
+        /// Only hardcoded shortcuts can set this value, which is false for all custom shortcuts.
+        /// </summary>
+        [JsonIgnore]
+        public bool CommandDialogIgnore { get; set; }
+
+        /// <summary>
         /// While any of these contexts are valid, the shortcut is automatically disabled.
         /// </summary>
         [JsonInclude]
@@ -104,6 +126,17 @@ namespace DynamicDraw
         [JsonPropertyName("Keys")]
         public HashSet<Keys> Keys { get; set; }
 
+        [JsonInclude]
+        [JsonPropertyName("Name")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Whether or not the alt modifier key must be held to trigger the shortcut.
+        /// </summary>
+        [JsonInclude]
+        [JsonPropertyName("RequireAlt")]
+        public bool RequireAlt { get; set; }
+
         /// <summary>
         /// Whether or not the control modifier key must be held to trigger the shortcut.
         /// </summary>
@@ -119,20 +152,12 @@ namespace DynamicDraw
         public bool RequireShift { get; set; }
 
         /// <summary>
-        /// Whether or not the alt modifier key must be held to trigger the shortcut.
+        /// Whether the mouse wheel must be scrolled down to trigger the shortcut. All keyboard keys in the command
+        /// should already be held before the mouse wheel is moved in order to fire the command.
         /// </summary>
         [JsonInclude]
-        [JsonPropertyName("RequireAlt")]
-        public bool RequireAlt { get; set; }
-
-        /// <summary>
-        /// Whether the mouse wheel must be scrolled to trigger the shortcut. This condition is met on wheel up or
-        /// wheel down. All keyboard keys in the command should already be held before the mouse wheel is moved in
-        /// order to fire the command.
-        /// </summary>
-        [JsonInclude]
-        [JsonPropertyName("RequireWheel")]
-        public bool RequireWheel { get; set; }
+        [JsonPropertyName("RequireWheelDown")]
+        public bool RequireWheelDown { get; set; }
 
         /// <summary>
         /// Whether the mouse wheel must be scrolled up to trigger the shortcut. All keyboard keys in the command
@@ -143,27 +168,11 @@ namespace DynamicDraw
         public bool RequireWheelUp { get; set; }
 
         /// <summary>
-        /// Whether the mouse wheel must be scrolled down to trigger the shortcut. All keyboard keys in the command
-        /// should already be held before the mouse wheel is moved in order to fire the command.
-        /// </summary>
-        [JsonInclude]
-        [JsonPropertyName("RequireWheelDown")]
-        public bool RequireWheelDown { get; set; }
-
-        /// <summary>
         /// Identifies the setting to change associated with this key shortcut.
         /// </summary>
         [JsonInclude]
-        [JsonPropertyName("Target")]
+        [JsonPropertyName("ShortcutToExecute")]
         public ShortcutTarget Target { get; set; }
-
-        /// <summary>
-        /// A string used as data depending on the type of action. See <see cref="KeyShortcutAction"/>'s enum entries
-        /// for a description of how the string should be interpreted based on the named action.
-        /// </summary>
-        [JsonInclude]
-        [JsonPropertyName("ActionData")]
-        public string ActionData { get; set; }
 
         /// <summary>
         /// The action to take when the keyboard shortcut is invoked.
@@ -173,13 +182,15 @@ namespace DynamicDraw
 
         public KeyboardShortcut()
         {
+            BuiltInShortcutId = -1;
+            CommandDialogIgnore = false;
             ContextsDenied = new HashSet<ShortcutContext>();
             ContextsRequired = new HashSet<ShortcutContext>();
             Keys = new HashSet<Keys>();
+            Name = "";
             RequireCtrl = false;
             RequireShift = false;
             RequireAlt = false;
-            RequireWheel = false;
             RequireWheelUp = false;
             RequireWheelDown = false;
             Target = ShortcutTarget.None;
@@ -370,22 +381,12 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Returns the friendly display name of the shortcut target.
-        /// </summary>
-        public string GetShortcutName()
-        {
-            return Setting.AllSettings[Target].Name;
-        }
-
-        /// <summary>
         /// Returns user-legible string like "Ctrl + A + Mouse wheel" describing the key sequence used to invoke the
         /// given shortcut.
         /// </summary>
         public string GetShortcutKeysString()
         {
-            return GetShortcutKeysString(Keys,
-                RequireCtrl, RequireShift, RequireAlt,
-                RequireWheel, RequireWheelUp, RequireWheelDown);
+            return GetShortcutKeysString(Keys, RequireCtrl, RequireShift, RequireAlt, RequireWheelUp, RequireWheelDown);
         }
 
         /// <summary>
@@ -491,8 +492,7 @@ namespace DynamicDraw
         /// given shortcut.
         /// </summary>
         public static string GetShortcutKeysString(HashSet<Keys> keys,
-            bool ctrlHeld, bool shiftHeld, bool altHeld,
-            bool wheel, bool wheelUp, bool wheelDown)
+            bool ctrlHeld, bool shiftHeld, bool altHeld, bool wheelUp, bool wheelDown)
         {
             List<string> keysList = new List<string>();
             if (ctrlHeld) { keysList.Add(Strings.ShortcutInputCtrl); }
@@ -556,7 +556,6 @@ namespace DynamicDraw
                 else { keysList.Add(key.ToString()); }
             }
 
-            if (wheel) { keysList.Add(Strings.ShortcutInputWheel); }
             if (wheelUp) { keysList.Add(Strings.ShortcutInputWheelUp); }
             if (wheelDown) { keysList.Add(Strings.ShortcutInputWheelDown); }
 

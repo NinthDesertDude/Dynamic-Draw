@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using DynamicDraw.Properties;
 using DynamicDraw.Localization;
@@ -12,6 +13,7 @@ namespace DynamicDraw
     {
         private BindingList<Tuple<string, KeyboardShortcut>> shortcutsList;
         private HashSet<KeyboardShortcut> shortcuts;
+        private readonly HashSet<int> disabledShortcuts;
 
         private bool isRecordingKeystroke = false;
         private readonly HashSet<Keys> recordedAllKeys = new HashSet<Keys>();
@@ -19,6 +21,8 @@ namespace DynamicDraw
 
         private ShortcutTarget currentShortcutTarget = ShortcutTarget.None;
         private HashSet<Keys> currentShortcutSequence = new HashSet<Keys>();
+        private int currentShortcutBuiltInId = -1;
+        private string currentShortcutName = "";
         private bool currentShortcutUsesMouseWheelUp = false;
         private bool currentShortcutUsesMouseWheelDown = false;
         private bool currentShortcutRequiresCtrl = false;
@@ -41,10 +45,11 @@ namespace DynamicDraw
         private FlowLayoutPanel panelOuterContainer;
         private FlowLayoutPanel panelShortcutControls;
         private FlowLayoutPanel panelSaveCancel;
-        private BasicButton bttnDeleteShortcut;
+        private BasicButton bttnDeleteOrToggle;
         private BasicButton bttnRestoreDefaults;
         private ListBox shortcutsListBox;
         private BasicButton bttnEditShortcut;
+        private FlowLayoutPanel pnlName;
         private FlowLayoutPanel pnlAddEditBar;
         private ComboBox cmbxShortcutTarget;
         private ToggleButton chkbxShortcutWheelUp;
@@ -53,14 +58,20 @@ namespace DynamicDraw
         private FlowLayoutPanel pnlWheelCheckboxes;
         private FlowLayoutPanel pnlTargetAndShortcut;
         private FlowLayoutPanel pnlShortcutExtraData;
-        private Panel panel1;
+        private Panel pnlRestoreDefaults;
+        private TextBox txtbxShortcutName;
         private TextBox txtbxShortcutActionData;
         #endregion
 
-        public EditKeyboardShortcuts(HashSet<KeyboardShortcut> shortcuts)
+        public EditKeyboardShortcuts(HashSet<KeyboardShortcut> shortcuts, HashSet<int> disabledShortcuts)
         {
+            // The passed-in list is all custom shortcuts + filtered defaults. This removes any defaults, then re-adds all
+            // defaults because it needs to display everything.
+            var newShortcutsList = PersistentSettings.RemoveDefaultShortcuts(shortcuts);
+            this.shortcuts = PersistentSettings.InjectDefaultShortcuts(newShortcutsList, new HashSet<int>());
+
             KeyPreview = true; // for recording keystrokes.
-            this.shortcuts = new HashSet<KeyboardShortcut>(shortcuts);
+            this.disabledShortcuts = new HashSet<int>(disabledShortcuts);
 
             SetupGui();
             CenterToScreen();
@@ -182,7 +193,19 @@ namespace DynamicDraw
         /// </summary>
         public HashSet<KeyboardShortcut> GetShortcutsAfterDialogOK()
         {
-            return shortcuts;
+            // Returns only the custom shortcuts + filtered defaults, same format as received by this dialog.
+            var newShortcutsList = PersistentSettings.RemoveDefaultShortcuts(shortcuts);
+            return PersistentSettings.InjectDefaultShortcuts(newShortcutsList, disabledShortcuts);
+        }
+
+        /// <summary>
+        /// Returns the unmodified disabled shortcuts list, to be accessed only after this dialog has been shown and
+        /// accepted by the user activating the OK button.
+        /// </summary>
+        /// <returns></returns>
+        public HashSet<int> GetDisabledShortcutsAfterDialogOK()
+        {
+            return disabledShortcuts;
         }
 
         /// <summary>
@@ -259,9 +282,9 @@ namespace DynamicDraw
                             recordedAllKeys, out bool ctrlHeld, out bool shiftHeld, out bool altHeld);
 
                         bttnShortcutSequence.Text = KeyboardShortcut.GetShortcutKeysString(
-                            sequenceToDisplay, ctrlHeld, shiftHeld, altHeld, false,
+                            sequenceToDisplay, ctrlHeld, shiftHeld, altHeld,
                             currentShortcutUsesMouseWheelUp, currentShortcutUsesMouseWheelDown)
-                            + "..."; // Tells the user off that keys are still being recorded.
+                            + "..."; // Tells the user that keys are still being recorded.
                     }
                 }
                 else
@@ -271,7 +294,6 @@ namespace DynamicDraw
                         currentShortcutRequiresCtrl,
                         currentShortcutRequiresShift,
                         currentShortcutRequiresAlt,
-                        false,
                         currentShortcutUsesMouseWheelUp,
                         currentShortcutUsesMouseWheelDown);
                 }
@@ -282,12 +304,32 @@ namespace DynamicDraw
                 chkbxShortcutWheelDown.Checked = currentShortcutUsesMouseWheelDown;
                 chkbxShortcutWheelDown.Enabled = !currentShortcutUsesMouseWheelUp;
                 txtbxShortcutActionData.Text = currentShortcutActionData;
+                txtbxShortcutName.Text = currentShortcutName;
 
                 // Handles the add, edit, delete button enabled status.
                 txtbxShortcutActionData.Enabled = (currentShortcutTarget != ShortcutTarget.None) &&
                     Setting.AllSettings[currentShortcutTarget].ValueType != ShortcutTargetDataType.Action;
 
-                bttnDeleteShortcut.Enabled = shortcutsListBox.SelectedItems.Count != 0;
+                bool onlyBuiltInShortcutsSelected = true;
+                bool anyBuiltInShortcutsSelected = false;
+                foreach (var shortcut in shortcutsListBox.SelectedItems)
+                {
+                    if (((Tuple<string, KeyboardShortcut>)shortcut).Item2.BuiltInShortcutId >= 0)
+                    {
+                        anyBuiltInShortcutsSelected = true;
+                    }
+                    else
+                    {
+                        onlyBuiltInShortcutsSelected = false;
+                    }
+                }
+
+                bttnDeleteOrToggle.Text = anyBuiltInShortcutsSelected
+                    ? onlyBuiltInShortcutsSelected
+                        ? Strings.Toggle
+                        : Strings.DeleteOrToggle
+                    : Strings.Delete;
+                bttnDeleteOrToggle.Enabled = shortcutsListBox.SelectedItems.Count != 0;
             }
 
             bool isShortcutValid =
@@ -296,7 +338,9 @@ namespace DynamicDraw
                 KeyboardShortcut.IsActionValid(currentShortcutTarget, currentShortcutActionData);
 
             bttnAddShortcut.Enabled = isShortcutValid;
-            bttnEditShortcut.Enabled = isShortcutValid && shortcutsListBox.SelectedItems.Count == 1;
+            bttnEditShortcut.Enabled = currentShortcutBuiltInId == -1
+                && isShortcutValid
+                && shortcutsListBox.SelectedItems.Count == 1;
         }
 
         private void SetupGui()
@@ -310,6 +354,7 @@ namespace DynamicDraw
             panelShortcuts = new FlowLayoutPanel();
             shortcutsListBox = new ListBox();
             panelOuterContainer = new FlowLayoutPanel();
+            pnlName = new FlowLayoutPanel();
             pnlAddEditBar = new FlowLayoutPanel();
             pnlTargetAndShortcut = new FlowLayoutPanel();
             cmbxShortcutTarget = new ComboBox();
@@ -318,22 +363,24 @@ namespace DynamicDraw
             chkbxShortcutWheelUp = new ToggleButton();
             chkbxShortcutWheelDown = new ToggleButton();
             pnlShortcutExtraData = new FlowLayoutPanel();
+            txtbxShortcutName = new TextBox();
             txtbxShortcutActionData = new TextBox();
             panelShortcutControls = new FlowLayoutPanel();
             bttnEditShortcut = new BasicButton();
-            bttnDeleteShortcut = new BasicButton();
+            bttnDeleteOrToggle = new BasicButton();
             panelSaveCancel = new FlowLayoutPanel();
-            panel1 = new Panel();
+            pnlRestoreDefaults = new Panel();
             bttnRestoreDefaults = new BasicButton();
             panelShortcuts.SuspendLayout();
             panelOuterContainer.SuspendLayout();
+            pnlName.SuspendLayout();
             pnlAddEditBar.SuspendLayout();
             pnlTargetAndShortcut.SuspendLayout();
             pnlWheelCheckboxes.SuspendLayout();
             pnlShortcutExtraData.SuspendLayout();
             panelShortcutControls.SuspendLayout();
             panelSaveCancel.SuspendLayout();
-            panel1.SuspendLayout();
+            pnlRestoreDefaults.SuspendLayout();
             SuspendLayout();
 
             #region txtKeyboardShortcuts
@@ -401,19 +448,37 @@ namespace DynamicDraw
             shortcutsListBox.SelectedIndexChanged += ShortcutsListBox_SelectedIndexChanged;
             #endregion
 
+            #region txtbxShortcutName
+            txtbxShortcutName.Location = new Point(3, 3);
+            txtbxShortcutName.PlaceholderText = Strings.Name;
+            txtbxShortcutName.Size = new Size(355, 23);
+            txtbxShortcutName.TabIndex = 32;
+            txtbxShortcutName.TextChanged += TxtbxShortcutName_TextChanged;
+            #endregion
+
+            #region pnlName
+            pnlName.Controls.Add(txtbxShortcutName);
+            pnlName.Location = new Point(4, 0);
+            pnlName.Margin = new Padding(4, 3, 4, 3);
+            pnlName.Padding = new Padding(0, 4, 0, 4);
+            pnlName.Size = new Size(684, 30);
+            pnlName.TabIndex = 32;
+            #endregion
+
             #region panelOuterContainer
+            panelOuterContainer.FlowDirection = FlowDirection.TopDown;
             panelOuterContainer.Controls.Add(panelShortcuts);
+            panelOuterContainer.Controls.Add(pnlName);
             panelOuterContainer.Controls.Add(pnlAddEditBar);
             panelOuterContainer.Controls.Add(panelSaveCancel);
             panelOuterContainer.Dock = DockStyle.Fill;
             panelOuterContainer.Location = new Point(0, 0);
             panelOuterContainer.Margin = new Padding(4, 3, 4, 3);
-            panelOuterContainer.Size = new Size(692, 364);
+            panelOuterContainer.Size = new Size(692, 354);
             panelOuterContainer.TabIndex = 31;
             #endregion
 
             #region pnlAddEditBar
-            pnlAddEditBar.BorderStyle = BorderStyle.FixedSingle;
             pnlAddEditBar.Controls.Add(pnlTargetAndShortcut);
             pnlAddEditBar.Controls.Add(pnlWheelCheckboxes);
             pnlAddEditBar.Controls.Add(pnlShortcutExtraData);
@@ -507,7 +572,7 @@ namespace DynamicDraw
             #region panelShortcutControls
             panelShortcutControls.Controls.Add(bttnAddShortcut);
             panelShortcutControls.Controls.Add(bttnEditShortcut);
-            panelShortcutControls.Controls.Add(bttnDeleteShortcut);
+            panelShortcutControls.Controls.Add(bttnDeleteOrToggle);
             panelShortcutControls.Location = new Point(0, 29);
             panelShortcutControls.Margin = new Padding(0);
             panelShortcutControls.Size = new Size(358, 29);
@@ -525,20 +590,20 @@ namespace DynamicDraw
             #endregion
 
             #region bttnDeleteShortcut
-            bttnDeleteShortcut.Enabled = false;
-            bttnDeleteShortcut.Location = new Point(200, 0);
-            bttnDeleteShortcut.Margin = new Padding(4, 0, 4, 0);
-            bttnDeleteShortcut.Size = new Size(90, 27);
-            bttnDeleteShortcut.TabIndex = 30;
-            bttnDeleteShortcut.Text = Strings.Delete;
-            bttnDeleteShortcut.Click += BttnDeleteShortcut_Click;
+            bttnDeleteOrToggle.Enabled = false;
+            bttnDeleteOrToggle.Location = new Point(200, 0);
+            bttnDeleteOrToggle.Margin = new Padding(4, 0, 4, 0);
+            bttnDeleteOrToggle.Size = new Size(90, 27);
+            bttnDeleteOrToggle.TabIndex = 30;
+            bttnDeleteOrToggle.Text = Strings.Delete;
+            bttnDeleteOrToggle.Click += BttnDeleteOrToggle_Click;
             #endregion
 
             #region panelSaveCancel
             panelSaveCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panelSaveCancel.Controls.Add(bttnCancel);
             panelSaveCancel.Controls.Add(bttnSave);
-            panelSaveCancel.Controls.Add(panel1);
+            panelSaveCancel.Controls.Add(pnlRestoreDefaults);
             panelSaveCancel.FlowDirection = FlowDirection.RightToLeft;
             panelSaveCancel.Location = new Point(4, 314);
             panelSaveCancel.Margin = new Padding(4, 18, 4, 3);
@@ -546,12 +611,12 @@ namespace DynamicDraw
             panelSaveCancel.TabIndex = 3;
             #endregion
 
-            #region panel1
-            panel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            panel1.Controls.Add(bttnRestoreDefaults);
-            panel1.Location = new Point(3, 15);
-            panel1.Size = new Size(382, 28);
-            panel1.TabIndex = 32;
+            #region pnlRestoreDefaults
+            pnlRestoreDefaults.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            pnlRestoreDefaults.Controls.Add(bttnRestoreDefaults);
+            pnlRestoreDefaults.Location = new Point(3, 15);
+            pnlRestoreDefaults.Size = new Size(382, 28);
+            pnlRestoreDefaults.TabIndex = 32;
             #endregion
 
             #region bttnRestoreDefaults
@@ -567,7 +632,7 @@ namespace DynamicDraw
             #region EditKeyboardShortcuts
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(692, 364);
+            ClientSize = new Size(692, 404);
             Controls.Add(panelOuterContainer);
             Icon = Resources.Icon;
             Margin = new Padding(4, 3, 4, 3);
@@ -591,8 +656,13 @@ namespace DynamicDraw
             pnlShortcutExtraData.PerformLayout();
             panelShortcutControls.ResumeLayout(false);
             panelSaveCancel.ResumeLayout(false);
-            panel1.ResumeLayout(false);
+            pnlRestoreDefaults.ResumeLayout(false);
             ResumeLayout(false);
+        }
+
+        private void TxtbxShortcutName_TextChanged(object sender, EventArgs e)
+        {
+            currentShortcutName = txtbxShortcutName.Text;
         }
         #endregion
 
@@ -613,7 +683,7 @@ namespace DynamicDraw
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 ContextsDenied = new HashSet<ShortcutContext>() { ShortcutContext.Typing },
                 Keys = currentShortcutSequence,
-                RequireWheel = false,
+                Name = currentShortcutName,
                 RequireWheelUp = currentShortcutUsesMouseWheelUp,
                 RequireWheelDown = currentShortcutUsesMouseWheelDown,
                 ActionData = currentShortcutActionData
@@ -651,9 +721,9 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Deletes the selected shortcut.
+        /// Deletes the selected shortcut if custom, or toggles a built-in one between enabled/disabled.
         /// </summary>
-        private void BttnDeleteShortcut_Click(object sender, EventArgs e)
+        private void BttnDeleteOrToggle_Click(object sender, EventArgs e)
         {
             isUnsavedDataEdited = false;
             wereEntriesEdited = true;
@@ -666,18 +736,35 @@ namespace DynamicDraw
                 shortcutsCopy.Add((Tuple<string, KeyboardShortcut>)shortcutsListBox.SelectedItems[i]);
             }
 
-            // Removes in a loop.
+            // Removes or toggles in a loop.
             for (int i = 0; i < shortcutsCopy.Count; i++)
             {
                 var item = shortcutsCopy[i];
                 int index = shortcutsList.IndexOf(item);
 
-                shortcutsList.RemoveAt(index);
-                shortcuts.Remove(item.Item2);
+                if (item.Item2.BuiltInShortcutId >= 0)
+                {
+                    // Toggle enable/disable for built-in shortcuts.
+                    if (disabledShortcuts.Contains(item.Item2.BuiltInShortcutId))
+                    {
+                        disabledShortcuts.Remove(item.Item2.BuiltInShortcutId);
+                    }
+                    else
+                    {
+                        disabledShortcuts.Add(item.Item2.BuiltInShortcutId);
+                    }
+                }
+                else
+                {
+                    // Delete custom shortcuts.
+                    shortcutsList.RemoveAt(index);
+                    shortcuts.Remove(item.Item2);
+                }
             }
 
             shortcutsListBox.ResumeLayout();
             shortcutsListBox.Refresh();
+            RefreshViewBasedOnShortcut(false);
         }
 
         /// <summary>
@@ -699,12 +786,23 @@ namespace DynamicDraw
                 RequireShift = currentShortcutRequiresShift,
                 ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 ContextsDenied = new HashSet<ShortcutContext>() { ShortcutContext.Typing },
+                Name = currentShortcutName,
                 RequireAlt = currentShortcutRequiresAlt,
                 RequireWheelDown = currentShortcutUsesMouseWheelDown,
                 RequireWheelUp = currentShortcutUsesMouseWheelUp,
                 Target = currentShortcutTarget
             });
-            shortcuts.Remove(item.Item2);
+
+            // Editing a built-in shortcut adds it to the disabled list, but won't remove it.
+            if (shortcutsList[index].Item2.BuiltInShortcutId >= 0)
+            {
+                disabledShortcuts.Add(shortcutsList[index].Item2.BuiltInShortcutId);
+            }
+            else
+            {
+                shortcuts.Remove(item.Item2);
+            }
+
             shortcuts.Add(shortcutsList[index].Item2);
             shortcutsListBox.Refresh();
         }
@@ -721,6 +819,7 @@ namespace DynamicDraw
 
             if (resetStatus == DialogResult.OK)
             {
+                disabledShortcuts.Clear();
                 shortcuts = PersistentSettings.GetShallowShortcutsList();
                 GenerateShortcutsList();
             }
@@ -830,6 +929,8 @@ namespace DynamicDraw
             cmbxShortcutTarget.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             txtbxShortcutActionData.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
             txtbxShortcutActionData.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            txtbxShortcutName.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
+            txtbxShortcutName.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             Refresh();
         }
 
@@ -844,13 +945,17 @@ namespace DynamicDraw
             }
 
             var item = shortcutsList[e.Index];
-            Brush headerColor = SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText);
+            bool isBuiltIn = item.Item2.BuiltInShortcutId >= 0;
+            bool isDisabled = disabledShortcuts.Contains(item.Item2.BuiltInShortcutId);
+
+            Brush headerColor = isDisabled
+                ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextSubtle)
+                : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText);
             Brush detailsColor = SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlRedAccent);
 
             if (shortcutsListBox.SelectedIndices.Contains(e.Index))
             {
                 e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
-                e.DrawFocusRectangle();
                 headerColor = Brushes.White;
                 detailsColor = Brushes.Yellow;
             }
@@ -859,7 +964,13 @@ namespace DynamicDraw
                 e.DrawBackground();
             }
 
-            string shortcutName = item.Item2.GetShortcutName();
+            string shortcutName = item.Item2.Name;
+            if (isBuiltIn)
+            {
+                shortcutName = isDisabled
+                    ? $"{Strings.BuiltIn}, {Strings.Off} - {shortcutName}"
+                    : $"{Strings.BuiltIn} - {shortcutName}";
+            }
 
             e.Graphics.DrawString(shortcutName, boldFont, headerColor, e.Bounds.X, e.Bounds.Y);
 
@@ -878,12 +989,12 @@ namespace DynamicDraw
         /// </summary>
         private void ShortcutsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            isUnsavedDataEdited = false;
-
             if (shortcutsListBox.SelectedIndices.Count > 1)
             {
                 currentShortcutTarget = ShortcutTarget.None;
                 currentShortcutSequence = new HashSet<Keys>();
+                currentShortcutBuiltInId = -1;
+                currentShortcutName = "";
                 currentShortcutUsesMouseWheelUp = false;
                 currentShortcutUsesMouseWheelDown = false;
                 currentShortcutActionData = "";
@@ -898,6 +1009,8 @@ namespace DynamicDraw
                 var item = ((Tuple<string, KeyboardShortcut>)shortcutsListBox.SelectedItem).Item2;
                 currentShortcutTarget = item.Target;
                 currentShortcutSequence = new HashSet<Keys>(item.Keys);
+                currentShortcutBuiltInId = item.BuiltInShortcutId;
+                currentShortcutName = item.Name;
                 currentShortcutUsesMouseWheelUp = item.RequireWheelUp;
                 currentShortcutUsesMouseWheelDown = item.RequireWheelDown;
                 currentShortcutActionData = item.ActionData;
@@ -908,6 +1021,7 @@ namespace DynamicDraw
 
             RefreshViewBasedOnShortcut(false);
             shortcutsListBox.Refresh();
+            isUnsavedDataEdited = false;
         }
 
         /// <summary>

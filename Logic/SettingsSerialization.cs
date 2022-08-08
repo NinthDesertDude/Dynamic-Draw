@@ -22,7 +22,8 @@ namespace DynamicDraw
         private HashSet<string> customBrushDirectories;
         private HashSet<string> paletteDirectories;
         private Dictionary<string, BrushSettings> customBrushes;
-        private HashSet<KeyboardShortcut> keyboardShortcuts;
+        private HashSet<KeyboardShortcut> customShortcuts;
+        private HashSet<int> disabledShortcuts;
         private UserSettings preferences;
         private bool useDefaultBrushes;
 
@@ -118,18 +119,38 @@ namespace DynamicDraw
         /// Gets or sets the list of registered keyboard shortcuts (user-changeable).
         /// </summary>
         [JsonInclude]
-        [JsonPropertyName("KeyboardShortcuts")]
-        public HashSet<KeyboardShortcut> KeyboardShortcuts
+        [JsonPropertyName("CustomShortcuts")]
+        public HashSet<KeyboardShortcut> CustomShortcuts
         {
             get
             {
-                return keyboardShortcuts;
+                return customShortcuts;
             }
             set
             {
-                if (keyboardShortcuts != value)
+                if (customShortcuts != value)
                 {
-                    keyboardShortcuts = new HashSet<KeyboardShortcut>(value);
+                    customShortcuts = new HashSet<KeyboardShortcut>(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of default shortcuts that aren't enabled (user-changeable).
+        /// </summary>
+        [JsonInclude]
+        [JsonPropertyName("DisabledShortcuts")]
+        public HashSet<int> DisabledShortcuts
+        {
+            get
+            {
+                return disabledShortcuts;
+            }
+            set
+            {
+                if (disabledShortcuts != value)
+                {
+                    disabledShortcuts = new HashSet<int>(value);
                 }
             }
         }
@@ -189,7 +210,8 @@ namespace DynamicDraw
             }
 
             customBrushes = new Dictionary<string, BrushSettings>();
-            keyboardShortcuts = PersistentSettings.GetShallowShortcutsList();
+            customShortcuts = PersistentSettings.GetShallowShortcutsList();
+            disabledShortcuts = new HashSet<int>();
             preferences = new UserSettings();
             useDefaultBrushes = true;
         }
@@ -228,7 +250,10 @@ namespace DynamicDraw
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
                         paletteDirectories = new HashSet<string>(savedSettings.PaletteDirectories, StringComparer.OrdinalIgnoreCase);
                         customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
-                        keyboardShortcuts = savedSettings.KeyboardShortcuts ?? PersistentSettings.GetShallowShortcutsList();
+                        disabledShortcuts = savedSettings.DisabledShortcuts;
+                        customShortcuts = PersistentSettings.InjectDefaultShortcuts(
+                            savedSettings.CustomShortcuts ?? new HashSet<KeyboardShortcut>(),
+                            disabledShortcuts);
                         preferences = new UserSettings(savedSettings.Preferences);
                         useDefaultBrushes = savedSettings.UseDefaultBrushes;
                     }
@@ -286,10 +311,17 @@ namespace DynamicDraw
                 }
             }
 
+            // After loading, custom shortcuts is combined with enabled default shortcuts. This removes them all when
+            // saving, then puts them back in after.
+            HashSet<KeyboardShortcut> shortcutsCopy = new HashSet<KeyboardShortcut>(customShortcuts);
+            customShortcuts = PersistentSettings.RemoveDefaultShortcuts(customShortcuts);
+
             using (FileStream stream = new FileStream(settingsPath, FileMode.Create, FileAccess.Write))
             {
                 JsonSerializer.Serialize(stream, this, typeof(SettingsSerialization));
             }
+
+            customShortcuts = shortcutsCopy;
         }
 
         /// <summary>

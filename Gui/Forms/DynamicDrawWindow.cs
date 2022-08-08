@@ -272,13 +272,13 @@ namespace DynamicDraw
         {
             get
             {
-                return settings?.KeyboardShortcuts ?? new PersistentSettings().KeyboardShortcuts;
+                return settings?.CustomShortcuts ?? new PersistentSettings().CustomShortcuts;
             }
             set
             {
-                if (settings?.KeyboardShortcuts != null)
+                if (settings?.CustomShortcuts != null)
                 {
-                    settings.KeyboardShortcuts = value;
+                    settings.CustomShortcuts = value;
                 }
             }
         }
@@ -778,7 +778,7 @@ namespace DynamicDraw
             }
 
             // Registers all current keyboard shortcuts.
-            InitKeyboardShortcuts(token.KeyboardShortcuts);
+            InitKeyboardShortcuts(token.CustomShortcuts);
 
             token.CurrentBrushSettings.BrushColor = PdnUserSettings.userPrimaryColor;
             token.CurrentBrushSettings.BrushOpacity = PdnUserSettings.userPrimaryColor.A;
@@ -834,7 +834,7 @@ namespace DynamicDraw
         {
             PersistentSettings token = (PersistentSettings)EffectToken;
             token.UserSettings = UserSettings;
-            token.KeyboardShortcuts = KeyboardShortcuts;
+            token.CustomShortcuts = KeyboardShortcuts;
             token.CustomBrushLocations = loadedBrushImagePaths;
             token.CurrentBrushSettings = CreateSettingsObjectFromCurrentSettings(true);
             token.ActiveEffect = new(cmbxChosenEffect.SelectedIndex, new CustomEffect(effectToDraw, false));
@@ -1440,6 +1440,7 @@ namespace DynamicDraw
 
                 dialog.Owner = this;
                 var dlgResult = dialog.ShowDialog();
+                currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
 
                 if (repaintTimer.Enabled)
                 {
@@ -3150,6 +3151,22 @@ namespace DynamicDraw
                     menuActiveColors.Swatches.Reverse();
                     UpdateBrushColor(menuActiveColors.Swatches[0], true);
                     break;
+                case ShortcutTarget.OpenColorPickerDialog:
+                    ColorPickerDialog dlgPicker = new ColorPickerDialog(menuActiveColors.Swatches[0], true);
+                    if (dlgPicker.ShowDialog() == DialogResult.OK)
+                    {
+                        UpdateBrushColor(dlgPicker.AssociatedColor, true);
+                    }
+                    currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
+                    break;
+                case ShortcutTarget.OpenQuickCommandDialog:
+                    CommandDialog dlgCommand = new CommandDialog(KeyboardShortcuts);
+                    if (dlgCommand.ShowDialog() == DialogResult.OK)
+                    {
+                        HandleShortcut(dlgCommand.ShortcutToExecute);
+                    }
+                    currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
+                    break;
             };
         }
 
@@ -3687,9 +3704,10 @@ namespace DynamicDraw
             menuKeyboardShortcutsDialog = new ToolStripMenuItem(Strings.MenuKeyboardShortcuts);
             menuKeyboardShortcutsDialog.Click += (a, b) =>
             {
-                var shortcutsDialog = new EditKeyboardShortcuts(KeyboardShortcuts);
+                var shortcutsDialog = new EditKeyboardShortcuts(KeyboardShortcuts, settings.DisabledShortcuts);
                 if (shortcutsDialog.ShowDialog() == DialogResult.OK)
                 {
+                    settings.DisabledShortcuts = shortcutsDialog.GetDisabledShortcutsAfterDialogOK();
                     InitKeyboardShortcuts(shortcutsDialog.GetShortcutsAfterDialogOK());
                 }
             };
@@ -4090,8 +4108,7 @@ namespace DynamicDraw
             {
                 if (col == 0)
                 {
-                    // Opens a color dialog to change the primary color.
-                    MenuActiveColors_Click(null, null);
+                    HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.OpenColorPickerDialog });
                 }
                 else
                 {
@@ -4561,7 +4578,10 @@ namespace DynamicDraw
             swatchPrimaryColor.Width = 32;
             swatchPrimaryColor.Height = 32;
             swatchPrimaryColor.Margin = new Padding(0, 4, 0, 0);
-            swatchPrimaryColor.SwatchClicked += (col) => { MenuActiveColors_Click(null, null); };
+            swatchPrimaryColor.SwatchClicked += (col) =>
+            {
+                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.OpenColorPickerDialog });
+            };
             swatchPrimaryColor.MouseEnter += SwatchPrimaryColor_MouseEnter;
             #endregion
 
@@ -6253,7 +6273,7 @@ namespace DynamicDraw
             bttnSaveBrush.MouseEnter += BttnSaveBrush_MouseEnter;
             #endregion
 
-            #region WinDynamicDraw
+            #region DynamicDrawWindow
             AcceptButton = bttnOk;
             AutoScaleDimensions = new SizeF(96f, 96f);
             BackgroundImageLayout = ImageLayout.None;
@@ -6988,7 +7008,6 @@ namespace DynamicDraw
                         shortcut.RequireCtrl,
                         shortcut.RequireShift,
                         shortcut.RequireAlt,
-                        shortcut.RequireWheel,
                         shortcut.RequireWheelUp,
                         shortcut.RequireWheelDown));
                 }
@@ -8433,18 +8452,6 @@ namespace DynamicDraw
             SliderBrushFlow_ValueChanged(null, 0);
         }
 
-        /// <summary>
-        /// Sets the new color of the brush.
-        /// </summary>
-        private void MenuActiveColors_Click(object sender, EventArgs e)
-        {
-            ColorPickerDialog dlg = new ColorPickerDialog(menuActiveColors.Swatches[0], true);
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                UpdateBrushColor(dlg.AssociatedColor, true);
-            }
-        }
-
         private void MenuActiveColors_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(ShortcutTarget.Color, Strings.BrushColorTip);
@@ -8708,6 +8715,7 @@ namespace DynamicDraw
                 (txt) => string.IsNullOrWhiteSpace(txt) ? Strings.CustomBrushDialogErrorName : null);
 
             DialogResult result = dlg.ShowDialog();
+            currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
             if (result == DialogResult.OK)
             {
                 string inputText = dlg.GetSubmittedText();

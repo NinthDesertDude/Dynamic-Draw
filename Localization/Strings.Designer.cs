@@ -937,6 +937,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Command.
+        /// </summary>
+        internal static string Command {
+            get {
+                return ResourceManager.GetString("Command", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Confirm.
         /// </summary>
         internal static string Confirm {
@@ -1266,6 +1275,15 @@ namespace DynamicDraw.Localization {
         internal static string DeleteBrushTip {
             get {
                 return ResourceManager.GetString("DeleteBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete / Toggle.
+        /// </summary>
+        internal static string DeleteOrToggle {
+            get {
+                return ResourceManager.GetString("DeleteOrToggle", resourceCulture);
             }
         }
         
@@ -1909,11 +1927,29 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Shortcut.
         /// </summary>
         internal static string NoShortcut {
             get {
                 return ResourceManager.GetString("NoShortcut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        internal static string Off {
+            get {
+                return ResourceManager.GetString("Off", resourceCulture);
             }
         }
         
@@ -1932,6 +1968,24 @@ namespace DynamicDraw.Localization {
         internal static string OkTip {
             get {
                 return ResourceManager.GetString("OkTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open color picker.
+        /// </summary>
+        internal static string OpenColorPickerDialog {
+            get {
+                return ResourceManager.GetString("OpenColorPickerDialog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open quick commands.
+        /// </summary>
+        internal static string OpenQuickCommandDialog {
+            get {
+                return ResourceManager.GetString("OpenQuickCommandDialog", resourceCulture);
             }
         }
         
@@ -2962,6 +3016,213 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Decrease brush flow.
+        /// </summary>
+        internal static string ShortcutNameDecreaseBrushFlow {
+            get {
+                return ResourceManager.GetString("ShortcutNameDecreaseBrushFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decrease brush opacity.
+        /// </summary>
+        internal static string ShortcutNameDecreaseBrushOpacity {
+            get {
+                return ResourceManager.GetString("ShortcutNameDecreaseBrushOpacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decrease brush size.
+        /// </summary>
+        internal static string ShortcutNameDecreaseBrushSize {
+            get {
+                return ResourceManager.GetString("ShortcutNameDecreaseBrushSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase brush flow.
+        /// </summary>
+        internal static string ShortcutNameIncreaseBrushFlow {
+            get {
+                return ResourceManager.GetString("ShortcutNameIncreaseBrushFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase brush opacity.
+        /// </summary>
+        internal static string ShortcutNameIncreaseBrushOpacity {
+            get {
+                return ResourceManager.GetString("ShortcutNameIncreaseBrushOpacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase brush size.
+        /// </summary>
+        internal static string ShortcutNameIncreaseBrushSize {
+            get {
+                return ResourceManager.GetString("ShortcutNameIncreaseBrushSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas down.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasDown {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas left.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasLeft {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas right.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasRight {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas up.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasUp {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open quick command.
+        /// </summary>
+        internal static string ShortcutNameOpenQuickCommand {
+            get {
+                return ResourceManager.GetString("ShortcutNameOpenQuickCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Re-center the canvas.
+        /// </summary>
+        internal static string ShortcutNameRecenterTheCanvas {
+            get {
+                return ResourceManager.GetString("ShortcutNameRecenterTheCanvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate brush clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateBrushClockwise {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateBrushClockwise", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate brush counter-clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateBrushCounter {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateBrushCounter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate canvas clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateCanvasClockwise {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateCanvasClockwise", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate canvas counter-clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateCanvasCounter {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateCanvasCounter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch primary and secondary colors.
+        /// </summary>
+        internal static string ShortcutNameSwitchPrimarySecondary {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchPrimarySecondary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to brush.
+        /// </summary>
+        internal static string ShortcutNameSwitchToBrush {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to color picker.
+        /// </summary>
+        internal static string ShortcutNameSwitchToColorPicker {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToColorPicker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to eraser.
+        /// </summary>
+        internal static string ShortcutNameSwitchToEraser {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToEraser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to set origin.
+        /// </summary>
+        internal static string ShortcutNameSwitchToSetOrigin {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToSetOrigin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom in.
+        /// </summary>
+        internal static string ShortcutNameZoomIn {
+            get {
+                return ResourceManager.GetString("ShortcutNameZoomIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom out.
+        /// </summary>
+        internal static string ShortcutNameZoomOut {
+            get {
+                return ResourceManager.GetString("ShortcutNameZoomOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nudge Canvas Horizontally.
         /// </summary>
         internal static string ShortcutNudgeCanvasX {
@@ -3327,6 +3588,15 @@ namespace DynamicDraw.Localization {
         internal static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle.
+        /// </summary>
+        internal static string Toggle {
+            get {
+                return ResourceManager.GetString("Toggle", resourceCulture);
             }
         }
         

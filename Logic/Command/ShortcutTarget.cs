@@ -353,6 +353,16 @@
         /// <summary>
         /// Swaps the primary and secondary colors with each other.
         /// </summary>
-        SwapPrimarySecondaryColors = 86
+        SwapPrimarySecondaryColors = 86,
+
+        /// <summary>
+        /// Opens the color picker dialog with RGBA, HSV controls.
+        /// </summary>
+        OpenColorPickerDialog = 87,
+
+        /// <summary>
+        /// Opens the quick command dialog that allows the user to execute a command from a list.
+        /// </summary>
+        OpenQuickCommandDialog = 88
     }
 }

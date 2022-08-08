@@ -1278,4 +1278,94 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="PickAColor" xml:space="preserve">
     <value>Pick a color</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="OpenColorPickerDialog" xml:space="preserve">
+    <value>Open color picker</value>
+  </data>
+  <data name="OpenQuickCommandDialog" xml:space="preserve">
+    <value>Open quick commands</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="DeleteOrToggle" xml:space="preserve">
+    <value>Delete / Toggle</value>
+  </data>
+  <data name="Toggle" xml:space="preserve">
+    <value>Toggle</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ShortcutNameDecreaseBrushFlow" xml:space="preserve">
+    <value>Decrease brush flow</value>
+  </data>
+  <data name="ShortcutNameDecreaseBrushOpacity" xml:space="preserve">
+    <value>Decrease brush opacity</value>
+  </data>
+  <data name="ShortcutNameDecreaseBrushSize" xml:space="preserve">
+    <value>Decrease brush size</value>
+  </data>
+  <data name="ShortcutNameIncreaseBrushFlow" xml:space="preserve">
+    <value>Increase brush flow</value>
+  </data>
+  <data name="ShortcutNameIncreaseBrushOpacity" xml:space="preserve">
+    <value>Increase brush opacity</value>
+  </data>
+  <data name="ShortcutNameIncreaseBrushSize" xml:space="preserve">
+    <value>Increase brush size</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasDown" xml:space="preserve">
+    <value>Nudge canvas down</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasLeft" xml:space="preserve">
+    <value>Nudge canvas left</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasRight" xml:space="preserve">
+    <value>Nudge canvas right</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasUp" xml:space="preserve">
+    <value>Nudge canvas up</value>
+  </data>
+  <data name="ShortcutNameOpenQuickCommand" xml:space="preserve">
+    <value>Open quick command</value>
+  </data>
+  <data name="ShortcutNameRecenterTheCanvas" xml:space="preserve">
+    <value>Re-center the canvas</value>
+  </data>
+  <data name="ShortcutNameRotateBrushClockwise" xml:space="preserve">
+    <value>Rotate brush clockwise</value>
+  </data>
+  <data name="ShortcutNameRotateBrushCounter" xml:space="preserve">
+    <value>Rotate brush counter-clockwise</value>
+  </data>
+  <data name="ShortcutNameRotateCanvasClockwise" xml:space="preserve">
+    <value>Rotate canvas clockwise</value>
+  </data>
+  <data name="ShortcutNameRotateCanvasCounter" xml:space="preserve">
+    <value>Rotate canvas counter-clockwise</value>
+  </data>
+  <data name="ShortcutNameSwitchPrimarySecondary" xml:space="preserve">
+    <value>Switch primary and secondary colors</value>
+  </data>
+  <data name="ShortcutNameSwitchToBrush" xml:space="preserve">
+    <value>Switch to brush</value>
+  </data>
+  <data name="ShortcutNameSwitchToColorPicker" xml:space="preserve">
+    <value>Switch to color picker</value>
+  </data>
+  <data name="ShortcutNameSwitchToEraser" xml:space="preserve">
+    <value>Switch to eraser</value>
+  </data>
+  <data name="ShortcutNameSwitchToSetOrigin" xml:space="preserve">
+    <value>Switch to set origin</value>
+  </data>
+  <data name="ShortcutNameZoomIn" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="ShortcutNameZoomOut" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
 </root>
