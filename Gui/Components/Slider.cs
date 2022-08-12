@@ -8,7 +8,8 @@ using System.Windows.Forms;
 namespace DynamicDraw
 {
     /// <summary>
-    /// The modern UI equivalent of a track bar, that also allows directly typing a value.
+    /// The modern UI equivalent of a track bar, that also allows directly typing a value. Additionally supports
+    /// specialized sliders for each color channel (RGBA,HSV).
     /// </summary>
     public class Slider : Button
     {
@@ -885,7 +886,8 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Sets the new numeric stops (auto-sorted).
+        /// Sets the new numeric stops (auto-sorted). The current value is clamped to the new bounds. At least 2
+        /// numeric stops are required.
         /// </summary>
         private void SetNumericStops(IEnumerable<float> stops, bool skipValueChecking)
         {
@@ -904,12 +906,18 @@ namespace DynamicDraw
 
             if (!skipValueChecking && this.value < numericStops[0])
             {
-                throw new Exception("Attempted to set value below minimum range.");
+                value = numericStops[0];
+                ValueChanged?.Invoke(this, value);
+                valuePercent = CalculatePercent(value);
+                Refresh();
             }
 
             if (!skipValueChecking && this.value > numericStops[^1])
             {
-                throw new Exception("Attempted to set value beyond maximum range.");
+                value = numericStops[^1];
+                ValueChanged?.Invoke(this, value);
+                valuePercent = CalculatePercent(value);
+                Refresh();
             }
         }
 

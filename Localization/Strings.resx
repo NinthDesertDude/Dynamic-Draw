@@ -313,13 +313,13 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>While drawing, the size of the brush will randomly jitter so it will sometimes be normal size and sometimes up to this much smaller.</value>
   </data>
   <data name="RandRotLeft" xml:space="preserve">
-    <value>Random Rot to Left:</value>
+    <value>Random Rotate Left:</value>
   </data>
   <data name="RandRotLeftTip" xml:space="preserve">
     <value>While drawing, the brush will randomly rotate so it will sometimes be angled this much to the left.</value>
   </data>
   <data name="RandRotRight" xml:space="preserve">
-    <value>Random Rot to Right:</value>
+    <value>Random Rotate Right:</value>
   </data>
   <data name="RandRotRightTip" xml:space="preserve">
     <value>While drawing, the brush will randomly rotate so it will sometimes be angled this much to the right.</value>
@@ -670,10 +670,10 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Red Jitter Min</value>
   </data>
   <data name="ShortcutJitterRotLeft" xml:space="preserve">
-    <value>Random Rotate to Left</value>
+    <value>Random Rotate Left</value>
   </data>
   <data name="ShortcutJitterRotRight" xml:space="preserve">
-    <value>Random Rotate to Right</value>
+    <value>Random Rotate Right</value>
   </data>
   <data name="ShortcutJitterSatMax" xml:space="preserve">
     <value>Saturation Jitter Max</value>
@@ -1367,5 +1367,44 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="ShortcutNameZoomOut" xml:space="preserve">
     <value>Zoom out</value>
+  </data>
+  <data name="ColorSchemeAnalogous3" xml:space="preserve">
+    <value>3 Similar</value>
+  </data>
+  <data name="ColorSchemeAnalogous4" xml:space="preserve">
+    <value>4 Similar</value>
+  </data>
+  <data name="ColorSchemeComplementary" xml:space="preserve">
+    <value>Complement</value>
+  </data>
+  <data name="ColorSchemeMonochromatic" xml:space="preserve">
+    <value>Light-Dark</value>
+  </data>
+  <data name="ColorSchemeGradient" xml:space="preserve">
+    <value>Pri-Sec</value>
+  </data>
+  <data name="ColorSchemeRecent" xml:space="preserve">
+    <value>Recent</value>
+  </data>
+  <data name="ColorSchemeSplitComplementary" xml:space="preserve">
+    <value>Complement 2</value>
+  </data>
+  <data name="ColorSchemeSquare" xml:space="preserve">
+    <value>Square</value>
+  </data>
+  <data name="ColorSchemeTriadic" xml:space="preserve">
+    <value>Triadic</value>
+  </data>
+  <data name="ColorSchemeTip" xml:space="preserve">
+    <value>The type of palette to use.</value>
+  </data>
+  <data name="LiveRefreshTip" xml:space="preserve">
+    <value>Turning this on will cause generated palettes to refresh any time the primary color changes.</value>
+  </data>
+  <data name="ShortcutNamePickFromPalette" xml:space="preserve">
+    <value>Pick from Palette</value>
+  </data>
+  <data name="ShortcutNameSwitchPalette" xml:space="preserve">
+    <value>Switch Palette</value>
   </data>
 </root>

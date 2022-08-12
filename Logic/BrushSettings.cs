@@ -123,6 +123,11 @@ namespace DynamicDraw
             set;
         }
 
+        [DataMember(Name = "CmbxChosenEffect")] // for importing legacy xml, don't copy this pattern
+        [JsonInclude]
+        [JsonPropertyName("CmbxChosenEffect")]
+        public int CmbxChosenEffect { get; set; }
+
         /// <summary>
         /// The percent of the chosen color to blend with the brush color.
         /// </summary>
@@ -598,230 +603,16 @@ namespace DynamicDraw
         [JsonPropertyName("Symmetry")]
         public SymmetryMode Symmetry { get; set; }
 
-        [DataMember(Name = "TabPressureBrushDensity")] // for importing legacy xml, don't copy this pattern
+        /// <summary>
+        /// All constraints based on tablet pressure. This takes a shortcut target and relates the existing value to
+        /// the new value via the handling method. For example, the idea of "add 5 to brush opacity" can be expressed
+        /// via <see cref="ShortcutTarget.BrushOpacity"/>, <see cref="ConstraintValueHandlingMethod.Add"/>, and the
+        /// value 5. Whatever value is used, it's linearly interpolated based on the % of tablet pressure being read.
+        /// That means at 0% tablet pressure, the constraint has no effect since it's multiplied by 0.
+        /// </summary>
         [JsonInclude]
-        [JsonPropertyName("TabPressureBrushDensity")]
-        public int TabPressureBrushDensity { get; set; }
-
-        [DataMember(Name = "TabPressureBrushFlow")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureBrushFlow")]
-        public int TabPressureBrushFlow { get; set; }
-
-        [DataMember(Name = "TabPressureBrushOpacity")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureBrushOpacity")]
-        public int TabPressureBrushOpacity { get; set; }
-
-        [DataMember(Name = "TabPressureBrushRotation")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureBrushRotation")]
-        public int TabPressureBrushRotation { get; set; }
-
-        [DataMember(Name = "TabPressureBrushSize")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureBrushSize")]
-        public int TabPressureBrushSize { get; set; }
-
-        [DataMember(Name = "TabPressureMaxBlueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMaxBlueJitter")]
-        public int TabPressureMaxBlueJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMaxGreenJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMaxGreenJitter")]
-        public int TabPressureMaxGreenJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMaxHueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMaxHueJitter")]
-        public int TabPressureMaxHueJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMaxRedJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMaxRedJitter")]
-        public int TabPressureMaxRedJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMaxSatJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMaxSatJitter")]
-        public int TabPressureMaxSatJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMaxValueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMaxValueJitter")]
-        public int TabPressureMaxValueJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMinBlueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMinBlueJitter")]
-        public int TabPressureMinBlueJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMinDrawDistance")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMinDrawDistance")]
-        public int TabPressureMinDrawDistance { get; set; }
-
-        [DataMember(Name = "TabPressureMinGreenJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMinGreenJitter")]
-        public int TabPressureMinGreenJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMinHueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMinHueJitter")]
-        public int TabPressureMinHueJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMinRedJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMinRedJitter")]
-        public int TabPressureMinRedJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMinSatJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMinSatJitter")]
-        public int TabPressureMinSatJitter { get; set; }
-
-        [DataMember(Name = "TabPressureMinValueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureMinValueJitter")]
-        public int TabPressureMinValueJitter { get; set; }
-
-        [DataMember(Name = "TabPressureRandHorShift")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureRandHorShift")]
-        public int TabPressureRandHorShift { get; set; }
-
-        [DataMember(Name = "TabPressureRandMaxSize")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureRandMaxSize")]
-        public int TabPressureRandMaxSize { get; set; }
-
-        [DataMember(Name = "TabPressureRandFlowLoss")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureRandFlowLoss")]
-        public int TabPressureRandFlowLoss { get; set; }
-
-        [DataMember(Name = "TabPressureRandMinSize")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureRandMinSize")]
-        public int TabPressureRandMinSize { get; set; }
-
-        [DataMember(Name = "TabPressureRandRotLeft")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureRandRotLeft")]
-        public int TabPressureRandRotLeft { get; set; }
-
-        [DataMember(Name = "TabPressureRandRotRight")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureRandRotRight")]
-        public int TabPressureRandRotRight { get; set; }
-
-        [DataMember(Name = "TabPressureRandVerShift")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("TabPressureRandVerShift")]
-        public int TabPressureRandVerShift { get; set; }
-
-        [DataMember(Name = "CmbxChosenEffect")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxChosenEffect")]
-        public int CmbxChosenEffect { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureBrushDensity")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureBrushDensity")]
-        public int CmbxTabPressureBrushDensity { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureBrushFlow")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureBrushFlow")]
-        public int CmbxTabPressureBrushFlow { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureBrushOpacity")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureBrushOpacity")]
-        public int CmbxTabPressureBrushOpacity { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureBrushRotation")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureBrushRotation")]
-        public int CmbxTabPressureBrushRotation { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureBrushSize")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureBrushSize")]
-        public int CmbxTabPressureBrushSize { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureBlueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureBlueJitter")]
-        public int CmbxTabPressureBlueJitter { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureGreenJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureGreenJitter")]
-        public int CmbxTabPressureGreenJitter { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureHueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureHueJitter")]
-        public int CmbxTabPressureHueJitter { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureMinDrawDistance")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureMinDrawDistance")]
-        public int CmbxTabPressureMinDrawDistance { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRedJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRedJitter")]
-        public int CmbxTabPressureRedJitter { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureSatJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureSatJitter")]
-        public int CmbxTabPressureSatJitter { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureValueJitter")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureValueJitter")]
-        public int CmbxTabPressureValueJitter { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRandHorShift")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRandHorShift")]
-        public int CmbxTabPressureRandHorShift { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRandMaxSize")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRandMaxSize")]
-        public int CmbxTabPressureRandMaxSize { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRandFlowLoss")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRandFlowLoss")]
-        public int CmbxTabPressureRandFlowLoss { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRandMinSize")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRandMinSize")]
-        public int CmbxTabPressureRandMinSize { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRandRotLeft")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRandRotLeft")]
-        public int CmbxTabPressureRandRotLeft { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRandRotRight")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRandRotRight")]
-        public int CmbxTabPressureRandRotRight { get; set; }
-
-        [DataMember(Name = "CmbxTabPressureRandVerShift")] // for importing legacy xml, don't copy this pattern
-        [JsonInclude]
-        [JsonPropertyName("CmbxTabPressureRandVerShift")]
-        public int CmbxTabPressureRandVerShift { get; set; }
+        [JsonPropertyName("TabPressureConstraints")]
+        public Dictionary<ShortcutTarget, BrushSettingConstraint> TabPressureConstraints { get; set; }
         #endregion
 
         /// <summary>
@@ -880,50 +671,7 @@ namespace DynamicDraw
             Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
             CmbxChosenEffect = 0;
-            CmbxTabPressureBrushDensity = 0;
-            CmbxTabPressureBrushFlow = 0;
-            CmbxTabPressureBrushOpacity = 0;
-            CmbxTabPressureBrushRotation = 0;
-            CmbxTabPressureBrushSize = 0;
-            CmbxTabPressureBlueJitter = 0;
-            CmbxTabPressureGreenJitter = 0;
-            CmbxTabPressureHueJitter = 0;
-            CmbxTabPressureMinDrawDistance = 0;
-            CmbxTabPressureRedJitter = 0;
-            CmbxTabPressureSatJitter = 0;
-            CmbxTabPressureValueJitter = 0;
-            CmbxTabPressureRandFlowLoss = 0;
-            CmbxTabPressureRandHorShift = 0;
-            CmbxTabPressureRandMaxSize = 0;
-            CmbxTabPressureRandMinSize = 0;
-            CmbxTabPressureRandRotLeft = 0;
-            CmbxTabPressureRandRotRight = 0;
-            CmbxTabPressureRandVerShift = 0;
-            TabPressureBrushDensity = 0;
-            TabPressureBrushFlow = 0;
-            TabPressureBrushOpacity = 0;
-            TabPressureBrushRotation = 0;
-            TabPressureBrushSize = 0;
-            TabPressureMaxBlueJitter = 0;
-            TabPressureMaxGreenJitter = 0;
-            TabPressureMaxHueJitter = 0;
-            TabPressureMaxRedJitter = 0;
-            TabPressureMaxSatJitter = 0;
-            TabPressureMaxValueJitter = 0;
-            TabPressureMinBlueJitter = 0;
-            TabPressureMinDrawDistance = 0;
-            TabPressureMinGreenJitter = 0;
-            TabPressureMinHueJitter = 0;
-            TabPressureMinRedJitter = 0;
-            TabPressureMinSatJitter = 0;
-            TabPressureMinValueJitter = 0;
-            TabPressureRandFlowLoss = 0;
-            TabPressureRandHorShift = 0;
-            TabPressureRandMaxSize = 0;
-            TabPressureRandMinSize = 0;
-            TabPressureRandRotLeft = 0;
-            TabPressureRandRotRight = 0;
-            TabPressureRandVerShift = 0;
+            TabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>();
         }
 
         /// <summary>
@@ -977,50 +725,7 @@ namespace DynamicDraw
             RandMinS = other.RandMinS;
             RandMinV = other.RandMinV;
             CmbxChosenEffect = other.CmbxChosenEffect;
-            CmbxTabPressureBrushDensity = other.CmbxTabPressureBrushDensity;
-            CmbxTabPressureBrushFlow = other.CmbxTabPressureBrushFlow;
-            CmbxTabPressureBrushOpacity = other.CmbxTabPressureBrushOpacity;
-            CmbxTabPressureBrushRotation = other.CmbxTabPressureBrushRotation;
-            CmbxTabPressureBrushSize = other.CmbxTabPressureBrushSize;
-            CmbxTabPressureBlueJitter = other.CmbxTabPressureBlueJitter;
-            CmbxTabPressureGreenJitter = other.CmbxTabPressureGreenJitter;
-            CmbxTabPressureHueJitter = other.CmbxTabPressureHueJitter;
-            CmbxTabPressureMinDrawDistance = other.CmbxTabPressureMinDrawDistance;
-            CmbxTabPressureRedJitter = other.CmbxTabPressureRedJitter;
-            CmbxTabPressureSatJitter = other.CmbxTabPressureSatJitter;
-            CmbxTabPressureValueJitter = other.CmbxTabPressureValueJitter;
-            CmbxTabPressureRandFlowLoss = other.CmbxTabPressureRandFlowLoss;
-            CmbxTabPressureRandHorShift = other.CmbxTabPressureRandHorShift;
-            CmbxTabPressureRandMaxSize = other.CmbxTabPressureRandMaxSize;
-            CmbxTabPressureRandMinSize = other.CmbxTabPressureRandMinSize;
-            CmbxTabPressureRandRotLeft = other.CmbxTabPressureRandRotLeft;
-            CmbxTabPressureRandRotRight = other.CmbxTabPressureRandRotRight;
-            CmbxTabPressureRandVerShift = other.CmbxTabPressureRandVerShift;
-            TabPressureBrushDensity = other.TabPressureBrushDensity;
-            TabPressureBrushFlow = other.TabPressureBrushFlow;
-            TabPressureBrushOpacity = other.TabPressureBrushOpacity;
-            TabPressureBrushRotation = other.TabPressureBrushRotation;
-            TabPressureBrushSize = other.TabPressureBrushSize;
-            TabPressureMaxBlueJitter = other.TabPressureMaxBlueJitter;
-            TabPressureMaxGreenJitter = other.TabPressureMaxGreenJitter;
-            TabPressureMaxHueJitter = other.TabPressureMaxHueJitter;
-            TabPressureMaxRedJitter = other.TabPressureMaxRedJitter;
-            TabPressureMaxSatJitter = other.TabPressureMaxSatJitter;
-            TabPressureMaxValueJitter = other.TabPressureMaxValueJitter;
-            TabPressureMinBlueJitter = other.TabPressureMinBlueJitter;
-            TabPressureMinDrawDistance = other.TabPressureMinDrawDistance;
-            TabPressureMinGreenJitter = other.TabPressureMinGreenJitter;
-            TabPressureMinHueJitter = other.TabPressureMinHueJitter;
-            TabPressureMinRedJitter = other.TabPressureMinRedJitter;
-            TabPressureMinSatJitter = other.TabPressureMinSatJitter;
-            TabPressureMinValueJitter = other.TabPressureMinValueJitter;
-            TabPressureRandFlowLoss = other.TabPressureRandFlowLoss;
-            TabPressureRandHorShift = other.TabPressureRandHorShift;
-            TabPressureRandMaxSize = other.TabPressureRandMaxSize;
-            TabPressureRandMinSize = other.TabPressureRandMinSize;
-            TabPressureRandRotLeft = other.TabPressureRandRotLeft;
-            TabPressureRandRotRight = other.TabPressureRandRotRight;
-            TabPressureRandVerShift = other.TabPressureRandVerShift;
+            TabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>(other.TabPressureConstraints);
             SeamlessDrawing = other.SeamlessDrawing;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;

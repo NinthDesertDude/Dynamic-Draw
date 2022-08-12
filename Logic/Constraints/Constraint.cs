@@ -129,9 +129,6 @@ namespace DynamicDraw
         /// </summary>
         /// <param name="settingValue">The value of a setting, e.g. the brush transparency slider's value.</param>
         /// <param name="targetValue">A number used to influence the setting value according to the handling.</param>
-        /// <param name="maxRange">The </param>
-        /// <param name="inputRatio"></param>
-        /// <param name="method"></param>
         public static int GetStrengthMappedValue(
             int settingValue,
             int targetValue,

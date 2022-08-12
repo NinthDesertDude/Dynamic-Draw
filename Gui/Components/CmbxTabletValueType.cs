@@ -47,6 +47,21 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Loops through each entry and selects the matching handling method.
+        /// </summary>
+        public void SelectMatchingItem(ConstraintValueHandlingMethod handlingMethod)
+        {
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (((CmbxEntry)Items[i]).ValueMember == handlingMethod)
+                {
+                    SelectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Any color logic that gets set only once, dependent on the current theme, needs to subscribe to the theme
         /// changed event so it can be recalculated when theme preference loads from asynchronous user settings.
         /// </summary>

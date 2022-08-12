@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -18,6 +19,11 @@ namespace DynamicDraw
         private readonly List<(Control ctrl, Control parent, int ctrlIndex)> boundControls = new List<(Control, Control, int)>();
         private bool isCollapsed = false;
         private readonly bool redAccented = false;
+
+        /// <summary>
+        /// Fires when the collapsed state changes, passing true if collapsed, false if open.
+        /// </summary>
+        public event Action<bool> OnCollapsedChanged;
 
         public Accordion(bool redAccented = false)
         {
@@ -151,8 +157,12 @@ namespace DynamicDraw
         /// </summary>
         public void ToggleCollapsed(bool isCollapsed)
         {
-            this.isCollapsed = isCollapsed;
-            UpdateCollapsedState();
+            if (this.isCollapsed != isCollapsed)
+            {
+                OnCollapsedChanged?.Invoke(isCollapsed);
+                this.isCollapsed = isCollapsed;
+                UpdateCollapsedState();
+            }
         }
     }
 }

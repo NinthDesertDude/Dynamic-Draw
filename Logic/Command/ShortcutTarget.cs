@@ -363,6 +363,16 @@
         /// <summary>
         /// Opens the quick command dialog that allows the user to execute a command from a list.
         /// </summary>
-        OpenQuickCommandDialog = 88
+        OpenQuickCommandDialog = 88,
+
+        /// <summary>
+        /// Switches to the provided palette index.
+        /// </summary>
+        SwitchPalette = 89,
+
+        /// <summary>
+        /// Picks the color at the given index.
+        /// </summary>
+        PickFromPalette = 90
     }
 }

@@ -69,7 +69,7 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Fires when one of the colors included in the swatch list is clicked.
+        /// Fires when one of the colors included in the swatch list is clicked, passing the index in the palette.
         /// </summary>
         public event Action<int> SwatchClicked;
 

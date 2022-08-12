@@ -81,8 +81,8 @@ namespace DynamicDraw
                 { ShortcutTarget.TabPressureRotation, new Setting(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutRotation), -180, 180) },
                 { ShortcutTarget.UndoAction, new Setting(Localization.Strings.Undo, ShortcutTargetDataType.Action) },
                 { ShortcutTarget.ResetCanvasTransforms, new Setting(Localization.Strings.ShortcutResetCanvas, ShortcutTargetDataType.Action) },
-                { ShortcutTarget.CanvasX, new Setting(Localization.Strings.ShortcutNudgeCanvasX, int.MinValue, int.MaxValue) },
-                { ShortcutTarget.CanvasY, new Setting(Localization.Strings.ShortcutNudgeCanvasY, int.MinValue, int.MaxValue) },
+                { ShortcutTarget.CanvasX, new Setting(Localization.Strings.ShortcutNudgeCanvasX, -2000, 2000) },
+                { ShortcutTarget.CanvasY, new Setting(Localization.Strings.ShortcutNudgeCanvasY, -2000, 2000) },
                 { ShortcutTarget.CanvasRotation, new Setting(Localization.Strings.ShortcutRotateCanvas, -180, 180) },
                 { ShortcutTarget.BlendMode, new Setting(Localization.Strings.ShortcutBlendMode, 0, Enum.GetValues(typeof(BlendMode)).Length - 1) },
                 { ShortcutTarget.SeamlessDrawing, new Setting(Localization.Strings.SeamlessDrawing, ShortcutTargetDataType.Bool) },
@@ -103,7 +103,9 @@ namespace DynamicDraw
                 { ShortcutTarget.CanvasZoomFit, new Setting(Localization.Strings.ShortcutCanvasZoom, ShortcutTargetDataType.Action) },
                 { ShortcutTarget.SwapPrimarySecondaryColors, new Setting(Localization.Strings.ShortcutSwapColors, ShortcutTargetDataType.Action) },
                 { ShortcutTarget.OpenColorPickerDialog, new Setting(Localization.Strings.OpenColorPickerDialog, ShortcutTargetDataType.Action) },
-                { ShortcutTarget.OpenQuickCommandDialog, new Setting(Localization.Strings.OpenQuickCommandDialog, ShortcutTargetDataType.Action) }
+                { ShortcutTarget.OpenQuickCommandDialog, new Setting(Localization.Strings.OpenQuickCommandDialog, ShortcutTargetDataType.Action) },
+                { ShortcutTarget.SwitchPalette, new Setting(Localization.Strings.ShortcutNameSwitchPalette, 0, 400) },
+                { ShortcutTarget.PickFromPalette, new Setting(Localization.Strings.ShortcutNamePickFromPalette, 0, ColorUtils.MaxPaletteSize - 1) },
             };
         }
 

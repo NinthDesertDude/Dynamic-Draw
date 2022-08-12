@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Text.Json.Serialization;
 using DynamicDraw.Localization;
+using PaintDotNet;
 
 namespace DynamicDraw
 {
@@ -210,14 +211,212 @@ namespace DynamicDraw
         /// Inteprets the data as representing a color in the six-digit lowercase hex format.
         /// Assumes the data is already in the proper format. Use <see cref="IsActionValid"/> to ensure.
         /// </summary>
-        public Color GetDataAsColor()
+        public Color GetDataAsColor(Color origColor)
         {
+            string[] chunks = ActionData.Split('|');
+            if (chunks.Length != 2)
+            {
+                throw new Exception("Was expecting color setting to have two pieces of data.");
+            }
+
             if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Color)
             {
                 throw new Exception("Was expecting setting to be of the color data type.");
             }
 
-            return Color.FromArgb(int.Parse(ActionData, System.Globalization.NumberStyles.HexNumber));
+            /** Cycles the list of numbers based on the current value. Valid syntaxes:
+             * cycle: selects next item, or first item if current value isn't in list.
+             * cycle--stop: same as cycle, but does nothing if at end of list.
+             * cycle-add: selects next item, or nearest greater number if current value isn't in list.
+             * cycle-add-stop: same as cycle-add, but does nothing if at end of list.
+             * cycle-sub: selects prev item, or nearest smaller number if current value isn't in list.
+             * cycle-sub-stop: same as cycle-sub, but does nothing if at start of list.
+             */
+            if (chunks[1].StartsWith("cycle"))
+            {
+                List<Color> colors = new List<Color>();
+                string[] colorStrings = chunks[0].Split(",");
+                for (int i = 0; i < colorStrings.Length; i++)
+                {
+                    Color? color = ColorUtils.GetColorFromText(colorStrings[i], true);
+                    if (color == null)
+                    {
+                        throw new Exception("Was expecting setting to contain purely color data with comma delimiters.");
+                    }
+
+                    colors.Add((Color)color);
+                }
+
+                if (colors.Count == 0)
+                {
+                    throw new Exception("Was expecting setting to contain at least one color for cycle.");
+                }
+
+                string[] actionDataOptions = chunks[1].Split("-");
+                bool doAdd = actionDataOptions.Length > 1 && actionDataOptions[1].Equals("add");
+                bool doSub = actionDataOptions.Length > 1 && actionDataOptions[1].Equals("sub");
+                bool doStop = actionDataOptions.Length > 2 && actionDataOptions[2].Equals("stop");
+
+                // Jump to the exact color.
+                int nearestValueIndex = -1;
+                int nearestRGBDiff = 255 + 255 + 255;
+                for (int i = 0; i < colors.Count; i++)
+                {
+                    // If a color in the cycle is matched, shift to the next/prev.
+                    if (origColor == colors[i])
+                    {
+                        if (doSub)
+                        {
+                            return (i != 0)
+                                ? colors[i - 1]
+                                : doStop ? origColor : colors[^1];
+                        }
+
+                        return (i < colors.Count - 1)
+                            ? colors[i + 1]
+                            : doStop ? origColor : colors[0];
+                    }
+
+                    // While no color is matched, track the nearest one to snap to.
+                    int rDiff = (colors[i].R - origColor.R) * (doSub ? -1 : 1);
+                    int gDiff = (colors[i].G - origColor.G) * (doSub ? -1 : 1);
+                    int bDiff = (colors[i].B - origColor.B) * (doSub ? -1 : 1);
+                    int combinedDiff = rDiff + gDiff + bDiff;
+
+                    if (combinedDiff > 0 && combinedDiff < nearestRGBDiff)
+                    {
+                        nearestRGBDiff = combinedDiff;
+                        nearestValueIndex = i;
+                    }
+                }
+
+                // snaps to nearest if set, else jumps to start.
+                return (nearestValueIndex != -1)
+                    ? colors[nearestValueIndex]
+                    : colors[0];
+            }
+
+            if (chunks[1].Equals("set"))
+            {
+                return (Color)ColorUtils.GetColorFromText(chunks[0], true);
+            }
+
+            // default to alpha 0 for relative operations.
+            Color col = (Color)ColorUtils.GetColorFromText(chunks[0], true, 0);
+
+            if (chunks[1].Equals("add"))
+            {
+                return Color.FromArgb(
+                    Math.Clamp(origColor.A + col.A, 0, 255),
+                    Math.Clamp(origColor.R + col.R, 0, 255),
+                    Math.Clamp(origColor.G + col.G, 0, 255),
+                    Math.Clamp(origColor.B + col.B, 0, 255)
+                );
+            }
+            if (chunks[1].Equals("sub"))
+            {
+                return Color.FromArgb(
+                    Math.Clamp(origColor.A - col.A, 0, 255),
+                    Math.Clamp(origColor.R - col.R, 0, 255),
+                    Math.Clamp(origColor.G - col.G, 0, 255),
+                    Math.Clamp(origColor.B - col.B, 0, 255)
+                );
+            }
+            if (chunks[1].Equals("mul"))
+            {
+                return Color.FromArgb(
+                    Math.Clamp(origColor.A * col.A, 0, 255),
+                    Math.Clamp(origColor.R * col.R, 0, 255),
+                    Math.Clamp(origColor.G * col.G, 0, 255),
+                    Math.Clamp(origColor.B * col.B, 0, 255)
+                );
+            }
+            if (chunks[1].Equals("div"))
+            {
+                return Color.FromArgb(
+                    Math.Clamp(origColor.A / (col.A == 0 ? 1 : col.A), 0, 255),
+                    Math.Clamp(origColor.R / (col.R == 0 ? 1 : col.R), 0, 255),
+                    Math.Clamp(origColor.G / (col.G == 0 ? 1 : col.G), 0, 255),
+                    Math.Clamp(origColor.B / (col.B == 0 ? 1 : col.B), 0, 255)
+                );
+            }
+            if (chunks[1].Equals("add-hsv"))
+            {
+                // Note channels like col.R in the hsv arithemtic are just used as relative numbers, not real colors.
+                HsvColor origHsv = HsvColor.FromColor(origColor);
+                int newAlpha = Math.Clamp(origColor.A + col.A, 0, 255);
+
+                // Hue is cyclic by nature, it should always wrap
+                int newH = origHsv.Hue + col.R;
+                while (newH < 0) { newH += 360; }
+                while (newH > 360) { newH -= 360; }
+
+                return Color.FromArgb(newAlpha, new HsvColor(
+                    newH,
+                    Math.Clamp(origHsv.Saturation + col.G, 0, 100),
+                    Math.Clamp(origHsv.Value + col.B, 0, 100))
+                    .ToColor()
+                );
+            }
+            if (chunks[1].Equals("sub-hsv"))
+            {
+                // Note channels like col.R in the hsv arithemtic are just used as relative numbers, not real colors.
+                HsvColor origHsv = HsvColor.FromColor(origColor);
+                int newAlpha = Math.Clamp(origColor.A - col.A, 0, 255);
+
+                // Hue is cyclic by nature, it should always wrap
+                int newH = origHsv.Hue - col.R;
+                while (newH < 0) { newH += 360; }
+                while (newH > 360) { newH -= 360; }
+
+                return Color.FromArgb(newAlpha, new HsvColor(
+                    newH,
+                    Math.Clamp(origHsv.Saturation - col.G, 0, 100),
+                    Math.Clamp(origHsv.Value - col.B, 0, 100))
+                    .ToColor()
+                );
+            }
+            if (chunks[1].Equals("mul-hsv"))
+            {
+                // Using RGBA as relative numbers w/o semantic meaning here. They're converted to ratios from 0 - 1.
+                HsvColor origHsv = HsvColor.FromColor(origColor);
+                float r = col.R / 255f;
+                float g = col.G / 255f;
+                float b = col.B / 255f;
+                float a = col.A / 255f;
+                int newAlpha = Math.Clamp((int)Math.Round(origColor.A * a), 0, 255);
+
+                // There's no cyclic handling of hue because multiplying by floats from [0, 1] can't go out of domain.
+                return Color.FromArgb(newAlpha, new HsvColor(
+                    Math.Clamp((int)Math.Round(origHsv.Hue * r), 0, 360),
+                    Math.Clamp((int)Math.Round(origHsv.Saturation * g), 0, 100),
+                    Math.Clamp((int)Math.Round(origHsv.Value * b), 0, 100))
+                    .ToColor()
+                );
+            }
+            if (chunks[1].Equals("div-hsv"))
+            {
+                // Using RGBA as relative numbers w/o semantic meaning here. They're converted to ratios from 0 - 1.
+                HsvColor origHsv = HsvColor.FromColor(origColor);
+                float r = col.R / 255f;
+                float g = col.G / 255f;
+                float b = col.B / 255f;
+                float a = col.A / 255f;
+                int newAlpha = Math.Clamp((int)Math.Round(origColor.A / (a == 0 ? 1 : a)), 0, 255);
+
+                float newH = origHsv.Hue / (r == 0 ? 1 : r);
+                while (newH > 360) { newH -= 360; }
+                while (newH < 0) { newH += 360; }
+
+                return Color.FromArgb(newAlpha, new HsvColor(
+                    (int)Math.Round(newH),
+                    Math.Clamp((int)Math.Round(origHsv.Saturation / (g == 0 ? 1 : g)), 0, 100),
+                    Math.Clamp((int)Math.Round(origHsv.Value / (b == 0 ? 1 : b)), 0, 100))
+                    .ToColor()
+                );
+            }
+
+            return col;
         }
 
         /// <summary>
@@ -339,22 +538,18 @@ namespace DynamicDraw
             else if (chunks[1].Equals("add-wrap"))
             {
                 float val = origValue + value;
-                while (val < minValue) { val += maxValue; }
-                while (val > maxValue) { val -= maxValue; }
+                while (val < minValue) { val += maxValue + (1 - minValue); }
+                while (val > maxValue) { val -= maxValue + (1 - minValue); }
 
                 value = Math.Clamp(val, minValue, maxValue);
             }
             else if (chunks[1].Equals("sub-wrap"))
             {
                 float val = origValue - value;
-                while (val < minValue) { val += maxValue; }
-                while (val > maxValue) { val -= maxValue; }
+                while (val < minValue) { val += maxValue + (1 - minValue); }
+                while (val > maxValue) { val -= maxValue + (1 - minValue); }
 
                 value = Math.Clamp(val, minValue, maxValue);
-            }
-            else
-            {
-                value = float.Parse(ActionData);
             }
 
             return value;
@@ -423,10 +618,8 @@ namespace DynamicDraw
                     chunks[1] == "cycle-stop" ||
                     chunks[1] == "cycle-add" ||
                     chunks[1] == "cycle-add-stop" ||
-                    chunks[1] == "cycle-add-wrap" ||
                     chunks[1] == "cycle-sub" ||
-                    chunks[1] == "cycle-sub-stop" ||
-                    chunks[1] == "cycle-sub-wrap";
+                    chunks[1] == "cycle-sub-stop";
 
                 // Type must be recognized.
                 if (!isCycleType &&
@@ -472,10 +665,61 @@ namespace DynamicDraw
                 return actionData.Equals("t") || actionData.Equals("f") || actionData.Equals("toggle");
             }
 
-            // Colors must be 6 or 8 hexadecimal characters, lowercase alphabet.
+            // Colors must follow the allowed value|type syntaxes and be 6 or 8 hexadecimal lowercase characters.
             if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Color)
             {
-                return ColorUtils.GetColorFromText(actionData, true) != null;
+                // expects format: values|type
+                string[] chunks = actionData.Split('|');
+                if (chunks.Length != 2)
+                {
+                    return false;
+                }
+
+                bool isCycleType =
+                    chunks[1] == "cycle" ||
+                    chunks[1] == "cycle-stop" ||
+                    chunks[1] == "cycle-add" ||
+                    chunks[1] == "cycle-add-stop" ||
+                    chunks[1] == "cycle-sub" ||
+                    chunks[1] == "cycle-sub-stop";
+
+                // Type must be recognized.
+                if (!isCycleType &&
+                    chunks[1] != "add" &&
+                    chunks[1] != "set" &&
+                    chunks[1] != "sub" &&
+                    chunks[1] != "mul" &&
+                    chunks[1] != "div" &&
+                    chunks[1] != "add-hsv" &&
+                    chunks[1] != "sub-hsv" &&
+                    chunks[1] != "mul-hsv" &&
+                    chunks[1] != "div-hsv")
+                {
+                    return false;
+                }
+
+                // There must be at least 1 cycle value, and all values must be valid colors
+                if (isCycleType)
+                {
+                    string[] colorStrings = chunks[0].Split(",");
+
+                    if (colorStrings.Length == 0)
+                    {
+                        return false;
+                    }
+
+                    foreach (string colorString in colorStrings)
+                    {
+                        if (ColorUtils.GetColorFromText(colorString, true) == null)
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                return ColorUtils.GetColorFromText(chunks[0], true) != null;
             }
 
             // Strings must be non-null (already guaranteed by code logic above).

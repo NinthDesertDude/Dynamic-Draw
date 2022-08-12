@@ -120,101 +120,102 @@ namespace DynamicDraw
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-add-stop",
                 BuiltInShortcutId = 10,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Oemplus },
                 Name = Strings.ShortcutNameZoomIn,
-                Target = ShortcutTarget.CanvasZoom,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+                Target = ShortcutTarget.CanvasZoom
             },
             new KeyboardShortcut() // Ctrl + +: zoom in (common alt shortcut)
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-add-stop",
                 BuiltInShortcutId = 11,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Oemplus },
                 Name = Strings.ShortcutNameZoomIn,
                 Target = ShortcutTarget.CanvasZoom,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 RequireCtrl = true
             },
             new KeyboardShortcut() // -: zoom out
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-sub-stop",
                 BuiltInShortcutId = 12,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemMinus },
                 Name = Strings.ShortcutNameZoomOut,
                 Target = ShortcutTarget.CanvasZoom,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
             },
             new KeyboardShortcut() // Ctrl + -: zoom out (common alt shortcut)
             {
                 ActionData = "1,5,10,13,17,20,25,33,50,67,100,150,200,300,400,500,600,800,1000,1200,1400,1600,2000,2400,2800,3200,4000,4800,5600,6400|cycle-sub-stop",
                 BuiltInShortcutId = 13,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemMinus },
                 Name = Strings.ShortcutNameZoomOut,
                 Target = ShortcutTarget.CanvasZoom,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 RequireCtrl = true
             },
             new KeyboardShortcut() // 0: reset canvas transforms
             {
                 ActionData = null,
                 BuiltInShortcutId = 14,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.D0 },
                 Name = Strings.ShortcutNameRecenterTheCanvas,
-                Target = ShortcutTarget.ResetCanvasTransforms,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+                Target = ShortcutTarget.ResetCanvasTransforms
             },
             new KeyboardShortcut() // 0: reset canvas transforms
             {
                 ActionData = null,
                 BuiltInShortcutId = 15,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.NumPad0 },
                 Name = Strings.ShortcutNameRecenterTheCanvas,
-                Target = ShortcutTarget.ResetCanvasTransforms,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+                Target = ShortcutTarget.ResetCanvasTransforms
             },
             new KeyboardShortcut() // Left arrow: nudge left
             {
                 ActionData = "5|sub",
                 BuiltInShortcutId = 16,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Left },
                 Name = Strings.ShortcutNameNudgeCanvasLeft,
-                Target = ShortcutTarget.CanvasX,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+                Target = ShortcutTarget.CanvasX
             },
             new KeyboardShortcut() // Right arrow: nudge right
             {
                 ActionData = "5|add",
                 BuiltInShortcutId = 17,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Right },
                 Name = Strings.ShortcutNameNudgeCanvasRight,
-                Target = ShortcutTarget.CanvasX,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+                Target = ShortcutTarget.CanvasX
             },
             new KeyboardShortcut() // Up arrow: nudge up
             {
                 ActionData = "5|sub",
                 BuiltInShortcutId = 18,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Up },
                 Name = Strings.ShortcutNameNudgeCanvasUp,
-                Target = ShortcutTarget.CanvasY,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+                Target = ShortcutTarget.CanvasY
             },
             new KeyboardShortcut() // Down arrow: nudge down
             {
                 ActionData = "5|add",
                 BuiltInShortcutId = 19,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Down },
                 Name = Strings.ShortcutNameNudgeCanvasDown,
-                Target = ShortcutTarget.CanvasY,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas }
+                Target = ShortcutTarget.CanvasY
             },
             new KeyboardShortcut() // Shift + Left arrow: rotate canvas counter-clockwise
             {
                 ActionData = "10|sub",
                 BuiltInShortcutId = 20,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Left },
                 Name = Strings.ShortcutNameRotateCanvasCounter,
                 Target = ShortcutTarget.CanvasRotation,
@@ -224,6 +225,7 @@ namespace DynamicDraw
             {
                 ActionData = "10|add",
                 BuiltInShortcutId = 21,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Right },
                 Name = Strings.ShortcutNameRotateCanvasClockwise,
                 Target = ShortcutTarget.CanvasRotation,
@@ -234,6 +236,7 @@ namespace DynamicDraw
                 ActionData = "10|add",
                 BuiltInShortcutId = 22,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Name = Strings.ShortcutNameRotateCanvasCounter,
                 Target = ShortcutTarget.CanvasRotation,
                 RequireShift = true,
@@ -244,6 +247,7 @@ namespace DynamicDraw
                 ActionData = "10|sub",
                 BuiltInShortcutId = 23,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Name = Strings.ShortcutNameRotateCanvasClockwise,
                 Target = ShortcutTarget.CanvasRotation,
                 RequireShift = true,
@@ -253,6 +257,7 @@ namespace DynamicDraw
             {
                 ActionData = "1,2,3,4,5,6,7,8,9,10,15,20,25,30,40,50,60,70,80,90,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,450,500,550,600,650,700,750,800,850,900,950,1000|cycle-add-stop",
                 BuiltInShortcutId = 24,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S },
                 Name = Strings.ShortcutNameIncreaseBrushSize,
                 Target = ShortcutTarget.Size,
@@ -263,6 +268,7 @@ namespace DynamicDraw
             {
                 ActionData = "1,2,3,4,5,6,7,8,9,10,15,20,25,30,40,50,60,70,80,90,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,450,500,550,600,650,700,750,800,850,900,950,1000|cycle-sub-stop",
                 BuiltInShortcutId = 25,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S },
                 Name = Strings.ShortcutNameDecreaseBrushSize,
                 Target = ShortcutTarget.Size,
@@ -271,8 +277,9 @@ namespace DynamicDraw
             },
             new KeyboardShortcut() // Ctrl + R + Wheel up: rotate brush counter-clockwise
             {
-                ActionData = "-165,-150,-135,-120,-105,-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90,105,120,135,150,165,180|cycle-add-wrap",
+                ActionData = "-165,-150,-135,-120,-105,-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90,105,120,135,150,165,180|cycle-add",
                 BuiltInShortcutId = 26,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R },
                 Name = Strings.ShortcutNameRotateBrushCounter,
                 Target = ShortcutTarget.Rotation,
@@ -281,10 +288,11 @@ namespace DynamicDraw
             },
             new KeyboardShortcut() // Ctrl + R + Wheel down: rotate brush clockwise
             {
-                ActionData = "-165,-150,-135,-120,-105,-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90,105,120,135,150,165,180|cycle-sub-wrap",
+                ActionData = "-165,-150,-135,-120,-105,-90,-75,-60,-45,-30,-15,0,15,30,45,60,75,90,105,120,135,150,165,180|cycle-sub",
                 BuiltInShortcutId = 27,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R },
-                Name = "Rotate brush clockwise",
+                Name = Strings.ShortcutNameRotateBrushClockwise,
                 Target = ShortcutTarget.Rotation,
                 RequireCtrl = true,
                 RequireWheelDown = true
@@ -293,6 +301,7 @@ namespace DynamicDraw
             {
                 ActionData = "10|add",
                 BuiltInShortcutId = 28,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
                 Name = Strings.ShortcutNameIncreaseBrushOpacity,
                 Target = ShortcutTarget.BrushOpacity,
@@ -303,6 +312,7 @@ namespace DynamicDraw
             {
                 ActionData = "10|sub",
                 BuiltInShortcutId = 29,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
                 Name = Strings.ShortcutNameDecreaseBrushOpacity,
                 Target = ShortcutTarget.BrushOpacity,
@@ -313,6 +323,7 @@ namespace DynamicDraw
             {
                 ActionData = "10|add",
                 BuiltInShortcutId = 30,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F },
                 Name = Strings.ShortcutNameIncreaseBrushFlow,
                 Target = ShortcutTarget.Flow,
@@ -323,6 +334,7 @@ namespace DynamicDraw
             {
                 ActionData = "10|sub",
                 BuiltInShortcutId = 31,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F },
                 Name = Strings.ShortcutNameDecreaseBrushFlow,
                 Target = ShortcutTarget.Flow,
@@ -334,6 +346,7 @@ namespace DynamicDraw
                 ActionData = "1|add",
                 BuiltInShortcutId = 32,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameIncreaseBrushSize,
                 Target = ShortcutTarget.Size,
@@ -344,6 +357,7 @@ namespace DynamicDraw
                 ActionData = "5|add",
                 BuiltInShortcutId = 33,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameIncreaseBrushSize,
                 Target = ShortcutTarget.Size,
@@ -355,6 +369,7 @@ namespace DynamicDraw
                 ActionData = "1|sub",
                 BuiltInShortcutId = 34,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameDecreaseBrushSize,
                 Target = ShortcutTarget.Size,
@@ -365,6 +380,7 @@ namespace DynamicDraw
                 ActionData = "5|sub",
                 BuiltInShortcutId = 35,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.S, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameDecreaseBrushSize,
                 Target = ShortcutTarget.Size,
@@ -376,6 +392,7 @@ namespace DynamicDraw
                 ActionData = "1|add",
                 BuiltInShortcutId = 36,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameRotateBrushClockwise,
                 Target = ShortcutTarget.Rotation,
@@ -386,6 +403,7 @@ namespace DynamicDraw
                 ActionData = "5|add",
                 BuiltInShortcutId = 37,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameRotateBrushClockwise,
                 Target = ShortcutTarget.Rotation,
@@ -397,6 +415,7 @@ namespace DynamicDraw
                 ActionData = "1|sub",
                 BuiltInShortcutId = 38,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameRotateBrushCounter,
                 Target = ShortcutTarget.Rotation,
@@ -407,6 +426,7 @@ namespace DynamicDraw
                 ActionData = "5|sub",
                 BuiltInShortcutId = 39,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.R, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameRotateBrushCounter,
                 Target = ShortcutTarget.Rotation,
@@ -418,6 +438,7 @@ namespace DynamicDraw
                 ActionData = "1|add",
                 BuiltInShortcutId = 40,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameIncreaseBrushOpacity,
                 Target = ShortcutTarget.BrushOpacity,
@@ -428,6 +449,7 @@ namespace DynamicDraw
                 ActionData = "5|add",
                 BuiltInShortcutId = 41,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameIncreaseBrushOpacity,
                 Target = ShortcutTarget.BrushOpacity,
@@ -439,6 +461,7 @@ namespace DynamicDraw
                 ActionData = "1|sub",
                 BuiltInShortcutId = 42,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameDecreaseBrushOpacity,
                 Target = ShortcutTarget.BrushOpacity,
@@ -449,6 +472,7 @@ namespace DynamicDraw
                 ActionData = "5|sub",
                 BuiltInShortcutId = 43,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameDecreaseBrushOpacity,
                 Target = ShortcutTarget.BrushOpacity,
@@ -460,6 +484,7 @@ namespace DynamicDraw
                 ActionData = "1|add",
                 BuiltInShortcutId = 44,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameIncreaseBrushFlow,
                 Target = ShortcutTarget.Flow,
@@ -470,6 +495,7 @@ namespace DynamicDraw
                 ActionData = "5|add",
                 BuiltInShortcutId = 45,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemCloseBrackets },
                 Name = Strings.ShortcutNameIncreaseBrushFlow,
                 Target = ShortcutTarget.Flow,
@@ -481,6 +507,7 @@ namespace DynamicDraw
                 ActionData = "1|sub",
                 BuiltInShortcutId = 46,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameDecreaseBrushFlow,
                 Target = ShortcutTarget.Flow,
@@ -491,17 +518,19 @@ namespace DynamicDraw
                 ActionData = "5|sub",
                 BuiltInShortcutId = 47,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.F, System.Windows.Forms.Keys.OemOpenBrackets },
                 Name = Strings.ShortcutNameDecreaseBrushFlow,
                 Target = ShortcutTarget.Flow,
                 RequireCtrl = true,
                 RequireShift = true
             },
-            new KeyboardShortcut() // C: swap colors
+            new KeyboardShortcut() // X: swap colors
             {
                 ActionData = null,
                 BuiltInShortcutId = 48,
-                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.C },
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.X },
                 Name = Strings.ShortcutNameSwitchPrimarySecondary,
                 Target = ShortcutTarget.SwapPrimarySecondaryColors
             },
@@ -510,6 +539,7 @@ namespace DynamicDraw
                 ActionData = null,
                 BuiltInShortcutId = 49,
                 CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemQuestion },
                 Name = Strings.OpenQuickCommandDialog,
                 Target = ShortcutTarget.OpenQuickCommandDialog
@@ -527,8 +557,10 @@ namespace DynamicDraw
                 {
                     BrushImagePath = Strings.DefaultBrushCircle,
                     BrushDensity = 2,
-                    CmbxTabPressureBrushSize = (int)ConstraintValueHandlingMethod.Add,
-                    TabPressureBrushSize = 10,
+                    TabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>()
+                    {
+                        { ShortcutTarget.Size, new BrushSettingConstraint(ConstraintValueHandlingMethod.Add, 10) }
+                    }
                 }
             },
             {
@@ -570,8 +602,10 @@ namespace DynamicDraw
                     DoLockAlpha = true,
                     DoLockVal= true,
                     DoLockSat = true,
-                    CmbxTabPressureBrushSize = (int)ConstraintValueHandlingMethod.Add,
-                    TabPressureBrushSize = 10,
+                    TabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>()
+                    {
+                        { ShortcutTarget.Size, new BrushSettingConstraint(ConstraintValueHandlingMethod.Add, 10) }
+                    }
                 }
             }
         };
@@ -620,7 +654,7 @@ namespace DynamicDraw
 
             defaultPalettePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                Path.Combine(documentsDir, "paint.net App Files\\Palettes"),
+                Path.Combine(documentsDir, "paint.net User Files\\Palettes"),
                 Path.Combine(mainDir, "UserFiles\\Palettes")
             };
         }

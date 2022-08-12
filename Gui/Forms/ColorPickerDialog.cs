@@ -132,6 +132,7 @@ namespace DynamicDraw
             #region colorWheel
             colorWheel.Width = 120;
             colorWheel.Height = 120;
+            colorWheel.HsvColor = HsvColor.FromColor(associatedColor);
             colorWheel.ColorChanged += (a, b) => { UpdateOnColorChange(null, true); };
             #endregion
 

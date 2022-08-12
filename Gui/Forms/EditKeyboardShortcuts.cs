@@ -34,7 +34,7 @@ namespace DynamicDraw
         private bool wereEntriesEdited = false;
 
         #region Gui Members
-        private Font boldFont = new Font("Microsoft Sans Serif", 10f, FontStyle.Bold);
+        private readonly Font boldFont = new Font("Microsoft Sans Serif", 10f, FontStyle.Bold);
         private IContainer components = null;
         private Label txtKeyboardShortcuts;
         private BasicButton bttnSave;
@@ -88,6 +88,9 @@ namespace DynamicDraw
             {
                 components.Dispose();
             }
+
+            boldFont?.Dispose();
+
             base.Dispose(disposing);
         }
 
@@ -129,9 +132,6 @@ namespace DynamicDraw
         {
             base.OnLoad(e);
 
-            // Populates the list of keyboard shortcuts.
-            GenerateShortcutsList();
-
             // Populates the shortcut target combobox.
             var shortcutTargetOptions = new BindingList<Tuple<string, ShortcutTarget>>();
             foreach (int i in Enum.GetValues(typeof(ShortcutTarget)))
@@ -146,9 +146,12 @@ namespace DynamicDraw
                 shortcutTargetOptions.Add(
                     new Tuple<string, ShortcutTarget>(Setting.AllSettings[target].Name, target));
             }
-            cmbxShortcutTarget.DataSource = shortcutTargetOptions;
             cmbxShortcutTarget.DisplayMember = "Item1";
             cmbxShortcutTarget.ValueMember = "Item2";
+            cmbxShortcutTarget.DataSource = shortcutTargetOptions;
+
+            // Populates the list of keyboard shortcuts.
+            GenerateShortcutsList();
         }
 
         /// <summary>
@@ -659,11 +662,6 @@ namespace DynamicDraw
             pnlRestoreDefaults.ResumeLayout(false);
             ResumeLayout(false);
         }
-
-        private void TxtbxShortcutName_TextChanged(object sender, EventArgs e)
-        {
-            currentShortcutName = txtbxShortcutName.Text;
-        }
         #endregion
 
         #region Methods (event handlers)
@@ -1032,6 +1030,11 @@ namespace DynamicDraw
             isUnsavedDataEdited = true;
             currentShortcutActionData = txtbxShortcutActionData.Text;
             RefreshViewBasedOnShortcut(true);
+        }
+
+        private void TxtbxShortcutName_TextChanged(object sender, EventArgs e)
+        {
+            currentShortcutName = txtbxShortcutName.Text;
         }
         #endregion
     }
