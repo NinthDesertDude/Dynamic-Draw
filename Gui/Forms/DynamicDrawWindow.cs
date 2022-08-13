@@ -841,8 +841,7 @@ namespace DynamicDraw
                     }
                     else if (ex is IOException || ex is UnauthorizedAccessException)
                     {
-                        MessageBox.Show(Strings.CannotSaveSettingsError,
-                            Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ThemedMessageBox.Show(Strings.CannotSaveSettingsError, Text, MessageBoxButtons.OK);
                     }
                     else
                     {
@@ -1072,7 +1071,7 @@ namespace DynamicDraw
                 }
                 catch
                 {
-                    MessageBox.Show(Strings.LoadPaletteError);
+                    ThemedMessageBox.Show(Strings.LoadPaletteError);
                 }
             }
         }
@@ -1101,7 +1100,7 @@ namespace DynamicDraw
                 }
                 else if (pluginHasLoaded)
                 {
-                    MessageBox.Show(Strings.LoadPaletteError);
+                    ThemedMessageBox.Show(Strings.LoadPaletteError);
                 }
             }
             else if (type == PaletteSpecialType.Recent)
@@ -1180,13 +1179,11 @@ namespace DynamicDraw
             {
                 if (ex is NullReferenceException)
                 {
-                    MessageBox.Show(Strings.SettingsUnavailableError,
-                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ThemedMessageBox.Show(Strings.SettingsUnavailableError, Text, MessageBoxButtons.OK);
                 }
                 else if (ex is IOException || ex is UnauthorizedAccessException)
                 {
-                    MessageBox.Show(Strings.CannotLoadSettingsError,
-                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ThemedMessageBox.Show(Strings.CannotLoadSettingsError, Text, MessageBoxButtons.OK);
                 }
                 else
                 {
@@ -1253,7 +1250,7 @@ namespace DynamicDraw
             }
             catch
             {
-                MessageBox.Show(Strings.EffectFailedToWorkError);
+                ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                 cmbxChosenEffect.SelectedIndex = 0; // corresponds to no effect chosen.
                 isPreviewingEffect = (false, false);
                 return false;
@@ -1321,7 +1318,7 @@ namespace DynamicDraw
 
             if (effectToDraw.Effect == null)
             {
-                MessageBox.Show(Strings.EffectFailedToWorkError);
+                ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                 UpdateEnabledControls();
                 return;
             }
@@ -1373,7 +1370,7 @@ namespace DynamicDraw
 
                 if (dialog == null)
                 {
-                    MessageBox.Show(Strings.EffectFailedToWorkError);
+                    ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                     return;
                 }
 
@@ -1402,7 +1399,7 @@ namespace DynamicDraw
                     bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
                     if (!effectSuccessfullyExecuted)
                     {
-                        MessageBox.Show(Strings.EffectFailedToWorkError);
+                        ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                         dialog.Close();
                     }
 
@@ -1421,7 +1418,7 @@ namespace DynamicDraw
                     bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
                     if (!effectSuccessfullyExecuted)
                     {
-                        MessageBox.Show(Strings.EffectFailedToWorkError);
+                        ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                         dialog.Close();
                     }
                 }
@@ -1438,7 +1435,7 @@ namespace DynamicDraw
             }
             catch
             {
-                MessageBox.Show(Strings.EffectFailedToWorkError);
+                ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
             }
         }
 
@@ -3541,8 +3538,7 @@ namespace DynamicDraw
                 }
                 else
                 {
-                    MessageBox.Show(Strings.SettingsUnavailableError,
-                        Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ThemedMessageBox.Show(Strings.SettingsUnavailableError, Text, MessageBoxButtons.OK);
                 }
             };
             preferencesContextMenu.Items.Add(menuBrushImageDirectories);
@@ -5339,8 +5335,7 @@ namespace DynamicDraw
                 {
                     if (showErrors)
                     {
-                        MessageBox.Show(Strings.ClipboardErrorUnusable,
-                            Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ThemedMessageBox.Show(Strings.ClipboardErrorUnusable, Text, MessageBoxButtons.OK);
                     }
 
                     bmpBackgroundClipboard?.Dispose();
@@ -6207,7 +6202,7 @@ namespace DynamicDraw
 
                 if (e.Error != null && workerArgs.DisplayErrors)
                 {
-                    MessageBox.Show(this, e.Error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ThemedMessageBox.Show(e.Error.Message, Text, MessageBoxButtons.OK);
                     brushImageLoadProgressBar.Visible = false;
                     bttnAddBrushImages.Visible = true;
                 }
@@ -7230,7 +7225,7 @@ namespace DynamicDraw
             // It's easy to hit the escape key on accident, especially when toggling other controls.
             // If any changes were made and the OK button was indirectly invoked, ask for confirmation first.
             if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnCancel.Focused &&
-                MessageBox.Show(Strings.ConfirmCancel, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
+                ThemedMessageBox.Show(Strings.ConfirmCancel, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
                 DialogResult = DialogResult.None;
                 return;
@@ -7265,7 +7260,7 @@ namespace DynamicDraw
         /// </summary>
         private void BttnDeleteBrush_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show(Strings.ConfirmDeleteBrush, "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (ThemedMessageBox.Show(Strings.ConfirmDeleteBrush, "", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 settings.CustomBrushes.Remove(currentBrushPath);
                 listviewBrushPicker.Items.RemoveAt(listviewBrushPicker.SelectedIndices[0]);
@@ -7291,7 +7286,7 @@ namespace DynamicDraw
             // It's easy to hit the enter key on accident, especially when toggling other controls.
             // If any changes were made and the OK button was indirectly invoked, ask for confirmation first.
             if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnOk.Focused &&
-                MessageBox.Show(Strings.ConfirmChanges, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
+                ThemedMessageBox.Show(Strings.ConfirmChanges, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
                 DialogResult = DialogResult.None;
                 return;
@@ -7377,8 +7372,7 @@ namespace DynamicDraw
             }
             else
             {
-                MessageBox.Show(Strings.RedoFileNotFoundError,
-                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ThemedMessageBox.Show(Strings.RedoFileNotFoundError, Text, MessageBoxButtons.OK);
             }
 
             //Handles enabling undo or disabling redo for the user's clarity.
@@ -7565,8 +7559,7 @@ namespace DynamicDraw
             }
             else
             {
-                MessageBox.Show(Strings.RedoFileNotFoundError,
-                    Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ThemedMessageBox.Show(Strings.RedoFileNotFoundError, Text, MessageBoxButtons.OK);
             }
 
             //Handles enabling redo or disabling undo for the user's clarity.

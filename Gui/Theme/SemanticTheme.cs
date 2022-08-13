@@ -17,6 +17,8 @@ namespace DynamicDraw
         private static SemanticTheme instance;
         private static readonly Dictionary<ThemeName, Dictionary<ThemeSlot, Color>> themeData;
 
+        private static HatchBrush specialBrushCheckeredTransparent;
+
         /// <summary>
         /// Gets or sets the current theme.
         /// </summary>
@@ -55,7 +57,23 @@ namespace DynamicDraw
         /// <summary>
         /// The checkered appearance of a transparent region, same as Paint.NET.
         /// </summary>
-        public static HatchBrush SpecialBrushCheckeredTransparent { get; private set; }
+        public static HatchBrush SpecialBrushCheckeredTransparent
+        {
+            get
+            {
+                if (specialBrushCheckeredTransparent == null)
+                {
+                    specialBrushCheckeredTransparent = new HatchBrush(
+                        HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
+                }
+
+                return specialBrushCheckeredTransparent;
+            }
+            private set
+            {
+                specialBrushCheckeredTransparent = value;
+            }
+        }
 
         /// <summary>
         /// Invoked whenever the theme is set to a new value.
@@ -64,9 +82,6 @@ namespace DynamicDraw
 
         static SemanticTheme()
         {
-            SpecialBrushCheckeredTransparent = new HatchBrush(
-                HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
-
             CurrentTheme = ThemeName.Light;
 
             var lightTheme = new Dictionary<ThemeSlot, Color>()
@@ -291,6 +306,7 @@ namespace DynamicDraw
                 }
 
                 SpecialBrushCheckeredTransparent?.Dispose();
+                SpecialBrushCheckeredTransparent = null;
 
                 ThemeName[] names = Enum.GetValues<ThemeName>();
                 ThemeSlot[] slots = Enum.GetValues<ThemeSlot>();

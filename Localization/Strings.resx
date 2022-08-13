@@ -1429,4 +1429,10 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
   <data name="ColorWheelTip" xml:space="preserve">
     <value>Click anywhere to set the hue and saturation of the current color.</value>
   </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
 </root>

@@ -706,8 +706,8 @@ namespace DynamicDraw
         {
             if (wereEntriesEdited)
             {
-                if (MessageBox.Show(Strings.CloseWithoutSaving, Strings.CloseWithoutSavingTitle,
-                    MessageBoxButtons.OKCancel) != DialogResult.OK)
+                if (ThemedMessageBox.Show(Strings.CloseWithoutSaving, Strings.CloseWithoutSavingTitle,
+                    MessageBoxButtons.YesNo) != DialogResult.OK)
                 {
                     return;
                 }
@@ -811,7 +811,7 @@ namespace DynamicDraw
         private void BttnRestoreDefaults_Click(object sender, EventArgs e)
         {
             wereEntriesEdited = true;
-            var resetStatus = MessageBox.Show(
+            var resetStatus = ThemedMessageBox.Show(
                 Strings.ConfirmResetShortcuts,
                 Strings.ConfirmResetShortcutsTitle, MessageBoxButtons.OKCancel);
 
@@ -830,7 +830,7 @@ namespace DynamicDraw
         {
             if (isUnsavedDataEdited)
             {
-                if (MessageBox.Show(Strings.KeyboardShortcutsSaveAndDiscardEdits, Strings.Confirm,
+                if (ThemedMessageBox.Show(Strings.KeyboardShortcutsSaveAndDiscardEdits, Strings.Confirm,
                     MessageBoxButtons.OKCancel) != DialogResult.OK)
                 {
                     return;
