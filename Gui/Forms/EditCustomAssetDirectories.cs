@@ -14,11 +14,11 @@ namespace DynamicDraw.Gui
         private ToolTip tooltip;
         private Label txtBrushImageLocations, txtPaletteLocations;
         private TextBox txtbxBrushImageLocations, txtbxPaletteLocations;
-        private BasicButton bttnAddFolderBrushImages, bttnAddFolderPalettes;
-        private BasicButton bttnAddFilesBrushImages, bttnAddFilesPalettes;
-        private ToggleButton chkbxLoadDefaultBrushes;
-        private BasicButton bttnResetPaletteLocations;
-        private BasicButton bttnSave, bttnCancel;
+        private ThemedButton bttnAddFolderBrushImages, bttnAddFolderPalettes;
+        private ThemedButton bttnAddFilesBrushImages, bttnAddFilesPalettes;
+        private ThemedCheckbox chkbxLoadDefaultBrushes;
+        private ThemedButton bttnResetPaletteLocations;
+        private ThemedButton bttnSave, bttnCancel;
         private FlowLayoutPanel outerContainer;
         private FlowLayoutPanel brushImageControlsContainer, paletteControlsContainer;
         private FlowLayoutPanel addFileFolderBrushImageContainer, addFileFolderPaletteContainer;
@@ -95,22 +95,22 @@ namespace DynamicDraw.Gui
             components = new System.ComponentModel.Container();
             txtBrushImageLocations = new Label();
             txtPaletteLocations = new Label();
-            chkbxLoadDefaultBrushes = new ToggleButton();
-            bttnResetPaletteLocations = new BasicButton();
+            chkbxLoadDefaultBrushes = new ThemedCheckbox();
+            bttnResetPaletteLocations = new ThemedButton();
             txtbxBrushImageLocations = new TextBox();
             txtbxPaletteLocations = new TextBox();
-            bttnSave = new BasicButton();
-            bttnCancel = new BasicButton();
-            bttnAddFolderBrushImages = new BasicButton();
-            bttnAddFolderPalettes = new BasicButton();
+            bttnSave = new ThemedButton();
+            bttnCancel = new ThemedButton();
+            bttnAddFolderBrushImages = new ThemedButton();
+            bttnAddFolderPalettes = new ThemedButton();
             tooltip = new ToolTip(components);
             brushImageControlsContainer = new FlowLayoutPanel();
             paletteControlsContainer = new FlowLayoutPanel();
             outerContainer = new FlowLayoutPanel();
             addFileFolderBrushImageContainer = new FlowLayoutPanel();
             addFileFolderPaletteContainer = new FlowLayoutPanel();
-            bttnAddFilesBrushImages = new BasicButton();
-            bttnAddFilesPalettes = new BasicButton();
+            bttnAddFilesBrushImages = new ThemedButton();
+            bttnAddFilesPalettes = new ThemedButton();
             cancelSaveContainer = new FlowLayoutPanel();
             brushImageControlsContainer.SuspendLayout();
             paletteControlsContainer.SuspendLayout();
@@ -498,12 +498,12 @@ namespace DynamicDraw.Gui
         /// </summary>
         private void HandleTheme()
         {
-            txtBrushImageLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            txtPaletteLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            txtbxBrushImageLocations.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            txtbxBrushImageLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            txtbxPaletteLocations.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            txtbxPaletteLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            txtBrushImageLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtPaletteLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtbxBrushImageLocations.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            txtbxBrushImageLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtbxPaletteLocations.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            txtbxPaletteLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             Refresh();
         }

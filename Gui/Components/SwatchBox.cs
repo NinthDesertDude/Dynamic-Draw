@@ -131,7 +131,7 @@ namespace DynamicDraw
             if (swatches.Count == 0 || numRows == 0 || Width == 0 || Height == 0)
             {
                 // Paints the control space to avoid drawing artifacts.
-                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
+                e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg),
                     0, 0, Width, Height);
 
                 return;
@@ -151,7 +151,6 @@ namespace DynamicDraw
                     : swatchesPerRow;
             int cursorCol = cursor.X / Math.Max(Width / xSize, 1);
 
-            using HatchBrush hatchBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
             for (int row = 0; row < numRows && row < swatches.Count; row++)
             {
                 int swatchesThisRow = (row == numRows - 1)
@@ -165,7 +164,7 @@ namespace DynamicDraw
                 int leftoverHeight = Height - (numRows * swatchH);
                 if (leftoverWidth > 0)
                 {
-                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
+                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg),
                         Width - leftoverWidth,
                         0,
                         leftoverWidth,
@@ -173,7 +172,7 @@ namespace DynamicDraw
                 }
                 if (leftoverHeight > 0)
                 {
-                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
+                    e.Graphics.FillRectangle(SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg),
                         0,
                         Height - leftoverHeight,
                         Width,
@@ -186,7 +185,7 @@ namespace DynamicDraw
                     // Draws the swatch color, with an underlying checkered pattern if it's partially transparent.
                     if (color.A != 255)
                     {
-                        e.Graphics.FillRectangle(hatchBrush,
+                        e.Graphics.FillRectangle(SemanticTheme.SpecialBrushCheckeredTransparent,
                             col * swatchW,
                             row * swatchH,
                             swatchW,
@@ -219,7 +218,7 @@ namespace DynamicDraw
                     else if (selectedIndex == (swatchesPerRow * row) + col)
                     {
                         e.Graphics.DrawRectangle(
-                            SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive),
+                            SemanticTheme.Instance.GetPen(ThemeSlot.ControlActive),
                             cursorCol * xSize,
                             cursorRow * ySize,
                             xSize - 1,
@@ -232,7 +231,7 @@ namespace DynamicDraw
             if (Enabled && Focused && ShowFocusCues)
             {
                 e.Graphics.DrawRectangle(
-                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
+                    SemanticTheme.Instance.GetPen(ThemeSlot.ControlActive), 0, 0, Width - 1, Height - 1);
             }
         }
     }

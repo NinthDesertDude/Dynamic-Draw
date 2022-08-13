@@ -71,8 +71,8 @@ namespace DynamicDraw
         private Slider colorChannelH;
         private Slider colorChannelS;
         private FlowLayoutPanel panelOkCancel;
-        private BasicButton bttnOk;
-        private BasicButton bttnCancel;
+        private ThemedButton bttnOk;
+        private ThemedButton bttnCancel;
         private FlowLayoutPanel panelMainContainer;
         #endregion
 
@@ -104,8 +104,8 @@ namespace DynamicDraw
             colorChannelH = new Slider(SliderSpecialType.HueGraph, associatedColor);
             colorChannelS = new Slider(SliderSpecialType.SatGraph, associatedColor);
             panelOkCancel = new FlowLayoutPanel();
-            bttnOk = new BasicButton();
-            bttnCancel = new BasicButton();
+            bttnOk = new ThemedButton();
+            bttnCancel = new ThemedButton();
             panelMainContainer = new FlowLayoutPanel();
             panelMainContainer.SuspendLayout();
             panelControlsContainer.SuspendLayout();

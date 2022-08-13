@@ -71,10 +71,10 @@
     <Compile Update="Gui\Main\BasicButton - Copy.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Components\BasicButton.cs">
+    <Compile Update="Gui\Components\ThemedButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Components\ToggleButton.cs" />
+    <Compile Update="Gui\Components\ThemedCheckbox.cs" />
     <Compile Update="Gui\Components\Slider.cs">
       <SubType>Component</SubType>
     </Compile>

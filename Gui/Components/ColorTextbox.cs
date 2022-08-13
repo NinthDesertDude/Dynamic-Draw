@@ -83,8 +83,8 @@ namespace DynamicDraw
         /// </summary>
         private void HandleTheme()
         {
-            BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
         }
     }
 }

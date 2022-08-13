@@ -14,7 +14,7 @@ namespace DynamicDraw
 
         #region Gui Members
         private FlowLayoutPanel panelFlowContainer;
-        private ComboBox cmbxInput;
+        private ThemedComboBox cmbxInput;
         #endregion
 
         /// <summary>
@@ -49,11 +49,13 @@ namespace DynamicDraw
             cmbxInput.DisplayMember = "Item1";
             cmbxInput.ValueMember = "Item2";
             cmbxInput.DataSource = queryToTargetMapping;
-            cmbxInput.SelectedIndexChanged += CmbxInput_SelectedIndexChanged;
         }
 
         private void AcceptAndClose()
         {
+            int index = Math.Max(cmbxInput.SelectedIndex, 0);
+            target = ((Tuple<string, KeyboardShortcut>)cmbxInput.Items[index]).Item2;
+
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -65,8 +67,6 @@ namespace DynamicDraw
         /// </summary>
         private void HandleTheme()
         {
-            cmbxInput.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxInput.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             Refresh();
         }
@@ -92,7 +92,7 @@ namespace DynamicDraw
         private void SetupGui()
         {
             panelFlowContainer = new FlowLayoutPanel();
-            cmbxInput = new ComboBox();
+            cmbxInput = new ThemedComboBox();
             panelFlowContainer.SuspendLayout();
             SuspendLayout();
 
@@ -140,18 +140,6 @@ namespace DynamicDraw
             panelFlowContainer.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
-        }
-
-        /// <summary>
-        /// Applies the shortcut and closes, if one is set.
-        /// </summary>
-        private void CmbxInput_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cmbxInput.SelectedIndex != -1)
-            {
-                target = ((Tuple<string, KeyboardShortcut>)cmbxInput.Items[cmbxInput.SelectedIndex]).Item2;
-                AcceptAndClose();
-            }
         }
         #endregion
     }

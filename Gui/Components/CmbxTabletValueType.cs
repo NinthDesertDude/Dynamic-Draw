@@ -1,13 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace DynamicDraw
 {
     /// <summary>
     /// Determines how a value is applied in conjunction with an input, e.g. pressure sensitivity.
     /// </summary>
-    public class CmbxTabletValueType : ComboBox
+    public class CmbxTabletValueType : ThemedComboBox
     {
         public class CmbxEntry
         {
@@ -34,8 +32,6 @@ namespace DynamicDraw
             this.Items.AddRange(entries);
             this.SelectedItem = this.Items[0];
             FlatStyle = FlatStyle.Flat;
-            SemanticTheme.ThemeChanged += HandleTheme;
-            HandleTheme();
             DisplayMember = "DisplayMember";
             ValueMember = "ValueMember";
             IntegralHeight = false;
@@ -59,16 +55,6 @@ namespace DynamicDraw
                     break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Any color logic that gets set only once, dependent on the current theme, needs to subscribe to the theme
-        /// changed event so it can be recalculated when theme preference loads from asynchronous user settings.
-        /// </summary>
-        private void HandleTheme()
-        {
-            BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
         }
     }
 }

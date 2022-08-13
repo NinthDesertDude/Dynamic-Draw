@@ -829,6 +829,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This is the hexadecimal color code of the current color, shown in ARGB (alpha, RGB) format. You can enter hex codes with 6 digits (RGB) or 8 digits (ARGB) to update the current color..
+        /// </summary>
+        internal static string ColorHexfieldTip {
+            get {
+                return ResourceManager.GetString("ColorHexfieldTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to H.
         /// </summary>
         internal static string ColorHueAbbr {
@@ -928,7 +937,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 3 Similar.
+        ///   Looks up a localized string similar to Analogous 3.
         /// </summary>
         internal static string ColorSchemeAnalogous3 {
             get {
@@ -937,7 +946,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 4 Similar.
+        ///   Looks up a localized string similar to Analogous 4.
         /// </summary>
         internal static string ColorSchemeAnalogous4 {
             get {
@@ -946,7 +955,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Complement.
+        ///   Looks up a localized string similar to Complementary.
         /// </summary>
         internal static string ColorSchemeComplementary {
             get {
@@ -955,7 +964,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Pri-Sec.
+        ///   Looks up a localized string similar to Color Blend.
         /// </summary>
         internal static string ColorSchemeGradient {
             get {
@@ -964,7 +973,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Light-Dark.
+        ///   Looks up a localized string similar to Monochromatic.
         /// </summary>
         internal static string ColorSchemeMonochromatic {
             get {
@@ -982,7 +991,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Complement 2.
+        ///   Looks up a localized string similar to Split Complement.
         /// </summary>
         internal static string ColorSchemeSplitComplementary {
             get {
@@ -1023,6 +1032,15 @@ namespace DynamicDraw.Localization {
         internal static string ColorValAbbr {
             get {
                 return ResourceManager.GetString("ColorValAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click anywhere to set the hue and saturation of the current color..
+        /// </summary>
+        internal static string ColorWheelTip {
+            get {
+                return ResourceManager.GetString("ColorWheelTip", resourceCulture);
             }
         }
         
@@ -2121,6 +2139,15 @@ namespace DynamicDraw.Localization {
         internal static string PalettesTextboxTip {
             get {
                 return ResourceManager.GetString("PalettesTextboxTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click a color on the palette to make it your primary color..
+        /// </summary>
+        internal static string PaletteTip {
+            get {
+                return ResourceManager.GetString("PaletteTip", resourceCulture);
             }
         }
         
@@ -3525,6 +3552,20 @@ namespace DynamicDraw.Localization {
         internal static string SmoothingNormal {
             get {
                 return ResourceManager.GetString("SmoothingNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click to switch the active palette. This defaults to the same palette active in Paint.NET. It includes generated palettes and below them, any palettes or palette folders found in palette directories. The generated palettes are:
+        ///
+        ///Recent: a list of recently-used colors. This only updates when a color is used, not selected.
+        ///Color Blend: a gradient from the primary color to secondary color.
+        ///Monochromatic: a gradient from white, to the primary color, then to black.
+        ///Analogous 3: gradients of 3 nearby hues, i [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SwitchPaletteTip {
+            get {
+                return ResourceManager.GetString("SwitchPaletteTip", resourceCulture);
             }
         }
         

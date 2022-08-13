@@ -14,7 +14,7 @@ namespace DynamicDraw
         private TextBox txtbxInput;
         private Label txtError;
         private FlowLayoutPanel flowLayoutPanel1;
-        private BasicButton bttnOk;
+        private ThemedButton bttnOk;
         #endregion
 
         /// <summary>
@@ -69,10 +69,10 @@ namespace DynamicDraw
         /// </summary>
         private void HandleTheme()
         {
-            txtbxInput.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            txtbxInput.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            txtDescription.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            txtError.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlRedAccent);
+            txtbxInput.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtbxInput.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            txtDescription.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtError.ForeColor = SemanticTheme.GetColor(ThemeSlot.RedAccent);
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             Refresh();
         }
@@ -114,7 +114,7 @@ namespace DynamicDraw
             txtDescription = new Label();
             flowLayoutPanel1 = new FlowLayoutPanel();
             txtbxInput = new TextBox();
-            bttnOk = new BasicButton();
+            bttnOk = new ThemedButton();
             txtError = new Label();
             panelFlowContainer.SuspendLayout();
             flowLayoutPanel1.SuspendLayout();

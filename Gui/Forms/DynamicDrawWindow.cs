@@ -411,16 +411,16 @@ namespace DynamicDraw
         /// </summary>
         private int visibleBrushImagesIndex;
 
-        private BasicButton bttnCancel;
-        private BasicButton bttnOk;
+        private ThemedButton bttnCancel;
+        private ThemedButton bttnOk;
 
         private IContainer components;
         internal PictureBox displayCanvas;
 
         private FlowLayoutPanel topMenu;
-        private BasicButton menuOptions;
-        private BasicButton menuRedo;
-        private BasicButton menuUndo;
+        private ThemedButton menuOptions;
+        private ThemedButton menuRedo;
+        private ThemedButton menuUndo;
         private ToolStripMenuItem menuSetTheme, menuSetThemeDefault, menuSetThemeLight, menuSetThemeDark;
         private ToolStripMenuItem menuResetCanvas, menuSetCanvasBackground, menuDisplaySettings;
         private ToolStripMenuItem menuSetCanvasBgImage, menuSetCanvasBgImageFit, menuSetCanvasBgImageOnlyIfFits;
@@ -430,12 +430,12 @@ namespace DynamicDraw
         private ToolStripMenuItem menuBrushImageDirectories, menuKeyboardShortcutsDialog;
         private ToolStripMenuItem menuColorPickerIncludesAlpha, menuColorPickerSwitchesToPrevTool;
         private ToolStripMenuItem menuRemoveUnfoundImagePaths, menuConfirmCloseSave;
-        private BasicButton menuCanvasZoomBttn, menuCanvasAngleBttn;
+        private ThemedButton menuCanvasZoomBttn, menuCanvasAngleBttn;
         private Slider sliderCanvasZoom, sliderCanvasAngle;
         private ToolStripMenuItem menuCanvasZoomReset, menuCanvasZoomFit, menuCanvasZoomTo;
         private ToolStripMenuItem menuCanvasAngleReset, menuCanvasAngle90, menuCanvasAngle180, menuCanvasAngle270, menuCanvasAngleTo;
         private SwatchBox menuActiveColors, menuPalette;
-        private ComboBox cmbxPaletteDropdown;
+        private ThemedComboBox cmbxPaletteDropdown;
         private FlowLayoutPanel panelTools;
 
         /// <summary>
@@ -451,29 +451,29 @@ namespace DynamicDraw
         private Timer timerClipboardDataCheck;
 
         private FlowLayoutPanel panelOkCancel;
-        private ToggleButton bttnColorPicker;
+        private ThemedCheckbox bttnColorPicker;
         private Panel panelAllSettingsContainer;
         private Panel panelDockSettingsContainer;
-        private ToggleButton bttnToolBrush;
-        private ToggleButton bttnToolOrigin;
-        private ToggleButton bttnToolEraser;
+        private ThemedCheckbox bttnToolBrush;
+        private ThemedCheckbox bttnToolOrigin;
+        private ThemedCheckbox bttnToolEraser;
         private FlowLayoutPanel panelSettingsContainer;
         private Accordion bttnBrushControls;
         private FlowLayoutPanel panelBrush;
         private DoubleBufferedListView listviewBrushImagePicker;
         private Panel panelBrushAddPickColor;
-        private ToggleButton chkbxColorizeBrush;
-        private BasicButton bttnAddBrushImages;
+        private ThemedCheckbox chkbxColorizeBrush;
+        private ThemedButton bttnAddBrushImages;
         private ProgressBar brushImageLoadProgressBar;
         private Slider sliderColorInfluence;
         private FlowLayoutPanel panelColorInfluenceHSV;
-        private ToggleButton chkbxColorInfluenceHue;
-        private ToggleButton chkbxColorInfluenceSat;
-        private ToggleButton chkbxColorInfluenceVal;
+        private ThemedCheckbox chkbxColorInfluenceHue;
+        private ThemedCheckbox chkbxColorInfluenceSat;
+        private ThemedCheckbox chkbxColorInfluenceVal;
         private Panel panelChosenEffect;
-        private ComboBox cmbxChosenEffect;
-        private BasicButton bttnChooseEffectSettings;
-        private ComboBox cmbxBlendMode;
+        private ThemedComboBox cmbxChosenEffect;
+        private ThemedButton bttnChooseEffectSettings;
+        private ThemedComboBox cmbxBlendMode;
         private Slider sliderBrushOpacity;
         private Slider sliderBrushFlow;
         private Slider sliderBrushRotation;
@@ -490,21 +490,21 @@ namespace DynamicDraw
         private FlowLayoutPanel panelSpecialSettings;
         private Slider sliderMinDrawDistance;
         private Slider sliderBrushDensity;
-        private ToggleButton chkbxAutomaticBrushDensity;
-        private ComboBox cmbxSymmetry;
-        private ComboBox cmbxBrushSmoothing;
-        private ToggleButton chkbxOrientToMouse;
-        private ToggleButton chkbxSeamlessDrawing;
-        private ToggleButton chkbxDitherDraw;
-        private ToggleButton chkbxLockAlpha;
+        private ThemedCheckbox chkbxAutomaticBrushDensity;
+        private ThemedComboBox cmbxSymmetry;
+        private ThemedComboBox cmbxBrushSmoothing;
+        private ThemedCheckbox chkbxOrientToMouse;
+        private ThemedCheckbox chkbxSeamlessDrawing;
+        private ThemedCheckbox chkbxDitherDraw;
+        private ThemedCheckbox chkbxLockAlpha;
         private Panel panelRGBLocks;
-        private ToggleButton chkbxLockR;
-        private ToggleButton chkbxLockG;
-        private ToggleButton chkbxLockB;
+        private ThemedCheckbox chkbxLockR;
+        private ThemedCheckbox chkbxLockG;
+        private ThemedCheckbox chkbxLockB;
         private Panel panelHSVLocks;
-        private ToggleButton chkbxLockHue;
-        private ToggleButton chkbxLockSat;
-        private ToggleButton chkbxLockVal;
+        private ThemedCheckbox chkbxLockHue;
+        private ThemedCheckbox chkbxLockSat;
+        private ThemedCheckbox chkbxLockVal;
         private Accordion bttnJitterBasicsControls;
         private FlowLayoutPanel panelJitterBasics;
         private Slider sliderRandMinSize;
@@ -537,11 +537,11 @@ namespace DynamicDraw
         private FlowLayoutPanel panelTabletAssignPressure;
         private Accordion bttnSettings;
         private FlowLayoutPanel panelSettings;
-        private BasicButton bttnUpdateCurrentBrush;
-        private BasicButton bttnClearSettings;
+        private ThemedButton bttnUpdateCurrentBrush;
+        private ThemedButton bttnClearSettings;
         private ListView listviewBrushPicker;
-        private BasicButton bttnSaveBrush;
-        private BasicButton bttnDeleteBrush;
+        private ThemedButton bttnSaveBrush;
+        private ThemedButton bttnDeleteBrush;
         private Label txtTooltip;
         private readonly Dictionary<ShortcutTarget, (Slider, CmbxTabletValueType)> pressureConstraintControls;
         #endregion
@@ -3305,34 +3305,34 @@ namespace DynamicDraw
             txtTooltip = new Label();
             displayCanvas = new PictureBox();
             topMenu = new FlowLayoutPanel();
-            bttnToolBrush = new ToggleButton(false);
+            bttnToolBrush = new ThemedCheckbox(false);
             dummyImageList = new ImageList(components);
             panelOkCancel = new FlowLayoutPanel();
-            menuUndo = new BasicButton();
-            menuRedo = new BasicButton();
-            bttnOk = new BasicButton(false, true);
-            bttnCancel = new BasicButton(false, true);
+            menuUndo = new ThemedButton();
+            menuRedo = new ThemedButton();
+            bttnOk = new ThemedButton(false, true);
+            bttnCancel = new ThemedButton(false, true);
             brushImageLoadingWorker = new BackgroundWorker();
-            bttnColorPicker = new ToggleButton(false);
+            bttnColorPicker = new ThemedCheckbox(false);
             panelAllSettingsContainer = new Panel();
             panelDockSettingsContainer = new Panel();
-            bttnToolEraser = new ToggleButton(false);
-            bttnToolOrigin = new ToggleButton(false);
+            bttnToolEraser = new ThemedCheckbox(false);
+            bttnToolOrigin = new ThemedCheckbox(false);
             panelSettingsContainer = new FlowLayoutPanel();
             bttnBrushControls = new Accordion(true);
             panelBrush = new FlowLayoutPanel();
             listviewBrushPicker = new ListView();
             listviewBrushImagePicker = new DoubleBufferedListView();
             panelBrushAddPickColor = new Panel();
-            chkbxColorizeBrush = new ToggleButton();
+            chkbxColorizeBrush = new ThemedCheckbox();
             sliderColorInfluence = new Slider(ShortcutTarget.ColorInfluence, 0f);
             panelColorInfluenceHSV = new FlowLayoutPanel();
-            chkbxColorInfluenceHue = new ToggleButton();
-            chkbxColorInfluenceSat = new ToggleButton();
-            chkbxColorInfluenceVal = new ToggleButton();
-            bttnAddBrushImages = new BasicButton();
+            chkbxColorInfluenceHue = new ThemedCheckbox();
+            chkbxColorInfluenceSat = new ThemedCheckbox();
+            chkbxColorInfluenceVal = new ThemedCheckbox();
+            bttnAddBrushImages = new ThemedButton();
             brushImageLoadProgressBar = new ProgressBar();
-            cmbxBlendMode = new ComboBox();
+            cmbxBlendMode = new ThemedComboBox();
             sliderBrushOpacity = new Slider(ShortcutTarget.BrushOpacity, 255f);
             sliderBrushFlow = new Slider(ShortcutTarget.Flow, 255f);
             sliderBrushRotation = new Slider(ShortcutTarget.Rotation, 0f);
@@ -3348,24 +3348,24 @@ namespace DynamicDraw
             bttnSpecialSettings = new Accordion(true);
             panelSpecialSettings = new FlowLayoutPanel();
             panelChosenEffect = new Panel();
-            cmbxChosenEffect = new ComboBox();
-            bttnChooseEffectSettings = new BasicButton();
+            cmbxChosenEffect = new ThemedComboBox();
+            bttnChooseEffectSettings = new ThemedButton();
             sliderMinDrawDistance = new Slider(ShortcutTarget.MinDrawDistance, 0f);
             sliderBrushDensity = new Slider(ShortcutTarget.BrushStrokeDensity, 10f);
-            cmbxSymmetry = new ComboBox();
-            cmbxBrushSmoothing = new ComboBox();
-            chkbxSeamlessDrawing = new ToggleButton();
-            chkbxOrientToMouse = new ToggleButton();
-            chkbxDitherDraw = new ToggleButton();
-            chkbxLockAlpha = new ToggleButton(false);
+            cmbxSymmetry = new ThemedComboBox();
+            cmbxBrushSmoothing = new ThemedComboBox();
+            chkbxSeamlessDrawing = new ThemedCheckbox();
+            chkbxOrientToMouse = new ThemedCheckbox();
+            chkbxDitherDraw = new ThemedCheckbox();
+            chkbxLockAlpha = new ThemedCheckbox(false);
             panelRGBLocks = new Panel();
-            chkbxLockR = new ToggleButton(false);
-            chkbxLockG = new ToggleButton(false);
-            chkbxLockB = new ToggleButton(false);
+            chkbxLockR = new ThemedCheckbox(false);
+            chkbxLockG = new ThemedCheckbox(false);
+            chkbxLockB = new ThemedCheckbox(false);
             panelHSVLocks = new Panel();
-            chkbxLockHue = new ToggleButton(false);
-            chkbxLockSat = new ToggleButton(false);
-            chkbxLockVal = new ToggleButton(false);
+            chkbxLockHue = new ThemedCheckbox(false);
+            chkbxLockSat = new ThemedCheckbox(false);
+            chkbxLockVal = new ThemedCheckbox(false);
             bttnJitterBasicsControls = new Accordion(true);
             panelJitterBasics = new FlowLayoutPanel();
             sliderRandMinSize = new Slider(ShortcutTarget.JitterMinSize, 0f);
@@ -3398,11 +3398,11 @@ namespace DynamicDraw
             panelTabletAssignPressure = new FlowLayoutPanel();
             bttnSettings = new Accordion(true);
             panelSettings = new FlowLayoutPanel();
-            bttnUpdateCurrentBrush = new BasicButton();
-            bttnClearSettings = new BasicButton();
-            bttnDeleteBrush = new BasicButton();
-            bttnSaveBrush = new BasicButton();
-            chkbxAutomaticBrushDensity = new ToggleButton();
+            bttnUpdateCurrentBrush = new ThemedButton();
+            bttnClearSettings = new ThemedButton();
+            bttnDeleteBrush = new ThemedButton();
+            bttnSaveBrush = new ThemedButton();
+            chkbxAutomaticBrushDensity = new ThemedCheckbox();
             #endregion
 
             #region suspend them all, order is VERY delicate
@@ -3444,8 +3444,8 @@ namespace DynamicDraw
 
             #region txtTooltip
             // Intentionally using the dark theme for all themes here. It works well.
-            txtTooltip.BackColor = SemanticTheme.GetColor(ThemeName.Dark, ThemeSlot.MenuControlBg);
-            txtTooltip.ForeColor = SemanticTheme.GetColor(ThemeName.Dark, ThemeSlot.MenuControlText);
+            txtTooltip.BackColor = SemanticTheme.GetColor(ThemeName.Dark, ThemeSlot.ControlBg);
+            txtTooltip.ForeColor = SemanticTheme.GetColor(ThemeName.Dark, ThemeSlot.Text);
             txtTooltip.AutoSize = true;
             txtTooltip.Dock = DockStyle.Top;
             txtTooltip.Font = tooltipFont;
@@ -3474,7 +3474,7 @@ namespace DynamicDraw
             topMenu.Margin = Padding.Empty;
 
             // The options button
-            menuOptions = new BasicButton
+            menuOptions = new ThemedButton
             {
                 Text = Strings.MenuOptions,
                 Height = 29,
@@ -3507,13 +3507,13 @@ namespace DynamicDraw
             menuColorPickerSwitchesToPrevTool = new ToolStripMenuItem(Strings.MenuColorPickerSwitches);
             menuRemoveUnfoundImagePaths = new ToolStripMenuItem(Strings.MenuRemoveUnfoundImagePaths);
             menuConfirmCloseSave = new ToolStripMenuItem(Strings.MenuDontConfirmCloseSave);
-            menuCanvasZoomBttn = new BasicButton(true);
+            menuCanvasZoomBttn = new ThemedButton(true);
             ContextMenuStrip CanvasZoomButtonContextMenu = new ContextMenuStrip();
             menuCanvasZoomReset = new ToolStripMenuItem(Strings.MenuZoomReset);
             menuCanvasZoomFit = new ToolStripMenuItem(Strings.MenuZoomFit);
             menuCanvasZoomTo = new ToolStripMenuItem(Strings.MenuZoomTo);
             sliderCanvasZoom = new Slider(new float[] { 1, 5, 10, 13, 17, 20, 25, 33, 50, 67, 100, 150, 200, 300, 400, 500, 600, 800, 1000, 1200, 1400, 1600, 2000, 2400, 2800, 3200, 4000, 4800, 5600, 6400 }, 100);
-            menuCanvasAngleBttn = new BasicButton(true);
+            menuCanvasAngleBttn = new ThemedButton(true);
             ContextMenuStrip CanvasAngleButtonContextMenu = new ContextMenuStrip();
             menuCanvasAngleReset = new ToolStripMenuItem(Strings.MenuRotateReset);
             menuCanvasAngle90 = new ToolStripMenuItem(Strings.MenuRotate90);
@@ -3524,7 +3524,9 @@ namespace DynamicDraw
             panelTools = new FlowLayoutPanel();
             menuActiveColors = new SwatchBox(new List<Color>() { Color.Black, Color.White }, 2);
             menuPalette = new SwatchBox(null, 3);
-            cmbxPaletteDropdown = new ComboBox();
+            cmbxPaletteDropdown = new ThemedComboBox();
+
+            preferencesContextMenu.Renderer = new ThemedMenuRenderer();
 
             // Options -> custom brush images...
             menuBrushImageDirectories.Click += (a, b) =>
@@ -3723,6 +3725,8 @@ namespace DynamicDraw
             topMenu.Controls.Add(menuUndo);
             topMenu.Controls.Add(menuRedo);
 
+            CanvasZoomButtonContextMenu.Renderer = new ThemedMenuRenderer();
+
             // sets up the canvas zoom button
             menuCanvasZoomBttn.Image = Resources.MenuZoom;
             menuCanvasZoomBttn.Height = 16;
@@ -3793,6 +3797,7 @@ namespace DynamicDraw
             sliderCanvasZoom.ValueChanged += SliderCanvasZoom_ValueChanged;
 
             topMenu.Controls.Add(sliderCanvasZoom);
+            CanvasAngleButtonContextMenu.Renderer = new ThemedMenuRenderer();
 
             // sets up the canvas angle button
             menuCanvasAngleBttn.Image = Resources.MenuAngle;
@@ -3909,6 +3914,7 @@ namespace DynamicDraw
             topMenu.Controls.Add(new PanelSeparator(true, 22, 29));
             topMenu.Controls.Add(menuActiveColors);
 
+            menuPalette.MouseEnter += MenuPalette_MouseEnter;
             menuPalette.Width = 264;
             menuPalette.Height = 29;
             menuPalette.SwatchClicked += (col) =>
@@ -3920,6 +3926,7 @@ namespace DynamicDraw
 
             topMenu.Controls.Add(menuPalette);
 
+            cmbxPaletteDropdown.MouseEnter += CmbxPaletteDropdown_MouseEnter;
             cmbxPaletteDropdown.FlatStyle = FlatStyle.Flat;
             cmbxPaletteDropdown.Width = 100;
             cmbxPaletteDropdown.Margin = new Padding(0, 3, 0, 0);
@@ -4340,6 +4347,7 @@ namespace DynamicDraw
             wheelColor.Margin = Padding.Empty;
             wheelColor.Padding = Padding.Empty;
             wheelColor.ColorChanged += (_1, _2) => UpdateColorSelectionSliders(null, true);
+            wheelColor.MouseEnter += WheelColor_MouseEnter;
             #endregion
 
             #region sliderColorV
@@ -4380,6 +4388,7 @@ namespace DynamicDraw
             txtbxColorHexfield.Margin = new Padding(4, 8, 0, 0);
             txtbxColorHexfield.Text = ColorUtils.GetTextFromColor(Color.Black);
             txtbxColorHexfield.ColorUpdatedByText += TxtbxColorHexfield_ColorUpdatedByText;
+            txtbxColorHexfield.MouseEnter += TxtbxColorHexfield_MouseEnter;
             #endregion
 
             #region bttnSpecialSettings
@@ -5771,7 +5780,7 @@ namespace DynamicDraw
                         continue;
                     }
 
-                    shortcuts.Add(KeyboardShortcut.GetShortcutKeysString(
+                    shortcuts.Add(shortcut.Name + " " + KeyboardShortcut.GetShortcutKeysString(
                         shortcut.Keys,
                         shortcut.RequireCtrl,
                         shortcut.RequireShift,
@@ -6601,10 +6610,7 @@ namespace DynamicDraw
                 UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit ||
                 UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits)
             {
-                using (HatchBrush hatchBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191)))
-                {
-                    e.Graphics.FillRectangle(hatchBrush, visibleBounds);
-                }
+                e.Graphics.FillRectangle(SemanticTheme.SpecialBrushCheckeredTransparent, visibleBounds);
             }
             if (bmpBackgroundClipboard != null && (
                 UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit || (
@@ -6910,22 +6916,12 @@ namespace DynamicDraw
         private void HandleTheme()
         {
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
-            cmbxBlendMode.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxBlendMode.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxBrushSmoothing.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxBrushSmoothing.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxChosenEffect.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxChosenEffect.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxPaletteDropdown.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxPaletteDropdown.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            cmbxSymmetry.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxSymmetry.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
             displayCanvas.BackColor = SemanticTheme.GetColor(ThemeSlot.CanvasBg);
-            listviewBrushPicker.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            listviewBrushPicker.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            listviewBrushPicker.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            listviewBrushPicker.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             panelDockSettingsContainer.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             topMenu.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
-            topMenu.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            topMenu.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             Refresh();
         }
 
@@ -7148,7 +7144,13 @@ namespace DynamicDraw
 
         private void MenuActiveColors_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.Color, Strings.BrushColorTip);
+            static bool filter(KeyboardShortcut shortcut)
+            {
+                return shortcut.Target == ShortcutTarget.Color
+                    || shortcut.Target == ShortcutTarget.SwapPrimarySecondaryColors;
+            }
+
+            UpdateTooltip(filter, Strings.BrushColorTip);
         }
 
         private void CmbxChosenEffect_MouseEnter(object sender, EventArgs e)
@@ -7175,7 +7177,7 @@ namespace DynamicDraw
 
             //Repaints white over the image and text area.
             e.Graphics.FillRectangle(
-                SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg),
+                SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg),
                 new Rectangle(2, e.Bounds.Top, e.Bounds.Width, e.Bounds.Height));
 
             //Draws the image of the current item to be repainted.
@@ -7191,7 +7193,7 @@ namespace DynamicDraw
             e.Graphics.DrawString(
                 effect.Item1,
                 cmbxChosenEffect.Font,
-                SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
+                SemanticTheme.Instance.GetBrush(ThemeSlot.Text),
                 new Point(textPosition, e.Bounds.Y + 6));
         }
 
@@ -7691,6 +7693,11 @@ namespace DynamicDraw
             UpdateTooltip(ShortcutTarget.SeamlessDrawing, Strings.SeamlessDrawingTip);
         }
 
+        private void CmbxPaletteDropdown_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(ShortcutTarget.SwitchPalette, Strings.SwitchPaletteTip);
+        }
+
         private void CmbxSwatchColorTheory_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(Strings.ColorSchemeTip);
@@ -7989,6 +7996,11 @@ namespace DynamicDraw
             }
         }
 
+        private void MenuPalette_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(ShortcutTarget.PickFromPalette, Strings.PaletteTip);
+        }
+
         private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(ShortcutTarget.BrushStrokeDensity, Strings.BrushDensityTip);
@@ -8213,6 +8225,16 @@ namespace DynamicDraw
         private void TxtbxColorHexfield_ColorUpdatedByText()
         {
             UpdateBrushColor(txtbxColorHexfield.AssociatedColor, true);
+        }
+
+        private void TxtbxColorHexfield_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(ShortcutTarget.Color, Strings.ColorHexfieldTip);
+        }
+
+        private void WheelColor_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(ShortcutTarget.Color, Strings.ColorWheelTip);
         }
         #endregion
     }

@@ -37,24 +37,24 @@ namespace DynamicDraw
         private readonly Font boldFont = new Font("Microsoft Sans Serif", 10f, FontStyle.Bold);
         private IContainer components = null;
         private Label txtKeyboardShortcuts;
-        private BasicButton bttnSave;
-        private BasicButton bttnCancel;
-        private BasicButton bttnAddShortcut;
+        private ThemedButton bttnSave;
+        private ThemedButton bttnCancel;
+        private ThemedButton bttnAddShortcut;
         private ToolTip tooltip;
         private FlowLayoutPanel panelShortcuts;
         private FlowLayoutPanel panelOuterContainer;
         private FlowLayoutPanel panelShortcutControls;
         private FlowLayoutPanel panelSaveCancel;
-        private BasicButton bttnDeleteOrToggle;
-        private BasicButton bttnRestoreDefaults;
+        private ThemedButton bttnDeleteOrToggle;
+        private ThemedButton bttnRestoreDefaults;
         private ListBox shortcutsListBox;
-        private BasicButton bttnEditShortcut;
+        private ThemedButton bttnEditShortcut;
         private FlowLayoutPanel pnlName;
         private FlowLayoutPanel pnlAddEditBar;
-        private ComboBox cmbxShortcutTarget;
-        private ToggleButton chkbxShortcutWheelUp;
-        private ToggleButton chkbxShortcutWheelDown;
-        private BasicButton bttnShortcutSequence;
+        private ThemedComboBox cmbxShortcutTarget;
+        private ThemedCheckbox chkbxShortcutWheelUp;
+        private ThemedCheckbox chkbxShortcutWheelDown;
+        private ThemedButton bttnShortcutSequence;
         private FlowLayoutPanel pnlWheelCheckboxes;
         private FlowLayoutPanel pnlTargetAndShortcut;
         private FlowLayoutPanel pnlShortcutExtraData;
@@ -350,9 +350,9 @@ namespace DynamicDraw
         {
             components = new Container();
             txtKeyboardShortcuts = new Label();
-            bttnSave = new BasicButton();
-            bttnCancel = new BasicButton();
-            bttnAddShortcut = new BasicButton();
+            bttnSave = new ThemedButton();
+            bttnCancel = new ThemedButton();
+            bttnAddShortcut = new ThemedButton();
             tooltip = new ToolTip(components);
             panelShortcuts = new FlowLayoutPanel();
             shortcutsListBox = new ListBox();
@@ -360,20 +360,20 @@ namespace DynamicDraw
             pnlName = new FlowLayoutPanel();
             pnlAddEditBar = new FlowLayoutPanel();
             pnlTargetAndShortcut = new FlowLayoutPanel();
-            cmbxShortcutTarget = new ComboBox();
-            bttnShortcutSequence = new BasicButton();
+            cmbxShortcutTarget = new ThemedComboBox();
+            bttnShortcutSequence = new ThemedButton();
             pnlWheelCheckboxes = new FlowLayoutPanel();
-            chkbxShortcutWheelUp = new ToggleButton();
-            chkbxShortcutWheelDown = new ToggleButton();
+            chkbxShortcutWheelUp = new ThemedCheckbox();
+            chkbxShortcutWheelDown = new ThemedCheckbox();
             pnlShortcutExtraData = new FlowLayoutPanel();
             txtbxShortcutName = new TextBox();
             txtbxShortcutActionData = new TextBox();
             panelShortcutControls = new FlowLayoutPanel();
-            bttnEditShortcut = new BasicButton();
-            bttnDeleteOrToggle = new BasicButton();
+            bttnEditShortcut = new ThemedButton();
+            bttnDeleteOrToggle = new ThemedButton();
             panelSaveCancel = new FlowLayoutPanel();
             pnlRestoreDefaults = new Panel();
-            bttnRestoreDefaults = new BasicButton();
+            bttnRestoreDefaults = new ThemedButton();
             panelShortcuts.SuspendLayout();
             panelOuterContainer.SuspendLayout();
             pnlName.SuspendLayout();
@@ -921,14 +921,12 @@ namespace DynamicDraw
         private void HandleTheme()
         {
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
-            txtKeyboardShortcuts.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            shortcutsListBox.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxShortcutTarget.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            cmbxShortcutTarget.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            txtbxShortcutActionData.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            txtbxShortcutActionData.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
-            txtbxShortcutName.BackColor = SemanticTheme.GetColor(ThemeSlot.MenuControlBg);
-            txtbxShortcutName.ForeColor = SemanticTheme.GetColor(ThemeSlot.MenuControlText);
+            txtKeyboardShortcuts.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            shortcutsListBox.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            txtbxShortcutActionData.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            txtbxShortcutActionData.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtbxShortcutName.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            txtbxShortcutName.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             Refresh();
         }
 
@@ -947,9 +945,9 @@ namespace DynamicDraw
             bool isDisabled = disabledShortcuts.Contains(item.Item2.BuiltInShortcutId);
 
             Brush headerColor = isDisabled
-                ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextSubtle)
-                : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText);
-            Brush detailsColor = SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlRedAccent);
+                ? SemanticTheme.Instance.GetBrush(ThemeSlot.TextSubtle)
+                : SemanticTheme.Instance.GetBrush(ThemeSlot.Text);
+            Brush detailsColor = SemanticTheme.Instance.GetBrush(ThemeSlot.RedAccent);
 
             if (shortcutsListBox.SelectedIndices.Contains(e.Index))
             {

@@ -555,9 +555,7 @@ namespace DynamicDraw
                     // Draws a checkered underlying background only for the alpha graph.
                     if (specialMode.Value.type == SliderSpecialType.AlphaGraph)
                     {
-                        using HatchBrush hatchBrush = new HatchBrush(
-                            HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
-                        e.Graphics.FillRectangle(hatchBrush, bounds);
+                        e.Graphics.FillRectangle(SemanticTheme.SpecialBrushCheckeredTransparent, bounds);
                     }
 
                     // Draws the gradient between the two colors for all graphs but hue.
@@ -589,7 +587,7 @@ namespace DynamicDraw
                 float valSizeRatio = value / Maximum * mainDimension;
                 if (Width > Height)
                 {
-                    e.Graphics.FillPolygon(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
+                    e.Graphics.FillPolygon(SemanticTheme.Instance.GetBrush(ThemeSlot.ControlActive),
                         new Point[] {
                             new Point((int)valSizeRatio - triangleIndicatorSize, Height),
                             new Point((int)valSizeRatio, Height - triangleIndicatorSize),
@@ -598,7 +596,7 @@ namespace DynamicDraw
                 }
                 else
                 {
-                    e.Graphics.FillPolygon(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive),
+                    e.Graphics.FillPolygon(SemanticTheme.Instance.GetBrush(ThemeSlot.ControlActive),
                         new Point[] {
                             new Point(Width, Height - (int)valSizeRatio - triangleIndicatorSize),
                             new Point(Width - triangleIndicatorSize, Height - (int)valSizeRatio),
@@ -611,12 +609,12 @@ namespace DynamicDraw
             else
             {
                 SolidBrush brushBg = !Enabled
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled)
-                    : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg);
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgDisabled)
+                    : SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg);
 
                 SolidBrush brushBgHighlight = !Enabled
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlightDisabled)
-                    : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive);
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgHighlightDisabled)
+                    : SemanticTheme.Instance.GetBrush(ThemeSlot.ControlActive);
 
                 if (Width > Height)
                 {
@@ -654,7 +652,7 @@ namespace DynamicDraw
                 if (specialMode != null)
                 {
                     e.Graphics.FillRectangle(
-                        SemanticTheme.Instance.GetBrush(ThemeSlot.HalfAlphaMenuControlBg),
+                        SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgTranslucent),
                         textPos.X,
                         textPos.Y,
                         measures.Width,
@@ -662,7 +660,7 @@ namespace DynamicDraw
                 }
 
                 e.Graphics.DrawString(
-                    formatted, Font, SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText), textPos.X, textPos.Y);
+                    formatted, Font, SemanticTheme.Instance.GetBrush(ThemeSlot.Text), textPos.X, textPos.Y);
             }
 
             // Draws a rectangle indicating focus (uses text color since the filled slider part is active color).
@@ -676,9 +674,14 @@ namespace DynamicDraw
                     offsetH = Width > Height ? triangleIndicatorSize : 1;
                 }
                 e.Graphics.DrawRectangle(
-                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlText),
+                    SemanticTheme.Instance.GetPen(ThemeSlot.Text),
                     0, 0, Width - offsetW, Height - offsetH);
             }
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs pevent)
+        {
+            // Handled in OnPaint
         }
 
         /// <summary>

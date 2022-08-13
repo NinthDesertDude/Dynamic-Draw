@@ -8,7 +8,7 @@ namespace DynamicDraw
     /// A themed variant of the checkbox control that displays an image instead of a check mark, and may use different
     /// images depending on the check state.
     /// </summary>
-    public class ToggleButton : CheckBox
+    public class ThemedCheckbox : CheckBox
     {
         private bool isHovered = false;
 
@@ -24,7 +24,7 @@ namespace DynamicDraw
         /// </summary>
         public bool RenderAsCheckbox { get; set; }
 
-        public ToggleButton(bool renderAsCheckbox = true) : base()
+        public ThemedCheckbox(bool renderAsCheckbox = true) : base()
         {
             ToggleImage = (null, null);
             RenderAsCheckbox = renderAsCheckbox;
@@ -51,19 +51,19 @@ namespace DynamicDraw
             {
                 Pen chkbxBorderColor =
                 (Enabled && isHovered)
-                    ? SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive)
+                    ? SemanticTheme.Instance.GetPen(ThemeSlot.ControlActive)
                 : Enabled
-                    ? SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlBgHighlight)
-                : SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlBgHighlightDisabled);
+                    ? SemanticTheme.Instance.GetPen(ThemeSlot.ControlBgHighlight)
+                : SemanticTheme.Instance.GetPen(ThemeSlot.ControlBgHighlightDisabled);
 
                 Brush chkbxBackColor =
                     (Enabled && isHovered)
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActiveHover)
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlActiveHover)
                     : (Enabled && Checked)
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActiveSelected)
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlActiveSelected)
                     : Enabled
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
-                    : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg)
+                    : SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgDisabled);
 
                 // Clears the paint zone (required to avoid visual issues).
                 e.Graphics.FillRectangle(
@@ -87,8 +87,8 @@ namespace DynamicDraw
                         ContentAlignment.MiddleCenter, (int)measures.Width, (int)measures.Height, chkbxSize, chkbxSize);
 
                     e.Graphics.DrawString("✓", Font, Enabled
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive)
-                        : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextDisabled),
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlActive)
+                        : SemanticTheme.Instance.GetBrush(ThemeSlot.TextDisabled),
                     chkbxPos.X + chkbxCheckPos.X, chkbxPos.Y + chkbxCheckPos.Y);
                 }
             }
@@ -96,12 +96,12 @@ namespace DynamicDraw
             {
                 Brush chkbxBackColor =
                     (Enabled && isHovered)
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlight)
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgHighlight)
                     : (Enabled && Checked)
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlActive)
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlActive)
                     : Enabled
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
-                    : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg)
+                    : SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgDisabled);
 
                 e.Graphics.FillRectangle(chkbxBackColor, 0, 0, Width, Height);
             }
@@ -142,8 +142,8 @@ namespace DynamicDraw
 
                 e.Graphics.DrawString(Text, Font,
                     Enabled
-                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText)
-                        : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextDisabled),
+                        ? SemanticTheme.Instance.GetBrush(ThemeSlot.Text)
+                        : SemanticTheme.Instance.GetBrush(ThemeSlot.TextDisabled),
                     textPos);
             }
 
@@ -151,8 +151,13 @@ namespace DynamicDraw
             if (Enabled && Focused && ShowFocusCues)
             {
                 e.Graphics.DrawRectangle(
-                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
+                    SemanticTheme.Instance.GetPen(ThemeSlot.ControlActive), 0, 0, Width - 1, Height - 1);
             }
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs pevent)
+        {
+            // Handled in OnPaint
         }
     }
 }

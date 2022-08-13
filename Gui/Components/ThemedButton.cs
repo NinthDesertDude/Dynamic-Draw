@@ -7,13 +7,13 @@ namespace DynamicDraw
     /// <summary>
     /// A themed variant of the button control that displays an image (with inverted color for light mode).
     /// </summary>
-    public class BasicButton : Button
+    public class ThemedButton : Button
     {
         private readonly bool hideIdleBgColor = false;
         private bool isHovered = false;
         private readonly bool redAccented = false;
 
-        public BasicButton(bool hideIdleBgColor = false, bool redAccented = false) : base()
+        public ThemedButton(bool hideIdleBgColor = false, bool redAccented = false) : base()
         {
             this.hideIdleBgColor = hideIdleBgColor;
             this.redAccented = redAccented;
@@ -35,14 +35,14 @@ namespace DynamicDraw
         {
             Brush basicButtonBg =
                 (Enabled && isHovered)
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlight)
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgHighlight)
                 : hideIdleBgColor
                     ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuBg)
                 : (Enabled && redAccented)
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlRedAccent)
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.RedAccent)
                 : (Enabled)
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
-                : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg)
+                : SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgDisabled);
 
             e.Graphics.FillRectangle(basicButtonBg, 0, 0, Width, Height);
 
@@ -73,10 +73,10 @@ namespace DynamicDraw
                     Text,
                     Font,
                     Enabled && redAccented && !isHovered && !hideIdleBgColor
-                        ? SemanticTheme.Instance.GetBrush(ThemeName.Dark, ThemeSlot.MenuControlText)
+                        ? SemanticTheme.Instance.GetBrush(ThemeName.Dark, ThemeSlot.Text)
                         : Enabled
-                            ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText)
-                        : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextDisabled),
+                            ? SemanticTheme.Instance.GetBrush(ThemeSlot.Text)
+                        : SemanticTheme.Instance.GetBrush(ThemeSlot.TextDisabled),
                     textPos);
             }
 
@@ -84,7 +84,7 @@ namespace DynamicDraw
             if (Enabled && Focused && ShowFocusCues)
             {
                 e.Graphics.DrawRectangle(
-                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
+                    SemanticTheme.Instance.GetPen(ThemeSlot.ControlActive), 0, 0, Width - 1, Height - 1);
             }
         }
     }

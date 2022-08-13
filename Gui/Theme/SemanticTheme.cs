@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace DynamicDraw
 {
@@ -52,48 +53,60 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// The checkered appearance of a transparent region, same as Paint.NET.
+        /// </summary>
+        public static HatchBrush SpecialBrushCheckeredTransparent { get; private set; }
+
+        /// <summary>
         /// Invoked whenever the theme is set to a new value.
         /// </summary>
         public static event Action ThemeChanged;
 
         static SemanticTheme()
         {
+            SpecialBrushCheckeredTransparent = new HatchBrush(
+                HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
+
             CurrentTheme = ThemeName.Light;
 
             var lightTheme = new Dictionary<ThemeSlot, Color>()
             {
-                { ThemeSlot.HalfAlphaMenuControlBg, Color.FromArgb(128, 227, 227, 227) },
+                { ThemeSlot.ControlBgTranslucent, Color.FromArgb(128, 227, 227, 227) },
                 { ThemeSlot.CanvasBg, Color.FromArgb(255, 207, 207, 207) },
                 { ThemeSlot.MenuBg, Color.FromArgb(255, 255, 255, 255) },
-                { ThemeSlot.MenuControlActive, Color.FromArgb(255, 40, 162, 255) },
-                { ThemeSlot.MenuControlActiveSelected, Color.FromArgb(255, 52, 58, 226) },
-                { ThemeSlot.MenuControlActiveHover, Color.FromArgb(255, 179, 207, 229) },
-                { ThemeSlot.MenuControlBg, Color.FromArgb(255, 227, 227, 227) },
-                { ThemeSlot.MenuControlBgDisabled, Color.FromArgb(255, 204, 204, 204) },
-                { ThemeSlot.MenuControlBgHighlight, Color.FromArgb(255, 237, 237, 237) },
-                { ThemeSlot.MenuControlBgHighlightDisabled, Color.FromArgb(255, 187, 187, 187) },
-                { ThemeSlot.MenuControlText, Color.FromArgb(255, 28, 28, 28) },
-                { ThemeSlot.MenuControlRedAccent, Color.FromArgb(255, 188, 77, 77) },
-                { ThemeSlot.MenuControlTextDisabled, Color.FromArgb(255, 155, 155, 155) },
-                { ThemeSlot.MenuControlTextSubtle, Color.FromArgb(255, 55, 55, 55) }
+                { ThemeSlot.ControlActive, Color.FromArgb(255, 40, 162, 255) },
+                { ThemeSlot.ControlActiveSelected, Color.FromArgb(255, 52, 58, 226) },
+                { ThemeSlot.ControlActiveHover, Color.FromArgb(255, 179, 207, 229) },
+                { ThemeSlot.ControlBg, Color.FromArgb(255, 227, 227, 227) },
+                { ThemeSlot.ControlBgDisabled, Color.FromArgb(255, 204, 204, 204) },
+                { ThemeSlot.ControlBgHighlight, Color.FromArgb(255, 237, 237, 237) },
+                { ThemeSlot.ControlBgHighlightDisabled, Color.FromArgb(255, 187, 187, 187) },
+                { ThemeSlot.Text, Color.FromArgb(255, 28, 28, 28) },
+                { ThemeSlot.RedAccent, Color.FromArgb(255, 188, 77, 77) },
+                { ThemeSlot.TextDisabled, Color.FromArgb(255, 155, 155, 155) },
+                { ThemeSlot.TextSubtle, Color.FromArgb(255, 55, 55, 55) },
+                { ThemeSlot.MenuArrow, Color.FromArgb(255, 187, 187, 187) },
+                { ThemeSlot.MenuSeparator, Color.FromArgb(255, 187, 187, 187) }
             };
 
             var darkTheme = new Dictionary<ThemeSlot, Color>()
             {
-                { ThemeSlot.HalfAlphaMenuControlBg, Color.FromArgb(128, 32, 32, 32) },
+                { ThemeSlot.ControlBgTranslucent, Color.FromArgb(128, 32, 32, 32) },
                 { ThemeSlot.CanvasBg, Color.FromArgb(255, 48, 48, 48) },
                 { ThemeSlot.MenuBg, Color.FromArgb(255, 37, 37, 37) },
-                { ThemeSlot.MenuControlActive, Color.FromArgb(255, 0, 120, 215) },
-                { ThemeSlot.MenuControlActiveSelected, Color.FromArgb(255, 24, 50, 75) },
-                { ThemeSlot.MenuControlActiveHover, Color.FromArgb(255, 24, 50, 75) },
-                { ThemeSlot.MenuControlBg, Color.FromArgb(255, 32, 32, 32) },
-                { ThemeSlot.MenuControlBgDisabled, Color.FromArgb(255, 32, 32, 32) },
-                { ThemeSlot.MenuControlBgHighlight, Color.FromArgb(255, 128, 128, 128) },
-                { ThemeSlot.MenuControlBgHighlightDisabled, Color.FromArgb(255, 48, 48, 48) },
-                { ThemeSlot.MenuControlText, Color.FromArgb(255, 227, 227, 227) },
-                { ThemeSlot.MenuControlRedAccent, Color.FromArgb(255, 188, 77, 77) },
-                { ThemeSlot.MenuControlTextDisabled, Color.FromArgb(255, 100, 100, 100) },
-                { ThemeSlot.MenuControlTextSubtle, Color.FromArgb(255, 200, 200, 200) }
+                { ThemeSlot.ControlActive, Color.FromArgb(255, 0, 120, 215) },
+                { ThemeSlot.ControlActiveSelected, Color.FromArgb(255, 24, 50, 75) },
+                { ThemeSlot.ControlActiveHover, Color.FromArgb(255, 24, 50, 75) },
+                { ThemeSlot.ControlBg, Color.FromArgb(255, 32, 32, 32) },
+                { ThemeSlot.ControlBgDisabled, Color.FromArgb(255, 32, 32, 32) },
+                { ThemeSlot.ControlBgHighlight, Color.FromArgb(255, 128, 128, 128) },
+                { ThemeSlot.ControlBgHighlightDisabled, Color.FromArgb(255, 48, 48, 48) },
+                { ThemeSlot.Text, Color.FromArgb(255, 227, 227, 227) },
+                { ThemeSlot.RedAccent, Color.FromArgb(255, 188, 77, 77) },
+                { ThemeSlot.TextDisabled, Color.FromArgb(255, 100, 100, 100) },
+                { ThemeSlot.TextSubtle, Color.FromArgb(255, 200, 200, 200) },
+                { ThemeSlot.MenuArrow, Color.FromArgb(255, 128, 128, 128) },
+                { ThemeSlot.MenuSeparator, Color.FromArgb(255, 128, 128, 128) }
             };
 
             themeData = new Dictionary<ThemeName, Dictionary<ThemeSlot, Color>>()
@@ -276,6 +289,8 @@ namespace DynamicDraw
                 {
                     // TODO: dispose managed state (managed objects)
                 }
+
+                SpecialBrushCheckeredTransparent?.Dispose();
 
                 ThemeName[] names = Enum.GetValues<ThemeName>();
                 ThemeSlot[] slots = Enum.GetValues<ThemeSlot>();

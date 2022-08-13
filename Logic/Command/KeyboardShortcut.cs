@@ -513,7 +513,58 @@ namespace DynamicDraw
                     : numbers[0];
             }
 
-            float value = float.Parse(chunks[0]);
+            float value = origValue;
+
+            if (chunks[1].StartsWith("random"))
+            {
+                List<float> numbers = new List<float>();
+                string[] rangeStrings = chunks[0].Split(",");
+                if (rangeStrings.Length != 2)
+                {
+                    throw new Exception("Was expecting random range to have two numbers.");
+                }
+
+                for (int i = 0; i < rangeStrings.Length; i++)
+                {
+                    if (!float.TryParse(rangeStrings[i], out float result))
+                    {
+                        throw new Exception("Was expecting random range to contain purely numeric data with comma delimiters.");
+                    }
+
+                    numbers.Add(result);
+                }
+
+                Random rng = new Random();
+
+                if (chunks[1].Equals("random-set"))
+                {
+                    value = Math.Clamp(numbers[0] + (float)rng.NextDouble() * (numbers[1] - numbers[0]), minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-add"))
+                {
+                    value = Math.Clamp(origValue + (numbers[0] + (float)rng.NextDouble()
+                        * Math.Abs(numbers[1] - numbers[0])), minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-sub"))
+                {
+                    value = Math.Clamp(origValue - (numbers[0] + (float)rng.NextDouble()
+                        * Math.Abs(numbers[1] - numbers[0])), minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-mul"))
+                {
+                    value = Math.Clamp(origValue * (numbers[0] + (float)rng.NextDouble()
+                        * Math.Abs(numbers[1] - numbers[0])), minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-div"))
+                {
+                    float newVal = numbers[0] + (float)rng.NextDouble() * (numbers[1] - numbers[0]);
+                    value = Math.Clamp(newVal == 0 ? maxValue : origValue / newVal, minValue, maxValue);
+                }
+
+                return value;
+            }
+
+            value = float.Parse(chunks[0]);
 
             if (chunks[1].Equals("set"))
             {
@@ -629,7 +680,12 @@ namespace DynamicDraw
                     chunks[1] != "mul" &&
                     chunks[1] != "div" &&
                     chunks[1] != "add-wrap" &&
-                    chunks[1] != "sub-wrap")
+                    chunks[1] != "sub-wrap" &&
+                    chunks[1] != "random-add" &&
+                    chunks[1] != "random-set" &&
+                    chunks[1] != "random-sub" &&
+                    chunks[1] != "random-mul" &&
+                    chunks[1] != "random-div")
                 {
                     return false;
                 }

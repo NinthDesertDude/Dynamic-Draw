@@ -150,7 +150,7 @@ namespace DynamicDraw
 
                 if (!Enabled)
                 {
-                    g.FillEllipse(SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled), 0, 0, size, size);
+                    g.FillEllipse(SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgDisabled), 0, 0, size, size);
                 }
                 else
                 {
@@ -256,6 +256,7 @@ namespace DynamicDraw
             wheelPictureBox.Paint += WheelPictureBox_Paint;
             wheelPictureBox.MouseUp += WheelPictureBox_MouseUp;
             wheelPictureBox.MouseMove += WheelPictureBox_MouseMove;
+            wheelPictureBox.MouseEnter += WheelPictureBox_MouseEnter;
             wheelPictureBox.MouseDown += WheelPictureBox_MouseDown;
             #endregion
 
@@ -287,6 +288,11 @@ namespace DynamicDraw
         private void WheelPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
             OnMouseDown(e);
+        }
+
+        private void WheelPictureBox_MouseEnter(object sender, EventArgs e)
+        {
+            OnMouseEnter(e);
         }
 
         private void WheelPictureBox_MouseMove(object sender, MouseEventArgs e)

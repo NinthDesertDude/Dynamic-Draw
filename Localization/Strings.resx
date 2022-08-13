@@ -1369,25 +1369,25 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Zoom out</value>
   </data>
   <data name="ColorSchemeAnalogous3" xml:space="preserve">
-    <value>3 Similar</value>
+    <value>Analogous 3</value>
   </data>
   <data name="ColorSchemeAnalogous4" xml:space="preserve">
-    <value>4 Similar</value>
+    <value>Analogous 4</value>
   </data>
   <data name="ColorSchemeComplementary" xml:space="preserve">
-    <value>Complement</value>
+    <value>Complementary</value>
   </data>
   <data name="ColorSchemeMonochromatic" xml:space="preserve">
-    <value>Light-Dark</value>
+    <value>Monochromatic</value>
   </data>
   <data name="ColorSchemeGradient" xml:space="preserve">
-    <value>Pri-Sec</value>
+    <value>Color Blend</value>
   </data>
   <data name="ColorSchemeRecent" xml:space="preserve">
     <value>Recent</value>
   </data>
   <data name="ColorSchemeSplitComplementary" xml:space="preserve">
-    <value>Complement 2</value>
+    <value>Split Complement</value>
   </data>
   <data name="ColorSchemeSquare" xml:space="preserve">
     <value>Square</value>
@@ -1406,5 +1406,27 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="ShortcutNameSwitchPalette" xml:space="preserve">
     <value>Switch Palette</value>
+  </data>
+  <data name="PaletteTip" xml:space="preserve">
+    <value>Click a color on the palette to make it your primary color.</value>
+  </data>
+  <data name="SwitchPaletteTip" xml:space="preserve">
+    <value>Click to switch the active palette. This defaults to the same palette active in Paint.NET. It includes generated palettes and below them, any palettes or palette folders found in palette directories. The generated palettes are:
+
+Recent: a list of recently-used colors. This only updates when a color is used, not selected.
+Color Blend: a gradient from the primary color to secondary color.
+Monochromatic: a gradient from white, to the primary color, then to black.
+Analogous 3: gradients of 3 nearby hues, including the current one.
+Analogous 4: gradients of 4 nearby hues.
+Complementary: gradients of the current and opposite hue.
+Split Complement: gradients of the current and opposite hue, and 2 hues near them.
+Triadic: gradients of 3 hues that are equidistant on the color wheel.
+Square: gradients of 4 hues that are equidistant on the color wheel.</value>
+  </data>
+  <data name="ColorHexfieldTip" xml:space="preserve">
+    <value>This is the hexadecimal color code of the current color, shown in ARGB (alpha, RGB) format. You can enter hex codes with 6 digits (RGB) or 8 digits (ARGB) to update the current color.</value>
+  </data>
+  <data name="ColorWheelTip" xml:space="preserve">
+    <value>Click anywhere to set the hue and saturation of the current color.</value>
   </data>
 </root>

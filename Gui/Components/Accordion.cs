@@ -82,12 +82,12 @@ namespace DynamicDraw
         {
             Brush accordionBg =
                 (Enabled && isHovered)
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgHighlight)
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgHighlight)
                 : (Enabled && redAccented)
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlRedAccent)
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.RedAccent)
                 : Enabled
-                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBg)
-                : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlBgDisabled);
+                    ? SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBg)
+                : SemanticTheme.Instance.GetBrush(ThemeSlot.ControlBgDisabled);
 
             e.Graphics.FillRectangle(accordionBg, 0, 0, Width, Height);
 
@@ -96,8 +96,8 @@ namespace DynamicDraw
                 Text,
                 Font,
                 Enabled && redAccented && !isHovered
-                ? SemanticTheme.Instance.GetBrush(ThemeName.Dark, ThemeSlot.MenuControlText)
-                : SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlText),
+                ? SemanticTheme.Instance.GetBrush(ThemeName.Dark, ThemeSlot.Text)
+                : SemanticTheme.Instance.GetBrush(ThemeSlot.Text),
                 new Point(
                 4,
                 (int)((Height - measures.Height) / 2f)
@@ -108,15 +108,20 @@ namespace DynamicDraw
             e.Graphics.DrawString(
                 collapseStr,
                 Font,
-                SemanticTheme.Instance.GetBrush(ThemeSlot.MenuControlTextSubtle),
+                SemanticTheme.Instance.GetBrush(ThemeSlot.TextSubtle),
                 new Point(Width - 16, (int)((Height - measures.Height) / 2f)));
 
             // Draws a rectangle indicating focus.
             if (Enabled && Focused && ShowFocusCues)
             {
                 e.Graphics.DrawRectangle(
-                    SemanticTheme.Instance.GetPen(ThemeSlot.MenuControlActive), 0, 0, Width - 1, Height - 1);
+                    SemanticTheme.Instance.GetPen(ThemeSlot.ControlActive), 0, 0, Width - 1, Height - 1);
             }
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs pevent)
+        {
+            // Handled in OnPaint
         }
 
         /// <summary>
