@@ -22,7 +22,7 @@ namespace DynamicDraw
         private HashSet<string> customBrushDirectories;
         private HashSet<string> paletteDirectories;
         private Dictionary<string, BrushSettings> customBrushes;
-        private HashSet<KeyboardShortcut> customShortcuts;
+        private HashSet<Command> customShortcuts;
         private HashSet<int> disabledShortcuts;
         private UserSettings preferences;
         private bool useDefaultBrushes;
@@ -120,7 +120,7 @@ namespace DynamicDraw
         /// </summary>
         [JsonInclude]
         [JsonPropertyName("CustomShortcuts")]
-        public HashSet<KeyboardShortcut> CustomShortcuts
+        public HashSet<Command> CustomShortcuts
         {
             get
             {
@@ -130,7 +130,7 @@ namespace DynamicDraw
             {
                 if (customShortcuts != value)
                 {
-                    customShortcuts = new HashSet<KeyboardShortcut>(value);
+                    customShortcuts = new HashSet<Command>(value);
                 }
             }
         }
@@ -252,7 +252,7 @@ namespace DynamicDraw
                         customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
                         disabledShortcuts = savedSettings.DisabledShortcuts;
                         customShortcuts = PersistentSettings.InjectDefaultShortcuts(
-                            savedSettings.CustomShortcuts ?? new HashSet<KeyboardShortcut>(),
+                            savedSettings.CustomShortcuts ?? new HashSet<Command>(),
                             disabledShortcuts);
                         preferences = new UserSettings(savedSettings.Preferences);
                         useDefaultBrushes = savedSettings.UseDefaultBrushes;
@@ -313,7 +313,7 @@ namespace DynamicDraw
 
             // After loading, custom shortcuts is combined with enabled default shortcuts. This removes them all when
             // saving, then puts them back in after.
-            HashSet<KeyboardShortcut> shortcutsCopy = new HashSet<KeyboardShortcut>(customShortcuts);
+            HashSet<Command> shortcutsCopy = new HashSet<Command>(customShortcuts);
             customShortcuts = PersistentSettings.RemoveDefaultShortcuts(customShortcuts);
 
             using (FileStream stream = new FileStream(settingsPath, FileMode.Create, FileAccess.Write))

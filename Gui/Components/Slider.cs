@@ -300,12 +300,12 @@ namespace DynamicDraw
         public event EventHandler<float> ValueChanged;
 
         /// <summary>
-        /// Creates a new slider using the min/max range associated with the given shortcut target.
+        /// Creates a new slider using the min/max range associated with the given command target.
         /// </summary>
         /// <param name="value">The current value of the slider.</param>
-        public Slider(ShortcutTarget target, float value)
-            : this(Setting.AllSettings[target].MinMaxRangeF?.Item1 ?? Setting.AllSettings[target].MinMaxRange.Item1,
-                  Setting.AllSettings[target].MinMaxRangeF?.Item2 ?? Setting.AllSettings[target].MinMaxRange.Item2,
+        public Slider(CommandTarget target, float value)
+            : this(Commands.All[target].MinMaxRangeF?.Item1 ?? Commands.All[target].MinMaxRange.Item1,
+                  Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item2,
                   value)
         { }
 
@@ -795,7 +795,7 @@ namespace DynamicDraw
                 // enters typing mode and appends a character.
                 else
                 {
-                    string newChar = KeyboardShortcut.GetPrintableKey(keyData);
+                    string newChar = Command.GetPrintableKey(keyData);
 
                     if (newChar != "")
                     {

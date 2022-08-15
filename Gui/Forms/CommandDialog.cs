@@ -9,8 +9,8 @@ namespace DynamicDraw
 {
     public class CommandDialog : Form
     {
-        private KeyboardShortcut target = null;
-        private static BindingList<Tuple<string, KeyboardShortcut>> queryToTargetMapping = new BindingList<Tuple<string, KeyboardShortcut>>();
+        private Command target = null;
+        private static BindingList<Tuple<string, Command>> queryToTargetMapping = new BindingList<Tuple<string, Command>>();
 
         #region Gui Members
         private FlowLayoutPanel panelFlowContainer;
@@ -18,9 +18,9 @@ namespace DynamicDraw
         #endregion
 
         /// <summary>
-        /// The shotcut target chosen/identified by the dialog. Defaults to null.
+        /// The command target chosen/identified by the dialog. Defaults to null.
         /// </summary>
-        public KeyboardShortcut ShortcutToExecute
+        public Command ShortcutToExecute
         {
             get
             {
@@ -31,19 +31,19 @@ namespace DynamicDraw
         /// <summary>
         /// The quick command dialog allows you to execute the shortcuts provided by typing them in.
         /// </param>
-        public CommandDialog(HashSet<KeyboardShortcut> shortcuts)
+        public CommandDialog(HashSet<Command> shortcuts)
         {
             SetupGui();
 
             // Filters shortcuts set to be excluded, sorts alphabetically.
-            var orderedShortcuts = new HashSet<KeyboardShortcut>(shortcuts).Where((shortcut) => !shortcut.CommandDialogIgnore)
-                .OrderBy((shortcut) => shortcut.Name)
+            var orderedShortcuts = new HashSet<Command>(shortcuts).Where((command) => !command.CommandDialogIgnore)
+                .OrderBy((command) => command.Name)
                 .ToList();
 
             queryToTargetMapping.Clear();
             foreach (var shortcut in orderedShortcuts)
             {
-                queryToTargetMapping.Add(new Tuple<string, KeyboardShortcut>(shortcut.Name, shortcut));
+                queryToTargetMapping.Add(new Tuple<string, Command>(shortcut.Name, shortcut));
             }
 
             cmbxInput.DisplayMember = "Item1";
@@ -54,7 +54,7 @@ namespace DynamicDraw
         private void AcceptAndClose()
         {
             int index = Math.Max(cmbxInput.SelectedIndex, 0);
-            target = ((Tuple<string, KeyboardShortcut>)cmbxInput.Items[index]).Item2;
+            target = ((Tuple<string, Command>)cmbxInput.Items[index]).Item2;
 
             DialogResult = DialogResult.OK;
             Close();

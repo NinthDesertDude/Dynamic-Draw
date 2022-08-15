@@ -13,77 +13,8 @@ namespace DynamicDraw
     /// <summary>
     /// Represents a keyboard shortcut.
     /// </summary>
-    public class KeyboardShortcut
+    public class Command
     {
-        /// <summary>
-        /// Identifies an action/intent associated with the shortcut data type and/or numeric data. For example,
-        /// <see cref="IntentTagId.BoolTrue"/> for a boolean type should set the identified target to true when the
-        /// shortcut triggers. <see cref="IntentTagId.NumAdd"/> for an integer type should add the associated number
-        /// to the shortcut target's current value.
-        /// </summary>
-        public enum IntentTagId
-        {
-            /// <summary>
-            /// Represents nothing / no value.
-            /// </summary>
-            None = 0,
-
-            /// <summary>
-            /// Set to false
-            /// </summary>
-            BoolFalse = 1,
-
-            /// <summary>
-            /// Set to true
-            /// </summary>
-            BoolTrue = 2,
-
-            /// <summary>
-            /// Toggle value
-            /// </summary>
-            BoolToggle = 3,
-
-            /// <summary>
-            /// Add to value
-            /// </summary>
-            NumAdd = 4,
-
-            /// <summary>
-            /// Add to value. If exceeding max/min, wrap around to the other side.
-            /// </summary>
-            NumAddWrap = 5,
-
-            /// <summary>
-            /// Set to value
-            /// </summary>
-            NumSet = 6,
-
-            /// <summary>
-            /// Subtract from value
-            /// </summary>
-            NumSub = 7,
-
-            /// <summary>
-            /// Subtracts from value. If exceeding min/max, wrap around to the other side.
-            /// </summary>
-            NumSubWrap = 8
-        }
-
-        /// <summary>
-        /// Associates intent tags to their display text representation.
-        /// </summary>
-        public static Dictionary<IntentTagId, string> IntentTags = new Dictionary<IntentTagId, string>()
-        {
-            { IntentTagId.BoolFalse, Strings.ShortcutIntentBoolFalse },
-            { IntentTagId.BoolTrue, Strings.ShortcutIntentBoolTrue },
-            { IntentTagId.BoolToggle, Strings.ShortcutIntentBoolToggle },
-            { IntentTagId.NumAdd, Strings.ShortcutIntentNumAdd },
-            { IntentTagId.NumAddWrap, Strings.ShortcutIntentNumAddWrap },
-            { IntentTagId.NumSet, Strings.ShortcutIntentNumSet },
-            { IntentTagId.NumSub, Strings.ShortcutIntentNumSub },
-            { IntentTagId.NumSubWrap, Strings.ShortcutIntentNumSubWrap }
-        };
-
         /// <summary>
         /// A string used as data depending on the type of action. See <see cref="KeyShortcutAction"/>'s enum entries
         /// for a description of how the string should be interpreted based on the named action.
@@ -111,14 +42,14 @@ namespace DynamicDraw
         /// </summary>
         [JsonInclude]
         [JsonPropertyName("ContextsDenied")]
-        public HashSet<ShortcutContext> ContextsDenied { get; set; }
+        public HashSet<CommandContext> ContextsDenied { get; set; }
 
         /// <summary>
         /// The shortcut is automatically disabled while any of these contexts are absent.
         /// </summary>
         [JsonInclude]
         [JsonPropertyName("ContextsRequired")]
-        public HashSet<ShortcutContext> ContextsRequired { get; set; }
+        public HashSet<CommandContext> ContextsRequired { get; set; }
 
         /// <summary>
         /// The key that, when pressed in conjunction with any listed modifier keys, triggers the shortcut.
@@ -169,11 +100,11 @@ namespace DynamicDraw
         public bool RequireWheelUp { get; set; }
 
         /// <summary>
-        /// Identifies the setting to change associated with this key shortcut.
+        /// The setting/action associated with this key shortcut.
         /// </summary>
         [JsonInclude]
         [JsonPropertyName("ShortcutToExecute")]
-        public ShortcutTarget Target { get; set; }
+        public CommandTarget Target { get; set; }
 
         /// <summary>
         /// The action to take when the keyboard shortcut is invoked.
@@ -181,12 +112,12 @@ namespace DynamicDraw
         [JsonIgnore]
         public Action OnInvoke { get; set; } = null;
 
-        public KeyboardShortcut()
+        public Command()
         {
             BuiltInShortcutId = -1;
             CommandDialogIgnore = false;
-            ContextsDenied = new HashSet<ShortcutContext>();
-            ContextsRequired = new HashSet<ShortcutContext>();
+            ContextsDenied = new HashSet<CommandContext>();
+            ContextsRequired = new HashSet<CommandContext>();
             Keys = new HashSet<Keys>();
             Name = "";
             RequireCtrl = false;
@@ -194,12 +125,12 @@ namespace DynamicDraw
             RequireAlt = false;
             RequireWheelUp = false;
             RequireWheelDown = false;
-            Target = ShortcutTarget.None;
+            Target = CommandTarget.None;
             ActionData = null;
         }
 
         /// <summary>
-        /// Verifies the given data is valid for this setting's data type.
+        /// Verifies the given data is valid for this command's data type.
         /// </summary>
         /// <param name="data">A string representation of the data.</param>
         public bool IsActionValid()
@@ -216,12 +147,12 @@ namespace DynamicDraw
             string[] chunks = ActionData.Split('|');
             if (chunks.Length != 2)
             {
-                throw new Exception("Was expecting color setting to have two pieces of data.");
+                throw new Exception("Was expecting color command to have two pieces of data.");
             }
 
-            if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Color)
+            if (Commands.All[Target].ValueType != CommandActionDataType.Color)
             {
-                throw new Exception("Was expecting setting to be of the color data type.");
+                throw new Exception("Was expecting command target to be of the color data type.");
             }
 
             /** Cycles the list of numbers based on the current value. Valid syntaxes:
@@ -241,7 +172,7 @@ namespace DynamicDraw
                     Color? color = ColorUtils.GetColorFromText(colorStrings[i], true);
                     if (color == null)
                     {
-                        throw new Exception("Was expecting setting to contain purely color data with comma delimiters.");
+                        throw new Exception("Was expecting command to contain purely color data with comma delimiters.");
                     }
 
                     colors.Add((Color)color);
@@ -249,7 +180,7 @@ namespace DynamicDraw
 
                 if (colors.Count == 0)
                 {
-                    throw new Exception("Was expecting setting to contain at least one color for cycle.");
+                    throw new Exception("Was expecting command to contain at least one color for cycle.");
                 }
 
                 string[] actionDataOptions = chunks[1].Split("-");
@@ -437,13 +368,13 @@ namespace DynamicDraw
             string[] chunks = ActionData.Split('|');
             if (chunks.Length != 2)
             {
-                throw new Exception("Was expecting numeric setting to have two pieces of data.");
+                throw new Exception("Was expecting numeric command to have two pieces of data.");
             }
 
-            if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Integer &&
-                Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Float)
+            if (Commands.All[Target].ValueType != CommandActionDataType.Integer &&
+                Commands.All[Target].ValueType != CommandActionDataType.Float)
             {
-                throw new Exception("Was expecting setting to be a numeric data type.");
+                throw new Exception("Was expecting command to be a numeric data type.");
             }
 
             /** Cycles the list of numbers based on the current value. Valid syntaxes:
@@ -462,7 +393,7 @@ namespace DynamicDraw
                 {
                     if (!float.TryParse(numberStrings[i], out float result))
                     {
-                        throw new Exception("Was expecting setting to contain purely numeric data with comma delimiters.");
+                        throw new Exception("Was expecting command to contain purely numeric data with comma delimiters.");
                     }
 
                     numbers.Add(Math.Clamp(result, minValue, maxValue));
@@ -470,7 +401,7 @@ namespace DynamicDraw
 
                 if (numbers.Count == 0)
                 {
-                    throw new Exception("Was expecting setting to contain at least one number for cycle.");
+                    throw new Exception("Was expecting command to contain at least one number for cycle.");
                 }
 
                 string[] actionDataOptions = chunks[1].Split("-");
@@ -613,9 +544,9 @@ namespace DynamicDraw
         /// </summary>
         public bool GetDataAsBool(bool origValue)
         {
-            if (Setting.AllSettings[Target].ValueType != ShortcutTargetDataType.Bool)
+            if (Commands.All[Target].ValueType != CommandActionDataType.Bool)
             {
-                throw new Exception("Was expecting setting to be of the bool data type.");
+                throw new Exception("Was expecting command to be of the bool data type.");
             }
 
             if (ActionData.Equals("toggle"))
@@ -636,13 +567,13 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Verifies the given data is valid for this setting's data type.
+        /// Verifies the given data is valid for this command's data type.
         /// </summary>
         /// <param name="actionData">A string representation of the data.</param>
-        public static bool IsActionValid(ShortcutTarget target, string actionData)
+        public static bool IsActionValid(CommandTarget target, string actionData)
         {
             // Actions should have no associated action data.
-            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Action)
+            if (Commands.All[target].ValueType == CommandActionDataType.Action)
             {
                 return string.IsNullOrEmpty(actionData);
             }
@@ -654,8 +585,8 @@ namespace DynamicDraw
             }
 
             // Integers and floats must follow the allowed value|type syntaxes and have valid numeric values.
-            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Integer ||
-                Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Float)
+            if (Commands.All[target].ValueType == CommandActionDataType.Integer ||
+                Commands.All[target].ValueType == CommandActionDataType.Float)
             {
                 // expects format: values|type
                 string[] chunks = actionData.Split('|');
@@ -716,13 +647,13 @@ namespace DynamicDraw
             }
 
             // Bools must be t for true, f for false, or toggle to switch when fired.
-            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Bool)
+            if (Commands.All[target].ValueType == CommandActionDataType.Bool)
             {
                 return actionData.Equals("t") || actionData.Equals("f") || actionData.Equals("toggle");
             }
 
             // Colors must follow the allowed value|type syntaxes and be 6 or 8 hexadecimal lowercase characters.
-            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.Color)
+            if (Commands.All[target].ValueType == CommandActionDataType.Color)
             {
                 // expects format: values|type
                 string[] chunks = actionData.Split('|');
@@ -779,12 +710,12 @@ namespace DynamicDraw
             }
 
             // Strings must be non-null (already guaranteed by code logic above).
-            if (Setting.AllSettings[target].ValueType == ShortcutTargetDataType.String)
+            if (Commands.All[target].ValueType == CommandActionDataType.String)
             {
                 return true;
             }
 
-            throw new Exception("Unhandled shortcut target data type: " + Enum.GetName(Setting.AllSettings[target].ValueType));
+            throw new Exception("Unhandled shortcut target data type: " + Enum.GetName(Commands.All[target].ValueType));
         }
 
         /// <summary>

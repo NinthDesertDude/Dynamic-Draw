@@ -8,19 +8,19 @@ namespace DynamicDraw.Logic
     /// <summary>
     /// Handles keyboard shortcut assignments.
     /// </summary>
-    public static class KeyShortcutManager
+    public static class CommandManager
     {
         /// <summary>
         /// Fires all registered shortcuts that exactly match the requirements for pressed controls.
         /// </summary>
         public static void FireShortcuts(
-            HashSet<KeyboardShortcut> shortcuts,
+            HashSet<Command> shortcuts,
             HashSet<Keys> keys,
             bool wheelUpFired,
             bool wheelDownFired,
-            HashSet<ShortcutContext> contexts)
+            HashSet<CommandContext> contexts)
         {
-            HashSet<Keys> regularKeys = KeyboardShortcut.SeparateKeyModifiers(
+            HashSet<Keys> regularKeys = Command.SeparateKeyModifiers(
                 keys, out bool ctrlHeld, out bool shiftHeld, out bool altHeld);
 
             foreach (var entry in shortcuts)

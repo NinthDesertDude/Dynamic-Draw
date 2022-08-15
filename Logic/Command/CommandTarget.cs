@@ -4,7 +4,7 @@
     /// The settings or actions to be taken. This identifies either actions such as Undo/Redo that have no associated
     /// data, or settings in the app such as Canvas Zoom which can have its value modified.
     /// </summary>
-    public enum ShortcutTarget
+    public enum CommandTarget
     {
         /// <summary>
         /// Represents no shortcut.

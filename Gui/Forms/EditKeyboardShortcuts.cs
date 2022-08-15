@@ -9,17 +9,22 @@ using DynamicDraw.Localization;
 
 namespace DynamicDraw
 {
+    /// <summary>
+    /// A dialog that allows the user to toggle whether built-in shortcuts are enabled or disabled, and create/delete
+    /// or edit their own.
+    /// </summary>
     public class EditKeyboardShortcuts : Form
     {
-        private BindingList<Tuple<string, KeyboardShortcut>> shortcutsList;
-        private HashSet<KeyboardShortcut> shortcuts;
+        private BindingList<Tuple<string, string>> actionDataTypeOptions;
+        private BindingList<Tuple<string, Command>> shortcutsList;
+        private HashSet<Command> shortcuts;
         private readonly HashSet<int> disabledShortcuts;
 
         private bool isRecordingKeystroke = false;
         private readonly HashSet<Keys> recordedAllKeys = new HashSet<Keys>();
         private readonly HashSet<Keys> recordedHeldKeys = new HashSet<Keys>();
 
-        private ShortcutTarget currentShortcutTarget = ShortcutTarget.None;
+        private CommandTarget currentShortcutTarget = CommandTarget.None;
         private HashSet<Keys> currentShortcutSequence = new HashSet<Keys>();
         private int currentShortcutBuiltInId = -1;
         private string currentShortcutName = "";
@@ -63,7 +68,7 @@ namespace DynamicDraw
         private TextBox txtbxShortcutActionData;
         #endregion
 
-        public EditKeyboardShortcuts(HashSet<KeyboardShortcut> shortcuts, HashSet<int> disabledShortcuts)
+        public EditKeyboardShortcuts(HashSet<Command> shortcuts, HashSet<int> disabledShortcuts)
         {
             // The passed-in list is all custom shortcuts + filtered defaults. This removes any defaults, then re-adds all
             // defaults because it needs to display everything.
@@ -108,7 +113,7 @@ namespace DynamicDraw
 
                 if (recordedAllKeys.Count > 0 && recordedHeldKeys.Count == 0)
                 {
-                    HashSet<Keys> regularKeys = KeyboardShortcut.SeparateKeyModifiers(
+                    HashSet<Keys> regularKeys = Command.SeparateKeyModifiers(
                         recordedAllKeys,
                         out currentShortcutRequiresCtrl,
                         out currentShortcutRequiresShift,
@@ -133,18 +138,18 @@ namespace DynamicDraw
             base.OnLoad(e);
 
             // Populates the shortcut target combobox.
-            var shortcutTargetOptions = new BindingList<Tuple<string, ShortcutTarget>>();
-            foreach (int i in Enum.GetValues(typeof(ShortcutTarget)))
+            var shortcutTargetOptions = new BindingList<Tuple<string, CommandTarget>>();
+            foreach (int i in Enum.GetValues(typeof(CommandTarget)))
             {
                 // "None" is not a valid option to pick, so skip it.
-                if (i == (int)ShortcutTarget.None)
+                if (i == (int)CommandTarget.None)
                 {
                     continue;
                 }
 
-                ShortcutTarget target = (ShortcutTarget)i;
+                CommandTarget target = (CommandTarget)i;
                 shortcutTargetOptions.Add(
-                    new Tuple<string, ShortcutTarget>(Setting.AllSettings[target].Name, target));
+                    new Tuple<string, CommandTarget>(Commands.All[target].Name, target));
             }
             cmbxShortcutTarget.DisplayMember = "Item1";
             cmbxShortcutTarget.ValueMember = "Item2";
@@ -194,7 +199,7 @@ namespace DynamicDraw
         /// Returns the unmodified shortcuts object, to be accessed only after this dialog has been shown and accepted
         /// by the user activating the OK button.
         /// </summary>
-        public HashSet<KeyboardShortcut> GetShortcutsAfterDialogOK()
+        public HashSet<Command> GetShortcutsAfterDialogOK()
         {
             // Returns only the custom shortcuts + filtered defaults, same format as received by this dialog.
             var newShortcutsList = PersistentSettings.RemoveDefaultShortcuts(shortcuts);
@@ -220,7 +225,7 @@ namespace DynamicDraw
 
             if (firstTimeGenerating)
             {
-                shortcutsList = new BindingList<Tuple<string, KeyboardShortcut>>();
+                shortcutsList = new BindingList<Tuple<string, Command>>();
             }
             else
             {
@@ -230,9 +235,9 @@ namespace DynamicDraw
             // Populates the list of keyboard shortcuts.
             shortcutsListBox.Enabled = false;
             shortcutsListBox.DrawItem -= ShortcutsListBox_DrawItem; // unsubscribing for speed, no stutter
-            foreach (KeyboardShortcut shortcut in shortcuts)
+            foreach (Command shortcut in shortcuts)
             {
-                shortcutsList.Add(new Tuple<string, KeyboardShortcut>("", shortcut));
+                shortcutsList.Add(new Tuple<string, Command>("", shortcut));
             }
 
             if (firstTimeGenerating)
@@ -253,11 +258,11 @@ namespace DynamicDraw
             // Updates the shortcut combobox.
             int shortcutTargetCmbxIndex = -1;
 
-            if (currentShortcutTarget != ShortcutTarget.None)
+            if (currentShortcutTarget != CommandTarget.None)
             {
                 for (int i = 0; i < cmbxShortcutTarget.Items.Count; i++)
                 {
-                    if (currentShortcutTarget == ((Tuple<string, ShortcutTarget>)cmbxShortcutTarget.Items[i]).Item2)
+                    if (currentShortcutTarget == ((Tuple<string, CommandTarget>)cmbxShortcutTarget.Items[i]).Item2)
                     {
                         shortcutTargetCmbxIndex = i;
                         break;
@@ -281,10 +286,10 @@ namespace DynamicDraw
                     }
                     else
                     {
-                        HashSet<Keys> sequenceToDisplay = KeyboardShortcut.SeparateKeyModifiers(
+                        HashSet<Keys> sequenceToDisplay = Command.SeparateKeyModifiers(
                             recordedAllKeys, out bool ctrlHeld, out bool shiftHeld, out bool altHeld);
 
-                        bttnShortcutSequence.Text = KeyboardShortcut.GetShortcutKeysString(
+                        bttnShortcutSequence.Text = Command.GetShortcutKeysString(
                             sequenceToDisplay, ctrlHeld, shiftHeld, altHeld,
                             currentShortcutUsesMouseWheelUp, currentShortcutUsesMouseWheelDown)
                             + "..."; // Tells the user that keys are still being recorded.
@@ -292,7 +297,7 @@ namespace DynamicDraw
                 }
                 else
                 {
-                    bttnShortcutSequence.Text = KeyboardShortcut.GetShortcutKeysString(
+                    bttnShortcutSequence.Text = Command.GetShortcutKeysString(
                         currentShortcutSequence,
                         currentShortcutRequiresCtrl,
                         currentShortcutRequiresShift,
@@ -310,14 +315,14 @@ namespace DynamicDraw
                 txtbxShortcutName.Text = currentShortcutName;
 
                 // Handles the add, edit, delete button enabled status.
-                txtbxShortcutActionData.Enabled = (currentShortcutTarget != ShortcutTarget.None) &&
-                    Setting.AllSettings[currentShortcutTarget].ValueType != ShortcutTargetDataType.Action;
+                txtbxShortcutActionData.Enabled = (currentShortcutTarget != CommandTarget.None) &&
+                    Commands.All[currentShortcutTarget].ValueType != CommandActionDataType.Action;
 
                 bool onlyBuiltInShortcutsSelected = true;
                 bool anyBuiltInShortcutsSelected = false;
                 foreach (var shortcut in shortcutsListBox.SelectedItems)
                 {
-                    if (((Tuple<string, KeyboardShortcut>)shortcut).Item2.BuiltInShortcutId >= 0)
+                    if (((Tuple<string, Command>)shortcut).Item2.BuiltInShortcutId >= 0)
                     {
                         anyBuiltInShortcutsSelected = true;
                     }
@@ -336,9 +341,9 @@ namespace DynamicDraw
             }
 
             bool isShortcutValid =
-                currentShortcutTarget != ShortcutTarget.None &&
+                currentShortcutTarget != CommandTarget.None &&
                 shortcutTargetCmbxIndex != -1 &&
-                KeyboardShortcut.IsActionValid(currentShortcutTarget, currentShortcutActionData);
+                Command.IsActionValid(currentShortcutTarget, currentShortcutActionData);
 
             bttnAddShortcut.Enabled = isShortcutValid;
             bttnEditShortcut.Enabled = currentShortcutBuiltInId == -1
@@ -672,14 +677,14 @@ namespace DynamicDraw
         {
             isUnsavedDataEdited = false;
             wereEntriesEdited = true;
-            KeyboardShortcut newShortcut = new KeyboardShortcut
+            Command newShortcut = new Command
             {
                 Target = currentShortcutTarget,
                 RequireAlt = currentShortcutRequiresAlt,
                 RequireCtrl = currentShortcutRequiresCtrl,
                 RequireShift = currentShortcutRequiresShift,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
-                ContextsDenied = new HashSet<ShortcutContext>() { ShortcutContext.Typing },
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                ContextsDenied = new HashSet<CommandContext>() { CommandContext.Typing },
                 Keys = currentShortcutSequence,
                 Name = currentShortcutName,
                 RequireWheelUp = currentShortcutUsesMouseWheelUp,
@@ -689,7 +694,7 @@ namespace DynamicDraw
 
             // Adds the new entry.
             shortcuts.Add(newShortcut);
-            shortcutsList.Add(new Tuple<string, KeyboardShortcut>("", newShortcut));
+            shortcutsList.Add(new Tuple<string, Command>("", newShortcut));
 
             // Select the new entry.
             if (shortcutsListBox.Items.Count > 0)
@@ -728,10 +733,10 @@ namespace DynamicDraw
             shortcutsListBox.SuspendLayout();
 
             // Creates a copy because SelectedItems is self-editing and unsuitable for direct access during removal.
-            var shortcutsCopy = new List<Tuple<string, KeyboardShortcut>>();
+            var shortcutsCopy = new List<Tuple<string, Command>>();
             for (int i = 0; i < shortcutsListBox.SelectedItems.Count; i++)
             {
-                shortcutsCopy.Add((Tuple<string, KeyboardShortcut>)shortcutsListBox.SelectedItems[i]);
+                shortcutsCopy.Add((Tuple<string, Command>)shortcutsListBox.SelectedItems[i]);
             }
 
             // Removes or toggles in a loop.
@@ -773,17 +778,17 @@ namespace DynamicDraw
         {
             isUnsavedDataEdited = false;
             wereEntriesEdited = true;
-            var item = (Tuple<string, KeyboardShortcut>)shortcutsListBox.SelectedItem;
+            var item = (Tuple<string, Command>)shortcutsListBox.SelectedItem;
             int index = shortcutsList.IndexOf(item);
 
-            shortcutsList[index] = new Tuple<string, KeyboardShortcut>("", new KeyboardShortcut()
+            shortcutsList[index] = new Tuple<string, Command>("", new Command()
             {
                 ActionData = currentShortcutActionData,
                 Keys = currentShortcutSequence,
                 RequireCtrl = currentShortcutRequiresCtrl,
                 RequireShift = currentShortcutRequiresShift,
-                ContextsRequired = new HashSet<ShortcutContext>() { ShortcutContext.OnCanvas },
-                ContextsDenied = new HashSet<ShortcutContext>() { ShortcutContext.Typing },
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                ContextsDenied = new HashSet<CommandContext>() { CommandContext.Typing },
                 Name = currentShortcutName,
                 RequireAlt = currentShortcutRequiresAlt,
                 RequireWheelDown = currentShortcutUsesMouseWheelDown,
@@ -862,7 +867,7 @@ namespace DynamicDraw
         {
             if (isRecordingKeystroke)
             {
-                HashSet<Keys> regularKeys = KeyboardShortcut.SeparateKeyModifiers(
+                HashSet<Keys> regularKeys = Command.SeparateKeyModifiers(
                     recordedAllKeys,
                     out currentShortcutRequiresCtrl,
                     out currentShortcutRequiresShift,
@@ -903,12 +908,12 @@ namespace DynamicDraw
         {
             if (cmbxShortcutTarget.SelectedIndex == -1)
             {
-                currentShortcutTarget = ShortcutTarget.None;
+                currentShortcutTarget = CommandTarget.None;
             }
             else
             {
                 isUnsavedDataEdited = true;
-                currentShortcutTarget = ((Tuple<string, ShortcutTarget>)cmbxShortcutTarget.SelectedItem).Item2;
+                currentShortcutTarget = ((Tuple<string, CommandTarget>)cmbxShortcutTarget.SelectedItem).Item2;
             }
 
             RefreshViewBasedOnShortcut(false);
@@ -987,7 +992,7 @@ namespace DynamicDraw
         {
             if (shortcutsListBox.SelectedIndices.Count > 1)
             {
-                currentShortcutTarget = ShortcutTarget.None;
+                currentShortcutTarget = CommandTarget.None;
                 currentShortcutSequence = new HashSet<Keys>();
                 currentShortcutBuiltInId = -1;
                 currentShortcutName = "";
@@ -1002,7 +1007,7 @@ namespace DynamicDraw
             }
             else if (shortcutsListBox.SelectedIndices.Count == 1)
             {
-                var item = ((Tuple<string, KeyboardShortcut>)shortcutsListBox.SelectedItem).Item2;
+                var item = ((Tuple<string, Command>)shortcutsListBox.SelectedItem).Item2;
                 currentShortcutTarget = item.Target;
                 currentShortcutSequence = new HashSet<Keys>(item.Keys);
                 currentShortcutBuiltInId = item.BuiltInShortcutId;

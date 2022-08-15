@@ -22,7 +22,7 @@ namespace DynamicDraw
         /// <summary>
         /// The property that the constraint definition concerns.
         /// </summary>
-        public ShortcutTarget Property { get; set; }
+        public CommandTarget Property { get; set; }
 
         /// <summary>
         /// Determines how a constraint runs, e.g. on brush stroke, jitter during stroke, etc.
@@ -123,7 +123,7 @@ namespace DynamicDraw
 
         #region Static Methods
         /// <summary>
-        /// Takes a given setting value and adjusts it linearly via a target value using the given value-handling
+        /// Takes a given command value and adjusts it linearly via a target value using the given value-handling
         /// method (which decides what the target value is). Returns the value unaffected if no mapping is set. This
         /// doesn't clamp or prevent resulting invalid values.
         /// </summary>

@@ -188,7 +188,7 @@ namespace DynamicDraw
         /// </summary>
         private uint tabletLastPacketId;
 
-        private Dictionary<ShortcutTarget, BrushSettingConstraint> tabPressureConstraints;
+        private Dictionary<CommandTarget, BrushSettingConstraint> tabPressureConstraints;
         #endregion
 
         #region Input Tracking
@@ -275,7 +275,7 @@ namespace DynamicDraw
         /// Shortcuts deserialize asynchronously (and can fail sometimes). This returns that object if it exists, else
         /// it returns a copy of the shortcut defaults (so any changes are discarded).
         /// </summary>
-        private HashSet<KeyboardShortcut> KeyboardShortcuts
+        private HashSet<Command> KeyboardShortcuts
         {
             get
             {
@@ -543,7 +543,7 @@ namespace DynamicDraw
         private ThemedButton bttnSaveBrush;
         private ThemedButton bttnDeleteBrush;
         private Label txtTooltip;
-        private readonly Dictionary<ShortcutTarget, (Slider, CmbxTabletValueType)> pressureConstraintControls;
+        private readonly Dictionary<CommandTarget, (Slider, CmbxTabletValueType)> pressureConstraintControls;
         #endregion
 
         #region Constructors
@@ -555,8 +555,8 @@ namespace DynamicDraw
             boldFont = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             detailsFont = new Font("Microsoft Sans Serif", 8.25f);
             tooltipFont = new Font("Microsoft Sans Serif", 10);
-            tabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>();
-            pressureConstraintControls = new Dictionary<ShortcutTarget, (Slider, CmbxTabletValueType)>();
+            tabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>();
+            pressureConstraintControls = new Dictionary<CommandTarget, (Slider, CmbxTabletValueType)>();
 
             SetupGUI();
 
@@ -565,7 +565,7 @@ namespace DynamicDraw
             tempDir = new TempDirectory();
 
             loadedBrushImages = new BrushSelectorItemCollection();
-            KeyboardShortcuts = new HashSet<KeyboardShortcut>();
+            KeyboardShortcuts = new HashSet<Command>();
             currentKeysPressed = new HashSet<Keys>();
 
             canvas = new(0, 0, 0, 0);
@@ -921,11 +921,11 @@ namespace DynamicDraw
             currentKeysPressed.Add(e.KeyCode & Keys.KeyCode);
 
             // Fires any shortcuts that don't require the mouse wheel.
-            HashSet<ShortcutContext> contexts = new HashSet<ShortcutContext>();
-            if (displayCanvas.Focused) { contexts.Add(ShortcutContext.OnCanvas); }
-            else { contexts.Add(ShortcutContext.OnSidebar); }
+            HashSet<CommandContext> contexts = new HashSet<CommandContext>();
+            if (displayCanvas.Focused) { contexts.Add(CommandContext.OnCanvas); }
+            else { contexts.Add(CommandContext.OnSidebar); }
 
-            KeyShortcutManager.FireShortcuts(KeyboardShortcuts, currentKeysPressed, false, false, contexts);
+            CommandManager.FireShortcuts(KeyboardShortcuts, currentKeysPressed, false, false, contexts);
 
             // Display a hand icon while panning.
             if (!isUserDrawing.started && (e.Control || e.KeyCode == Keys.Space))
@@ -961,13 +961,13 @@ namespace DynamicDraw
             base.OnMouseWheel(e);
 
             // Fires any shortcuts that require the mouse wheel.
-            HashSet<ShortcutContext> contexts = new HashSet<ShortcutContext>();
-            if (displayCanvas.Focused) { contexts.Add(ShortcutContext.OnCanvas); }
-            else { contexts.Add(ShortcutContext.OnSidebar); }
+            HashSet<CommandContext> contexts = new HashSet<CommandContext>();
+            if (displayCanvas.Focused) { contexts.Add(CommandContext.OnCanvas); }
+            else { contexts.Add(CommandContext.OnSidebar); }
 
             bool wheelDirectionUp = Math.Sign(e.Delta) > 0;
 
-            KeyShortcutManager.FireShortcuts(
+            CommandManager.FireShortcuts(
                 KeyboardShortcuts,
                 currentKeysPressed,
                 wheelDirectionUp,
@@ -1502,7 +1502,7 @@ namespace DynamicDraw
                 Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
                 Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
                 CmbxChosenEffect = cmbxChosenEffect.SelectedIndex,
-                TabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>(tabPressureConstraints),
+                TabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>(tabPressureConstraints),
             };
 
             return newSettings;
@@ -1543,8 +1543,8 @@ namespace DynamicDraw
 
             #region apply size jitter
             // Change the brush size based on settings.
-            int finalRandMinSize = GetPressureValue(ShortcutTarget.JitterMinSize, sliderRandMinSize.ValueInt, pressure);
-            int finalRandMaxSize = GetPressureValue(ShortcutTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, pressure);
+            int finalRandMinSize = GetPressureValue(CommandTarget.JitterMinSize, sliderRandMinSize.ValueInt, pressure);
+            int finalRandMaxSize = GetPressureValue(CommandTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, pressure);
 
             int newRadius = Math.Clamp(radius
                 - random.Next(finalRandMinSize)
@@ -1614,8 +1614,8 @@ namespace DynamicDraw
                     sliderBrushFlow.Minimum, sliderBrushFlow.Maximum);
             }
             else if (pressure > 0 &&
-                tabPressureConstraints.ContainsKey(ShortcutTarget.Flow) &&
-                tabPressureConstraints[ShortcutTarget.Flow].handleMethod != ConstraintValueHandlingMethod.DoNothing)
+                tabPressureConstraints.ContainsKey(CommandTarget.Flow) &&
+                tabPressureConstraints[CommandTarget.Flow].handleMethod != ConstraintValueHandlingMethod.DoNothing)
             {
                 // If not changing sliderBrushFlow already by shifting it in the if-statement above, the brush has to
                 // be manually redrawn when modifying brush flow. This is done to avoid editing sliderBrushFlow and
@@ -1642,8 +1642,8 @@ namespace DynamicDraw
             #endregion
 
             #region apply position jitter
-            int finalRandHorzShift = GetPressureValue(ShortcutTarget.JitterHorSpray, sliderRandHorzShift.ValueInt, pressure);
-            int finalRandVertShift = GetPressureValue(ShortcutTarget.JitterVerSpray, sliderRandVertShift.ValueInt, pressure);
+            int finalRandHorzShift = GetPressureValue(CommandTarget.JitterHorSpray, sliderRandHorzShift.ValueInt, pressure);
+            int finalRandVertShift = GetPressureValue(CommandTarget.JitterVerSpray, sliderRandVertShift.ValueInt, pressure);
 
             //Randomly shifts the image by some percent of the canvas size,
             //horizontally and/or vertically.
@@ -1671,9 +1671,9 @@ namespace DynamicDraw
 
             #region apply rotation jitter + rotate with mouse option
             // Calculates the final brush rotation based on all factors. Counters canvas rotation to remain unaffected.
-            int finalBrushRotation = GetPressureValue(ShortcutTarget.Rotation, sliderBrushRotation.ValueInt, pressure);
-            int finalRandRotLeft = GetPressureValue(ShortcutTarget.JitterRotLeft, sliderRandRotLeft.ValueInt, pressure);
-            int finalRandRotRight = GetPressureValue(ShortcutTarget.JitterRotRight, sliderRandRotRight.ValueInt, pressure);
+            int finalBrushRotation = GetPressureValue(CommandTarget.Rotation, sliderBrushRotation.ValueInt, pressure);
+            int finalRandRotLeft = GetPressureValue(CommandTarget.JitterRotLeft, sliderRandRotLeft.ValueInt, pressure);
+            int finalRandRotRight = GetPressureValue(CommandTarget.JitterRotRight, sliderRandRotRight.ValueInt, pressure);
 
             int rotation = finalBrushRotation
                 - (finalRandRotLeft < 1 ? 0 : random.Next(finalRandRotLeft))
@@ -1690,7 +1690,7 @@ namespace DynamicDraw
             #endregion
 
             #region apply alpha jitter (via flow)
-            int finalRandFlowLoss = GetPressureValue(ShortcutTarget.JitterFlowLoss, sliderRandFlowLoss.ValueInt, pressure);
+            int finalRandFlowLoss = GetPressureValue(CommandTarget.JitterFlowLoss, sliderRandFlowLoss.ValueInt, pressure);
             #endregion
 
             #region apply color jitter
@@ -1708,18 +1708,18 @@ namespace DynamicDraw
             }
             else if (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0 || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
             {
-                int finalJitterMaxRed = GetPressureValue(ShortcutTarget.JitterRedMax, sliderJitterMaxRed.ValueInt, pressure);
-                int finalJitterMinRed = GetPressureValue(ShortcutTarget.JitterRedMin, sliderJitterMinRed.ValueInt, pressure);
-                int finalJitterMaxGreen = GetPressureValue(ShortcutTarget.JitterGreenMax, sliderJitterMaxGreen.ValueInt, pressure);
-                int finalJitterMinGreen = GetPressureValue(ShortcutTarget.JitterGreenMin, sliderJitterMinGreen.ValueInt, pressure);
-                int finalJitterMaxBlue = GetPressureValue(ShortcutTarget.JitterBlueMax, sliderJitterMaxBlue.ValueInt, pressure);
-                int finalJitterMinBlue = GetPressureValue(ShortcutTarget.JitterBlueMin, sliderJitterMinBlue.ValueInt, pressure);
-                int finalJitterMaxHue = GetPressureValue(ShortcutTarget.JitterHueMax, sliderJitterMaxHue.ValueInt, pressure);
-                int finalJitterMinHue = GetPressureValue(ShortcutTarget.JitterHueMin, sliderJitterMinHue.ValueInt, pressure);
-                int finalJitterMaxSat = GetPressureValue(ShortcutTarget.JitterSatMax, sliderJitterMaxSat.ValueInt, pressure);
-                int finalJitterMinSat = GetPressureValue(ShortcutTarget.JitterSatMin, sliderJitterMinSat.ValueInt, pressure);
-                int finalJitterMaxVal = GetPressureValue(ShortcutTarget.JitterValMax, sliderJitterMaxVal.ValueInt, pressure);
-                int finalJitterMinVal = GetPressureValue(ShortcutTarget.JitterValMin, sliderJitterMinVal.ValueInt, pressure);
+                int finalJitterMaxRed = GetPressureValue(CommandTarget.JitterRedMax, sliderJitterMaxRed.ValueInt, pressure);
+                int finalJitterMinRed = GetPressureValue(CommandTarget.JitterRedMin, sliderJitterMinRed.ValueInt, pressure);
+                int finalJitterMaxGreen = GetPressureValue(CommandTarget.JitterGreenMax, sliderJitterMaxGreen.ValueInt, pressure);
+                int finalJitterMinGreen = GetPressureValue(CommandTarget.JitterGreenMin, sliderJitterMinGreen.ValueInt, pressure);
+                int finalJitterMaxBlue = GetPressureValue(CommandTarget.JitterBlueMax, sliderJitterMaxBlue.ValueInt, pressure);
+                int finalJitterMinBlue = GetPressureValue(CommandTarget.JitterBlueMin, sliderJitterMinBlue.ValueInt, pressure);
+                int finalJitterMaxHue = GetPressureValue(CommandTarget.JitterHueMax, sliderJitterMaxHue.ValueInt, pressure);
+                int finalJitterMinHue = GetPressureValue(CommandTarget.JitterHueMin, sliderJitterMinHue.ValueInt, pressure);
+                int finalJitterMaxSat = GetPressureValue(CommandTarget.JitterSatMax, sliderJitterMaxSat.ValueInt, pressure);
+                int finalJitterMinSat = GetPressureValue(CommandTarget.JitterSatMin, sliderJitterMinSat.ValueInt, pressure);
+                int finalJitterMaxVal = GetPressureValue(CommandTarget.JitterValMax, sliderJitterMaxVal.ValueInt, pressure);
+                int finalJitterMinVal = GetPressureValue(CommandTarget.JitterValMin, sliderJitterMinVal.ValueInt, pressure);
 
                 bool jitterRgb =
                     finalJitterMaxRed != 0 ||
@@ -1802,7 +1802,7 @@ namespace DynamicDraw
             }
             #endregion
 
-            byte finalOpacity = (byte)GetPressureValue(ShortcutTarget.BrushOpacity, sliderBrushOpacity.ValueInt, pressure);
+            byte finalOpacity = (byte)GetPressureValue(CommandTarget.BrushOpacity, sliderBrushOpacity.ValueInt, pressure);
 
             // The staged bitmap is only needed for layer opacity and layer blend modes, because the brush stroke
             // opacity becomes important in calculating separately from the regular drawing. The staged bitmap will
@@ -2536,7 +2536,7 @@ namespace DynamicDraw
         /// Creates a named slider with a combobox for the given shortcut, which auto-updates the pressure sensitivity
         /// values listed for it.
         /// </summary>
-        private FlowLayoutPanel GeneratePressureControl(ShortcutTarget target, int min = 0)
+        private FlowLayoutPanel GeneratePressureControl(CommandTarget target, int min = 0)
         {
             FlowLayoutPanel panel = new FlowLayoutPanel();
             panel.FlowDirection = FlowDirection.TopDown;
@@ -2557,8 +2557,8 @@ namespace DynamicDraw
                     tabPressureConstraints[target] = new BrushSettingConstraint(tabPressureConstraints[target].handleMethod, valueSlider.ValueInt);
                 }
             };
-            valueSlider.ComputeText = (val) => $"{Setting.AllSettings[target].Name}: {val}";
-            if (target == ShortcutTarget.Size)
+            valueSlider.ComputeText = (val) => $"{Commands.All[target].Name}: {val}";
+            if (target == CommandTarget.Size)
             {
                 valueSlider.LostFocus += SliderTabPressureBrushSize_LostFocus;
             }
@@ -2574,8 +2574,8 @@ namespace DynamicDraw
                 if (cmbxValueType.SelectedIndex != -1)
                 {
                     var handlingMethod = ((CmbxTabletValueType.CmbxEntry)cmbxValueType.SelectedItem).ValueMember;
-                    var min = Setting.AllSettings[target].MinMaxRangeF?.Item1 ?? Setting.AllSettings[target].MinMaxRange.Item1;
-                    var max = Setting.AllSettings[target].MinMaxRangeF?.Item2 ?? Setting.AllSettings[target].MinMaxRange.Item2;
+                    var min = Commands.All[target].MinMaxRangeF?.Item1 ?? Commands.All[target].MinMaxRange.Item1;
+                    var max = Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item2;
 
                     valueSlider.Enabled = (handlingMethod != ConstraintValueHandlingMethod.DoNothing);
 
@@ -2683,15 +2683,15 @@ namespace DynamicDraw
         /// Given a numeric shortcut, modifies the current value based on the pressure sensitivity constraint values
         /// listed for it, with strength determined linearly by the current pressure.
         /// </summary>
-        /// <param name="target">The target identifies the setting to apply to.</param>
+        /// <param name="target">The setting to apply to.</param>
         /// <param name="value">The unmodified value of the actual control (not the constraint value).</param>
         /// <param name="pressure">A value from 0 to 1 indicating the amount of pressure the user is applying.</param>
-        private int GetPressureValue(ShortcutTarget target, int value, float pressure)
+        private int GetPressureValue(CommandTarget target, int value, float pressure)
         {
             if (pressure != 0 && tabPressureConstraints.ContainsKey(target))
             {
-                int min = (int)(Setting.AllSettings[target].MinMaxRangeF?.Item2 ?? Setting.AllSettings[target].MinMaxRange.Item1);
-                int max = (int)(Setting.AllSettings[target].MinMaxRangeF?.Item2 ?? Setting.AllSettings[target].MinMaxRange.Item2);
+                int min = (int)(Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item1);
+                int max = (int)(Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item2);
 
                 return Math.Clamp(
                     Constraint.GetStrengthMappedValue(
@@ -2747,195 +2747,195 @@ namespace DynamicDraw
         /// settings from <see cref="InitTokenFromDialog"/>.
         /// </summary>
         /// <param name="shortcut">Any shortcut invoked</param>
-        private void HandleShortcut(KeyboardShortcut shortcut)
+        private void HandleShortcut(Command shortcut)
         {
             switch (shortcut.Target)
             {
-                case ShortcutTarget.Flow:
+                case CommandTarget.Flow:
                     sliderBrushFlow.Value =
                         shortcut.GetDataAsInt(sliderBrushFlow.ValueInt,
                         sliderBrushFlow.MinimumInt,
                         sliderBrushFlow.MaximumInt);
                     break;
-                case ShortcutTarget.FlowShift:
+                case CommandTarget.FlowShift:
                     sliderBrushFlow.Value =
                         shortcut.GetDataAsInt(sliderBrushFlow.ValueInt,
                         sliderBrushFlow.MinimumInt,
                         sliderBrushFlow.MaximumInt);
                     break;
-                case ShortcutTarget.AutomaticBrushDensity:
+                case CommandTarget.AutomaticBrushDensity:
                     chkbxAutomaticBrushDensity.Checked = shortcut.GetDataAsBool(chkbxAutomaticBrushDensity.Checked);
                     break;
-                case ShortcutTarget.BrushStrokeDensity:
+                case CommandTarget.BrushStrokeDensity:
                     sliderBrushDensity.Value =
                         shortcut.GetDataAsInt(sliderBrushDensity.ValueInt,
                         sliderBrushDensity.MinimumInt,
                         sliderBrushDensity.MaximumInt);
                     break;
-                case ShortcutTarget.CanvasZoom:
+                case CommandTarget.CanvasZoom:
                     sliderCanvasZoom.ValueInt =
                         shortcut.GetDataAsInt(sliderCanvasZoom.ValueInt,
                         sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
                     break;
-                case ShortcutTarget.Color:
+                case CommandTarget.Color:
                     UpdateBrushColor(shortcut.GetDataAsColor(menuActiveColors.Swatches[0]), true);
                     break;
-                case ShortcutTarget.ColorizeBrush:
+                case CommandTarget.ColorizeBrush:
                     chkbxColorizeBrush.Checked = shortcut.GetDataAsBool(chkbxColorizeBrush.Checked);
                     UpdateBrushImage();
                     break;
-                case ShortcutTarget.ColorInfluence:
+                case CommandTarget.ColorInfluence:
                     sliderColorInfluence.Value = shortcut.GetDataAsInt(sliderColorInfluence.ValueInt,
                         sliderColorInfluence.MinimumInt, sliderColorInfluence.MaximumInt);
                     UpdateBrushImage();
                     break;
-                case ShortcutTarget.ColorInfluenceHue:
+                case CommandTarget.ColorInfluenceHue:
                     chkbxColorInfluenceHue.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceHue.Checked);
                     break;
-                case ShortcutTarget.ColorInfluenceSat:
+                case CommandTarget.ColorInfluenceSat:
                     chkbxColorInfluenceSat.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceSat.Checked);
                     break;
-                case ShortcutTarget.ColorInfluenceVal:
+                case CommandTarget.ColorInfluenceVal:
                     chkbxColorInfluenceVal.Checked = shortcut.GetDataAsBool(chkbxColorInfluenceVal.Checked);
                     break;
-                case ShortcutTarget.DitherDraw:
+                case CommandTarget.DitherDraw:
                     chkbxDitherDraw.Checked = shortcut.GetDataAsBool(chkbxDitherDraw.Checked);
                     break;
-                case ShortcutTarget.JitterBlueMax:
+                case CommandTarget.JitterBlueMax:
                     sliderJitterMaxBlue.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxBlue.ValueInt,
                         sliderJitterMaxBlue.MinimumInt, sliderJitterMaxBlue.MaximumInt);
                     break;
-                case ShortcutTarget.JitterBlueMin:
+                case CommandTarget.JitterBlueMin:
                     sliderJitterMinBlue.Value =
                         shortcut.GetDataAsInt(sliderJitterMinBlue.ValueInt,
                         sliderJitterMinBlue.MinimumInt, sliderJitterMinBlue.MaximumInt);
                     break;
-                case ShortcutTarget.JitterGreenMax:
+                case CommandTarget.JitterGreenMax:
                     sliderJitterMaxGreen.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxGreen.ValueInt,
                         sliderJitterMaxGreen.MinimumInt, sliderJitterMaxGreen.MaximumInt);
                     break;
-                case ShortcutTarget.JitterGreenMin:
+                case CommandTarget.JitterGreenMin:
                     sliderJitterMinGreen.Value =
                         shortcut.GetDataAsInt(sliderJitterMinGreen.ValueInt,
                         sliderJitterMinGreen.MinimumInt, sliderJitterMinGreen.MaximumInt);
                     break;
-                case ShortcutTarget.JitterHorSpray:
+                case CommandTarget.JitterHorSpray:
                     sliderRandHorzShift.Value =
                         shortcut.GetDataAsInt(sliderRandHorzShift.ValueInt,
                         sliderRandHorzShift.MinimumInt, sliderRandHorzShift.MaximumInt);
                     break;
-                case ShortcutTarget.JitterHueMax:
+                case CommandTarget.JitterHueMax:
                     sliderJitterMaxHue.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxHue.ValueInt,
                         sliderJitterMaxHue.MinimumInt, sliderJitterMaxHue.MaximumInt);
                     break;
-                case ShortcutTarget.JitterHueMin:
+                case CommandTarget.JitterHueMin:
                     sliderJitterMinHue.Value =
                         shortcut.GetDataAsInt(sliderJitterMinHue.ValueInt,
                         sliderJitterMinHue.MinimumInt, sliderJitterMinHue.MaximumInt);
                     break;
-                case ShortcutTarget.JitterFlowLoss:
+                case CommandTarget.JitterFlowLoss:
                     sliderRandFlowLoss.Value =
                         shortcut.GetDataAsInt(sliderRandFlowLoss.ValueInt,
                         sliderRandFlowLoss.MinimumInt, sliderRandFlowLoss.MaximumInt);
                     break;
-                case ShortcutTarget.JitterMaxSize:
+                case CommandTarget.JitterMaxSize:
                     sliderRandMaxSize.Value =
                         shortcut.GetDataAsInt(sliderRandMaxSize.ValueInt,
                         sliderRandMaxSize.MinimumInt, sliderRandMaxSize.MaximumInt);
                     break;
-                case ShortcutTarget.JitterMinSize:
+                case CommandTarget.JitterMinSize:
                     sliderRandMinSize.Value =
                         shortcut.GetDataAsInt(sliderRandMinSize.ValueInt,
                         sliderRandMinSize.MinimumInt, sliderRandMinSize.MaximumInt);
                     break;
-                case ShortcutTarget.JitterRedMax:
+                case CommandTarget.JitterRedMax:
                     sliderJitterMaxRed.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxRed.ValueInt,
                         sliderJitterMaxRed.MinimumInt, sliderJitterMaxRed.MaximumInt);
                     break;
-                case ShortcutTarget.JitterRedMin:
+                case CommandTarget.JitterRedMin:
                     sliderJitterMinRed.Value =
                         shortcut.GetDataAsInt(sliderJitterMinRed.ValueInt,
                         sliderJitterMinRed.MinimumInt, sliderJitterMinRed.MaximumInt);
                     break;
-                case ShortcutTarget.JitterRotLeft:
+                case CommandTarget.JitterRotLeft:
                     sliderRandRotLeft.Value =
                         shortcut.GetDataAsInt(sliderRandRotLeft.ValueInt,
                         sliderRandRotLeft.MinimumInt, sliderRandRotLeft.MaximumInt);
                     break;
-                case ShortcutTarget.JitterRotRight:
+                case CommandTarget.JitterRotRight:
                     sliderRandRotRight.Value =
                         shortcut.GetDataAsInt(sliderRandRotRight.ValueInt,
                         sliderRandRotRight.MinimumInt, sliderRandRotRight.MaximumInt);
                     break;
-                case ShortcutTarget.JitterSatMax:
+                case CommandTarget.JitterSatMax:
                     sliderJitterMaxSat.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxSat.ValueInt,
                         sliderJitterMaxSat.MinimumInt, sliderJitterMaxSat.MaximumInt);
                     break;
-                case ShortcutTarget.JitterSatMin:
+                case CommandTarget.JitterSatMin:
                     sliderJitterMinSat.Value =
                         shortcut.GetDataAsInt(sliderJitterMinSat.ValueInt,
                         sliderJitterMinSat.MinimumInt, sliderJitterMinSat.MaximumInt);
                     break;
-                case ShortcutTarget.JitterValMax:
+                case CommandTarget.JitterValMax:
                     sliderJitterMaxVal.Value =
                         shortcut.GetDataAsInt(sliderJitterMaxVal.ValueInt,
                         sliderJitterMaxVal.MinimumInt, sliderJitterMaxVal.MaximumInt);
                     break;
-                case ShortcutTarget.JitterValMin:
+                case CommandTarget.JitterValMin:
                     sliderJitterMinVal.Value =
                         shortcut.GetDataAsInt(sliderJitterMinVal.ValueInt,
                         sliderJitterMinVal.MinimumInt, sliderJitterMinVal.MaximumInt);
                     break;
-                case ShortcutTarget.JitterVerSpray:
+                case CommandTarget.JitterVerSpray:
                     sliderRandVertShift.Value =
                         shortcut.GetDataAsInt(sliderRandVertShift.ValueInt,
                         sliderRandVertShift.MinimumInt, sliderRandVertShift.MaximumInt);
                     break;
-                case ShortcutTarget.DoLockAlpha:
+                case CommandTarget.DoLockAlpha:
                     chkbxLockAlpha.Checked = shortcut.GetDataAsBool(chkbxLockAlpha.Checked);
                     break;
-                case ShortcutTarget.DoLockR:
+                case CommandTarget.DoLockR:
                     chkbxLockR.Checked = shortcut.GetDataAsBool(chkbxLockR.Checked);
                     break;
-                case ShortcutTarget.DoLockG:
+                case CommandTarget.DoLockG:
                     chkbxLockG.Checked = shortcut.GetDataAsBool(chkbxLockG.Checked);
                     break;
-                case ShortcutTarget.DoLockB:
+                case CommandTarget.DoLockB:
                     chkbxLockB.Checked = shortcut.GetDataAsBool(chkbxLockB.Checked);
                     break;
-                case ShortcutTarget.DoLockHue:
+                case CommandTarget.DoLockHue:
                     chkbxLockHue.Checked = shortcut.GetDataAsBool(chkbxLockHue.Checked);
                     break;
-                case ShortcutTarget.DoLockSat:
+                case CommandTarget.DoLockSat:
                     chkbxLockSat.Checked = shortcut.GetDataAsBool(chkbxLockSat.Checked);
                     break;
-                case ShortcutTarget.DoLockVal:
+                case CommandTarget.DoLockVal:
                     chkbxLockVal.Checked = shortcut.GetDataAsBool(chkbxLockVal.Checked);
                     break;
-                case ShortcutTarget.MinDrawDistance:
+                case CommandTarget.MinDrawDistance:
                     sliderMinDrawDistance.Value =
                         shortcut.GetDataAsInt(sliderMinDrawDistance.ValueInt,
                         sliderMinDrawDistance.MinimumInt, sliderMinDrawDistance.MaximumInt);
                     break;
-                case ShortcutTarget.RotateWithMouse:
+                case CommandTarget.RotateWithMouse:
                     chkbxOrientToMouse.Checked = shortcut.GetDataAsBool(chkbxOrientToMouse.Checked);
                     break;
-                case ShortcutTarget.Rotation:
+                case CommandTarget.Rotation:
                     sliderBrushRotation.Value =
                         shortcut.GetDataAsInt(sliderBrushRotation.ValueInt,
                         sliderBrushRotation.MinimumInt, sliderBrushRotation.MaximumInt);
                     break;
-                case ShortcutTarget.RotShift:
+                case CommandTarget.RotShift:
                     sliderShiftRotation.Value =
                         shortcut.GetDataAsInt(sliderShiftRotation.ValueInt,
                         sliderShiftRotation.MinimumInt, sliderShiftRotation.MaximumInt);
                     break;
-                case ShortcutTarget.SelectedBrush:
+                case CommandTarget.SelectedBrush:
                     int indexToSelect = -1;
                     for (int i = 0; i < listviewBrushPicker.Items.Count; i++)
                     {
@@ -2955,7 +2955,7 @@ namespace DynamicDraw
                         listviewBrushPicker.Items[indexToSelect].Selected = true;
                     }
                     break;
-                case ShortcutTarget.SelectedBrushImage:
+                case CommandTarget.SelectedBrushImage:
                     int selectedBrushImageIndex = -1;
                     for (int i = 0; i < loadedBrushImages.Count; i++)
                     {
@@ -2983,7 +2983,7 @@ namespace DynamicDraw
                         listviewBrushImagePicker.SelectedIndices.Add(selectedBrushImageIndex);
                     }
                     break;
-                case ShortcutTarget.SelectedTool:
+                case CommandTarget.SelectedTool:
                     Tool newTool = (Tool)shortcut.GetDataAsInt((int)activeTool, 0, Enum.GetValues(typeof(Tool)).Length - 1);
                     SwitchTool(newTool);
 
@@ -3003,32 +3003,32 @@ namespace DynamicDraw
                         displayCanvas.Invalidate();
                     }
                     break;
-                case ShortcutTarget.Size:
+                case CommandTarget.Size:
                     sliderBrushSize.Value =
                         shortcut.GetDataAsInt(sliderBrushSize.ValueInt,
                         sliderBrushSize.MinimumInt, sliderBrushSize.MaximumInt);
                     break;
-                case ShortcutTarget.SizeShift:
+                case CommandTarget.SizeShift:
                     sliderShiftSize.Value =
                         shortcut.GetDataAsInt(sliderShiftSize.ValueInt,
                         sliderShiftSize.MinimumInt, sliderShiftSize.MaximumInt);
                     break;
-                case ShortcutTarget.SmoothingMode:
+                case CommandTarget.SmoothingMode:
                     cmbxBrushSmoothing.SelectedIndex =
                         shortcut.GetDataAsInt(cmbxBrushSmoothing.SelectedIndex,
                         0, cmbxBrushSmoothing.Items.Count - 1);
                     break;
-                case ShortcutTarget.SymmetryMode:
+                case CommandTarget.SymmetryMode:
                     cmbxSymmetry.SelectedIndex =
                         shortcut.GetDataAsInt(cmbxSymmetry.SelectedIndex, 0, cmbxSymmetry.Items.Count - 1);
                     break;
-                case ShortcutTarget.UndoAction:
+                case CommandTarget.UndoAction:
                     BttnUndo_Click(null, null);
                     break;
-                case ShortcutTarget.RedoAction:
+                case CommandTarget.RedoAction:
                     BttnRedo_Click(null, null);
                     break;
-                case ShortcutTarget.ResetCanvasTransforms:
+                case CommandTarget.ResetCanvasTransforms:
                     canvas.width = bmpCommitted.Width;
                     canvas.height = bmpCommitted.Height;
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
@@ -3036,44 +3036,44 @@ namespace DynamicDraw
                     sliderCanvasAngle.ValueInt = 0;
                     sliderCanvasZoom.ValueInt = 100;
                     break;
-                case ShortcutTarget.CanvasX:
+                case CommandTarget.CanvasX:
                     canvas.x -= (int)((shortcut.GetDataAsInt(canvas.x, int.MinValue, int.MaxValue) - canvas.x) * canvasZoom);
                     displayCanvas.Refresh();
                     break;
-                case ShortcutTarget.CanvasY:
+                case CommandTarget.CanvasY:
                     canvas.y -= (int)((shortcut.GetDataAsInt(canvas.y, int.MinValue, int.MaxValue) - canvas.y) * canvasZoom);
                     displayCanvas.Refresh();
                     break;
-                case ShortcutTarget.CanvasRotation:
+                case CommandTarget.CanvasRotation:
                     var newValue = shortcut.GetDataAsInt(sliderCanvasAngle.ValueInt, int.MinValue, int.MaxValue);
                     while (newValue <= -180) { newValue += 360; }
                     while (newValue > 180) { newValue -= 360; }
                     sliderCanvasAngle.ValueInt = newValue;
                     break;
-                case ShortcutTarget.BlendMode:
+                case CommandTarget.BlendMode:
                     cmbxBlendMode.SelectedIndex =
                         shortcut.GetDataAsInt(cmbxBlendMode.SelectedIndex, 0, cmbxBlendMode.Items.Count - 1);
                     break;
-                case ShortcutTarget.SeamlessDrawing:
+                case CommandTarget.SeamlessDrawing:
                     chkbxSeamlessDrawing.Checked = shortcut.GetDataAsBool(chkbxSeamlessDrawing.Checked);
                     break;
-                case ShortcutTarget.BrushOpacity:
+                case CommandTarget.BrushOpacity:
                     sliderBrushOpacity.Value =
                         shortcut.GetDataAsInt(sliderBrushOpacity.ValueInt,
                         sliderBrushOpacity.MinimumInt,
                         sliderBrushOpacity.MaximumInt);
                     break;
-                case ShortcutTarget.ChosenEffect:
+                case CommandTarget.ChosenEffect:
                     cmbxChosenEffect.SelectedIndex =
                         shortcut.GetDataAsInt(cmbxChosenEffect.SelectedIndex, 0, cmbxChosenEffect.Items.Count - 1);
                     break;
-                case ShortcutTarget.CanvasZoomToMouse:
+                case CommandTarget.CanvasZoomToMouse:
                     isWheelZooming = true;
                     sliderCanvasZoom.ValueInt =
                         shortcut.GetDataAsInt(sliderCanvasZoom.ValueInt,
                         sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
                     break;
-                case ShortcutTarget.CanvasZoomFit:
+                case CommandTarget.CanvasZoomFit:
                     canvas.width = bmpCommitted.Width;
                     canvas.height = bmpCommitted.Height;
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
@@ -3086,11 +3086,11 @@ namespace DynamicDraw
                     int result = (int)Math.Clamp(newZoom, sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
                     sliderCanvasZoom.ValueInt = result > 1 ? result : 1;
                     break;
-                case ShortcutTarget.SwapPrimarySecondaryColors:
+                case CommandTarget.SwapPrimarySecondaryColors:
                     menuActiveColors.Swatches.Reverse();
                     UpdateBrushColor(menuActiveColors.Swatches[0], true);
                     break;
-                case ShortcutTarget.OpenColorPickerDialog:
+                case CommandTarget.OpenColorPickerDialog:
                     ColorPickerDialog dlgPicker = new ColorPickerDialog(menuActiveColors.Swatches[0], true);
                     if (dlgPicker.ShowDialog() == DialogResult.OK)
                     {
@@ -3098,7 +3098,7 @@ namespace DynamicDraw
                     }
                     currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
                     break;
-                case ShortcutTarget.OpenQuickCommandDialog:
+                case CommandTarget.OpenQuickCommandDialog:
                     CommandDialog dlgCommand = new CommandDialog(KeyboardShortcuts);
                     if (dlgCommand.ShowDialog() == DialogResult.OK)
                     {
@@ -3106,11 +3106,11 @@ namespace DynamicDraw
                     }
                     currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
                     break;
-                case ShortcutTarget.SwitchPalette:
+                case CommandTarget.SwitchPalette:
                     int index = shortcut.GetDataAsInt(cmbxPaletteDropdown.SelectedIndex, 0, cmbxPaletteDropdown.Items.Count - 1);
                     cmbxPaletteDropdown.SelectedIndex = index;
                     break;
-                case ShortcutTarget.PickFromPalette:
+                case CommandTarget.PickFromPalette:
                     int index2 = shortcut.GetDataAsInt(paletteSelectedSwatchIndex, 0, menuPalette.Swatches.Count - 1);
                     paletteSelectedSwatchIndex = index2;
                     menuPalette.SelectedIndex = paletteSelectedSwatchIndex;
@@ -3273,11 +3273,11 @@ namespace DynamicDraw
         /// <summary>
         /// (Re)registers the keyboard shortcuts for the app.
         /// </summary>
-        private void InitKeyboardShortcuts(HashSet<KeyboardShortcut> shortcutsToApply)
+        private void InitKeyboardShortcuts(HashSet<Command> shortcutsToApply)
         {
-            KeyboardShortcuts = new HashSet<KeyboardShortcut>(); // Prevents duplicate shortcut handling.
+            KeyboardShortcuts = new HashSet<Command>(); // Prevents duplicate shortcut handling.
 
-            foreach (KeyboardShortcut shortcut in shortcutsToApply)
+            foreach (Command shortcut in shortcutsToApply)
             {
                 shortcut.OnInvoke = new Action(() =>
                 {
@@ -3322,7 +3322,7 @@ namespace DynamicDraw
             listviewBrushImagePicker = new DoubleBufferedListView();
             panelBrushAddPickColor = new Panel();
             chkbxColorizeBrush = new ThemedCheckbox();
-            sliderColorInfluence = new Slider(ShortcutTarget.ColorInfluence, 0f);
+            sliderColorInfluence = new Slider(CommandTarget.ColorInfluence, 0f);
             panelColorInfluenceHSV = new FlowLayoutPanel();
             chkbxColorInfluenceHue = new ThemedCheckbox();
             chkbxColorInfluenceSat = new ThemedCheckbox();
@@ -3330,10 +3330,10 @@ namespace DynamicDraw
             bttnAddBrushImages = new ThemedButton();
             brushImageLoadProgressBar = new ProgressBar();
             cmbxBlendMode = new ThemedComboBox();
-            sliderBrushOpacity = new Slider(ShortcutTarget.BrushOpacity, 255f);
-            sliderBrushFlow = new Slider(ShortcutTarget.Flow, 255f);
-            sliderBrushRotation = new Slider(ShortcutTarget.Rotation, 0f);
-            sliderBrushSize = new Slider(ShortcutTarget.Size, 10f);
+            sliderBrushOpacity = new Slider(CommandTarget.BrushOpacity, 255f);
+            sliderBrushFlow = new Slider(CommandTarget.Flow, 255f);
+            sliderBrushRotation = new Slider(CommandTarget.Rotation, 0f);
+            sliderBrushSize = new Slider(CommandTarget.Size, 10f);
             bttnColorControls = new Accordion(true);
             panelColorControls = new FlowLayoutPanel();
             panelWheelWithValueSlider = new FlowLayoutPanel();
@@ -3347,8 +3347,8 @@ namespace DynamicDraw
             panelChosenEffect = new Panel();
             cmbxChosenEffect = new ThemedComboBox();
             bttnChooseEffectSettings = new ThemedButton();
-            sliderMinDrawDistance = new Slider(ShortcutTarget.MinDrawDistance, 0f);
-            sliderBrushDensity = new Slider(ShortcutTarget.BrushStrokeDensity, 10f);
+            sliderMinDrawDistance = new Slider(CommandTarget.MinDrawDistance, 0f);
+            sliderBrushDensity = new Slider(CommandTarget.BrushStrokeDensity, 10f);
             cmbxSymmetry = new ThemedComboBox();
             cmbxBrushSmoothing = new ThemedComboBox();
             chkbxSeamlessDrawing = new ThemedCheckbox();
@@ -3365,32 +3365,32 @@ namespace DynamicDraw
             chkbxLockVal = new ThemedCheckbox(false);
             bttnJitterBasicsControls = new Accordion(true);
             panelJitterBasics = new FlowLayoutPanel();
-            sliderRandMinSize = new Slider(ShortcutTarget.JitterMinSize, 0f);
-            sliderRandMaxSize = new Slider(ShortcutTarget.JitterMaxSize, 0f);
-            sliderRandRotLeft = new Slider(ShortcutTarget.JitterRotLeft, 0f);
-            sliderRandRotRight = new Slider(ShortcutTarget.JitterRotRight, 0f);
-            sliderRandFlowLoss = new Slider(ShortcutTarget.JitterFlowLoss, 0f);
-            sliderRandHorzShift = new Slider(ShortcutTarget.JitterHorSpray, 0f);
-            sliderRandVertShift = new Slider(ShortcutTarget.JitterVerSpray, 0f);
+            sliderRandMinSize = new Slider(CommandTarget.JitterMinSize, 0f);
+            sliderRandMaxSize = new Slider(CommandTarget.JitterMaxSize, 0f);
+            sliderRandRotLeft = new Slider(CommandTarget.JitterRotLeft, 0f);
+            sliderRandRotRight = new Slider(CommandTarget.JitterRotRight, 0f);
+            sliderRandFlowLoss = new Slider(CommandTarget.JitterFlowLoss, 0f);
+            sliderRandHorzShift = new Slider(CommandTarget.JitterHorSpray, 0f);
+            sliderRandVertShift = new Slider(CommandTarget.JitterVerSpray, 0f);
             bttnJitterColorControls = new Accordion(true);
             panelJitterColor = new FlowLayoutPanel();
-            sliderJitterMinRed = new Slider(ShortcutTarget.JitterRedMin, 0f);
-            sliderJitterMaxRed = new Slider(ShortcutTarget.JitterRedMin, 0f);
-            sliderJitterMinGreen = new Slider(ShortcutTarget.JitterGreenMin, 0f);
-            sliderJitterMaxGreen = new Slider(ShortcutTarget.JitterGreenMax, 0f);
-            sliderJitterMinBlue = new Slider(ShortcutTarget.JitterBlueMin, 0f);
-            sliderJitterMaxBlue = new Slider(ShortcutTarget.JitterBlueMax, 0f);
-            sliderJitterMinHue = new Slider(ShortcutTarget.JitterHueMin, 0f);
-            sliderJitterMaxHue = new Slider(ShortcutTarget.JitterHueMax, 0f);
-            sliderJitterMinSat = new Slider(ShortcutTarget.JitterSatMin, 0f);
-            sliderJitterMaxSat = new Slider(ShortcutTarget.JitterSatMax, 0f);
-            sliderJitterMinVal = new Slider(ShortcutTarget.JitterValMin, 0f);
-            sliderJitterMaxVal = new Slider(ShortcutTarget.JitterValMax, 0f);
+            sliderJitterMinRed = new Slider(CommandTarget.JitterRedMin, 0f);
+            sliderJitterMaxRed = new Slider(CommandTarget.JitterRedMin, 0f);
+            sliderJitterMinGreen = new Slider(CommandTarget.JitterGreenMin, 0f);
+            sliderJitterMaxGreen = new Slider(CommandTarget.JitterGreenMax, 0f);
+            sliderJitterMinBlue = new Slider(CommandTarget.JitterBlueMin, 0f);
+            sliderJitterMaxBlue = new Slider(CommandTarget.JitterBlueMax, 0f);
+            sliderJitterMinHue = new Slider(CommandTarget.JitterHueMin, 0f);
+            sliderJitterMaxHue = new Slider(CommandTarget.JitterHueMax, 0f);
+            sliderJitterMinSat = new Slider(CommandTarget.JitterSatMin, 0f);
+            sliderJitterMaxSat = new Slider(CommandTarget.JitterSatMax, 0f);
+            sliderJitterMinVal = new Slider(CommandTarget.JitterValMin, 0f);
+            sliderJitterMaxVal = new Slider(CommandTarget.JitterValMax, 0f);
             bttnShiftBasicsControls = new Accordion(true);
             panelShiftBasics = new FlowLayoutPanel();
-            sliderShiftSize = new Slider(ShortcutTarget.SizeShift, 0f);
-            sliderShiftRotation = new Slider(ShortcutTarget.RotShift, 0f);
-            sliderShiftFlow = new Slider(ShortcutTarget.FlowShift, 0f);
+            sliderShiftSize = new Slider(CommandTarget.SizeShift, 0f);
+            sliderShiftRotation = new Slider(CommandTarget.RotShift, 0f);
+            sliderShiftFlow = new Slider(CommandTarget.FlowShift, 0f);
             bttnTabAssignPressureControls = new Accordion(true);
             panelTabletAssignPressure = new FlowLayoutPanel();
             bttnSettings = new Accordion(true);
@@ -3517,7 +3517,7 @@ namespace DynamicDraw
             menuCanvasAngle180 = new ToolStripMenuItem(Strings.MenuRotate180);
             menuCanvasAngle270 = new ToolStripMenuItem(Strings.MenuRotate270);
             menuCanvasAngleTo = new ToolStripMenuItem(Strings.MenuRotateTo);
-            sliderCanvasAngle = new Slider(ShortcutTarget.CanvasRotation, 0);
+            sliderCanvasAngle = new Slider(CommandTarget.CanvasRotation, 0);
             panelTools = new FlowLayoutPanel();
             menuActiveColors = new SwatchBox(new List<Color>() { Color.Black, Color.White }, 2);
             menuPalette = new SwatchBox(null, 3);
@@ -3561,7 +3561,7 @@ namespace DynamicDraw
             // Options -> reset canvas
             menuResetCanvas.Click += (a, b) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.ResetCanvasTransforms });
+                HandleShortcut(new Command() { Target = CommandTarget.ResetCanvasTransforms });
             };
 
             preferencesContextMenu.Items.Add(menuResetCanvas);
@@ -3736,14 +3736,14 @@ namespace DynamicDraw
             // canvas zoom -> reset zoom
             menuCanvasZoomReset.Click += (a, b) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasZoom, ActionData = "100|set" });
+                HandleShortcut(new Command() { Target = CommandTarget.CanvasZoom, ActionData = "100|set" });
             };
             CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomReset);
 
             // canvas zoom -> fit to window
             menuCanvasZoomFit.Click += (a, b) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasZoomFit });
+                HandleShortcut(new Command() { Target = CommandTarget.CanvasZoomFit });
             };
             CanvasZoomButtonContextMenu.Items.Add(menuCanvasZoomFit);
 
@@ -3760,11 +3760,11 @@ namespace DynamicDraw
                             return " ";
                         }
 
-                        if (!Setting.AllSettings[ShortcutTarget.CanvasZoom].ValidateNumberValue(value))
+                        if (!Commands.All[CommandTarget.CanvasZoom].ValidateNumberValue(value))
                         {
                             return string.Format(Strings.TextboxDialogRangeInvalid,
-                                Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item1,
-                                Setting.AllSettings[ShortcutTarget.CanvasZoom].MinMaxRange.Item2);
+                                Commands.All[CommandTarget.CanvasZoom].MinMaxRange.Item1,
+                                Commands.All[CommandTarget.CanvasZoom].MinMaxRange.Item2);
                         }
 
                         return null;
@@ -3772,8 +3772,8 @@ namespace DynamicDraw
 
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    HandleShortcut(new KeyboardShortcut() {
-                        Target = ShortcutTarget.CanvasZoom,
+                    HandleShortcut(new Command() {
+                        Target = CommandTarget.CanvasZoom,
                         ActionData = int.Parse(dlg.GetSubmittedText()) + "|set"
                     });
                 }
@@ -3808,28 +3808,28 @@ namespace DynamicDraw
             // canvas angle -> reset angle
             menuCanvasAngleReset.Click += (a, b) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "0|set" });
+                HandleShortcut(new Command() { Target = CommandTarget.CanvasRotation, ActionData = "0|set" });
             };
             CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngleReset);
 
             // canvas angle -> rotate to 90
             menuCanvasAngle90.Click += (a, b) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "90|set" });
+                HandleShortcut(new Command() { Target = CommandTarget.CanvasRotation, ActionData = "90|set" });
             };
             CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngle90);
 
             // canvas angle -> rotate to 180
             menuCanvasAngle180.Click += (a, b) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "180|set" });
+                HandleShortcut(new Command() { Target = CommandTarget.CanvasRotation, ActionData = "180|set" });
             };
             CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngle180);
 
             // canvas angle -> rotate to 270
             menuCanvasAngle270.Click += (a, b) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.CanvasRotation, ActionData = "270|set" });
+                HandleShortcut(new Command() { Target = CommandTarget.CanvasRotation, ActionData = "270|set" });
             };
             CanvasAngleButtonContextMenu.Items.Add(menuCanvasAngle270);
 
@@ -3853,9 +3853,9 @@ namespace DynamicDraw
 
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    HandleShortcut(new KeyboardShortcut()
+                    HandleShortcut(new Command()
                     {
-                        Target = ShortcutTarget.CanvasRotation,
+                        Target = CommandTarget.CanvasRotation,
                         ActionData = int.Parse(dlg.GetSubmittedText()) + "|set"
                     });
                 }
@@ -3898,11 +3898,11 @@ namespace DynamicDraw
             {
                 if (col == 0)
                 {
-                    HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.OpenColorPickerDialog });
+                    HandleShortcut(new Command() { Target = CommandTarget.OpenColorPickerDialog });
                 }
                 else
                 {
-                    HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.SwapPrimarySecondaryColors });
+                    HandleShortcut(new Command() { Target = CommandTarget.SwapPrimarySecondaryColors });
                 }
             };
             menuActiveColors.MouseEnter += MenuActiveColors_MouseEnter;
@@ -4373,7 +4373,7 @@ namespace DynamicDraw
             swatchPrimaryColor.Margin = new Padding(0, 4, 0, 0);
             swatchPrimaryColor.SwatchClicked += (col) =>
             {
-                HandleShortcut(new KeyboardShortcut() { Target = ShortcutTarget.OpenColorPickerDialog });
+                HandleShortcut(new Command() { Target = CommandTarget.OpenColorPickerDialog });
             };
             swatchPrimaryColor.MouseEnter += SwatchPrimaryColor_MouseEnter;
             #endregion
@@ -5085,31 +5085,31 @@ namespace DynamicDraw
                 panelTabletAssignPressure.SuspendLayout();
                 panelTabletAssignPressure.Controls.AddRange(new Control[]
                 {
-                    GeneratePressureControl(ShortcutTarget.BrushOpacity),
-                    GeneratePressureControl(ShortcutTarget.Flow),
-                    GeneratePressureControl(ShortcutTarget.Rotation),
-                    GeneratePressureControl(ShortcutTarget.Size, 1),
-                    GeneratePressureControl(ShortcutTarget.MinDrawDistance),
-                    GeneratePressureControl(ShortcutTarget.BrushStrokeDensity),
-                    GeneratePressureControl(ShortcutTarget.JitterMinSize),
-                    GeneratePressureControl(ShortcutTarget.JitterMaxSize),
-                    GeneratePressureControl(ShortcutTarget.JitterRotLeft),
-                    GeneratePressureControl(ShortcutTarget.JitterRotRight),
-                    GeneratePressureControl(ShortcutTarget.JitterFlowLoss),
-                    GeneratePressureControl(ShortcutTarget.JitterHorSpray),
-                    GeneratePressureControl(ShortcutTarget.JitterVerSpray),
-                    GeneratePressureControl(ShortcutTarget.JitterRedMin),
-                    GeneratePressureControl(ShortcutTarget.JitterRedMax),
-                    GeneratePressureControl(ShortcutTarget.JitterGreenMin),
-                    GeneratePressureControl(ShortcutTarget.JitterGreenMax),
-                    GeneratePressureControl(ShortcutTarget.JitterBlueMin),
-                    GeneratePressureControl(ShortcutTarget.JitterBlueMax),
-                    GeneratePressureControl(ShortcutTarget.JitterHueMin),
-                    GeneratePressureControl(ShortcutTarget.JitterHueMax),
-                    GeneratePressureControl(ShortcutTarget.JitterSatMin),
-                    GeneratePressureControl(ShortcutTarget.JitterSatMax),
-                    GeneratePressureControl(ShortcutTarget.JitterValMin),
-                    GeneratePressureControl(ShortcutTarget.JitterValMax),
+                    GeneratePressureControl(CommandTarget.BrushOpacity),
+                    GeneratePressureControl(CommandTarget.Flow),
+                    GeneratePressureControl(CommandTarget.Rotation),
+                    GeneratePressureControl(CommandTarget.Size, 1),
+                    GeneratePressureControl(CommandTarget.MinDrawDistance),
+                    GeneratePressureControl(CommandTarget.BrushStrokeDensity),
+                    GeneratePressureControl(CommandTarget.JitterMinSize),
+                    GeneratePressureControl(CommandTarget.JitterMaxSize),
+                    GeneratePressureControl(CommandTarget.JitterRotLeft),
+                    GeneratePressureControl(CommandTarget.JitterRotRight),
+                    GeneratePressureControl(CommandTarget.JitterFlowLoss),
+                    GeneratePressureControl(CommandTarget.JitterHorSpray),
+                    GeneratePressureControl(CommandTarget.JitterVerSpray),
+                    GeneratePressureControl(CommandTarget.JitterRedMin),
+                    GeneratePressureControl(CommandTarget.JitterRedMax),
+                    GeneratePressureControl(CommandTarget.JitterGreenMin),
+                    GeneratePressureControl(CommandTarget.JitterGreenMax),
+                    GeneratePressureControl(CommandTarget.JitterBlueMin),
+                    GeneratePressureControl(CommandTarget.JitterBlueMax),
+                    GeneratePressureControl(CommandTarget.JitterHueMin),
+                    GeneratePressureControl(CommandTarget.JitterHueMax),
+                    GeneratePressureControl(CommandTarget.JitterSatMin),
+                    GeneratePressureControl(CommandTarget.JitterSatMax),
+                    GeneratePressureControl(CommandTarget.JitterValMin),
+                    GeneratePressureControl(CommandTarget.JitterValMax),
                 });
                 panelTabletAssignPressure.ResumeLayout();
                 panelTabletAssignPressure.PerformLayout();
@@ -5406,7 +5406,7 @@ namespace DynamicDraw
             sliderShiftSize.Value = settings.SizeChange;
             sliderShiftRotation.Value = settings.RotChange;
             cmbxChosenEffect.SelectedIndex = settings.CmbxChosenEffect;
-            tabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>(settings.TabPressureConstraints);
+            tabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>(settings.TabPressureConstraints);
             cmbxBlendMode.SelectedIndex = (int)settings.BlendMode;
             cmbxBrushSmoothing.SelectedIndex = (int)settings.Smoothing;
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
@@ -5480,7 +5480,7 @@ namespace DynamicDraw
                 return;
             }
 
-            int finalBrushFlow = GetPressureValue(ShortcutTarget.Flow, sliderBrushFlow.ValueInt, tabletPressureRatio);
+            int finalBrushFlow = GetPressureValue(CommandTarget.Flow, sliderBrushFlow.ValueInt, tabletPressureRatio);
 
             //Sets the color and alpha.
             Color setColor = menuActiveColors.Swatches[0];
@@ -5491,12 +5491,12 @@ namespace DynamicDraw
             int maxPossibleSize =
                 Math.Max(Math.Max(
                     sliderRandMaxSize.ValueInt,
-                    GetPressureValue(ShortcutTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 0)),
-                    GetPressureValue(ShortcutTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 1)) +
+                    GetPressureValue(CommandTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 0)),
+                    GetPressureValue(CommandTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 1)) +
                 Math.Max(Math.Max(
                     sliderBrushSize.ValueInt,
-                    GetPressureValue(ShortcutTarget.Size, sliderBrushSize.ValueInt, 0)),
-                    GetPressureValue(ShortcutTarget.Size, sliderBrushSize.ValueInt, 1));
+                    GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, 0)),
+                    GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, 1));
 
             // Creates a downsized intermediate bmp for faster transformations and blitting. Brush assumed square.
             if (bmpBrushDownsized != null && maxPossibleSize > bmpBrushDownsized.Width)
@@ -5600,18 +5600,18 @@ namespace DynamicDraw
             cmbxBlendMode.Enabled = activeTool != Tool.Eraser && effectToDraw.Effect == null;
 
             bttnJitterColorControls.Visible = enableColorJitter;
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterRedMax)) { pressureConstraintControls[ShortcutTarget.JitterRedMax].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterRedMin)) { pressureConstraintControls[ShortcutTarget.JitterRedMin].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterBlueMax)) { pressureConstraintControls[ShortcutTarget.JitterBlueMax].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterBlueMin)) { pressureConstraintControls[ShortcutTarget.JitterBlueMin].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterGreenMax)) { pressureConstraintControls[ShortcutTarget.JitterGreenMax].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterGreenMin)) { pressureConstraintControls[ShortcutTarget.JitterGreenMin].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterHueMax)) { pressureConstraintControls[ShortcutTarget.JitterHueMax].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterHueMin)) { pressureConstraintControls[ShortcutTarget.JitterHueMin].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterSatMax)) { pressureConstraintControls[ShortcutTarget.JitterSatMax].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterSatMin)) { pressureConstraintControls[ShortcutTarget.JitterSatMin].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterValMax)) { pressureConstraintControls[ShortcutTarget.JitterValMax].Item1.Enabled = enableColorJitter; }
-            if (pressureConstraintControls.ContainsKey(ShortcutTarget.JitterValMin)) { pressureConstraintControls[ShortcutTarget.JitterValMin].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterRedMax)) { pressureConstraintControls[CommandTarget.JitterRedMax].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterRedMin)) { pressureConstraintControls[CommandTarget.JitterRedMin].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterBlueMax)) { pressureConstraintControls[CommandTarget.JitterBlueMax].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterBlueMin)) { pressureConstraintControls[CommandTarget.JitterBlueMin].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterGreenMax)) { pressureConstraintControls[CommandTarget.JitterGreenMax].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterGreenMin)) { pressureConstraintControls[CommandTarget.JitterGreenMin].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterHueMax)) { pressureConstraintControls[CommandTarget.JitterHueMax].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterHueMin)) { pressureConstraintControls[CommandTarget.JitterHueMin].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterSatMax)) { pressureConstraintControls[CommandTarget.JitterSatMax].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterSatMin)) { pressureConstraintControls[CommandTarget.JitterSatMin].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterValMax)) { pressureConstraintControls[CommandTarget.JitterValMax].Item1.Enabled = enableColorJitter; }
+            if (pressureConstraintControls.ContainsKey(CommandTarget.JitterValMin)) { pressureConstraintControls[CommandTarget.JitterValMin].Item1.Enabled = enableColorJitter; }
 
             menuActiveColors.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser && effectToDraw.Effect == null;
             menuPalette.Visible = menuActiveColors.Visible;
@@ -5748,7 +5748,7 @@ namespace DynamicDraw
         /// empty. Up to the first 4 registered shortcuts with a matching shortcut target are appended to the end of
         /// the tooltip.
         /// </summary>
-        private void UpdateTooltip(ShortcutTarget target, string newTooltip)
+        private void UpdateTooltip(CommandTarget target, string newTooltip)
         {
             UpdateTooltip((kbTarget) => kbTarget.Target == target, newTooltip);
         }
@@ -5758,14 +5758,14 @@ namespace DynamicDraw
         /// empty. Up to the first 4 registered shortcuts for which the filter function returns true are appended to
         /// the end of the tooltip.
         /// </summary>
-        private void UpdateTooltip(Func<KeyboardShortcut, bool> filterFunc, string newTooltip)
+        private void UpdateTooltip(Func<Command, bool> filterFunc, string newTooltip)
         {
             string finalTooltip = newTooltip;
             List<string> shortcuts = new List<string>();
 
             // Creates a list of up to 4 bound keyboard shortcuts for the shortcut target.
             int extraCount = 0;
-            foreach (KeyboardShortcut shortcut in KeyboardShortcuts)
+            foreach (Command shortcut in KeyboardShortcuts)
             {
                 if (filterFunc?.Invoke(shortcut) ?? false)
                 {
@@ -5775,7 +5775,7 @@ namespace DynamicDraw
                         continue;
                     }
 
-                    shortcuts.Add(shortcut.Name + " " + KeyboardShortcut.GetShortcutKeysString(
+                    shortcuts.Add(shortcut.Name + " " + Command.GetShortcutKeysString(
                         shortcut.Keys,
                         shortcut.RequireCtrl,
                         shortcut.RequireShift,
@@ -6333,7 +6333,7 @@ namespace DynamicDraw
                     //Doesn't draw for tablets, since the user hasn't exerted full pressure yet.
                     if (!chkbxOrientToMouse.Checked)
                     {
-                        int finalBrushSize = GetPressureValue(ShortcutTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+                        int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
 
                         DrawBrush(new PointF(
                             mouseLocPrev.X / canvasZoom - halfPixelOffset,
@@ -6413,7 +6413,7 @@ namespace DynamicDraw
 
             else if (isUserDrawing.started)
             {
-                finalMinDrawDistance = GetPressureValue(ShortcutTarget.MinDrawDistance, sliderMinDrawDistance.ValueInt, tabletPressureRatio);
+                finalMinDrawDistance = GetPressureValue(CommandTarget.MinDrawDistance, sliderMinDrawDistance.ValueInt, tabletPressureRatio);
 
                 // Doesn't draw unless the minimum drawing distance is met.
                 if (finalMinDrawDistance != 0)
@@ -6436,12 +6436,12 @@ namespace DynamicDraw
 
                 if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
                 {
-                    int finalBrushDensity = GetPressureValue(ShortcutTarget.BrushStrokeDensity, sliderBrushDensity.ValueInt, tabletPressureRatio);
+                    int finalBrushDensity = GetPressureValue(CommandTarget.BrushStrokeDensity, sliderBrushDensity.ValueInt, tabletPressureRatio);
 
                     // Draws without speed control. Messier, but faster.
                     if (finalBrushDensity == 0)
                     {
-                        int finalBrushSize = GetPressureValue(ShortcutTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+                        int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
                         if (finalBrushSize > 0)
                         {
                             DrawBrush(new PointF(
@@ -6457,7 +6457,7 @@ namespace DynamicDraw
                     // tracking remainder by changing final mouse position.
                     else
                     {
-                        int finalBrushSize = GetPressureValue(ShortcutTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+                        int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
                         double deltaX = (mouseLoc.X - mouseLocPrev.X) / canvasZoom;
                         double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / canvasZoom;
                         double brushWidthFrac = finalBrushSize / (double)finalBrushDensity;
@@ -6472,11 +6472,11 @@ namespace DynamicDraw
                         {
                             // lerp between the last and current tablet pressure for smoother lines
                             if (tabletPressureRatioPrev != tabletPressureRatio &&
-                                tabPressureConstraints.ContainsKey(ShortcutTarget.Size) &&
-                                tabPressureConstraints[ShortcutTarget.Size].value != 0)
+                                tabPressureConstraints.ContainsKey(CommandTarget.Size) &&
+                                tabPressureConstraints[CommandTarget.Size].value != 0)
                             {
                                 tabletPressure = (float)(tabletPressureRatioPrev + i / numIntervals * (tabletPressureRatio - tabletPressureRatioPrev));
-                                finalBrushSize = GetPressureValue(ShortcutTarget.Size, sliderBrushSize.ValueInt, tabletPressure);
+                                finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressure);
                             }
 
                             DrawBrush(new PointF(
@@ -7081,7 +7081,7 @@ namespace DynamicDraw
         #region Methods (button event handlers)
         private void AutomaticBrushDensity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.AutomaticBrushDensity, Strings.AutomaticBrushDensityTip);
+            UpdateTooltip(CommandTarget.AutomaticBrushDensity, Strings.AutomaticBrushDensityTip);
         }
 
         private void AutomaticBrushDensity_CheckedChanged(object sender, EventArgs e)
@@ -7128,7 +7128,7 @@ namespace DynamicDraw
 
         private void BttnBlendMode_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.BlendMode, Strings.BlendModeTip);
+            UpdateTooltip(CommandTarget.BlendMode, Strings.BlendModeTip);
         }
 
         private void BttnBlendMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -7139,10 +7139,10 @@ namespace DynamicDraw
 
         private void MenuActiveColors_MouseEnter(object sender, EventArgs e)
         {
-            static bool filter(KeyboardShortcut shortcut)
+            static bool filter(Command shortcut)
             {
-                return shortcut.Target == ShortcutTarget.Color
-                    || shortcut.Target == ShortcutTarget.SwapPrimarySecondaryColors;
+                return shortcut.Target == CommandTarget.Color
+                    || shortcut.Target == CommandTarget.SwapPrimarySecondaryColors;
             }
 
             UpdateTooltip(filter, Strings.BrushColorTip);
@@ -7150,7 +7150,7 @@ namespace DynamicDraw
 
         private void CmbxChosenEffect_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.ChosenEffect, Strings.ChosenEffectTip);
+            UpdateTooltip(CommandTarget.ChosenEffect, Strings.ChosenEffectTip);
             if (effectToDraw.Effect != null)
             {
                 isPreviewingEffect.hoverPreview = true;
@@ -7212,7 +7212,7 @@ namespace DynamicDraw
 
         private void BttnBrushSmoothing_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.SmoothingMode, Strings.BrushSmoothingTip);
+            UpdateTooltip(CommandTarget.SmoothingMode, Strings.BrushSmoothingTip);
         }
 
         /// <summary>
@@ -7388,7 +7388,7 @@ namespace DynamicDraw
 
         private void BttnRedo_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.RedoAction, Strings.RedoTip);
+            UpdateTooltip(CommandTarget.RedoAction, Strings.RedoTip);
         }
 
         /// <summary>
@@ -7439,7 +7439,7 @@ namespace DynamicDraw
 
         private void BttnSymmetry_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.SymmetryMode, Strings.SymmetryTip);
+            UpdateTooltip(CommandTarget.SymmetryMode, Strings.SymmetryTip);
         }
 
         private void BttnToolBrush_Click(object sender, EventArgs e)
@@ -7449,10 +7449,10 @@ namespace DynamicDraw
 
         private void BttnToolBrush_MouseEnter(object sender, EventArgs e)
         {
-            static bool filter(KeyboardShortcut shortcut)
+            static bool filter(Command shortcut)
             {
                 int index = (int)Tool.Brush;
-                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                return shortcut.Target == CommandTarget.SelectedTool &&
                     (shortcut.ActionData.Contains($"{index}|set") ||
                     (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
             }
@@ -7467,10 +7467,10 @@ namespace DynamicDraw
 
         private void BttnToolColorPicker_MouseEnter(object sender, EventArgs e)
         {
-            static bool filter(KeyboardShortcut shortcut)
+            static bool filter(Command shortcut)
             {
                 int index = (int)Tool.ColorPicker;
-                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                return shortcut.Target == CommandTarget.SelectedTool &&
                     (shortcut.ActionData.Contains($"{index}|set") ||
                     (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
             }
@@ -7485,10 +7485,10 @@ namespace DynamicDraw
 
         private void BttnToolEraser_MouseEnter(object sender, EventArgs e)
         {
-            static bool filter(KeyboardShortcut shortcut)
+            static bool filter(Command shortcut)
             {
                 int index = (int)Tool.Eraser;
-                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                return shortcut.Target == CommandTarget.SelectedTool &&
                     (shortcut.ActionData.Contains($"{index}|set") ||
                     (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
             }
@@ -7503,10 +7503,10 @@ namespace DynamicDraw
 
         private void BttnToolOrigin_MouseEnter(object sender, EventArgs e)
         {
-            static bool filter(KeyboardShortcut shortcut)
+            static bool filter(Command shortcut)
             {
                 int index = (int)Tool.SetSymmetryOrigin;
-                return shortcut.Target == ShortcutTarget.SelectedTool &&
+                return shortcut.Target == CommandTarget.SelectedTool &&
                     (shortcut.ActionData.Contains($"{index}|set") ||
                     (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
             }
@@ -7575,7 +7575,7 @@ namespace DynamicDraw
 
         private void BttnUndo_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.UndoAction, Strings.UndoTip);
+            UpdateTooltip(CommandTarget.UndoAction, Strings.UndoTip);
         }
 
         /// <summary>
@@ -7590,27 +7590,27 @@ namespace DynamicDraw
 
         private void ChkbxColorizeBrush_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.ColorizeBrush, Strings.ColorizeBrushTip);
+            UpdateTooltip(CommandTarget.ColorizeBrush, Strings.ColorizeBrushTip);
         }
 
         private void ChkbxColorInfluenceHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.ColorInfluenceHue, Strings.ColorInfluenceHTip);
+            UpdateTooltip(CommandTarget.ColorInfluenceHue, Strings.ColorInfluenceHTip);
         }
 
         private void ChkbxColorInfluenceSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.ColorInfluenceSat, Strings.ColorInfluenceSTip);
+            UpdateTooltip(CommandTarget.ColorInfluenceSat, Strings.ColorInfluenceSTip);
         }
 
         private void ChkbxColorInfluenceVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.ColorInfluenceVal, Strings.ColorInfluenceVTip);
+            UpdateTooltip(CommandTarget.ColorInfluenceVal, Strings.ColorInfluenceVTip);
         }
 
         private void ChkbxDitherDraw_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.DitherDraw, Strings.DitherDrawTip);
+            UpdateTooltip(CommandTarget.DitherDraw, Strings.DitherDrawTip);
         }
 
         private void ChkbxLockAlpha_MouseEnter(object sender, EventArgs e)
@@ -7620,37 +7620,37 @@ namespace DynamicDraw
 
         private void ChkbxLockR_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.DoLockR, Strings.LockRTip);
+            UpdateTooltip(CommandTarget.DoLockR, Strings.LockRTip);
         }
 
         private void ChkbxLockG_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.DoLockG, Strings.LockGTip);
+            UpdateTooltip(CommandTarget.DoLockG, Strings.LockGTip);
         }
 
         private void ChkbxLockB_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.DoLockB, Strings.LockBTip);
+            UpdateTooltip(CommandTarget.DoLockB, Strings.LockBTip);
         }
 
         private void ChkbxLockHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.DoLockHue, Strings.LockHueTip);
+            UpdateTooltip(CommandTarget.DoLockHue, Strings.LockHueTip);
         }
 
         private void ChkbxLockSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.DoLockSat, Strings.LockSatTip);
+            UpdateTooltip(CommandTarget.DoLockSat, Strings.LockSatTip);
         }
 
         private void ChkbxLockVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.DoLockVal, Strings.LockValTip);
+            UpdateTooltip(CommandTarget.DoLockVal, Strings.LockValTip);
         }
 
         private void ChkbxOrientToMouse_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.RotateWithMouse, Strings.OrientToMouseTip);
+            UpdateTooltip(CommandTarget.RotateWithMouse, Strings.OrientToMouseTip);
         }
 
         /// <summary>
@@ -7683,12 +7683,12 @@ namespace DynamicDraw
 
         private void ChkbxSeamlessDrawing_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.SeamlessDrawing, Strings.SeamlessDrawingTip);
+            UpdateTooltip(CommandTarget.SeamlessDrawing, Strings.SeamlessDrawingTip);
         }
 
         private void CmbxPaletteDropdown_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.SwitchPalette, Strings.SwitchPaletteTip);
+            UpdateTooltip(CommandTarget.SwitchPalette, Strings.SwitchPaletteTip);
         }
 
         private void CmbxSwatchColorTheory_MouseEnter(object sender, EventArgs e)
@@ -7824,7 +7824,7 @@ namespace DynamicDraw
 
         private void ListViewBrushImagePicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.SelectedBrushImage, Strings.BrushImageSelectorTip);
+            UpdateTooltip(CommandTarget.SelectedBrushImage, Strings.BrushImageSelectorTip);
         }
 
         /// <summary>
@@ -7907,7 +7907,7 @@ namespace DynamicDraw
 
         private void ListviewBrushPicker_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.SelectedBrush, Strings.BrushSelectorTip);
+            UpdateTooltip(CommandTarget.SelectedBrush, Strings.BrushSelectorTip);
         }
 
         /// <summary>
@@ -7991,17 +7991,17 @@ namespace DynamicDraw
 
         private void MenuPalette_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.PickFromPalette, Strings.PaletteTip);
+            UpdateTooltip(CommandTarget.PickFromPalette, Strings.PaletteTip);
         }
 
         private void SliderBrushDensity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.BrushStrokeDensity, Strings.BrushDensityTip);
+            UpdateTooltip(CommandTarget.BrushStrokeDensity, Strings.BrushDensityTip);
         }
 
         private void SliderBrushFlow_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.Flow, Strings.BrushFlowTip);
+            UpdateTooltip(CommandTarget.Flow, Strings.BrushFlowTip);
         }
 
         private void SliderBrushFlow_ValueChanged(object sender, float e)
@@ -8011,7 +8011,7 @@ namespace DynamicDraw
 
         private void SliderBrushOpacity_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.BrushOpacity, Strings.BrushOpacityTip);
+            UpdateTooltip(CommandTarget.BrushOpacity, Strings.BrushOpacityTip);
         }
 
         private void SliderBrushOpacity_ValueChanged(object sender, float e)
@@ -8021,7 +8021,7 @@ namespace DynamicDraw
 
         private void SliderBrushSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.Size, Strings.BrushSizeTip);
+            UpdateTooltip(CommandTarget.Size, Strings.BrushSizeTip);
         }
 
         private void SliderBrushSize_ValueChanged(object sender, float e)
@@ -8033,7 +8033,7 @@ namespace DynamicDraw
 
         private void SliderBrushRotation_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.Rotation, Strings.BrushRotationTip);
+            UpdateTooltip(CommandTarget.Rotation, Strings.BrushRotationTip);
         }
 
         private void SliderBrushRotation_ValueChanged(object sender, float e)
@@ -8047,7 +8047,7 @@ namespace DynamicDraw
 
         private void SliderCanvasZoom_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.CanvasZoom, Strings.CanvasZoomTip);
+            UpdateTooltip(CommandTarget.CanvasZoom, Strings.CanvasZoomTip);
         }
 
         private void SliderCanvasZoom_ValueChanged(object sender, float e)
@@ -8057,7 +8057,7 @@ namespace DynamicDraw
 
         private void SliderCanvasAngle_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.CanvasRotation, Strings.CanvasAngleTip);
+            UpdateTooltip(CommandTarget.CanvasRotation, Strings.CanvasAngleTip);
         }
 
         private void SliderCanvasAngle_ValueChanged(object sender, float e)
@@ -8077,7 +8077,7 @@ namespace DynamicDraw
 
         private void SliderColorInfluence_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.ColorInfluence, Strings.ColorInfluenceTip);
+            UpdateTooltip(CommandTarget.ColorInfluence, Strings.ColorInfluenceTip);
         }
 
         private void SliderColorV_MouseEnter(object sender, EventArgs e)
@@ -8087,124 +8087,124 @@ namespace DynamicDraw
 
         private void SliderMinDrawDistance_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.MinDrawDistance, Strings.MinDrawDistanceTip);
+            UpdateTooltip(CommandTarget.MinDrawDistance, Strings.MinDrawDistanceTip);
         }
 
         private void SliderRandHorzShift_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterHorSpray, Strings.RandHorzShiftTip);
+            UpdateTooltip(CommandTarget.JitterHorSpray, Strings.RandHorzShiftTip);
         }
 
         private void SliderJitterMaxBlue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterBlueMax, Strings.JitterBlueTip);
+            UpdateTooltip(CommandTarget.JitterBlueMax, Strings.JitterBlueTip);
         }
 
         private void SliderJitterMaxGreen_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterGreenMax, Strings.JitterGreenTip);
+            UpdateTooltip(CommandTarget.JitterGreenMax, Strings.JitterGreenTip);
         }
 
         private void SliderJitterMaxRed_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterRedMax, Strings.JitterRedTip);
+            UpdateTooltip(CommandTarget.JitterRedMax, Strings.JitterRedTip);
         }
 
         private void SliderRandFlowLoss_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterFlowLoss, Strings.RandFlowLossTip);
+            UpdateTooltip(CommandTarget.JitterFlowLoss, Strings.RandFlowLossTip);
         }
 
         private void SliderRandMaxSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterMaxSize, Strings.RandMaxSizeTip);
+            UpdateTooltip(CommandTarget.JitterMaxSize, Strings.RandMaxSizeTip);
         }
 
         private void SliderJitterMinBlue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterBlueMin, Strings.JitterBlueTip);
+            UpdateTooltip(CommandTarget.JitterBlueMin, Strings.JitterBlueTip);
         }
 
         private void SliderJitterMinGreen_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterGreenMin, Strings.JitterGreenTip);
+            UpdateTooltip(CommandTarget.JitterGreenMin, Strings.JitterGreenTip);
         }
 
         private void SliderJitterMaxHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterHueMax, Strings.JitterHueTip);
+            UpdateTooltip(CommandTarget.JitterHueMax, Strings.JitterHueTip);
         }
 
         private void SliderJitterMinHue_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterHueMin, Strings.JitterHueTip);
+            UpdateTooltip(CommandTarget.JitterHueMin, Strings.JitterHueTip);
         }
 
         private void SliderJitterMinRed_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterRedMin, Strings.JitterRedTip);
+            UpdateTooltip(CommandTarget.JitterRedMin, Strings.JitterRedTip);
         }
 
         private void SliderJitterMaxSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterSatMax, Strings.JitterSaturationTip);
+            UpdateTooltip(CommandTarget.JitterSatMax, Strings.JitterSaturationTip);
         }
 
         private void SliderJitterMinSat_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterSatMin, Strings.JitterSaturationTip);
+            UpdateTooltip(CommandTarget.JitterSatMin, Strings.JitterSaturationTip);
         }
 
         private void SliderJitterMaxVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterValMax, Strings.JitterValueTip);
+            UpdateTooltip(CommandTarget.JitterValMax, Strings.JitterValueTip);
         }
 
         private void SliderJitterMinVal_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterValMin, Strings.JitterValueTip);
+            UpdateTooltip(CommandTarget.JitterValMin, Strings.JitterValueTip);
         }
 
         private void SliderRandMinSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterMinSize, Strings.RandMinSizeTip);
+            UpdateTooltip(CommandTarget.JitterMinSize, Strings.RandMinSizeTip);
         }
 
         private void SliderRandRotLeft_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterRotLeft, Strings.RandRotLeftTip);
+            UpdateTooltip(CommandTarget.JitterRotLeft, Strings.RandRotLeftTip);
         }
 
         private void SliderRandRotRight_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterRotRight, Strings.RandRotRightTip);
+            UpdateTooltip(CommandTarget.JitterRotRight, Strings.RandRotRightTip);
         }
 
         private void SliderRandVertShift_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.JitterVerSpray, Strings.RandVertShiftTip);
+            UpdateTooltip(CommandTarget.JitterVerSpray, Strings.RandVertShiftTip);
         }
 
         private void SliderShiftFlow_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.FlowShift, Strings.ShiftFlowTip);
+            UpdateTooltip(CommandTarget.FlowShift, Strings.ShiftFlowTip);
         }
 
         private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.RotShift, Strings.ShiftRotationTip);
+            UpdateTooltip(CommandTarget.RotShift, Strings.ShiftRotationTip);
         }
 
         private void SliderShiftSize_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.SizeShift, Strings.ShiftSizeTip);
+            UpdateTooltip(CommandTarget.SizeShift, Strings.ShiftSizeTip);
         }
 
         private void SliderTabPressureBrushSize_LostFocus(object sender, EventArgs e)
         {
             // Included in brush size calculation in this function when on.
-            if (tabPressureConstraints.ContainsKey(ShortcutTarget.Size) &&
-                tabPressureConstraints[ShortcutTarget.Size].handleMethod != ConstraintValueHandlingMethod.DoNothing)
+            if (tabPressureConstraints.ContainsKey(CommandTarget.Size) &&
+                tabPressureConstraints[CommandTarget.Size].handleMethod != ConstraintValueHandlingMethod.DoNothing)
             {
                 UpdateBrushImage();
             }
@@ -8212,7 +8212,7 @@ namespace DynamicDraw
 
         private void SwatchPrimaryColor_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.Color, Strings.BrushPrimaryColorTip);
+            UpdateTooltip(CommandTarget.Color, Strings.BrushPrimaryColorTip);
         }
 
         private void TxtbxColorHexfield_ColorUpdatedByText()
@@ -8222,12 +8222,12 @@ namespace DynamicDraw
 
         private void TxtbxColorHexfield_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.Color, Strings.ColorHexfieldTip);
+            UpdateTooltip(CommandTarget.Color, Strings.ColorHexfieldTip);
         }
 
         private void WheelColor_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(ShortcutTarget.Color, Strings.ColorWheelTip);
+            UpdateTooltip(CommandTarget.Color, Strings.ColorWheelTip);
         }
         #endregion
     }

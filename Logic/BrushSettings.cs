@@ -606,13 +606,13 @@ namespace DynamicDraw
         /// <summary>
         /// All constraints based on tablet pressure. This takes a shortcut target and relates the existing value to
         /// the new value via the handling method. For example, the idea of "add 5 to brush opacity" can be expressed
-        /// via <see cref="ShortcutTarget.BrushOpacity"/>, <see cref="ConstraintValueHandlingMethod.Add"/>, and the
+        /// via <see cref="CommandTarget.BrushOpacity"/>, <see cref="ConstraintValueHandlingMethod.Add"/>, and the
         /// value 5. Whatever value is used, it's linearly interpolated based on the % of tablet pressure being read.
         /// That means at 0% tablet pressure, the constraint has no effect since it's multiplied by 0.
         /// </summary>
         [JsonInclude]
         [JsonPropertyName("TabPressureConstraints")]
-        public Dictionary<ShortcutTarget, BrushSettingConstraint> TabPressureConstraints { get; set; }
+        public Dictionary<CommandTarget, BrushSettingConstraint> TabPressureConstraints { get; set; }
         #endregion
 
         /// <summary>
@@ -671,7 +671,7 @@ namespace DynamicDraw
             Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
             CmbxChosenEffect = 0;
-            TabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>();
+            TabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>();
         }
 
         /// <summary>
@@ -725,7 +725,7 @@ namespace DynamicDraw
             RandMinS = other.RandMinS;
             RandMinV = other.RandMinV;
             CmbxChosenEffect = other.CmbxChosenEffect;
-            TabPressureConstraints = new Dictionary<ShortcutTarget, BrushSettingConstraint>(other.TabPressureConstraints);
+            TabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>(other.TabPressureConstraints);
             SeamlessDrawing = other.SeamlessDrawing;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;
