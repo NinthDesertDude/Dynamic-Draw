@@ -793,6 +793,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You&apos;re using the clone stamp tool, which copies pixels from one location to another. You need to use Ctrl + Click to set the point on the canvas to copy from..
+        /// </summary>
+        internal static string CloneStampOriginError {
+            get {
+                return ResourceManager.GetString("CloneStampOriginError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are unsaved changes. Close without saving?.
         /// </summary>
         internal static string CloseWithoutSaving {
@@ -3331,6 +3340,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Switch to clone stamp.
+        /// </summary>
+        internal static string ShortcutNameSwitchToCloneStamp {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToCloneStamp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Switch to color picker.
         /// </summary>
         internal static string ShortcutNameSwitchToColorPicker {
@@ -3773,6 +3791,15 @@ namespace DynamicDraw.Localization {
         internal static string ToolBrushTip {
             get {
                 return ResourceManager.GetString("ToolBrushTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The clone stamp tool lets you copy from one area to another, useful in photo touch-up..
+        /// </summary>
+        internal static string ToolCloneStampTip {
+            get {
+                return ResourceManager.GetString("ToolCloneStampTip", resourceCulture);
             }
         }
         

@@ -576,18 +576,20 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Replaces a portion of the destination bitmap with the surface bitmap using a brush as an alpha mask.
+        /// Replaces a portion of the destination bitmap with the surface bitmap using a brush as an alpha mask. This
+        /// overload takes both a source and destination location, for tools like clone stamp.
         /// </summary>
         /// <param name="src">A bitmap-containing surface or a bitmap. It will be drawn to dest.</param>
         /// <param name="dest">The bitmap to edit.</param>
         /// <param name="alphaMask">The brush used to draw.</param>
-        /// <param name="location">The location to draw the brush at.</param>
+        /// <param name="srcLoc">The location to copy from.</param>
+        /// <param name="srcLoc">The location to draw at.</param>
         /// <param name="channelLocks">Whether to allow values to change or not (for each channel including HSV).</param>
         /// <param name="wrapAround">Whether to draw clipped brush parts to the opposite side of the canvas.</param>
         /// <param name="ditherFilter">Whether to draw only every other pixel to replicate a pixel art dither.</param>
         public static unsafe void OverwriteMasked(
             (Surface surface, Bitmap bmp) src, Bitmap dest, Bitmap alphaMask,
-            Point location,
+            Point srcLoc, Point destLoc,
             (bool R, bool G, bool B, bool H, bool S, bool V) channelLocks,
             bool wrapAround, bool ditherFilter)
         {
@@ -599,16 +601,16 @@ namespace DynamicDraw
                 return;
             }
 
-            // Calculates the brush regions outside the bounding area of the surface.
-            int negativeX = location.X < 0 ? -location.X : 0;
-            int negativeY = location.Y < 0 ? -location.Y : 0;
-            int extraX = Math.Max(location.X + alphaMask.Width - (src.surface?.Width ?? src.bmp.Width), 0);
-            int extraY = Math.Max(location.Y + alphaMask.Height - (src.surface?.Height ?? src.bmp.Height), 0);
+            // Calculates brush regions outside the bounding area for source.
+            int srcNegX = srcLoc.X < 0 ? -srcLoc.X : 0;
+            int srcNegY = srcLoc.Y < 0 ? -srcLoc.Y : 0;
+            int srcExtraX = Math.Max(srcLoc.X + alphaMask.Width - (src.surface?.Width ?? src.bmp.Width), 0);
+            int srcExtraY = Math.Max(srcLoc.Y + alphaMask.Height - (src.surface?.Height ?? src.bmp.Height), 0);
 
-            int adjWidth = alphaMask.Width - negativeX - extraX;
-            int adjHeight = alphaMask.Height - negativeY - extraY;
+            int srcAdjW = alphaMask.Width - srcNegX - srcExtraX;
+            int srcAdjH = alphaMask.Height - srcNegY - srcExtraY;
 
-            if (adjWidth < 1 || adjHeight < 1 ||
+            if (srcAdjW < 1 || srcAdjH < 1 ||
                 (src.surface?.Width != dest.Width && src.bmp.Width != dest.Width) ||
                 (src.surface?.Height != dest.Height && src.bmp.Height != dest.Height) ||
                 (src.surface != null && src.surface.Scan0 == null))
@@ -616,11 +618,32 @@ namespace DynamicDraw
                 return;
             }
 
-            Rectangle adjBounds = new Rectangle(
-                location.X < 0 ? 0 : location.X,
-                location.Y < 0 ? 0 : location.Y,
-                adjWidth,
-                adjHeight);
+            Rectangle srcAdjBounds = new Rectangle(
+                srcLoc.X < 0 ? 0 : srcLoc.X,
+                srcLoc.Y < 0 ? 0 : srcLoc.Y,
+                srcAdjW,
+                srcAdjH);
+
+            // Accounts for source rectangle regions outside bounding area.
+            int destX = destLoc.X + srcNegX;
+            int destY = destLoc.Y + srcNegY;
+            int destWidth = alphaMask.Width - srcNegX - srcExtraX;
+            int destHeight = alphaMask.Height - srcNegY - srcExtraY;
+
+            // Calculates brush regions outside the bounding area for destination.
+            int destNegX = destX < 0 ? -destX : 0;
+            int destNegY = destY < 0 ? -destY : 0;
+            int destExtraX = Math.Max(destX + destWidth - (src.surface?.Width ?? src.bmp.Width), 0);
+            int destExtraY = Math.Max(destY + destHeight - (src.surface?.Height ?? src.bmp.Height), 0);
+
+            int destAdjW = destWidth - destNegX - destExtraX;
+            int destAdjH = destHeight - destNegY - destExtraY;
+
+            Rectangle destAdjBounds = new Rectangle(
+                destLoc.X < 0 ? 0 : destLoc.X,
+                destLoc.Y < 0 ? 0 : destLoc.Y,
+                destAdjW,
+                destAdjH);
 
             BitmapData destData = dest.LockBits(
                 dest.GetBounds(),
@@ -643,7 +666,7 @@ namespace DynamicDraw
 
             bool hsvLocksInUse = channelLocks.H || channelLocks.S || channelLocks.V;
 
-            void draw(int brushXOffset, int brushYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
+            void draw(int brushXOffset, int brushYOffset, int srcXOffset, int srcYOffset, int destXOffset, int destYOffset, int destWidth, int destHeight)
             {
                 Rectangle[] rois = (src.surface != null)
                     ? GetRois(destWidth, destHeight)
@@ -664,7 +687,7 @@ namespace DynamicDraw
                     {
                         int x = roi.X;
                         ColorBgra* alphaMaskPtr = (ColorBgra*)(alphaMaskRow + (roi.X * 4) + (brushXOffset * 4) + ((brushYOffset + y) * alphaMaskData.Stride));
-                        ColorBgra* srcPtr = (ColorBgra*)(srcRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * (src.surface?.Stride ?? srcData.Stride)));
+                        ColorBgra* srcPtr = (ColorBgra*)(srcRow + (roi.X * 4) + (srcXOffset * 4) + ((y + srcYOffset) * (src.surface?.Stride ?? srcData.Stride)));
                         ColorBgra* destPtr = (ColorBgra*)(destRow + (roi.X * 4) + (destXOffset * 4) + ((y + destYOffset) * destData.Stride));
 
                         // Dither align
@@ -728,26 +751,30 @@ namespace DynamicDraw
             }
 
             // Draw within normal bounds
-            draw(negativeX, negativeY, adjBounds.X, adjBounds.Y, adjBounds.Width, adjBounds.Height);
+            draw(srcNegX, srcNegY,
+                srcAdjBounds.X, srcAdjBounds.Y + destNegY,
+                destAdjBounds.X + srcNegX - destNegX, destAdjBounds.Y + srcNegY,
+                destAdjBounds.Width, destAdjBounds.Height);
 
             // Draw brush cutoffs on the opposite side of the canvas (wrap-around / seamless texture)
             if (wrapAround)
             {
                 // The brush is only guaranteed seamless when none of its dimensions are larger than any of the canvas dimensions.
                 // The basic decision to clamp prevents having to copy excess chunks in loops -- it's just much simpler.
-                negativeX = Math.Clamp(negativeX, 0, dest.Width);
-                negativeY = Math.Clamp(negativeY, 0, dest.Height);
-                extraX = Math.Clamp(extraX, 0, Math.Min(alphaMask.Width, dest.Width));
-                extraY = Math.Clamp(extraY, 0, Math.Min(alphaMask.Height, dest.Height));
+                srcNegX = Math.Clamp(srcNegX, 0, dest.Width);
+                srcNegY = Math.Clamp(srcNegY, 0, dest.Height);
+                srcExtraX = Math.Clamp(srcExtraX, 0, Math.Min(alphaMask.Width, dest.Width));
+                srcExtraY = Math.Clamp(srcExtraY, 0, Math.Min(alphaMask.Height, dest.Height));
 
-                draw(0, negativeY, dest.Width - negativeX, adjBounds.Y, negativeX, adjBounds.Height); // left
-                draw(negativeX, 0, adjBounds.X, dest.Height - negativeY, adjBounds.Width, negativeY); // top
-                draw(alphaMask.Width - extraX, negativeY, 0, adjBounds.Y, extraX, adjBounds.Height); // right
-                draw(negativeX, alphaMask.Height - extraY, adjBounds.X, 0, adjBounds.Width, extraY); // bottom
-                draw(0, 0, dest.Width - negativeX, dest.Height - negativeY, negativeX, negativeY); // top left
-                draw(alphaMask.Width - extraX, 0, 0, dest.Height - negativeY, extraX, negativeY); // top right
-                draw(0, alphaMask.Height - extraY, dest.Width - negativeX, 0, negativeX, extraY); // bottom left
-                draw(alphaMask.Width - extraX, alphaMask.Height - extraY, 0, 0, extraX, extraY); // bottom right
+                // TODO: fix this.
+                draw(0, srcNegY, -1, -1, dest.Width - srcNegX, srcAdjBounds.Y, srcNegX, srcAdjBounds.Height); // left
+                draw(srcNegX, 0, -1, -1, srcAdjBounds.X, dest.Height - srcNegY, srcAdjBounds.Width, srcNegY); // top
+                draw(alphaMask.Width - srcExtraX, srcNegY, -1, -1, 0, srcAdjBounds.Y, srcExtraX, srcAdjBounds.Height); // right
+                draw(srcNegX, alphaMask.Height - srcExtraY, -1, -1, srcAdjBounds.X, 0, srcAdjBounds.Width, srcExtraY); // bottom
+                draw(0, 0, -1, -1, dest.Width - srcNegX, dest.Height - srcNegY, srcNegX, srcNegY); // top left
+                draw(alphaMask.Width - srcExtraX, 0, -1, -1, 0, dest.Height - srcNegY, srcExtraX, srcNegY); // top right
+                draw(0, alphaMask.Height - srcExtraY, -1, -1, dest.Width - srcNegX, 0, srcNegX, srcExtraY); // bottom left
+                draw(alphaMask.Width - srcExtraX, alphaMask.Height - srcExtraY, -1, -1, 0, 0, srcExtraX, srcExtraY); // bottom right
             }
 
             src.bmp?.UnlockBits(srcData);

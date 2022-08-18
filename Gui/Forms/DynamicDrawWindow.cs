@@ -337,6 +337,19 @@ namespace DynamicDraw
         #endregion
 
         /// <summary>
+        /// The point relative to the cursor to use as the source for the clone stamp tool. This value is null to mark
+        /// when the point hasn't been set by the user.
+        /// </summary>
+        private PointF? cloneStampOrigin = null;
+
+        /// <summary>
+        /// This is used to decide when to convert the clone stamp origin to a relative location. At first, the clone
+        /// stamp position will be absolute until the user starts drawing, at which point it will be converted to a
+        /// relative location, and this value set to true. It's set to false any time the origin is set to null.
+        /// </summary>
+        private bool cloneStampStartedDrawing = false;
+
+        /// <summary>
         /// The calculated minimum draw distance including factors such as pressure sensitivity.
         /// This is specially tracked as a top-level variable since it's set in the MouseMove
         /// event and must be read in the Paint event.
@@ -378,6 +391,9 @@ namespace DynamicDraw
         /// </summary>
         private PointF symmetryOrigin = PointF.Empty;
 
+        /// <summary>
+        /// The points relative to the cursor used in multi-point symmetry mode.
+        /// </summary>
         private readonly List<PointF> symmetryOrigins;
         #endregion
 
@@ -455,8 +471,9 @@ namespace DynamicDraw
         private Panel panelAllSettingsContainer;
         private Panel panelDockSettingsContainer;
         private ThemedCheckbox bttnToolBrush;
-        private ThemedCheckbox bttnToolOrigin;
         private ThemedCheckbox bttnToolEraser;
+        private ThemedCheckbox bttnToolOrigin;
+        private ThemedCheckbox bttnToolCloneStamp;
         private FlowLayoutPanel panelSettingsContainer;
         private Accordion bttnBrushControls;
         private FlowLayoutPanel panelBrush;
@@ -1338,7 +1355,7 @@ namespace DynamicDraw
                 new PdnRegion(EnvironmentParameters.GetSelectionAsPdnRegion().GetRegionData()),
                 Surface.CopyFromBitmap(bmpCommitted));
 
-            // Applies the restored effect immediately under current settings without preview ing.
+            // Applies the restored effect immediately under current settings without previewing.
             if (restoreEffect != null && !previewRestoredEffect)
             {
                 ActiveEffectRender();
@@ -1699,7 +1716,7 @@ namespace DynamicDraw
             int newFlowLoss = random.Next(finalRandFlowLoss);
             adjustedColor.A = (byte)Math.Round(Math.Clamp(sliderBrushFlow.Value - newFlowLoss, 0f, 255f));
 
-            if (activeTool == Tool.Eraser || effectToDraw.Effect != null)
+            if (activeTool == Tool.Eraser || activeTool == Tool.CloneStamp || effectToDraw.Effect != null)
             {
                 if (newFlowLoss != 0)
                 {
@@ -1743,7 +1760,11 @@ namespace DynamicDraw
                     // newAlpha just mixes the remainder from jitter, which is why it does 255 minus the jitter.
                     // Non-standard blend modes need to use the brush as an alpha mask, so they don't multiply brush
                     // transparency into the brush early on.
-                    float newAlpha = (activeTool == Tool.Eraser || effectToDraw.Effect != null || cmbxBlendMode.SelectedIndex != (int)BlendMode.Overwrite)
+                    float newAlpha = (
+                        activeTool == Tool.Eraser
+                        || activeTool == Tool.CloneStamp
+                        || effectToDraw.Effect != null
+                        || cmbxBlendMode.SelectedIndex != (int)BlendMode.Overwrite)
                         ? Math.Clamp((255 - newFlowLoss) / 255f, 0f, 1f)
                         : adjustedColor.A / 255f;
 
@@ -1809,6 +1830,7 @@ namespace DynamicDraw
             // be drawn the whole time and when done with the brush stroke, so it's tracked to know when committing to
             // it is necessary, to save speed. Note that the eraser tool always erases on the committed bitmap.
             bool drawToStagedBitmap = activeTool != Tool.Eraser
+                && activeTool != Tool.CloneStamp
                 && effectToDraw.Effect == null
                 && ((BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
                 && (isUserDrawing.stagedChanged
@@ -1823,15 +1845,15 @@ namespace DynamicDraw
 
             Bitmap bmpToDrawOn = drawToStagedBitmap ? bmpStaged : bmpCommitted;
 
-            // Erasing uses a surface while drawing with an effect uses a bitmap, but both use the same function.
-            (Surface surface, Bitmap bmp) eraserAndEffectSrc = (null, null);
+            // Sets the source bitmap/surface for masked drawing based on the tool.
+            (Surface surface, Bitmap bmp) maskedDrawSource = (null, null);
             if (activeTool == Tool.Eraser)
             {
-                eraserAndEffectSrc.surface = EnvironmentParameters.SourceSurface;
+                maskedDrawSource.surface = EnvironmentParameters.SourceSurface;
             }
-            else if (effectToDraw.Effect != null)
+            else if (activeTool == Tool.CloneStamp || effectToDraw.Effect != null)
             {
-                eraserAndEffectSrc.bmp = bmpStaged;
+                maskedDrawSource.bmp = bmpStaged;
             }
 
             // Draws the brush.
@@ -1839,6 +1861,7 @@ namespace DynamicDraw
             {
                 // Lockbits is needed for overwrite blend mode, channel locks, and seamless drawing.
                 bool useLockbitsDrawing = activeTool == Tool.Eraser
+                    || activeTool == Tool.CloneStamp
                     || cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite
                     || finalOpacity != sliderBrushOpacity.Maximum
                     || chkbxSeamlessDrawing.Checked
@@ -1858,7 +1881,7 @@ namespace DynamicDraw
                 }
 
                 // Overwrite blend mode and uncolorized images don't use the recolor matrix.
-                if (activeTool != Tool.Eraser && effectToDraw.Effect == null)
+                if (activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null)
                 {
                     if (useLockbitsDrawing && cmbxBlendMode.SelectedIndex == (int)BlendMode.Overwrite)
                     {
@@ -1937,15 +1960,24 @@ namespace DynamicDraw
                             using (Bitmap bmpBrushRotScaled = DrawingUtils.ScaleImage(bmpBrushRot, new Size(scaleFactor, scaleFactor), false, false, recolorMatrix,
                                 (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex))
                             {
-                                if (activeTool == Tool.Eraser || effectToDraw.Effect != null)
+                                if (activeTool == Tool.Eraser || activeTool == Tool.CloneStamp || effectToDraw.Effect != null)
                                 {
+                                    Point destPt = new Point(
+                                        (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
+                                        (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f)));
+
+                                    Point originPt = (activeTool == Tool.CloneStamp && cloneStampOrigin != null)
+                                        ? new Point(
+                                            destPt.X + (int)cloneStampOrigin.Value.X,
+                                            destPt.Y + (int)cloneStampOrigin.Value.Y)
+                                        : destPt;
+
                                     DrawingUtils.OverwriteMasked(
-                                        eraserAndEffectSrc,
+                                        maskedDrawSource,
                                         bmpCommitted,
                                         bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(rotatedLoc.X - (scaleFactor / 2f)),
-                                            (int)Math.Round(rotatedLoc.Y - (scaleFactor / 2f))),
+                                        originPt,
+                                        destPt,
                                         (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                         chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
@@ -2041,15 +2073,24 @@ namespace DynamicDraw
                             using (Bitmap bmpBrushRotScaled = DrawingUtils.ScaleImage(
                                 bmpBrushRot, new Size(scaleFactor, scaleFactor), !symmetryX, !symmetryY, null, (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex))
                             {
-                                if (activeTool == Tool.Eraser || effectToDraw.Effect != null)
+                                if (activeTool == Tool.Eraser || activeTool == Tool.CloneStamp || effectToDraw.Effect != null)
                                 {
+                                    Point destPt = new Point(
+                                        (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
+                                        (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist)));
+
+                                    Point originPt = (activeTool == Tool.CloneStamp && cloneStampOrigin != null)
+                                        ? new Point(
+                                            destPt.X + (int)cloneStampOrigin.Value.X,
+                                            destPt.Y + (int)cloneStampOrigin.Value.Y)
+                                        : destPt;
+
                                     DrawingUtils.OverwriteMasked(
-                                        eraserAndEffectSrc,
+                                        maskedDrawSource,
                                         bmpCommitted,
                                         bmpBrushRotScaled,
-                                        new Point(
-                                            (int)Math.Round(origin.X - halfScaleFactor + (symmetryX ? xDist : -xDist)),
-                                            (int)Math.Round(origin.Y - halfScaleFactor + (symmetryY ? yDist : -yDist))),
+                                        originPt,
+                                        destPt,
                                         (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                         chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                         chkbxSeamlessDrawing.Checked,
@@ -2120,15 +2161,24 @@ namespace DynamicDraw
                                         transformedPoint = TransformPoint(transformedPoint, true, true, false);
                                     }
 
-                                    if (activeTool == Tool.Eraser || effectToDraw.Effect != null)
+                                    if (activeTool == Tool.Eraser || activeTool == Tool.CloneStamp || effectToDraw.Effect != null)
                                     {
+                                        Point destPt = new Point(
+                                            (int)Math.Round(transformedPoint.X - halfScaleFactor),
+                                            (int)Math.Round(transformedPoint.Y - halfScaleFactor));
+
+                                        Point originPt = (activeTool == Tool.CloneStamp && cloneStampOrigin != null)
+                                            ? new Point(
+                                                destPt.X + (int)cloneStampOrigin.Value.X,
+                                                destPt.Y + (int)cloneStampOrigin.Value.Y)
+                                            : destPt;
+
                                         DrawingUtils.OverwriteMasked(
-                                            eraserAndEffectSrc,
+                                            maskedDrawSource,
                                             bmpCommitted,
                                             bmpBrushRotScaled,
-                                            new Point(
-                                                (int)Math.Round(transformedPoint.X - halfScaleFactor),
-                                                (int)Math.Round(transformedPoint.Y - halfScaleFactor)),
+                                            originPt,
+                                            destPt,
                                             (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
@@ -2220,15 +2270,24 @@ namespace DynamicDraw
                             {
                                 for (int i = 0; i < numPoints; i++)
                                 {
-                                    if (activeTool == Tool.Eraser || effectToDraw.Effect != null)
+                                    if (activeTool == Tool.Eraser || activeTool == Tool.CloneStamp || effectToDraw.Effect != null)
                                     {
+                                        Point destPt = new Point(
+                                            (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
+                                            (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle))));
+
+                                        Point originPt = (activeTool == Tool.CloneStamp && cloneStampOrigin != null)
+                                            ? new Point(
+                                                destPt.X + (int)cloneStampOrigin.Value.X,
+                                                destPt.Y + (int)cloneStampOrigin.Value.Y)
+                                            : destPt;
+
                                         DrawingUtils.OverwriteMasked(
-                                            eraserAndEffectSrc,
+                                            maskedDrawSource,
                                             bmpCommitted,
                                             bmpBrushRotScaled,
-                                            new Point(
-                                                (int)Math.Round(origin.X - (scaleFactor / 2f) + (float)(dist * Math.Cos(angle))),
-                                                (int)Math.Round(origin.Y - (scaleFactor / 2f) + (float)(dist * Math.Sin(angle)))),
+                                            originPt,
+                                            destPt,
                                             (chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked),
                                             chkbxSeamlessDrawing.Checked,
@@ -2626,19 +2685,20 @@ namespace DynamicDraw
         /// Sets the active color based on the color from the canvas at the given point.
         /// </summary>
         /// <param name="loc">The point to get the color from.</param>
-        private void GetColorFromCanvas(Point loc)
+        private void GetColorFromCanvas(PointF loc)
         {
             PointF rotatedLoc = TransformPoint(
-                new PointF(loc.X + halfPixelOffset, loc.Y + halfPixelOffset),
+                new PointF(loc.X - halfPixelOffset, loc.Y - 1),
                 true, true, false);
 
-            if (rotatedLoc.X >= 0 && rotatedLoc.Y >= 0 &&
-                rotatedLoc.X <= bmpCommitted.Width - 1 &&
-                rotatedLoc.Y <= bmpCommitted.Height - 1)
+            int finalX = (int)Math.Round(rotatedLoc.X);
+            int finalY = (int)Math.Round(rotatedLoc.Y);
+
+            if (finalX >= 0 && finalY >= 0 &&
+                finalX <= bmpCommitted.Width - 1 &&
+                finalY <= bmpCommitted.Height - 1)
             {
-                var pixel = bmpCommitted.GetPixel(
-                    (int)Math.Round(rotatedLoc.X),
-                    (int)Math.Round(rotatedLoc.Y));
+                Color pixel = bmpCommitted.GetPixel(finalX, finalY);
 
                 if (!UserSettings.ColorPickerIncludesAlpha)
                 {
@@ -3079,9 +3139,17 @@ namespace DynamicDraw
                     canvas.x = (displayCanvas.Width - canvas.width) / 2;
                     canvas.y = (displayCanvas.Height - canvas.height) / 2;
 
-                    float newZoom = 100 * Math.Min(
-                        displayCanvas.ClientSize.Width / (float)bmpCommitted.Width,
-                        displayCanvas.ClientSize.Height / (float)bmpCommitted.Height);
+                    // We're fitting the bitmap W*H in the canvas, but since it can be rotated, we need to get the
+                    // rotated coordinates and use those instead. It's the same at no rotation.
+                    double radAngle = sliderCanvasAngle.Value * Math.PI / 180;
+                    double cos = Math.Abs(Math.Cos(radAngle));
+                    double sin = Math.Abs(Math.Sin(radAngle));
+                    double newWidth = bmpCommitted.Width * cos + bmpCommitted.Height * sin;
+                    double newHeight = bmpCommitted.Width * sin + bmpCommitted.Height * cos;
+
+                    double newZoom = 100 * Math.Min(
+                        displayCanvas.ClientSize.Width / newWidth,
+                        displayCanvas.ClientSize.Height / newHeight);
 
                     int result = (int)Math.Clamp(newZoom, sliderCanvasZoom.MinimumInt, sliderCanvasZoom.MaximumInt);
                     sliderCanvasZoom.ValueInt = result > 1 ? result : 1;
@@ -3315,6 +3383,7 @@ namespace DynamicDraw
             panelDockSettingsContainer = new Panel();
             bttnToolEraser = new ThemedCheckbox(false);
             bttnToolOrigin = new ThemedCheckbox(false);
+            bttnToolCloneStamp = new ThemedCheckbox(false);
             panelSettingsContainer = new FlowLayoutPanel();
             bttnBrushControls = new Accordion(true);
             panelBrush = new FlowLayoutPanel();
@@ -3883,6 +3952,7 @@ namespace DynamicDraw
             panelTools.Controls.Add(bttnToolEraser);
             panelTools.Controls.Add(bttnColorPicker);
             panelTools.Controls.Add(bttnToolOrigin);
+            panelTools.Controls.Add(bttnToolCloneStamp);
             panelTools.Margin = Padding.Empty;
             panelTools.Padding = Padding.Empty;
             panelTools.TabIndex = 30;
@@ -4051,6 +4121,15 @@ namespace DynamicDraw
             bttnToolOrigin.TabIndex = 4;
             bttnToolOrigin.Click += BttnToolOrigin_Click;
             bttnToolOrigin.MouseEnter += BttnToolOrigin_MouseEnter;
+            #endregion
+
+            #region bttnToolCloneStamp
+            bttnToolCloneStamp.Image = Resources.ToolCloneStamp;
+            bttnToolCloneStamp.Margin = Padding.Empty;
+            bttnToolCloneStamp.Size = new Size(29, 29);
+            bttnToolCloneStamp.TabIndex = 2;
+            bttnToolCloneStamp.Click += BttnToolCloneStamp_Click;
+            bttnToolCloneStamp.MouseEnter += BttnToolCloneStamp_MouseEnter;
             #endregion
 
             #region panelSettingsContainer
@@ -4553,7 +4632,7 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockAlpha
-            chkbxLockAlpha.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockAlpha.ToggleImage = new(Resources.Locked, Resources.Unlocked);
             chkbxLockAlpha.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockAlpha.AutoSize = true;
             chkbxLockAlpha.Location = new Point(3, 222);
@@ -4562,7 +4641,7 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockR
-            chkbxLockR.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockR.ToggleImage = new(Resources.Locked, Resources.Unlocked);
             chkbxLockR.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockR.AutoSize = true;
             chkbxLockR.Location = new Point(3, 0);
@@ -4572,7 +4651,7 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockG
-            chkbxLockG.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockG.ToggleImage = new(Resources.Locked, Resources.Unlocked);
             chkbxLockG.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockG.AutoSize = true;
             chkbxLockG.Location = new Point(44, 0);
@@ -4582,7 +4661,7 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockB
-            chkbxLockB.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockB.ToggleImage = new(Resources.Locked, Resources.Unlocked);
             chkbxLockB.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockB.AutoSize = true;
             chkbxLockB.Location = new Point(82, 0);
@@ -4592,7 +4671,7 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockHue
-            chkbxLockHue.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockHue.ToggleImage = new(Resources.Locked, Resources.Unlocked);
             chkbxLockHue.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockHue.AutoSize = true;
             chkbxLockHue.Location = new Point(3, 0);
@@ -4602,7 +4681,7 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockSat
-            chkbxLockSat.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockSat.ToggleImage = new(Resources.Locked, Resources.Unlocked);
             chkbxLockSat.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockSat.AutoSize = true;
             chkbxLockSat.Location = new Point(44, 0);
@@ -4612,7 +4691,7 @@ namespace DynamicDraw
             #endregion
 
             #region chkbxLockVal
-            chkbxLockVal.ToggleImage = new(Resources.sprLocked, Resources.sprUnlocked);
+            chkbxLockVal.ToggleImage = new(Resources.Locked, Resources.Unlocked);
             chkbxLockVal.ImageAlign = ContentAlignment.MiddleLeft;
             chkbxLockVal.AutoSize = true;
             chkbxLockVal.Location = new Point(82, 0);
@@ -5201,6 +5280,7 @@ namespace DynamicDraw
             bttnToolEraser.Checked = false;
             bttnColorPicker.Checked = false;
             bttnToolOrigin.Checked = false;
+            bttnToolCloneStamp.Checked = false;
 
             switch (toolToSwitchTo)
             {
@@ -5230,6 +5310,13 @@ namespace DynamicDraw
 
                     displayCanvas.Cursor = cursorColorPicker;
                     Cursor.Current = cursorColorPicker;
+                    break;
+                case Tool.CloneStamp:
+                    bttnToolCloneStamp.Checked = true;
+                    displayCanvas.Cursor = Cursors.Default;
+
+                    DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+
                     break;
             }
 
@@ -5484,7 +5571,11 @@ namespace DynamicDraw
 
             //Sets the color and alpha.
             Color setColor = menuActiveColors.Swatches[0];
-            float multAlpha = (activeTool == Tool.Eraser || effectToDraw.Effect != null || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
+            float multAlpha = (
+                activeTool == Tool.Eraser
+                || activeTool == Tool.CloneStamp
+                || effectToDraw.Effect != null
+                || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
                 ? finalBrushFlow / 255f
                 : 1;
 
@@ -5588,16 +5679,16 @@ namespace DynamicDraw
         /// </summary>
         private void UpdateEnabledControls()
         {
-            bool enableColorInfluence = !chkbxColorizeBrush.Checked && activeTool != Tool.Eraser && effectToDraw.Effect == null;
-            bool enableColorJitter = activeTool != Tool.Eraser && effectToDraw.Effect == null && (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0);
+            bool enableColorInfluence = !chkbxColorizeBrush.Checked && activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null;
+            bool enableColorJitter = activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null && (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0);
 
-            sliderBrushOpacity.Enabled = ((BlendMode)cmbxBlendMode.SelectedIndex) != BlendMode.Overwrite && activeTool != Tool.Eraser && effectToDraw.Effect == null;
+            sliderBrushOpacity.Enabled = ((BlendMode)cmbxBlendMode.SelectedIndex) != BlendMode.Overwrite && activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null;
 
-            chkbxColorizeBrush.Enabled = activeTool != Tool.Eraser && effectToDraw.Effect == null;
+            chkbxColorizeBrush.Enabled = activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null;
             sliderColorInfluence.Visible = enableColorInfluence;
             panelColorInfluenceHSV.Visible = enableColorInfluence && sliderColorInfluence.Value != 0;
-            chkbxLockAlpha.Enabled = activeTool != Tool.Eraser && effectToDraw.Effect == null;
-            cmbxBlendMode.Enabled = activeTool != Tool.Eraser && effectToDraw.Effect == null;
+            chkbxLockAlpha.Enabled = activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null;
+            cmbxBlendMode.Enabled = activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null;
 
             bttnJitterColorControls.Visible = enableColorJitter;
             if (pressureConstraintControls.ContainsKey(CommandTarget.JitterRedMax)) { pressureConstraintControls[CommandTarget.JitterRedMax].Item1.Enabled = enableColorJitter; }
@@ -5613,7 +5704,7 @@ namespace DynamicDraw
             if (pressureConstraintControls.ContainsKey(CommandTarget.JitterValMax)) { pressureConstraintControls[CommandTarget.JitterValMax].Item1.Enabled = enableColorJitter; }
             if (pressureConstraintControls.ContainsKey(CommandTarget.JitterValMin)) { pressureConstraintControls[CommandTarget.JitterValMin].Item1.Enabled = enableColorJitter; }
 
-            menuActiveColors.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser && effectToDraw.Effect == null;
+            menuActiveColors.Visible = (chkbxColorizeBrush.Checked || sliderColorInfluence.Value != 0) && activeTool != Tool.Eraser && activeTool != Tool.CloneStamp && effectToDraw.Effect == null;
             menuPalette.Visible = menuActiveColors.Visible;
             cmbxPaletteDropdown.Visible = menuActiveColors.Visible;
             bttnColorControls.Visible = menuActiveColors.Visible;
@@ -6290,9 +6381,7 @@ namespace DynamicDraw
             }
 
             //Pans the image.
-            else if (e.Button == MouseButtons.Middle ||
-                (e.Button == MouseButtons.Left && currentKeysPressed.Contains(Keys.ControlKey)) ||
-                currentKeysPressed.Contains(Keys.Space))
+            else if (e.Button == MouseButtons.Middle || currentKeysPressed.Contains(Keys.Space))
             {
                 isUserPanning = true;
                 mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
@@ -6302,31 +6391,62 @@ namespace DynamicDraw
             {
                 mouseLocPrev = new Point(e.Location.X - canvas.x, e.Location.Y - canvas.y);
 
-                //Draws with the brush.
-                if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
+                // Sets the clone stamp origin or tells the user it hasn't been set.
+                if (activeTool == Tool.CloneStamp)
                 {
+                    if (currentKeysPressed.Contains(Keys.ControlKey))
+                    {
+                        cloneStampStartedDrawing = false;
+                        cloneStampOrigin = TransformPoint(new PointF(e.Location.X, e.Location.Y));
+                        return;
+                    }
+                    else if (cloneStampOrigin == null)
+                    {
+                        ThemedMessageBox.Show(Strings.CloneStampOriginError);
+                        return;
+                    }
+                }
+
+                //Draws with the current brush settings.
+                if (activeTool == Tool.Brush || activeTool == Tool.Eraser || activeTool == Tool.CloneStamp)
+                {
+                    // When using clone stamp for the first time after starting to draw, converts the origin from
+                    // absolute to relative coordinates (relative to the cursor).
+                    if (!isUserDrawing.started && cloneStampOrigin != null && !cloneStampStartedDrawing)
+                    {
+                        cloneStampStartedDrawing = true;
+                        PointF newPoint = TransformPoint(new PointF(e.Location.X, e.Location.Y));
+                        newPoint = new PointF(
+                            cloneStampOrigin.Value.X - newPoint.X,
+                            cloneStampOrigin.Value.Y - newPoint.Y);
+                        cloneStampOrigin = newPoint;
+                    }
+
                     isUserDrawing.started = true;
                     timerRepositionUpdate.Enabled = true;
 
                     // Updates the recent colors palette if it's active.
-                    int existingIndex = paletteRecent.IndexOf(menuActiveColors.Swatches[0]);
-                    if (existingIndex != -1)
+                    if (activeTool == Tool.Brush)
+                    {
+                        int existingIndex = paletteRecent.IndexOf(menuActiveColors.Swatches[0]);
+                        if (existingIndex != -1)
                         { paletteRecent.RemoveAt(existingIndex); }
-                    else if (paletteRecent.Count == paletteRecentMaxColors)
+                        else if (paletteRecent.Count == paletteRecentMaxColors)
                         { paletteRecent.RemoveAt(paletteRecent.Count - 1); }
 
-                    paletteRecent.Insert(0, menuActiveColors.Swatches[0]);
+                        paletteRecent.Insert(0, menuActiveColors.Swatches[0]);
 
-                    if (cmbxPaletteDropdown.SelectedIndex >= 0 && paletteOptions.Count > 0 &&
-                        paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2.SpecialType == PaletteSpecialType.Recent)
-                    {
-                        if (existingIndex != -1)
+                        if (cmbxPaletteDropdown.SelectedIndex >= 0 && paletteOptions.Count > 0 &&
+                            paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2.SpecialType == PaletteSpecialType.Recent)
+                        {
+                            if (existingIndex != -1)
                             { menuPalette.Swatches.RemoveAt(existingIndex); }
-                        else if (paletteRecent.Count == paletteRecentMaxColors)
+                            else if (paletteRecent.Count == paletteRecentMaxColors)
                             { menuPalette.Swatches.RemoveAt(menuPalette.Swatches.Count - 1); }
 
-                        menuPalette.Swatches.Insert(0, menuActiveColors.Swatches[0]);
-                        UpdatePaletteSize();
+                            menuPalette.Swatches.Insert(0, menuActiveColors.Swatches[0]);
+                            UpdatePaletteSize();
+                        }
                     }
 
                     //Draws the brush on the first canvas click. Lines aren't drawn at a single point.
@@ -6344,9 +6464,9 @@ namespace DynamicDraw
                 // Samples the color under the mouse.
                 else if (activeTool == Tool.ColorPicker)
                 {
-                    GetColorFromCanvas(new Point(
-                        (int)Math.Round(mouseLocPrev.X / canvasZoom),
-                        (int)Math.Round(mouseLocPrev.Y / canvasZoom)));
+                    GetColorFromCanvas(new PointF(
+                        mouseLocPrev.X / canvasZoom,
+                        mouseLocPrev.Y / canvasZoom));
                 }
                 // Changes the symmetry origin or adds a new origin (if in SetPoints symmetry mode).
                 else if (activeTool == Tool.SetSymmetryOrigin)
@@ -6434,7 +6554,7 @@ namespace DynamicDraw
                     mouseLocBrush = mouseLoc;
                 }
 
-                if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
+                if (activeTool == Tool.Brush || activeTool == Tool.CloneStamp || activeTool == Tool.Eraser)
                 {
                     int finalBrushDensity = GetPressureValue(CommandTarget.BrushStrokeDensity, sliderBrushDensity.ValueInt, tabletPressureRatio);
 
@@ -6502,9 +6622,9 @@ namespace DynamicDraw
                 // Samples the color under the mouse.
                 if (activeTool == Tool.ColorPicker)
                 {
-                    GetColorFromCanvas(new Point(
-                        (int)Math.Round(mouseLoc.X / canvasZoom),
-                        (int)Math.Round(mouseLoc.Y / canvasZoom)));
+                    GetColorFromCanvas(new PointF(
+                        mouseLoc.X / canvasZoom,
+                        mouseLoc.Y / canvasZoom));
                 }
                 else if (activeTool == Tool.SetSymmetryOrigin
                     && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.SetPoints)
@@ -6542,9 +6662,16 @@ namespace DynamicDraw
                 DrawingUtils.ColorImage(bmpStaged, ColorBgra.Black, 0);
             }
 
-            if (isUserDrawing.canvasChanged && effectToDraw.Effect != null)
+            if (isUserDrawing.canvasChanged)
             {
-                ActiveEffectRender();
+                if (activeTool == Tool.CloneStamp)
+                {
+                    DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                }
+                else if (effectToDraw.Effect != null)
+                {
+                    ActiveEffectRender();
+                }
             }
 
             if (isUserPanning)
@@ -6730,7 +6857,7 @@ namespace DynamicDraw
 
             e.Graphics.ResetTransform();
 
-            if (activeTool == Tool.Brush || activeTool == Tool.Eraser)
+            if (activeTool == Tool.Brush || activeTool == Tool.Eraser || activeTool == Tool.CloneStamp)
             {
                 //Draws the brush indicator when the user isn't drawing.
                 if (!isUserDrawing.started)
@@ -6793,6 +6920,40 @@ namespace DynamicDraw
             e.Graphics.RotateTransform(sliderCanvasAngle.ValueInt);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
+            // Draws the marker for the clone stamp tool when it's enabled.
+            if (activeTool == Tool.CloneStamp && cloneStampOrigin != null)
+            {
+                e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
+                if (!cloneStampStartedDrawing)
+                {
+                    e.Graphics.DrawEllipse(
+                        Pens.Black,
+                        cloneStampOrigin.Value.X - (sliderBrushSize.Value / 2f),
+                        cloneStampOrigin.Value.Y - (sliderBrushSize.Value / 2f),
+                        sliderBrushSize.Value,
+                        sliderBrushSize.Value);
+                }
+                else
+                {
+                    float stampOriginX = mouseLoc.X / canvasZoom - EnvironmentParameters.SourceSurface.Width / 2;
+                    float stampOriginY = mouseLoc.Y / canvasZoom - EnvironmentParameters.SourceSurface.Height / 2;
+
+                    float offsetX = stampOriginX + cloneStampOrigin.Value.X;
+                    float offsetY = stampOriginY + cloneStampOrigin.Value.Y;
+                    double dist = Math.Sqrt(offsetX * offsetX + offsetY * offsetY);
+                    double angle = Math.Atan2(offsetY, offsetX);
+                    angle -= sliderCanvasAngle.ValueInt * Math.PI / 180;
+
+                    e.Graphics.DrawEllipse(
+                        Pens.Black,
+                        (float)(EnvironmentParameters.SourceSurface.Width / 2 + dist * Math.Cos(angle) - 1) - (sliderBrushSize.Value / 2f),
+                        (float)(EnvironmentParameters.SourceSurface.Height / 2 + dist * Math.Sin(angle) - 1) - (sliderBrushSize.Value / 2f),
+                        sliderBrushSize.Value,
+                        sliderBrushSize.Value);
+                }
+                e.Graphics.ScaleTransform(1 / canvasZoom, 1 / canvasZoom);
+            }
+
             // Draws the symmetry origins for symmetry modes when it's enabled.
             if (activeTool == Tool.SetSymmetryOrigin
                 || (UserSettings.ShowSymmetryLinesWhenUsingSymmetry && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None))
@@ -6825,7 +6986,7 @@ namespace DynamicDraw
                         if (activeTool == Tool.SetSymmetryOrigin)
                         {
                             var transformedMouseLoc = TransformPoint(mouseLoc, true);
-                            Pen transparentRed = new Pen(Color.FromArgb(128, 128, 0, 0), 1);
+                            using Pen transparentRed = new Pen(Color.FromArgb(128, 128, 0, 0), 1);
 
                             e.Graphics.DrawRectangle(
                                 transparentRed,
@@ -7358,9 +7519,13 @@ namespace DynamicDraw
                 {
                     DrawingUtils.OverwriteBits(redoBmp, bmpCommitted);
 
-                    if (effectToDraw.Effect == null)
+                    if (effectToDraw.Effect == null && activeTool != Tool.CloneStamp)
                     {
                         DrawingUtils.ColorImage(bmpStaged, ColorBgra.Black, 0);
+                    }
+                    else if (activeTool == Tool.CloneStamp)
+                    {
+                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
                     }
                     else
                     {
@@ -7496,6 +7661,24 @@ namespace DynamicDraw
             UpdateTooltip(filter, Strings.ToolEraserTip);
         }
 
+        private void BttnToolCloneStamp_Click(object sender, EventArgs e)
+        {
+            SwitchTool(Tool.CloneStamp);
+        }
+
+        private void BttnToolCloneStamp_MouseEnter(object sender, EventArgs e)
+        {
+            static bool filter(Command shortcut)
+            {
+                int index = (int)Tool.CloneStamp;
+                return shortcut.Target == CommandTarget.SelectedTool &&
+                    (shortcut.ActionData.Contains($"{index}|set") ||
+                    (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
+            }
+
+            UpdateTooltip(filter, Strings.ToolCloneStampTip);
+        }
+
         private void BttnToolOrigin_Click(object sender, EventArgs e)
         {
             SwitchTool(Tool.SetSymmetryOrigin);
@@ -7545,9 +7728,13 @@ namespace DynamicDraw
                 {
                     DrawingUtils.OverwriteBits(undoBmp, bmpCommitted);
 
-                    if (effectToDraw.Effect == null)
+                    if (effectToDraw.Effect == null && activeTool != Tool.CloneStamp)
                     {
                         DrawingUtils.ColorImage(bmpStaged, ColorBgra.Black, 0);
+                    }
+                    else if (activeTool == Tool.CloneStamp)
+                    {
+                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
                     }
                     else
                     {

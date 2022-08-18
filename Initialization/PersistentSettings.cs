@@ -543,6 +543,15 @@ namespace DynamicDraw
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemQuestion },
                 Name = Strings.OpenQuickCommandDialog,
                 Target = CommandTarget.OpenQuickCommandDialog
+            },
+            new Command() // L: clone stamp tool
+            {
+                ActionData = $"{(int)Tool.CloneStamp},{(int)Tool.PreviousTool}|cycle",
+                BuiltInShortcutId = 50,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.L },
+                Name = Strings.ShortcutNameSwitchToCloneStamp,
+                Target = CommandTarget.SelectedTool
             }
         };
 

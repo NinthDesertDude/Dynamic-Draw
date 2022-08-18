@@ -291,6 +291,16 @@ namespace DynamicDraw.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Checked {
+            get {
+                object obj = ResourceManager.GetObject("Checked", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] ColorPickerCursor {
@@ -343,6 +353,16 @@ namespace DynamicDraw.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Locked {
+            get {
+                object obj = ResourceManager.GetObject("Locked", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap MenuAngle {
             get {
                 object obj = ResourceManager.GetObject("MenuAngle", resourceCulture);
@@ -363,39 +383,19 @@ namespace DynamicDraw.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap sprChecked {
-            get {
-                object obj = ResourceManager.GetObject("sprChecked", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap sprLocked {
-            get {
-                object obj = ResourceManager.GetObject("sprLocked", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap sprUnlocked {
-            get {
-                object obj = ResourceManager.GetObject("sprUnlocked", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap ToolBrush {
             get {
                 object obj = ResourceManager.GetObject("ToolBrush", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ToolCloneStamp {
+            get {
+                object obj = ResourceManager.GetObject("ToolCloneStamp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -416,6 +416,16 @@ namespace DynamicDraw.Properties {
         internal static System.Drawing.Bitmap ToolOrigin {
             get {
                 object obj = ResourceManager.GetObject("ToolOrigin", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Unlocked {
+            get {
+                object obj = ResourceManager.GetObject("Unlocked", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

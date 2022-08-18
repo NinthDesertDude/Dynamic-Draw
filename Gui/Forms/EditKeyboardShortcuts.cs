@@ -15,7 +15,6 @@ namespace DynamicDraw
     /// </summary>
     public class EditKeyboardShortcuts : Form
     {
-        private BindingList<Tuple<string, string>> actionDataTypeOptions;
         private BindingList<Tuple<string, Command>> shortcutsList;
         private HashSet<Command> shortcuts;
         private readonly HashSet<int> disabledShortcuts;
@@ -168,9 +167,12 @@ namespace DynamicDraw
             if (isRecordingKeystroke)
             {
                 // Add all keys held down to the list. Keys.KeyCode strips modifiers from the key
-                recordedAllKeys.Add(keyData & Keys.KeyCode);
-                recordedHeldKeys.Add(keyData & Keys.KeyCode);
-                RefreshViewBasedOnShortcut(false);
+                if (keyData != Keys.LWin && keyData != Keys.RWin)
+                {
+                    recordedAllKeys.Add(keyData & Keys.KeyCode);
+                    recordedHeldKeys.Add(keyData & Keys.KeyCode);
+                    RefreshViewBasedOnShortcut(false);
+                }
 
                 return true;
             }

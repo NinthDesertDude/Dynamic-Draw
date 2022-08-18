@@ -63,8 +63,16 @@ namespace DynamicDraw
             {
                 if (specialBrushCheckeredTransparent == null)
                 {
-                    specialBrushCheckeredTransparent = new HatchBrush(
-                        HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
+                    if (CurrentTheme == ThemeName.Light)
+                    {
+                        specialBrushCheckeredTransparent = new HatchBrush(
+                            HatchStyle.LargeCheckerBoard, Color.White, Color.FromArgb(191, 191, 191));
+                    }
+                    else
+                    {
+                        specialBrushCheckeredTransparent = new HatchBrush(
+                            HatchStyle.LargeCheckerBoard, Color.Black, Color.FromArgb(64, 64, 64));
+                    }
                 }
 
                 return specialBrushCheckeredTransparent;

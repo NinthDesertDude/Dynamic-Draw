@@ -50,6 +50,20 @@ namespace DynamicDraw
             InitializeDefaultSettings();
         }
 
+        [JsonInclude]
+        [JsonPropertyName("Version")]
+        /// <summary>
+        /// Version is included to make it easier to handle migration going forward.
+        /// </summary>
+        public string Version
+        {
+            get
+            {
+                Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                return $"{version.Major}.{version.Minor}";
+            }
+        }
+
         [DataMember(Name = "CustomBrushDirectories")] // for importing legacy xml, don't copy this pattern
         [JsonInclude]
         [JsonPropertyName("BrushImagePaths")]
@@ -69,28 +83,6 @@ namespace DynamicDraw
                 if (!customBrushDirectories.SetEquals(value))
                 {
                     customBrushDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
-                }
-            }
-        }
-
-        [JsonInclude]
-        [JsonPropertyName("PalettePaths")]
-        public HashSet<string> PaletteDirectories
-        {
-            get
-            {
-                return paletteDirectories;
-            }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                if (!paletteDirectories.SetEquals(value))
-                {
-                    paletteDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
                 }
             }
         }
@@ -175,6 +167,28 @@ namespace DynamicDraw
                 if (useDefaultBrushes != value)
                 {
                     useDefaultBrushes = value;
+                }
+            }
+        }
+
+        [JsonInclude]
+        [JsonPropertyName("PalettePaths")]
+        public HashSet<string> PaletteDirectories
+        {
+            get
+            {
+                return paletteDirectories;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (!paletteDirectories.SetEquals(value))
+                {
+                    paletteDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
                 }
             }
         }
