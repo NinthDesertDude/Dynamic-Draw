@@ -469,7 +469,7 @@ namespace DynamicDraw
         private FlowLayoutPanel panelOkCancel;
         private ThemedCheckbox bttnColorPicker;
         private Panel panelAllSettingsContainer;
-        private Panel panelDockSettingsContainer;
+        private ThemedPanel panelDockSettingsContainer;
         private ThemedCheckbox bttnToolBrush;
         private ThemedCheckbox bttnToolEraser;
         private ThemedCheckbox bttnToolOrigin;
@@ -3380,7 +3380,7 @@ namespace DynamicDraw
             brushImageLoadingWorker = new BackgroundWorker();
             bttnColorPicker = new ThemedCheckbox(false);
             panelAllSettingsContainer = new Panel();
-            panelDockSettingsContainer = new Panel();
+            panelDockSettingsContainer = new ThemedPanel();
             bttnToolEraser = new ThemedCheckbox(false);
             bttnToolOrigin = new ThemedCheckbox(false);
             bttnToolCloneStamp = new ThemedCheckbox(false);

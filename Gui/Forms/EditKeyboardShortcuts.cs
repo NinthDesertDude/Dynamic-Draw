@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using DynamicDraw.Properties;
 using DynamicDraw.Localization;
+using PaintDotNet;
+using DynamicDraw.Interop;
 
 namespace DynamicDraw
 {
@@ -13,7 +14,7 @@ namespace DynamicDraw
     /// A dialog that allows the user to toggle whether built-in shortcuts are enabled or disabled, and create/delete
     /// or edit their own.
     /// </summary>
-    public class EditKeyboardShortcuts : Form
+    public class EditKeyboardShortcuts : PdnBaseForm
     {
         private BindingList<Tuple<string, Command>> shortcutsList;
         private HashSet<Command> shortcuts;
@@ -51,7 +52,7 @@ namespace DynamicDraw
         private FlowLayoutPanel panelSaveCancel;
         private ThemedButton bttnDeleteOrToggle;
         private ThemedButton bttnRestoreDefaults;
-        private ListBox shortcutsListBox;
+        private ThemedListBox shortcutsListBox;
         private ThemedButton bttnEditShortcut;
         private FlowLayoutPanel pnlName;
         private FlowLayoutPanel pnlAddEditBar;
@@ -362,7 +363,7 @@ namespace DynamicDraw
             bttnAddShortcut = new ThemedButton();
             tooltip = new ToolTip(components);
             panelShortcuts = new FlowLayoutPanel();
-            shortcutsListBox = new ListBox();
+            shortcutsListBox = new ThemedListBox();
             panelOuterContainer = new FlowLayoutPanel();
             pnlName = new FlowLayoutPanel();
             pnlAddEditBar = new FlowLayoutPanel();
@@ -929,7 +930,6 @@ namespace DynamicDraw
         {
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             txtKeyboardShortcuts.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
-            shortcutsListBox.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
             txtbxShortcutActionData.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
             txtbxShortcutActionData.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             txtbxShortcutName.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);

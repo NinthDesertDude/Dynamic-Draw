@@ -49,11 +49,17 @@ namespace DynamicDraw
         /// </summary>
         public DoubleBufferedListView()
         {
+            HandleCreated += DoubleBufferedListView_HandleCreated;
             SemanticTheme.ThemeChanged += HandleTheme;
             HandleTheme();
             DoubleBuffered = true;
             previousItemIndex = -1;
             currentItemIndex = -1;
+        }
+
+        private void DoubleBufferedListView_HandleCreated(object sender, EventArgs e)
+        {
+            Interop.ExternalOps.UpdateDarkMode(this);
         }
 
         /// <summary>
@@ -81,6 +87,7 @@ namespace DynamicDraw
         /// </summary>
         private void HandleTheme()
         {
+            Interop.ExternalOps.UpdateDarkMode(this);
             BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
         }
     }

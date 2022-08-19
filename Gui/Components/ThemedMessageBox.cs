@@ -1,10 +1,11 @@
 ﻿using DynamicDraw.Localization;
+using PaintDotNet;
 using System;
 using System.Windows.Forms;
 
 namespace DynamicDraw
 {
-    public class ThemedMessageBox : Form
+    public class ThemedMessageBox : PdnBaseForm
     {
         private bool showSecondButton = true;
 

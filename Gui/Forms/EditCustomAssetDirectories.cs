@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using DynamicDraw.Properties;
+using PaintDotNet;
 
 namespace DynamicDraw.Gui
 {
-    public class EditCustomAssetDirectories : Form
+    public class EditCustomAssetDirectories : PdnBaseForm
     {
         private readonly SettingsSerialization settings;
 

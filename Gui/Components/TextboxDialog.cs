@@ -1,9 +1,10 @@
-﻿using System;
+﻿using PaintDotNet;
+using System;
 using System.Windows.Forms;
 
 namespace DynamicDraw
 {
-    public class TextboxDialog : Form
+    public class TextboxDialog : PdnBaseForm
     {
         private Func<string, string> validationFunc;
 

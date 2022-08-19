@@ -1,4 +1,5 @@
 ﻿using DynamicDraw.Localization;
+using PaintDotNet;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,14 +8,14 @@ using System.Windows.Forms;
 
 namespace DynamicDraw
 {
-    public class CommandDialog : Form
+    public class CommandDialog : PdnBaseForm
     {
         private Command target = null;
-        private static BindingList<Tuple<string, Command>> queryToTargetMapping = new BindingList<Tuple<string, Command>>();
+        private static readonly BindingList<Tuple<string, Command>> queryToTargetMapping = new BindingList<Tuple<string, Command>>();
 
         #region Gui Members
         private FlowLayoutPanel panelFlowContainer;
-        private ThemedComboBox cmbxInput;
+        private SearchBox searchbox;
         #endregion
 
         /// <summary>
@@ -46,15 +47,15 @@ namespace DynamicDraw
                 queryToTargetMapping.Add(new Tuple<string, Command>(shortcut.Name, shortcut));
             }
 
-            cmbxInput.DisplayMember = "Item1";
-            cmbxInput.ValueMember = "Item2";
-            cmbxInput.DataSource = queryToTargetMapping;
+            searchbox.DisplayMember = "Item1";
+            searchbox.ValueMember = "Item2";
+            searchbox.DataSource = queryToTargetMapping;
         }
 
         private void AcceptAndClose()
         {
-            int index = Math.Max(cmbxInput.SelectedIndex, 0);
-            target = ((Tuple<string, Command>)cmbxInput.Items[index]).Item2;
+            int index = Math.Max(searchbox.SelectedIndex, 0);
+            target = ((Tuple<string, Command>)searchbox.Items[index]).Item2;
 
             DialogResult = DialogResult.OK;
             Close();
@@ -73,6 +74,11 @@ namespace DynamicDraw
 
         private void CommandDialog_KeyDown(object sender, KeyEventArgs e)
         {
+            if (searchbox.DropdownActive || searchbox.DroppedDown)
+            {
+                return;
+            }
+
             if (e.KeyCode == Keys.Escape)
             {
                 DialogResult = DialogResult.Cancel;
@@ -92,25 +98,25 @@ namespace DynamicDraw
         private void SetupGui()
         {
             panelFlowContainer = new FlowLayoutPanel();
-            cmbxInput = new ThemedComboBox();
+            searchbox = new SearchBox();
             panelFlowContainer.SuspendLayout();
             SuspendLayout();
 
             #region panelFlowContainer
             panelFlowContainer.AutoSize = true;
             panelFlowContainer.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            panelFlowContainer.Controls.Add(cmbxInput);
+            panelFlowContainer.Controls.Add(searchbox);
             panelFlowContainer.Dock = DockStyle.Fill;
             panelFlowContainer.FlowDirection = FlowDirection.TopDown;
             panelFlowContainer.Size = new System.Drawing.Size(800, 450);
             #endregion
 
             #region cmbxInput
-            cmbxInput.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            cmbxInput.Location = new System.Drawing.Point(3, 4);
-            cmbxInput.MinimumSize = new System.Drawing.Size(200, 4);
-            cmbxInput.Size = new System.Drawing.Size(200, 20);
-            cmbxInput.TabIndex = 1;
+            searchbox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            searchbox.Location = new System.Drawing.Point(3, 4);
+            searchbox.MinimumSize = new System.Drawing.Size(200, 4);
+            searchbox.Size = new System.Drawing.Size(200, 20);
+            searchbox.TabIndex = 1;
             #endregion
 
             #region TextboxDialog
