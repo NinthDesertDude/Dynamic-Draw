@@ -1172,37 +1172,6 @@ namespace DynamicDraw
             if (staged != dest) { staged.UnlockBits(stagedData); }
             if (committed != dest) { committed.UnlockBits(committedData); }
         }
-
-        public static unsafe void DrawHueSatWheel(Bitmap dest)
-        {
-            BitmapData destData = dest.LockBits(
-                dest.GetBounds(),
-                ImageLockMode.ReadWrite,
-                dest.PixelFormat);
-
-            byte* destRow = (byte*)destData.Scan0;
-
-            int radius = dest.Width / 2;
-            int radiusSquared = radius * radius;
-            int centerOffset = radius * 2;
-
-            // Draws the circle one vertical line at a time
-            for (int x = -radius; x < radius; x++)
-            {
-                int imagePointX = x + centerOffset;
-                ColorBgra* destPtr = (ColorBgra*)(destRow + (imagePointX * destData.Stride));
-                int height = (int)Math.Sqrt(radiusSquared - x * x);
-
-                for (int y = -height; y < height; y++)
-                {
-                    int imagePointY = y + centerOffset;
-                    dest.SetPixel(imagePointX, imagePointY, Color.Red);
-                    destPtr++;
-                }
-            }
-
-            dest.UnlockBits(destData);
-        }
         #endregion
 
         #region Miscellaneous utility methods

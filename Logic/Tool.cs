@@ -33,6 +33,12 @@
         /// <summary>
         /// The clone stamp tool, which copies pixels from one location to another using the brush as an alpha mask.
         /// </summary>
-        CloneStamp = 5
+        CloneStamp = 5,
+
+        /// <summary>
+        /// The line tool, which draws the current brush in a line from one point to another according to the brush
+        /// density.
+        /// </summary>
+        Line = 6
     }
 }

@@ -107,6 +107,7 @@ namespace DynamicDraw
                 { CommandTarget.OpenQuickCommandDialog, new Commands(Localization.Strings.OpenQuickCommandDialog, CommandActionDataType.Action) },
                 { CommandTarget.SwitchPalette, new Commands(Localization.Strings.ShortcutNameSwitchPalette, 0, 400) },
                 { CommandTarget.PickFromPalette, new Commands(Localization.Strings.ShortcutNamePickFromPalette, 0, ColorUtils.MaxPaletteSize - 1) },
+                { CommandTarget.ConfirmLine, new Commands(Localization.Strings.ShortcutNameConfirmLine, CommandActionDataType.Action) }
             };
         }
 

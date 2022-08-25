@@ -413,6 +413,16 @@ namespace DynamicDraw.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ToolLine {
+            get {
+                object obj = ResourceManager.GetObject("ToolLine", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ToolOrigin {
             get {
                 object obj = ResourceManager.GetObject("ToolOrigin", resourceCulture);

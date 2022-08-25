@@ -3160,6 +3160,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Confirm line tool.
+        /// </summary>
+        internal static string ShortcutNameConfirmLine {
+            get {
+                return ResourceManager.GetString("ShortcutNameConfirmLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Decrease brush flow.
         /// </summary>
         internal static string ShortcutNameDecreaseBrushFlow {
@@ -3363,6 +3372,15 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutNameSwitchToEraser {
             get {
                 return ResourceManager.GetString("ShortcutNameSwitchToEraser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to line tool.
+        /// </summary>
+        internal static string ShortcutNameSwitchToLine {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToLine", resourceCulture);
             }
         }
         
@@ -3809,6 +3827,15 @@ namespace DynamicDraw.Localization {
         internal static string ToolEraserTip {
             get {
                 return ResourceManager.GetString("ToolEraserTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The line tool lets you draw from one point to another..
+        /// </summary>
+        internal static string ToolLineTip {
+            get {
+                return ResourceManager.GetString("ToolLineTip", resourceCulture);
             }
         }
         

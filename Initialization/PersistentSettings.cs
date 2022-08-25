@@ -552,6 +552,24 @@ namespace DynamicDraw
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.L },
                 Name = Strings.ShortcutNameSwitchToCloneStamp,
                 Target = CommandTarget.SelectedTool
+            },
+            new Command() // O: line tool
+            {
+                ActionData = $"{(int)Tool.Line},{(int)Tool.PreviousTool}|cycle",
+                BuiltInShortcutId = 51,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
+                Name = Strings.ShortcutNameSwitchToLine,
+                Target = CommandTarget.SelectedTool
+            },
+            new Command() // in line tool, after drawing, Enter: confirm line
+            {
+                BuiltInShortcutId = 52,
+                CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas, CommandContext.LineToolConfirmStage },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Enter },
+                Name = Strings.ShortcutNameConfirmLine,
+                Target = CommandTarget.ConfirmLine
             }
         };
 

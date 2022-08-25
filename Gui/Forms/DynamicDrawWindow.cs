@@ -148,11 +148,21 @@ namespace DynamicDraw
         private float canvasZoom = 1;
 
         /// <summary>
+        /// A list of all contexts.
+        /// </summary>
+        private readonly HashSet<CommandContext> contexts = new HashSet<CommandContext>();
+
+        /// <summary>
         /// While drawing the canvas, a half-pixel offset avoids visual edge boundary discrepancies. When zoomed in,
         /// this offset causes the position the user draws at to be incongruent with their mouse location. Subtracting
         /// half a pixel solves this schism.
         /// </summary>
         private const float halfPixelOffset = 0.5f;
+
+        /// <summary>
+        /// How close the mouse must be to a drag point using any tool in order to drag it.
+        /// </summary>
+        private const int dragHotspotRadius = 15;
 
         /// <summary>
         /// Tracks when the user has begun drawing by pressing down the mouse or applying pressure, and if they
@@ -336,6 +346,7 @@ namespace DynamicDraw
         private readonly Stack<string> undoHistory = new Stack<string>();
         #endregion
 
+        #region Tool variables
         /// <summary>
         /// The point relative to the cursor to use as the source for the clone stamp tool. This value is null to mark
         /// when the point hasn't been set by the user.
@@ -348,6 +359,16 @@ namespace DynamicDraw
         /// relative location, and this value set to true. It's set to false any time the origin is set to null.
         /// </summary>
         private bool cloneStampStartedDrawing = false;
+
+        private Tool lastTool = Tool.Brush;
+
+        /// <summary>
+        /// The origins used by the line tool, including the locations for the start and end of the line, and the index
+        /// for which drag hotspot is active. When a location is null, it hasn't been set. When the drag hotspot is
+        /// null, it means the user isn't dragging any point.
+        /// </summary>
+        private (List<PointF> points, int? dragIndex) lineOrigins = (new List<PointF>(), null);
+        #endregion
 
         /// <summary>
         /// The calculated minimum draw distance including factors such as pressure sensitivity.
@@ -362,8 +383,6 @@ namespace DynamicDraw
         /// True when the user sets an effect like blur, and is currently modifying the settings.
         /// </summary>
         private (bool settingsOpen, bool hoverPreview) isPreviewingEffect = (false, false);
-
-        private Tool lastTool = Tool.Brush;
 
         /// <summary>
         /// A performance optimization when using a merge layer. It's easier to add rectangles to
@@ -474,6 +493,7 @@ namespace DynamicDraw
         private ThemedCheckbox bttnToolEraser;
         private ThemedCheckbox bttnToolOrigin;
         private ThemedCheckbox bttnToolCloneStamp;
+        private ThemedCheckbox bttnToolLine;
         private FlowLayoutPanel panelSettingsContainer;
         private Accordion bttnBrushControls;
         private FlowLayoutPanel panelBrush;
@@ -859,6 +879,7 @@ namespace DynamicDraw
                     else if (ex is IOException || ex is UnauthorizedAccessException)
                     {
                         ThemedMessageBox.Show(Strings.CannotSaveSettingsError, Text, MessageBoxButtons.OK);
+                        currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                     }
                     else
                     {
@@ -937,10 +958,48 @@ namespace DynamicDraw
 
             currentKeysPressed.Add(e.KeyCode & Keys.KeyCode);
 
+            if (e.KeyCode == Keys.Escape)
+            {
+                if (lineOrigins.points.Count >= 2 && lineOrigins.points.Count == 2)
+                {
+                    MergeStaged();
+                    lineOrigins.points.Clear();
+                    lineOrigins.dragIndex = null;
+                    contexts.Remove(CommandContext.LineToolConfirmStage);
+                    contexts.Add(CommandContext.LineToolUnstartedStage);
+                }
+                else
+                {
+                    BttnCancel_Click(null, null);
+                }
+            }
+            else if (e.KeyCode == Keys.Enter)
+            {
+                if (lineOrigins.points.Count >= 2 && lineOrigins.points.Count == 2)
+                {
+                    MergeStaged();
+                    lineOrigins.points.Clear();
+                    lineOrigins.dragIndex = null;
+                    contexts.Remove(CommandContext.LineToolConfirmStage);
+                    contexts.Add(CommandContext.LineToolUnstartedStage);
+                }
+                else
+                {
+                    BttnOk_Click(null, null);
+                }
+            }
+
             // Fires any shortcuts that don't require the mouse wheel.
-            HashSet<CommandContext> contexts = new HashSet<CommandContext>();
-            if (displayCanvas.Focused) { contexts.Add(CommandContext.OnCanvas); }
-            else { contexts.Add(CommandContext.OnSidebar); }
+            if (displayCanvas.Focused)
+            {
+                contexts.Add(CommandContext.OnCanvas);
+                contexts.Remove(CommandContext.OnSidebar);
+            }
+            else
+            {
+                contexts.Remove(CommandContext.OnCanvas);
+                contexts.Add(CommandContext.OnSidebar);
+            }
 
             CommandManager.FireShortcuts(KeyboardShortcuts, currentKeysPressed, false, false, contexts);
 
@@ -978,9 +1037,16 @@ namespace DynamicDraw
             base.OnMouseWheel(e);
 
             // Fires any shortcuts that require the mouse wheel.
-            HashSet<CommandContext> contexts = new HashSet<CommandContext>();
-            if (displayCanvas.Focused) { contexts.Add(CommandContext.OnCanvas); }
-            else { contexts.Add(CommandContext.OnSidebar); }
+            if (displayCanvas.Focused)
+            {
+                contexts.Add(CommandContext.OnCanvas);
+                contexts.Remove(CommandContext.OnSidebar);
+            }
+            else
+            {
+                contexts.Remove(CommandContext.OnCanvas);
+                contexts.Add(CommandContext.OnSidebar);
+            }
 
             bool wheelDirectionUp = Math.Sign(e.Delta) > 0;
 
@@ -1089,6 +1155,7 @@ namespace DynamicDraw
                 catch
                 {
                     ThemedMessageBox.Show(Strings.LoadPaletteError);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
             }
         }
@@ -1118,6 +1185,7 @@ namespace DynamicDraw
                 else if (pluginHasLoaded)
                 {
                     ThemedMessageBox.Show(Strings.LoadPaletteError);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
             }
             else if (type == PaletteSpecialType.Recent)
@@ -1197,10 +1265,12 @@ namespace DynamicDraw
                 if (ex is NullReferenceException)
                 {
                     ThemedMessageBox.Show(Strings.SettingsUnavailableError, Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
                 else if (ex is IOException || ex is UnauthorizedAccessException)
                 {
                     ThemedMessageBox.Show(Strings.CannotLoadSettingsError, Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
                 else
                 {
@@ -1268,6 +1338,7 @@ namespace DynamicDraw
             catch
             {
                 ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
+                currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 cmbxChosenEffect.SelectedIndex = 0; // corresponds to no effect chosen.
                 isPreviewingEffect = (false, false);
                 return false;
@@ -1336,6 +1407,7 @@ namespace DynamicDraw
             if (effectToDraw.Effect == null)
             {
                 ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
+                currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 UpdateEnabledControls();
                 return;
             }
@@ -1388,6 +1460,7 @@ namespace DynamicDraw
                 if (dialog == null)
                 {
                     ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                     return;
                 }
 
@@ -1417,6 +1490,7 @@ namespace DynamicDraw
                     if (!effectSuccessfullyExecuted)
                     {
                         ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
+                        currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                         dialog.Close();
                     }
 
@@ -1436,6 +1510,7 @@ namespace DynamicDraw
                     if (!effectSuccessfullyExecuted)
                     {
                         ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
+                        currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                         dialog.Close();
                     }
                 }
@@ -1453,6 +1528,7 @@ namespace DynamicDraw
             catch
             {
                 ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
+                currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
             }
         }
 
@@ -1523,6 +1599,46 @@ namespace DynamicDraw
             };
 
             return newSettings;
+        }
+
+        /// <summary>
+        /// Draws the brush in a line between two points using its current density settings. If the brush has a brush
+        /// density of 0 (unbounded), it will draw as if it has a brush density of 1.
+        /// </summary>
+        private void DrawBrushLine(PointF loc1, PointF loc2)
+        {
+            finalMinDrawDistance = GetPressureValue(CommandTarget.MinDrawDistance, sliderMinDrawDistance.ValueInt, tabletPressureRatio);
+
+            int density = Math.Max(sliderBrushDensity.ValueInt, 1);
+            int finalBrushDensity = GetPressureValue(CommandTarget.BrushStrokeDensity, density, tabletPressureRatio);
+            int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+
+            double deltaX = loc2.X - loc1.X;
+            double deltaY = loc2.Y - loc1.Y;
+            double brushWidthFrac = finalBrushSize / (double)finalBrushDensity;
+            double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            double angle = Math.Atan2(deltaY, deltaX);
+            double xDist = Math.Cos(angle);
+            double yDist = Math.Sin(angle);
+            double numIntervals = distance / (double.IsNaN(brushWidthFrac) ? 1 : brushWidthFrac);
+            float tabletPressure = tabletPressureRatio;
+
+            for (int i = 1; i <= (int)numIntervals; i++)
+            {
+                // lerp between the last and current tablet pressure for smoother lines
+                if (tabletPressureRatioPrev != tabletPressureRatio &&
+                    tabPressureConstraints.ContainsKey(CommandTarget.Size) &&
+                    tabPressureConstraints[CommandTarget.Size].value != 0)
+                {
+                    tabletPressure = (float)(tabletPressureRatioPrev + i / numIntervals * (tabletPressureRatio - tabletPressureRatioPrev));
+                    finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressure);
+                }
+
+                DrawBrush(new PointF(
+                    (float)(loc1.X + xDist * brushWidthFrac * i - halfPixelOffset),
+                    (float)(loc1.Y + yDist * brushWidthFrac * i - halfPixelOffset)),
+                    finalBrushSize, tabletPressure);
+            }
         }
 
         /// <summary>
@@ -1829,13 +1945,14 @@ namespace DynamicDraw
             // opacity becomes important in calculating separately from the regular drawing. The staged bitmap will
             // be drawn the whole time and when done with the brush stroke, so it's tracked to know when committing to
             // it is necessary, to save speed. Note that the eraser tool always erases on the committed bitmap.
-            bool drawToStagedBitmap = activeTool != Tool.Eraser
+            bool drawToStagedBitmap = activeTool == Tool.Line ||
+                (activeTool != Tool.Eraser
                 && activeTool != Tool.CloneStamp
                 && effectToDraw.Effect == null
                 && ((BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
                 && (isUserDrawing.stagedChanged
                     || BlendModeUtils.BlendModeToUserBlendOp((BlendMode)cmbxBlendMode.SelectedIndex) != null
-                    || finalOpacity != sliderBrushOpacity.Maximum);
+                    || finalOpacity != sliderBrushOpacity.Maximum));
 
             if (drawToStagedBitmap && !isUserDrawing.stagedChanged)
             {
@@ -1851,7 +1968,7 @@ namespace DynamicDraw
             {
                 maskedDrawSource.surface = EnvironmentParameters.SourceSurface;
             }
-            else if (activeTool == Tool.CloneStamp || effectToDraw.Effect != null)
+            else if (activeTool == Tool.CloneStamp || activeTool == Tool.Line || effectToDraw.Effect != null)
             {
                 maskedDrawSource.bmp = bmpStaged;
             }
@@ -2687,9 +2804,7 @@ namespace DynamicDraw
         /// <param name="loc">The point to get the color from.</param>
         private void GetColorFromCanvas(PointF loc)
         {
-            PointF rotatedLoc = TransformPoint(
-                new PointF(loc.X - halfPixelOffset, loc.Y - 1),
-                true, true, false);
+            PointF rotatedLoc = TransformPoint(new PointF(loc.X - halfPixelOffset, loc.Y - 1), true);
 
             int finalX = (int)Math.Round(rotatedLoc.X);
             int finalY = (int)Math.Round(rotatedLoc.Y);
@@ -3184,6 +3299,16 @@ namespace DynamicDraw
                     menuPalette.SelectedIndex = paletteSelectedSwatchIndex;
                     UpdateBrushColor(menuPalette.Swatches[paletteSelectedSwatchIndex], true, false, false, false);
                     break;
+                case CommandTarget.ConfirmLine:
+                    if (activeTool == Tool.Line)
+                    {
+                        MergeStaged();
+                        lineOrigins.points.Clear();
+                        lineOrigins.dragIndex = null;
+                        contexts.Remove(CommandContext.LineToolConfirmStage);
+                        contexts.Add(CommandContext.LineToolUnstartedStage);
+                    }
+                    break;
             };
         }
 
@@ -3384,6 +3509,7 @@ namespace DynamicDraw
             bttnToolEraser = new ThemedCheckbox(false);
             bttnToolOrigin = new ThemedCheckbox(false);
             bttnToolCloneStamp = new ThemedCheckbox(false);
+            bttnToolLine = new ThemedCheckbox(false);
             panelSettingsContainer = new FlowLayoutPanel();
             bttnBrushControls = new Accordion(true);
             panelBrush = new FlowLayoutPanel();
@@ -3608,6 +3734,7 @@ namespace DynamicDraw
                 else
                 {
                     ThemedMessageBox.Show(Strings.SettingsUnavailableError, Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
             };
             preferencesContextMenu.Items.Add(menuBrushImageDirectories);
@@ -3953,6 +4080,7 @@ namespace DynamicDraw
             panelTools.Controls.Add(bttnColorPicker);
             panelTools.Controls.Add(bttnToolOrigin);
             panelTools.Controls.Add(bttnToolCloneStamp);
+            panelTools.Controls.Add(bttnToolLine);
             panelTools.Margin = Padding.Empty;
             panelTools.Padding = Padding.Empty;
             panelTools.TabIndex = 30;
@@ -4130,6 +4258,15 @@ namespace DynamicDraw
             bttnToolCloneStamp.TabIndex = 2;
             bttnToolCloneStamp.Click += BttnToolCloneStamp_Click;
             bttnToolCloneStamp.MouseEnter += BttnToolCloneStamp_MouseEnter;
+            #endregion
+
+            #region bttnToolLine
+            bttnToolLine.Image = Resources.ToolLine;
+            bttnToolLine.Margin = Padding.Empty;
+            bttnToolLine.Size = new Size(29, 29);
+            bttnToolLine.TabIndex = 2;
+            bttnToolLine.Click += BttnToolLine_Click;
+            bttnToolLine.MouseEnter += BttnToolLine_MouseEnter;
             #endregion
 
             #region panelSettingsContainer
@@ -5084,10 +5221,8 @@ namespace DynamicDraw
             #endregion
 
             #region DynamicDrawWindow
-            AcceptButton = bttnOk;
             AutoScaleDimensions = new SizeF(96f, 96f);
             BackgroundImageLayout = ImageLayout.None;
-            CancelButton = bttnCancel;
             ClientSize = new Size(829, 541);
             Margin = new Padding(5, 5, 5, 5);
             DoubleBuffered = true;
@@ -5157,6 +5292,9 @@ namespace DynamicDraw
             #endregion
         }
 
+        /// <summary>
+        /// Generates or removes all the pressure constraint controls.
+        /// </summary>
         private void LoadUnloadGuiAssignPressureButton(bool doLoad)
         {
             if (doLoad && panelTabletAssignPressure.Controls.Count == 0)
@@ -5208,6 +5346,21 @@ namespace DynamicDraw
         {
             InitialInitToken();
             InitDialogFromToken();
+        }
+
+        /// <summary>
+        /// Merges the staged layer to committed. This is called to finalize any drawing on the staged layer.
+        /// </summary>
+        private void MergeStaged()
+        {
+            DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
+                    bmpCommitted.GetBounds(),
+                    (BlendMode)cmbxBlendMode.SelectedIndex,
+                    (chkbxLockAlpha.Checked,
+                    chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
+                    chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
+
+            DrawingUtils.ColorImage(bmpStaged, ColorBgra.Black, 0);
         }
 
         /// <summary>
@@ -5276,28 +5429,29 @@ namespace DynamicDraw
                 toolToSwitchTo = lastTool;
             }
 
-            bttnToolBrush.Checked = false;
-            bttnToolEraser.Checked = false;
-            bttnColorPicker.Checked = false;
-            bttnToolOrigin.Checked = false;
-            bttnToolCloneStamp.Checked = false;
+            bttnToolBrush.Checked = toolToSwitchTo == Tool.Brush;
+            bttnToolEraser.Checked = toolToSwitchTo == Tool.Eraser;
+            bttnColorPicker.Checked = toolToSwitchTo == Tool.ColorPicker;
+            bttnToolOrigin.Checked = toolToSwitchTo == Tool.SetSymmetryOrigin;
+            bttnToolCloneStamp.Checked = toolToSwitchTo == Tool.CloneStamp;
+            bttnToolLine.Checked = toolToSwitchTo == Tool.Line;
+
+            CommandContextHelper.RemoveContextsFromOtherTools(toolToSwitchTo, contexts);
+            displayCanvas.Cursor = toolToSwitchTo == Tool.SetSymmetryOrigin ? Cursors.Hand : Cursors.Default;
 
             switch (toolToSwitchTo)
             {
-                case Tool.Eraser:
-                    bttnToolEraser.Checked = true;
-                    displayCanvas.Cursor = Cursors.Default;
-                    break;
                 case Tool.Brush:
-                    bttnToolBrush.Checked = true;
-                    displayCanvas.Cursor = Cursors.Default;
+                    contexts.Add(CommandContext.ToolBrushActive);
+                    break;
+                case Tool.Eraser:
+                    contexts.Add(CommandContext.ToolEraserActive);
                     break;
                 case Tool.SetSymmetryOrigin:
-                    bttnToolOrigin.Checked = true;
-                    displayCanvas.Cursor = Cursors.Hand;
+                    contexts.Add(CommandContext.ToolSetOriginActive);
                     break;
                 case Tool.ColorPicker:
-                    bttnColorPicker.Checked = true;
+                    contexts.Add(CommandContext.ToolColorPickerActive);
 
                     // Lazy-loads the color picker cursor.
                     if (cursorColorPicker == null)
@@ -5312,11 +5466,22 @@ namespace DynamicDraw
                     Cursor.Current = cursorColorPicker;
                     break;
                 case Tool.CloneStamp:
-                    bttnToolCloneStamp.Checked = true;
-                    displayCanvas.Cursor = Cursors.Default;
+                    contexts.Add(CommandContext.ToolCloneStampActive);
+                    if (cloneStampOrigin != null)
+                    {
+                        contexts.Add(CommandContext.CloneStampOriginSetStage);
+                        contexts.Remove(CommandContext.CloneStampOriginUnsetStage);
+                    }
+                    else
+                    {
+                        contexts.Remove(CommandContext.CloneStampOriginSetStage);
+                        contexts.Add(CommandContext.CloneStampOriginUnsetStage);
+                    }
 
                     DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
-
+                    break;
+                case Tool.Line:
+                    contexts.Add(CommandContext.ToolLineToolActive);
                     break;
             }
 
@@ -5423,6 +5588,7 @@ namespace DynamicDraw
                     if (showErrors)
                     {
                         ThemedMessageBox.Show(Strings.ClipboardErrorUnusable, Text, MessageBoxButtons.OK);
+                        currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                     }
 
                     bmpBackgroundClipboard?.Dispose();
@@ -6294,6 +6460,7 @@ namespace DynamicDraw
                 if (e.Error != null && workerArgs.DisplayErrors)
                 {
                     ThemedMessageBox.Show(e.Error.Message, Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                     brushImageLoadProgressBar.Visible = false;
                     bttnAddBrushImages.Visible = true;
                 }
@@ -6370,7 +6537,7 @@ namespace DynamicDraw
                                 Math.Pow(rotatedPoint.X - (symmetryOrigin.X + symmetryOrigins[i].X), 2) +
                                 Math.Pow(rotatedPoint.Y - (symmetryOrigin.Y + symmetryOrigins[i].Y), 2));
 
-                            if (radius <= 15 / canvasZoom)
+                            if (radius <= dragHotspotRadius / canvasZoom)
                             {
                                 symmetryOrigins.RemoveAt(i);
                                 i--;
@@ -6397,12 +6564,13 @@ namespace DynamicDraw
                     if (currentKeysPressed.Contains(Keys.ControlKey))
                     {
                         cloneStampStartedDrawing = false;
-                        cloneStampOrigin = TransformPoint(new PointF(e.Location.X, e.Location.Y));
+                        cloneStampOrigin = TransformPoint(e.Location);
                         return;
                     }
                     else if (cloneStampOrigin == null)
                     {
                         ThemedMessageBox.Show(Strings.CloneStampOriginError);
+                        currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                         return;
                     }
                 }
@@ -6415,7 +6583,7 @@ namespace DynamicDraw
                     if (!isUserDrawing.started && cloneStampOrigin != null && !cloneStampStartedDrawing)
                     {
                         cloneStampStartedDrawing = true;
-                        PointF newPoint = TransformPoint(new PointF(e.Location.X, e.Location.Y));
+                        PointF newPoint = TransformPoint(e.Location);
                         newPoint = new PointF(
                             cloneStampOrigin.Value.X - newPoint.X,
                             cloneStampOrigin.Value.Y - newPoint.Y);
@@ -6461,13 +6629,15 @@ namespace DynamicDraw
                             finalBrushSize, tabletPressureRatio);
                     }
                 }
+
                 // Samples the color under the mouse.
                 else if (activeTool == Tool.ColorPicker)
                 {
                     GetColorFromCanvas(new PointF(
-                        mouseLocPrev.X / canvasZoom,
-                        mouseLocPrev.Y / canvasZoom));
+                        mouseLocPrev.X,
+                        mouseLocPrev.Y));
                 }
+
                 // Changes the symmetry origin or adds a new origin (if in SetPoints symmetry mode).
                 else if (activeTool == Tool.SetSymmetryOrigin)
                 {
@@ -6483,6 +6653,45 @@ namespace DynamicDraw
                     else
                     {
                         symmetryOrigin = TransformPoint(new PointF(e.Location.X, e.Location.Y));
+                    }
+                }
+
+                // Draws a line using the current brush settings.
+                else if (activeTool == Tool.Line)
+                {
+                    // If start is unset, set it.
+                    if (lineOrigins.points.Count < 1)
+                    {
+                        lineOrigins.points.Add(new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
+                        contexts.Remove(CommandContext.LineToolUnstartedStage);
+                    }
+
+                    // If start and end are set and the user clicks in proximity of a drag handle, set the drag handle.
+                    else if (lineOrigins.points.Count >= 2)
+                    {
+                        lineOrigins.dragIndex = null;
+                        var rotatedPoint = TransformPoint(mouseLoc, true, false, false);
+
+                        for (int i = 0; i < lineOrigins.points.Count; i++)
+                        {
+                            var lineOrigin = TransformPoint(lineOrigins.points[i], true, true, false);
+                            double radius = Math.Sqrt(
+                                Math.Pow(rotatedPoint.X - lineOrigin.X, 2) +
+                                Math.Pow(rotatedPoint.Y - lineOrigin.Y, 2));
+
+                            if (radius <= dragHotspotRadius / canvasZoom)
+                            {
+                                lineOrigins.dragIndex = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If start and end are set, clears staged and draws the line.
+                    if (lineOrigins.points.Count >= 2)
+                    {
+                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
                     }
                 }
             }
@@ -6622,14 +6831,48 @@ namespace DynamicDraw
                 // Samples the color under the mouse.
                 if (activeTool == Tool.ColorPicker)
                 {
-                    GetColorFromCanvas(new PointF(
-                        mouseLoc.X / canvasZoom,
-                        mouseLoc.Y / canvasZoom));
+                    GetColorFromCanvas(new PointF(mouseLoc.X, mouseLoc.Y));
                 }
+
+                // Sets the symmetry origin.
                 else if (activeTool == Tool.SetSymmetryOrigin
                     && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.SetPoints)
                 {
                     symmetryOrigin = TransformPoint(new PointF(e.Location.X, e.Location.Y));
+                }
+
+                else if (activeTool == Tool.Line)
+                {
+                    // Moves drag handles.
+                    if (lineOrigins.dragIndex != null)
+                    {
+                        PointF pt = lineOrigins.points[lineOrigins.dragIndex.Value];
+                        PointF ptNew = new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom);
+
+                        if ((int)lineOrigins.points[0].X == (int)lineOrigins.points[1].X &&
+                            (int)lineOrigins.points[0].Y == (int)lineOrigins.points[1].Y)
+                        {
+                            DrawingUtils.ColorImage(bmpStaged, Color.Black, 0);
+                            lineOrigins.points.Clear();
+                            lineOrigins.dragIndex = null;
+                            contexts.Remove(CommandContext.LineToolConfirmStage);
+                            contexts.Add(CommandContext.LineToolUnstartedStage);
+                            Refresh();
+                        }
+                        else if (pt != ptNew)
+                        {
+                            lineOrigins.points[lineOrigins.dragIndex.Value] = ptNew;
+                            DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                            DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
+                        }
+                    }
+
+                    // Updates the preview while drawing.
+                    else if (lineOrigins.points.Count == 1)
+                    {
+                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        DrawBrushLine(lineOrigins.points[0], new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
+                    }
                 }
             }
 
@@ -6650,16 +6893,9 @@ namespace DynamicDraw
             }
 
             // Merge the staged layer down to committed, then clear the staged layer.
-            if (isUserDrawing.stagedChanged)
+            if (isUserDrawing.stagedChanged && activeTool != Tool.Line)
             {
-                DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
-                    bmpCommitted.GetBounds(),
-                    (BlendMode)cmbxBlendMode.SelectedIndex,
-                    (chkbxLockAlpha.Checked,
-                    chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
-                    chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
-
-                DrawingUtils.ColorImage(bmpStaged, ColorBgra.Black, 0);
+                MergeStaged();
             }
 
             if (isUserDrawing.canvasChanged)
@@ -6668,7 +6904,7 @@ namespace DynamicDraw
                 {
                     DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
                 }
-                else if (effectToDraw.Effect != null)
+                if (effectToDraw.Effect != null)
                 {
                     ActiveEffectRender();
                 }
@@ -6685,9 +6921,22 @@ namespace DynamicDraw
             isUserDrawing.stagedChanged = false;
             timerRepositionUpdate.Enabled = false;
 
+            // Color picker has a common precedent to auto-switch to last tool; this allows it.
             if (activeTool == Tool.ColorPicker && UserSettings.ColorPickerSwitchesToLastTool)
             {
                 SwitchTool(lastTool);
+            }
+
+            // Adds the second point and stops dragging handles for line tool.
+            else if (activeTool == Tool.Line)
+            {
+                if (lineOrigins.points.Count == 1)
+                {
+                    lineOrigins.points.Add(new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
+                    contexts.Add(CommandContext.LineToolConfirmStage);
+                }
+
+                lineOrigins.dragIndex = null;
             }
 
             //Lets the user click anywhere to draw again.
@@ -6719,6 +6968,7 @@ namespace DynamicDraw
             float lCutoffUnzoomed = leftCutoff / canvasZoom;
             float tCutoffUnzoomed = topCutoff / canvasZoom;
 
+            #region Draws the canvas image
             Rectangle visibleBounds = (sliderCanvasAngle.ValueInt == 0)
                 ? new Rectangle(
                     leftCutoff, topCutoff,
@@ -6734,6 +6984,7 @@ namespace DynamicDraw
             {
                 e.Graphics.FillRectangle(SemanticTheme.SpecialBrushCheckeredTransparent, visibleBounds);
             }
+
             if (bmpBackgroundClipboard != null && (
                 UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit || (
                     UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits &&
@@ -6793,7 +7044,8 @@ namespace DynamicDraw
 
             //Draws only the visible portion of the image.
             Bitmap bmpToDraw =
-                isPreviewingEffect.settingsOpen || isPreviewingEffect.hoverPreview ? bmpStaged :
+                isPreviewingEffect.settingsOpen || isPreviewingEffect.hoverPreview ||
+                (activeTool == Tool.Line && lineOrigins.points.Count >= 1) ? bmpStaged :
                 isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
 
             if (sliderCanvasAngle.ValueInt == 0)
@@ -6811,8 +7063,9 @@ namespace DynamicDraw
             {
                 e.Graphics.DrawImage(bmpToDraw, 0, 0, canvas.width, canvas.height);
             }
+            #endregion
 
-            //Draws the selection.
+            #region Draws the selection
             PdnRegion selection = EnvironmentParameters.GetSelectionAsPdnRegion();
             Region selectionRegion = selection?.GetRegionReadOnly();
 
@@ -6854,9 +7107,11 @@ namespace DynamicDraw
                         selectionOutline.GetRegionReadOnly());
                 }
             }
+            #endregion
 
             e.Graphics.ResetTransform();
 
+            #region Draws the brush indicator for tools that use it
             if (activeTool == Tool.Brush || activeTool == Tool.Eraser || activeTool == Tool.CloneStamp)
             {
                 //Draws the brush indicator when the user isn't drawing.
@@ -6915,46 +7170,13 @@ namespace DynamicDraw
                     e.Graphics.TranslateTransform(-canvas.x, -canvas.y);
                 }
             }
+            #endregion
 
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
             e.Graphics.RotateTransform(sliderCanvasAngle.ValueInt);
             e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
 
-            // Draws the marker for the clone stamp tool when it's enabled.
-            if (activeTool == Tool.CloneStamp && cloneStampOrigin != null)
-            {
-                e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
-                if (!cloneStampStartedDrawing)
-                {
-                    e.Graphics.DrawEllipse(
-                        Pens.Black,
-                        cloneStampOrigin.Value.X - (sliderBrushSize.Value / 2f),
-                        cloneStampOrigin.Value.Y - (sliderBrushSize.Value / 2f),
-                        sliderBrushSize.Value,
-                        sliderBrushSize.Value);
-                }
-                else
-                {
-                    float stampOriginX = mouseLoc.X / canvasZoom - EnvironmentParameters.SourceSurface.Width / 2;
-                    float stampOriginY = mouseLoc.Y / canvasZoom - EnvironmentParameters.SourceSurface.Height / 2;
-
-                    float offsetX = stampOriginX + cloneStampOrigin.Value.X;
-                    float offsetY = stampOriginY + cloneStampOrigin.Value.Y;
-                    double dist = Math.Sqrt(offsetX * offsetX + offsetY * offsetY);
-                    double angle = Math.Atan2(offsetY, offsetX);
-                    angle -= sliderCanvasAngle.ValueInt * Math.PI / 180;
-
-                    e.Graphics.DrawEllipse(
-                        Pens.Black,
-                        (float)(EnvironmentParameters.SourceSurface.Width / 2 + dist * Math.Cos(angle) - 1) - (sliderBrushSize.Value / 2f),
-                        (float)(EnvironmentParameters.SourceSurface.Height / 2 + dist * Math.Sin(angle) - 1) - (sliderBrushSize.Value / 2f),
-                        sliderBrushSize.Value,
-                        sliderBrushSize.Value);
-                }
-                e.Graphics.ScaleTransform(1 / canvasZoom, 1 / canvasZoom);
-            }
-
-            // Draws the symmetry origins for symmetry modes when it's enabled.
+            #region Draws brush settings -> symmetry origins
             if (activeTool == Tool.SetSymmetryOrigin
                 || (UserSettings.ShowSymmetryLinesWhenUsingSymmetry && cmbxSymmetry.SelectedIndex != (int)SymmetryMode.None))
             {
@@ -7038,6 +7260,8 @@ namespace DynamicDraw
                             }
                         }
                     }
+
+                    e.Graphics.ScaleTransform(1 / canvasZoom, 1 / canvasZoom);
                 }
                 else
                 {
@@ -7051,6 +7275,65 @@ namespace DynamicDraw
                         new PointF(symmetryOrigin.X * canvasZoom, EnvironmentParameters.SourceSurface.Height * canvasZoom));
                 }
             }
+            #endregion
+
+            #region Draws clone stamp -> stamp origin
+            if (activeTool == Tool.CloneStamp && cloneStampOrigin != null)
+            {
+                if (!cloneStampStartedDrawing)
+                {
+                    float halfSize = sliderBrushSize.Value / 2f;
+                    e.Graphics.DrawRectangle(
+                        Pens.Black,
+                        (cloneStampOrigin.Value.X - halfSize) * canvasZoom,
+                        (cloneStampOrigin.Value.Y - halfSize) * canvasZoom,
+                        sliderBrushSize.Value * canvasZoom,
+                        sliderBrushSize.Value * canvasZoom);
+                }
+                else
+                {
+                    float halfSize = sliderBrushSize.Value / 2f;
+                    int radius = (int)(sliderBrushSize.Value * canvasZoom);
+                    float xOffset = cloneStampOrigin.Value.X * canvasZoom;
+                    float yOffset = cloneStampOrigin.Value.Y * canvasZoom;
+
+                    float x = sliderBrushSize.Value == 1
+                        ? (int)(mouseLoc.X / canvasZoom) * canvasZoom + canvas.x + xOffset
+                        : (int)(mouseLoc.X / canvasZoom - halfSize + halfPixelOffset) * canvasZoom + canvas.x + xOffset;
+
+                    float y = sliderBrushSize.Value == 1
+                        ? (int)(mouseLoc.Y / canvasZoom) * canvasZoom + canvas.y + yOffset
+                        : (int)(mouseLoc.Y / canvasZoom - halfSize + halfPixelOffset) * canvasZoom + canvas.y + yOffset;
+
+                    e.Graphics.ResetTransform();
+                    e.Graphics.TranslateTransform(x + radius / 2f, y + radius / 2f);
+                    e.Graphics.RotateTransform(sliderBrushRotation.Value);
+                    e.Graphics.TranslateTransform(-radius / 2f, -radius / 2f);
+
+                    e.Graphics.DrawRectangle(Pens.Black, 0, 0, radius, radius);
+                    e.Graphics.DrawRectangle(Pens.White, -1, -1, radius + 2, radius + 2);
+
+                    e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
+                    e.Graphics.RotateTransform(sliderCanvasAngle.ValueInt);
+                    e.Graphics.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
+                }
+            }
+            #endregion
+
+            #region Draws line tool -> drag handles
+            else if (activeTool == Tool.Line && lineOrigins.points.Count >= 1)
+            {
+                for (int i = 0; i < lineOrigins.points.Count; i++)
+                {
+                    var pt = TransformPoint(lineOrigins.points[i], true, true, true);
+                    e.Graphics.DrawEllipse(
+                        Pens.Black,
+                        pt.X * canvasZoom - 3,
+                        pt.Y * canvasZoom - 3,
+                        6, 6);
+                }
+            }
+            #endregion
 
             e.Graphics.ResetTransform();
         }
@@ -7388,9 +7671,12 @@ namespace DynamicDraw
             if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnCancel.Focused &&
                 ThemedMessageBox.Show(Strings.ConfirmCancel, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
+                currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 DialogResult = DialogResult.None;
                 return;
             }
+
+            currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
 
             //Disables the button so it can't accidentally be called twice.
             bttnCancel.Enabled = false;
@@ -7430,6 +7716,8 @@ namespace DynamicDraw
                 bttnUpdateCurrentBrush.Enabled = false;
                 bttnDeleteBrush.Enabled = false;
             }
+
+            currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
         }
 
         private void BttnDeleteBrush_MouseEnter(object sender, EventArgs e)
@@ -7449,9 +7737,12 @@ namespace DynamicDraw
             if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnOk.Focused &&
                 ThemedMessageBox.Show(Strings.ConfirmChanges, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
+                currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 DialogResult = DialogResult.None;
                 return;
             }
+
+            currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
 
             //Disables the button so it can't accidentally be called twice.
             //Ensures settings will be saved.
@@ -7499,10 +7790,12 @@ namespace DynamicDraw
                 return;
             }
 
-            //Prevents an error that would occur if redo was pressed in the
-            //middle of a drawing operation by aborting it.
+            // Clears tool states
             isUserDrawing.started = false;
             isUserDrawing.canvasChanged = false;
+            isUserDrawing.stagedChanged = false;
+            lineOrigins.points.Clear();
+            lineOrigins.dragIndex = null;
 
             //Acquires the bitmap from the file and loads it if it exists.
             string fileAndPath = redoHistory.Pop();
@@ -7523,13 +7816,16 @@ namespace DynamicDraw
                     {
                         DrawingUtils.ColorImage(bmpStaged, ColorBgra.Black, 0);
                     }
-                    else if (activeTool == Tool.CloneStamp)
-                    {
-                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
-                    }
                     else
                     {
-                        ActiveEffectRender();
+                        if (activeTool == Tool.CloneStamp)
+                        {
+                            DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        }
+                        if (effectToDraw.Effect != null)
+                        {
+                            ActiveEffectRender();
+                        }
                     }
                 }
 
@@ -7538,6 +7834,7 @@ namespace DynamicDraw
             else
             {
                 ThemedMessageBox.Show(Strings.RedoFileNotFoundError, Text, MessageBoxButtons.OK);
+                currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
             }
 
             //Handles enabling undo or disabling redo for the user's clarity.
@@ -7679,6 +7976,24 @@ namespace DynamicDraw
             UpdateTooltip(filter, Strings.ToolCloneStampTip);
         }
 
+        private void BttnToolLine_Click(object sender, EventArgs e)
+        {
+            SwitchTool(Tool.Line);
+        }
+
+        private void BttnToolLine_MouseEnter(object sender, EventArgs e)
+        {
+            static bool filter(Command shortcut)
+            {
+                int index = (int)Tool.Line;
+                return shortcut.Target == CommandTarget.SelectedTool &&
+                    (shortcut.ActionData.Contains($"{index}|set") ||
+                    (shortcut.ActionData.Contains("cycle") && shortcut.ActionData.Contains(index.ToString())));
+            }
+
+            UpdateTooltip(filter, Strings.ToolLineTip);
+        }
+
         private void BttnToolOrigin_Click(object sender, EventArgs e)
         {
             SwitchTool(Tool.SetSymmetryOrigin);
@@ -7708,10 +8023,12 @@ namespace DynamicDraw
                 return;
             }
 
-            //Prevents an error that would occur if undo was pressed in the
-            //middle of a drawing operation by aborting it.
+            // Clears tool states
             isUserDrawing.started = false;
             isUserDrawing.canvasChanged = false;
+            isUserDrawing.stagedChanged = false;
+            lineOrigins.points.Clear();
+            lineOrigins.dragIndex = null;
 
             //Acquires the bitmap from the file and loads it if it exists.
             string fileAndPath = undoHistory.Pop();
@@ -7732,13 +8049,16 @@ namespace DynamicDraw
                     {
                         DrawingUtils.ColorImage(bmpStaged, ColorBgra.Black, 0);
                     }
-                    else if (activeTool == Tool.CloneStamp)
-                    {
-                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
-                    }
                     else
                     {
-                        ActiveEffectRender();
+                        if (activeTool == Tool.CloneStamp)
+                        {
+                            DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        }
+                        if (effectToDraw.Effect != null)
+                        {
+                            ActiveEffectRender();
+                        }
                     }
                 }
 
@@ -7747,6 +8067,7 @@ namespace DynamicDraw
             else
             {
                 ThemedMessageBox.Show(Strings.RedoFileNotFoundError, Text, MessageBoxButtons.OK);
+                currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
             }
 
             //Handles enabling redo or disabling undo for the user's clarity.
@@ -8249,6 +8570,19 @@ namespace DynamicDraw
 
         private void SliderCanvasAngle_ValueChanged(object sender, float e)
         {
+            if (activeTool == Tool.Line)
+            {
+                if (lineOrigins.points.Count == 2)
+                {
+                    MergeStaged();
+                }
+
+                lineOrigins.points.Clear();
+                lineOrigins.dragIndex = null;
+                contexts.Remove(CommandContext.LineToolConfirmStage);
+                contexts.Add(CommandContext.LineToolUnstartedStage);
+            }
+
             displayCanvas.Refresh();
         }
 

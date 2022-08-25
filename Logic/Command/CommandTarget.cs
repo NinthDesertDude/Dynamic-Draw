@@ -373,6 +373,11 @@
         /// <summary>
         /// Picks the color at the given index.
         /// </summary>
-        PickFromPalette = 90
+        PickFromPalette = 90,
+
+        /// <summary>
+        /// Confirms the line tool, creating a line and removing the drag handles.
+        /// </summary>
+        ConfirmLine = 91
     }
 }

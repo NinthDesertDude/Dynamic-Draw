@@ -1444,4 +1444,13 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
   <data name="CloneStampOriginError" xml:space="preserve">
     <value>You're using the clone stamp tool, which copies pixels from one location to another. You need to use Ctrl + Click to set the point on the canvas to copy from.</value>
   </data>
+  <data name="ShortcutNameSwitchToLine" xml:space="preserve">
+    <value>Switch to line tool</value>
+  </data>
+  <data name="ToolLineTip" xml:space="preserve">
+    <value>The line tool lets you draw from one point to another.</value>
+  </data>
+  <data name="ShortcutNameConfirmLine" xml:space="preserve">
+    <value>Confirm line tool</value>
+  </data>
 </root>

@@ -12,6 +12,7 @@
 
 using PaintDotNet;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -29,8 +30,17 @@ namespace DynamicDraw
         /// </summary>
         private const int colorTesselation = 60;
 
+        /// <summary>
+        /// Half the number of angles to show for angle snapping while shift is held. These angles will be evenly
+        /// spaced across the circle.
+        /// </summary>
+        private const int snapAngleCountPerPi = 12;
+
         private Bitmap renderBitmap = null;
         private bool mouseHeld = false;
+        private bool mouseOver = false;
+        bool isCtrlHeld = false;
+        bool isShiftHeld = false;
 
         private PictureBox wheelPictureBox;
         private HsvColor hsvColor;
@@ -114,26 +124,25 @@ namespace DynamicDraw
             base.OnPaint(e);
         }
 
+        /// <summary>
+        /// Generates the bitmap of the color wheel if unset.
+        /// </summary>
         private void InitRendering()
         {
             if (renderBitmap == null)
             {
-                InitRenderSurface();
+                renderBitmap?.Dispose();
+                renderBitmap = new Bitmap(Width, Width, PixelFormat.Format24bppRgb);
+
+                using (Graphics g = Graphics.FromImage(renderBitmap))
+                {
+                    g.Clear(BackColor);
+                    DrawWheel(g, renderBitmap.Width);
+                }
+
                 wheelPictureBox.SizeMode = PictureBoxSizeMode.Normal;
                 wheelPictureBox.Size = Size;
                 wheelPictureBox.Image = renderBitmap;
-            }
-        }
-
-        private void InitRenderSurface()
-        {
-            renderBitmap?.Dispose();
-            renderBitmap = new Bitmap(Width, Width, PixelFormat.Format24bppRgb);
-
-            using (Graphics g1 = Graphics.FromImage(renderBitmap))
-            {
-                g1.Clear(BackColor);
-                DrawWheel(g1, renderBitmap.Width);
             }
         }
 
@@ -172,24 +181,37 @@ namespace DynamicDraw
             Invalidate();
         }
 
-        private void GrabColor(Point mouseXY)
+        /// <summary>
+        /// Gets the color of the wheel at the given location, which should be the mouse location. Respects saturation
+        /// lock and hue angle snapping (the Ctrl and Shift modifier behaviors of Paint.Net).
+        /// </summary>
+        private void GrabColor(Point mouseLoc)
         {
             // center our coordinate system so the middle is (0,0), and positive Y is facing up
             int radius = Width / 2;
-            int cx = mouseXY.X - radius;
-            int cy = mouseXY.Y - radius;
+            int cx = mouseLoc.X - radius;
+            int cy = mouseLoc.Y - radius;
 
-            double theta = Math.Atan2(cy, cx);
+            double angle = Math.Atan2(cy, cx);
 
-            if (theta < 0)
+            if (angle < 0)
             {
-                theta += 2 * Math.PI;
+                angle += 2 * Math.PI;
+            }
+
+            // Snap to degree increments equal to 1/x of pi
+            if (isShiftHeld)
+            {
+                double snapAngle = Math.PI / snapAngleCountPerPi;
+                angle = snapAngle * Math.Round(angle / snapAngle);
             }
 
             double alpha = Math.Sqrt((cx * cx) + (cy * cy));
-
-            int h = (int)(theta / (Math.PI * 2) * 360d);
-            int s = (int)Math.Min(100.0, alpha / (Width / 2d) * 100);
+            int h = (int)(angle / (Math.PI * 2) * 360d);
+            int s = isCtrlHeld
+                ? hsvColor.Saturation
+                : (int)Math.Min(100.0, alpha / (Width / 2d) * 100);
+            
             int v = 100;
 
             hsvColor = new HsvColor(h, s, v);
@@ -258,12 +280,55 @@ namespace DynamicDraw
             wheelPictureBox.MouseMove += WheelPictureBox_MouseMove;
             wheelPictureBox.MouseEnter += WheelPictureBox_MouseEnter;
             wheelPictureBox.MouseDown += WheelPictureBox_MouseDown;
+            wheelPictureBox.MouseLeave += WheelPictureBox_MouseLeave;
             #endregion
 
             #region ColorWheel
+            KeyDown += ColorWheel_KeyDown;
+            KeyUp += ColorWheel_KeyUp;
             Controls.Add(wheelPictureBox);
             ResumeLayout(false);
             #endregion
+        }
+
+        private void ColorWheel_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.ShiftKey)
+            {
+                isShiftHeld = false;
+                Refresh();
+            }
+            else if (e.KeyCode == Keys.ControlKey)
+            {
+                isCtrlHeld = false;
+                Refresh();
+            }
+        }
+
+        private void ColorWheel_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (mouseOver || Focused)
+            {
+                if (e.KeyCode == Keys.ShiftKey)
+                {
+                    isShiftHeld = true;
+                    Refresh();
+                }
+                if (e.KeyCode == Keys.ControlKey)
+                {
+                    isCtrlHeld = true;
+                    Refresh();
+                }
+            }
+        }
+
+        private void WheelPictureBox_MouseLeave(object sender, EventArgs e)
+        {
+            mouseOver = false;
+            isShiftHeld = false;
+            isCtrlHeld = false;
+
+            OnMouseLeave(e);
         }
 
         private void ColorWheel_VisibleChanged(object sender, EventArgs e)
@@ -273,6 +338,10 @@ namespace DynamicDraw
                 wheelPictureBox.Image = null;
                 renderBitmap?.Dispose();
                 renderBitmap = null;
+                mouseHeld = false;
+                mouseOver = false;
+                isShiftHeld = false;
+                isCtrlHeld = false;
             }
             else
             {
@@ -292,6 +361,7 @@ namespace DynamicDraw
 
         private void WheelPictureBox_MouseEnter(object sender, EventArgs e)
         {
+            mouseOver = true;
             OnMouseEnter(e);
         }
 
@@ -308,18 +378,71 @@ namespace DynamicDraw
         private void WheelPictureBox_Paint(object sender, PaintEventArgs e)
         {
             float radius = Width / 2f;
-            float theta = HsvColor.Hue / 360.0f * (float)Math.PI * 2.0f;
-            float alpha = HsvColor.Saturation / 100.0f;
-            float x = (alpha * (radius - 1) * (float)Math.Cos(theta)) + radius;
-            float y = (alpha * (radius - 1) * (float)Math.Sin(theta)) + radius;
+            double angle = HsvColor.Hue * Math.PI / 180;
+            float satRatio = HsvColor.Saturation / 100.0f;
+            float x = (satRatio * (radius - 1) * (float)Math.Cos(angle)) + radius;
+            float y = (satRatio * (radius - 1) * (float)Math.Sin(angle)) + radius;
             int ix = (int)x;
             int iy = (int)y;
-
-            // Draw the 'target rectangle'
+            
             GraphicsContainer container = e.Graphics.BeginContainer();
             e.Graphics.PixelOffsetMode = PixelOffsetMode.None;
             e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
+            using Pen transparentBlack = new Pen(Color.FromArgb(128, Color.Black));
+
+            // Draws a circle for the current radius from the center.
+            if (isCtrlHeld)
+            {
+                float dist = radius * 2 * satRatio;
+                float distHalf = dist / 2f;
+                e.Graphics.DrawEllipse(transparentBlack, radius - distHalf, radius - distHalf, dist, dist);
+
+                // Draws little circles where the snapping lines would be, on the radius circle.
+                if (isShiftHeld)
+                {
+                    int snapAngleCountPer2Pi = snapAngleCountPerPi * 2;
+                    double circleSnapIncrement = Math.PI / snapAngleCountPerPi;
+
+                    for (int i = 0; i < snapAngleCountPer2Pi; i++)
+                    {
+                        double circleSnapAngle = circleSnapIncrement * i;
+                        float xAngle = (float)Math.Cos(circleSnapAngle);
+                        float yAngle = (float)Math.Sin(circleSnapAngle);
+
+                        e.Graphics.DrawEllipse(transparentBlack,
+                            radius + xAngle * distHalf - 1.5f,
+                            radius + yAngle * distHalf - 1.5f,
+                            3, 3);
+                    }
+                }
+            }
+
+            // Draws the snapping lines according to how many there are.
+            else if (isShiftHeld)
+            {
+                int snapAngleCountPer2Pi = snapAngleCountPerPi * 2;
+                double lineSnapIncrement = Math.PI / snapAngleCountPerPi;
+
+                for (int i = 0; i < snapAngleCountPer2Pi; i++)
+                {
+                    double lineSnapAngle = lineSnapIncrement * i;
+                    float xAngle = (float)Math.Cos(lineSnapAngle);
+                    float yAngle = (float)Math.Sin(lineSnapAngle);
+
+                    e.Graphics.DrawLine(transparentBlack,
+                        new PointF(radius + xAngle * 6, radius + yAngle * 6),
+                        new PointF(radius + xAngle * radius, radius + yAngle * radius));
+                }
+
+                e.Graphics.DrawEllipse(transparentBlack, radius - 3, radius - 3, 3, 3);
+            }
+
+            // Draw the cursor for the picture box.
+            using Brush brush = new SolidBrush(hsvColor.ToColor());
+            e.Graphics.FillEllipse(brush, ix - 3, iy - 3, 6, 6);
+            e.Graphics.DrawEllipse(Pens.White, ix - 3.5f, iy - 3.5f, 7, 7);
             e.Graphics.DrawEllipse(Pens.Black, ix - 4, iy - 4, 8, 8);
+
             e.Graphics.EndContainer(container);
         }
     }
