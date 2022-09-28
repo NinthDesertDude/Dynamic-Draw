@@ -45,13 +45,14 @@ namespace DynamicDraw
                 Name = Strings.ShortcutNameSwitchToEraser,
                 Target = CommandTarget.SelectedTool
             },
-            new Command() // O: origin tool
+            new Command() // Ctrl+O: origin tool
             {
                 ActionData = $"{(int)Tool.SetSymmetryOrigin},{(int)Tool.PreviousTool}|cycle",
                 BuiltInShortcutId = 3,
                 ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
                 Name = Strings.ShortcutNameSwitchToSetOrigin,
+                RequireCtrl = true,
                 Target = CommandTarget.SelectedTool
             },
             new Command() // Ctrl + Z: undo

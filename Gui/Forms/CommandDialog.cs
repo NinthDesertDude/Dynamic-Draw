@@ -10,6 +10,12 @@ namespace DynamicDraw
 {
     public class CommandDialog : PdnBaseForm
     {
+        /// <summary>
+        /// The index of the last-executed command. After the user confirms a command, the next time the dialog is
+        /// invoked, the default option will be that command for ease-of-use. This is ok since the dialog is modal.
+        /// </summary>
+        private static int previousTargetIndex = -1;
+
         private Command target = null;
         private static readonly BindingList<Tuple<string, Command>> queryToTargetMapping = new BindingList<Tuple<string, Command>>();
 
@@ -50,12 +56,20 @@ namespace DynamicDraw
             searchbox.DisplayMember = "Item1";
             searchbox.ValueMember = "Item2";
             searchbox.DataSource = queryToTargetMapping;
+
+            // Restores the default value of the searchbox to the most recently-used command, if any.
+            // This allows the user to simply press enter to execute the same command again.
+            if (previousTargetIndex >= 0 && previousTargetIndex < searchbox.Items.Count)
+            {
+                searchbox.SelectedIndex = previousTargetIndex;
+            }
         }
 
         private void AcceptAndClose()
         {
             int index = Math.Max(searchbox.SelectedIndex, 0);
             target = ((Tuple<string, Command>)searchbox.Items[index]).Item2;
+            previousTargetIndex = index;
 
             DialogResult = DialogResult.OK;
             Close();
