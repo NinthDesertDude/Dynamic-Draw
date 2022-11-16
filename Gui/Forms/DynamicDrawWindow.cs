@@ -982,6 +982,7 @@ namespace DynamicDraw
                     lineOrigins.dragIndex = null;
                     contexts.Remove(CommandContext.LineToolConfirmStage);
                     contexts.Add(CommandContext.LineToolUnstartedStage);
+                    displayCanvas.Refresh();
                 }
                 else
                 {
@@ -1004,7 +1005,7 @@ namespace DynamicDraw
             CommandManager.FireShortcuts(KeyboardShortcuts, currentKeysPressed, false, false, contexts);
 
             // Display a hand icon while panning.
-            if (!isUserDrawing.started && (e.Control || e.KeyCode == Keys.Space))
+            if (!isUserDrawing.started && e.KeyCode == Keys.Space)
             {
                 Cursor = Cursors.Hand;
             }
@@ -1668,6 +1669,10 @@ namespace DynamicDraw
                 if (!menuUndo.Enabled)
                 {
                     menuUndo.Enabled = true;
+                }
+                if (menuRedo.Enabled)
+                {
+                    menuRedo.Enabled = false;
                 }
 
                 //Removes all redo history.
@@ -6932,8 +6937,21 @@ namespace DynamicDraw
             {
                 if (lineOrigins.points.Count == 1)
                 {
-                    lineOrigins.points.Add(new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
-                    contexts.Add(CommandContext.LineToolConfirmStage);
+                    // Cancels if the user releases the mouse in the same position. No line should be drawn.
+                    if (lineOrigins.points[0].X == mouseLoc.X / canvasZoom &&
+                        lineOrigins.points[0].Y == mouseLoc.Y / canvasZoom)
+                    {
+                        lineOrigins.points.Clear();
+                        lineOrigins.dragIndex = null;
+                        contexts.Remove(CommandContext.LineToolConfirmStage);
+                        contexts.Add(CommandContext.LineToolUnstartedStage);
+                    }
+                    // Confirms otherwise.
+                    else
+                    {
+                        lineOrigins.points.Add(new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
+                        contexts.Add(CommandContext.LineToolConfirmStage);
+                    }
                 }
 
                 lineOrigins.dragIndex = null;
