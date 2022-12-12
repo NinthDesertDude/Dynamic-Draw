@@ -466,6 +466,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Max.
+        /// </summary>
+        internal static string BrushDensityMax {
+            get {
+                return ResourceManager.GetString("BrushDensityMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines..
         /// </summary>
         internal static string BrushDensityTip {

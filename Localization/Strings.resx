@@ -1453,4 +1453,7 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
   <data name="ShortcutNameConfirmLine" xml:space="preserve">
     <value>Confirm line tool</value>
   </data>
+  <data name="BrushDensityMax" xml:space="preserve">
+    <value>Max</value>
+  </data>
 </root>

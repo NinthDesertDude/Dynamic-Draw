@@ -608,7 +608,7 @@ namespace DynamicDraw
                 new BrushSettings()
                 {
                     BrushImagePath = Strings.DefaultBrushGrass,
-                    BrushColor = Color.FromArgb(255, 20, 192, 20),
+                    BrushColor = Color.FromArgb(255, 20, 192, 20).ToArgb(),
                     BrushSize = 50,
                     DoRotateWithMouse = true,
                     RandMinSize = 12,
@@ -625,7 +625,7 @@ namespace DynamicDraw
                 new BrushSettings()
                 {
                     BrushImagePath = Strings.DefaultBrushCircle,
-                    BrushColor = Color.Red,
+                    BrushColor = Color.Red.ToArgb(),
                     BrushSize = 30,
                     DoLockAlpha = true,
                     DoLockVal= true,

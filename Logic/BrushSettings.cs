@@ -45,7 +45,7 @@ namespace DynamicDraw
         [DataMember(Name = "BrushColor")] // for importing legacy xml, don't copy this pattern
         [JsonInclude]
         [JsonPropertyName("BrushColor")]
-        public Color BrushColor
+        public int BrushColor
         {
             get;
             set;
@@ -626,7 +626,7 @@ namespace DynamicDraw
             BrushSize = 2;
             BrushImagePath = Strings.DefaultBrushCircle;
             BrushRotation = 0;
-            BrushColor = PdnUserSettings.userPrimaryColor;
+            BrushColor = PdnUserSettings.userPrimaryColor.ToArgb();
             BrushDensity = 10;
             BrushFlow = 255;
             BrushOpacity = 255;

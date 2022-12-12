@@ -782,7 +782,7 @@ namespace DynamicDraw
             // Registers all current keyboard shortcuts.
             InitKeyboardShortcuts(token.CustomShortcuts);
 
-            token.CurrentBrushSettings.BrushColor = PdnUserSettings.userPrimaryColor;
+            token.CurrentBrushSettings.BrushColor = PdnUserSettings.userPrimaryColor.ToArgb();
             token.CurrentBrushSettings.BrushOpacity = PdnUserSettings.userPrimaryColor.A;
 
             // Fetches and populates the available effects for the effect chooser combobox.
@@ -825,7 +825,7 @@ namespace DynamicDraw
             menuActiveColors.Swatches[1] = PdnUserSettings.userSecondaryColor;
 
             UpdateBrush(token.CurrentBrushSettings);
-            UpdateBrushImage();
+            UpdateBrushImage(false);
         }
 
         /// <summary>
@@ -1546,7 +1546,7 @@ namespace DynamicDraw
             {
                 AutomaticBrushDensity = chkbxAutomaticBrushDensity.Checked,
                 BlendMode = (BlendMode)cmbxBlendMode.SelectedIndex,
-                BrushColor = menuActiveColors.Swatches[0],
+                BrushColor = menuActiveColors.Swatches[0].ToArgb(),
                 BrushDensity = sliderBrushDensity.ValueInt,
                 BrushFlow = sliderBrushFlow.ValueInt,
                 BrushImagePath = index >= 0
@@ -1758,7 +1758,7 @@ namespace DynamicDraw
                 // If not changing sliderBrushFlow already by shifting it in the if-statement above, the brush has to
                 // be manually redrawn when modifying brush flow. This is done to avoid editing sliderBrushFlow and
                 // having to use an extra variable to mitigate the cumulative effect it would cause.
-                UpdateBrushImage();
+                UpdateBrushImage(false);
             }
 
             if (sliderShiftRotation.Value != 0)
@@ -4696,7 +4696,12 @@ namespace DynamicDraw
             sliderBrushDensity.Location = new Point(3, 68);
             sliderBrushDensity.Size = new Size(150, 25);
             sliderBrushDensity.TabIndex = 22;
-            sliderBrushDensity.ComputeText = (val) => string.Format("{0} {1}", Strings.BrushDensity, val);
+            sliderBrushDensity.ComputeText = (val) =>
+            {
+                return (val == 0)
+                    ? string.Format("{0} {1}", Strings.BrushDensity, Strings.BrushDensityMax)
+                    : string.Format("{0} {1}", Strings.BrushDensity, val);
+            };
             sliderBrushDensity.MouseEnter += SliderBrushDensity_MouseEnter;
             #endregion
 
@@ -5572,16 +5577,20 @@ namespace DynamicDraw
 
                     if (stream != null)
                     {
-                        bmpBackgroundClipboard?.Dispose();
-
                         // Sets the clipboard background image.
                         using (Image clipboardImage = Image.FromStream(stream))
                         {
-                            bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
-                            using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
+                            if (UserSettings.BackgroundDisplayMode != BackgroundDisplayMode.ClipboardOnlyIfFits ||
+                                (clipboardImage.Width == bmpCommitted.Width &&
+                                clipboardImage.Height == bmpCommitted.Height))
                             {
-                                graphics.CompositingMode = CompositingMode.SourceCopy;
-                                graphics.DrawImage(clipboardImage, 0, 0, bmpBackgroundClipboard.Width, bmpBackgroundClipboard.Height);
+                                bmpBackgroundClipboard?.Dispose();
+                                bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+                                using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
+                                {
+                                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                                    graphics.DrawImage(clipboardImage, 0, 0, bmpBackgroundClipboard.Width, bmpBackgroundClipboard.Height);
+                                }
                             }
                         }
 
@@ -5669,7 +5678,7 @@ namespace DynamicDraw
             cmbxBrushSmoothing.SelectedIndex = (int)settings.Smoothing;
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
 
-            UpdateBrushColor(settings.BrushColor, true);
+            UpdateBrushColor(Color.FromArgb(settings.BrushColor), true);
             UpdateTabPressureControls();
             UpdateEnabledControls();
         }
@@ -5731,7 +5740,7 @@ namespace DynamicDraw
         /// <summary>
         /// Recreates the brush image with color and alpha effects (via brush flow) applied.
         /// </summary>
-        private void UpdateBrushImage()
+        private void UpdateBrushImage(bool doRefresh = true)
         {
             if (bmpBrush == null)
             {
@@ -5791,6 +5800,12 @@ namespace DynamicDraw
                 {
                     DrawingUtils.ColorImage(bmpBrushEffects, null, multAlpha);
                 }
+            }
+
+            //Updates to show changes in the brush indicator.
+            if (doRefresh)
+            {
+                displayCanvas.Refresh();
             }
         }
 
@@ -8552,9 +8567,7 @@ namespace DynamicDraw
 
         private void SliderBrushSize_ValueChanged(object sender, float e)
         {
-            //Updates to show changes in the brush indicator.
             UpdateBrushImage();
-            displayCanvas.Refresh();
         }
 
         private void SliderBrushRotation_MouseEnter(object sender, EventArgs e)
@@ -8745,7 +8758,7 @@ namespace DynamicDraw
             if (tabPressureConstraints.ContainsKey(CommandTarget.Size) &&
                 tabPressureConstraints[CommandTarget.Size].handleMethod != ConstraintValueHandlingMethod.DoNothing)
             {
-                UpdateBrushImage();
+                UpdateBrushImage(false);
             }
         }
 
