@@ -640,8 +640,8 @@ namespace DynamicDraw
             int destAdjH = destHeight - destNegY - destExtraY;
 
             Rectangle destAdjBounds = new Rectangle(
-                destLoc.X < 0 ? 0 : destLoc.X,
-                destLoc.Y < 0 ? 0 : destLoc.Y,
+                destX + destNegX,
+                destY + destNegY,
                 destAdjW,
                 destAdjH);
 

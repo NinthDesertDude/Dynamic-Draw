@@ -1,7 +1,5 @@
-﻿using DynamicDraw.Interop;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace DynamicDraw.Logic
 {

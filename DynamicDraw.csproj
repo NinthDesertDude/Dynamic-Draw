@@ -66,13 +66,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Gui\Forms\CommandDialog.cs" />
-    <Compile Update="Gui\Forms\ColorPickerDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="Gui\Forms\ColorPickerDialog.cs" />
     <Compile Update="Gui\Forms\EditKeyboardShortcuts.cs" />
-    <Compile Update="Gui\Main\BasicButton - Copy.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="Gui\Components\ThemedButton.cs">
       <SubType>Component</SubType>
     </Compile>
