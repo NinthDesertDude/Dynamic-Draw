@@ -2738,7 +2738,7 @@ namespace DynamicDraw
                     tabPressureConstraints[target] = new BrushSettingConstraint(tabPressureConstraints[target].handleMethod, valueSlider.ValueInt);
                 }
             };
-            valueSlider.ComputeText = (val) => $"{Commands.All[target].Name}: {val}";
+            valueSlider.ComputeText = (val) => $"{CommandTargetInfo.All[target].Name}: {val}";
             if (target == CommandTarget.Size)
             {
                 valueSlider.LostFocus += SliderTabPressureBrushSize_LostFocus;
@@ -2755,8 +2755,8 @@ namespace DynamicDraw
                 if (cmbxValueType.SelectedIndex != -1)
                 {
                     var handlingMethod = ((CmbxTabletValueType.CmbxEntry)cmbxValueType.SelectedItem).ValueMember;
-                    var min = Commands.All[target].MinMaxRangeF?.Item1 ?? Commands.All[target].MinMaxRange.Item1;
-                    var max = Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item2;
+                    var min = CommandTargetInfo.All[target].MinMaxRangeF?.Item1 ?? CommandTargetInfo.All[target].MinMaxRange.Item1;
+                    var max = CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item2;
 
                     valueSlider.Enabled = (handlingMethod != ConstraintValueHandlingMethod.DoNothing);
 
@@ -2870,8 +2870,8 @@ namespace DynamicDraw
         {
             if (pressure != 0 && tabPressureConstraints.ContainsKey(target))
             {
-                int min = (int)(Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item1);
-                int max = (int)(Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item2);
+                int min = (int)(CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item1);
+                int max = (int)(CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item2);
 
                 return Math.Clamp(
                     Constraint.GetStrengthMappedValue(
@@ -3961,11 +3961,11 @@ namespace DynamicDraw
                             return " ";
                         }
 
-                        if (!Commands.All[CommandTarget.CanvasZoom].ValidateNumberValue(value))
+                        if (!CommandTargetInfo.All[CommandTarget.CanvasZoom].ValidateNumberValue(value))
                         {
                             return string.Format(Strings.TextboxDialogRangeInvalid,
-                                Commands.All[CommandTarget.CanvasZoom].MinMaxRange.Item1,
-                                Commands.All[CommandTarget.CanvasZoom].MinMaxRange.Item2);
+                                CommandTargetInfo.All[CommandTarget.CanvasZoom].MinMaxRange.Item1,
+                                CommandTargetInfo.All[CommandTarget.CanvasZoom].MinMaxRange.Item2);
                         }
 
                         return null;

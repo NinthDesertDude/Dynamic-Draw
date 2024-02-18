@@ -304,8 +304,8 @@ namespace DynamicDraw
         /// </summary>
         /// <param name="value">The current value of the slider.</param>
         public Slider(CommandTarget target, float value)
-            : this(Commands.All[target].MinMaxRangeF?.Item1 ?? Commands.All[target].MinMaxRange.Item1,
-                  Commands.All[target].MinMaxRangeF?.Item2 ?? Commands.All[target].MinMaxRange.Item2,
+            : this(CommandTargetInfo.All[target].MinMaxRangeF?.Item1 ?? CommandTargetInfo.All[target].MinMaxRange.Item1,
+                  CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item2,
                   value)
         { }
 
@@ -795,7 +795,7 @@ namespace DynamicDraw
                 // enters typing mode and appends a character.
                 else
                 {
-                    string newChar = Command.GetPrintableKey(keyData);
+                    string newChar = DynamicDraw.Command.GetPrintableKey(keyData);
 
                     if (newChar != "")
                     {

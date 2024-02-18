@@ -149,7 +149,7 @@ namespace DynamicDraw
 
                 CommandTarget target = (CommandTarget)i;
                 shortcutTargetOptions.Add(
-                    new Tuple<string, CommandTarget>(Commands.All[target].Name, target));
+                    new Tuple<string, CommandTarget>(CommandTargetInfo.All[target].Name, target));
             }
             cmbxShortcutTarget.DisplayMember = "Item1";
             cmbxShortcutTarget.ValueMember = "Item2";
@@ -319,7 +319,7 @@ namespace DynamicDraw
 
                 // Handles the add, edit, delete button enabled status.
                 txtbxShortcutActionData.Enabled = (currentShortcutTarget != CommandTarget.None) &&
-                    Commands.All[currentShortcutTarget].ValueType != CommandActionDataType.Action;
+                    CommandTargetInfo.All[currentShortcutTarget].ValueType != CommandActionDataType.Action;
 
                 bool onlyBuiltInShortcutsSelected = true;
                 bool anyBuiltInShortcutsSelected = false;

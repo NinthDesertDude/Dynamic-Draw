@@ -150,7 +150,7 @@ namespace DynamicDraw
                 throw new Exception("Was expecting color command to have two pieces of data.");
             }
 
-            if (Commands.All[Target].ValueType != CommandActionDataType.Color)
+            if (CommandTargetInfo.All[Target].ValueType != CommandActionDataType.Color)
             {
                 throw new Exception("Was expecting command target to be of the color data type.");
             }
@@ -371,8 +371,8 @@ namespace DynamicDraw
                 throw new Exception("Was expecting numeric command to have two pieces of data.");
             }
 
-            if (Commands.All[Target].ValueType != CommandActionDataType.Integer &&
-                Commands.All[Target].ValueType != CommandActionDataType.Float)
+            if (CommandTargetInfo.All[Target].ValueType != CommandActionDataType.Integer &&
+                CommandTargetInfo.All[Target].ValueType != CommandActionDataType.Float)
             {
                 throw new Exception("Was expecting command to be a numeric data type.");
             }
@@ -544,7 +544,7 @@ namespace DynamicDraw
         /// </summary>
         public bool GetDataAsBool(bool origValue)
         {
-            if (Commands.All[Target].ValueType != CommandActionDataType.Bool)
+            if (CommandTargetInfo.All[Target].ValueType != CommandActionDataType.Bool)
             {
                 throw new Exception("Was expecting command to be of the bool data type.");
             }
@@ -573,7 +573,7 @@ namespace DynamicDraw
         public static bool IsActionValid(CommandTarget target, string actionData)
         {
             // Actions should have no associated action data.
-            if (Commands.All[target].ValueType == CommandActionDataType.Action)
+            if (CommandTargetInfo.All[target].ValueType == CommandActionDataType.Action)
             {
                 return string.IsNullOrEmpty(actionData);
             }
@@ -585,8 +585,8 @@ namespace DynamicDraw
             }
 
             // Integers and floats must follow the allowed value|type syntaxes and have valid numeric values.
-            if (Commands.All[target].ValueType == CommandActionDataType.Integer ||
-                Commands.All[target].ValueType == CommandActionDataType.Float)
+            if (CommandTargetInfo.All[target].ValueType == CommandActionDataType.Integer ||
+                CommandTargetInfo.All[target].ValueType == CommandActionDataType.Float)
             {
                 // expects format: values|type
                 string[] chunks = actionData.Split('|');
@@ -647,13 +647,13 @@ namespace DynamicDraw
             }
 
             // Bools must be t for true, f for false, or toggle to switch when fired.
-            if (Commands.All[target].ValueType == CommandActionDataType.Bool)
+            if (CommandTargetInfo.All[target].ValueType == CommandActionDataType.Bool)
             {
                 return actionData.Equals("t") || actionData.Equals("f") || actionData.Equals("toggle");
             }
 
             // Colors must follow the allowed value|type syntaxes and be 6 or 8 hexadecimal lowercase characters.
-            if (Commands.All[target].ValueType == CommandActionDataType.Color)
+            if (CommandTargetInfo.All[target].ValueType == CommandActionDataType.Color)
             {
                 // expects format: values|type
                 string[] chunks = actionData.Split('|');
@@ -710,12 +710,12 @@ namespace DynamicDraw
             }
 
             // Strings must be non-null (already guaranteed by code logic above).
-            if (Commands.All[target].ValueType == CommandActionDataType.String)
+            if (CommandTargetInfo.All[target].ValueType == CommandActionDataType.String)
             {
                 return true;
             }
 
-            throw new Exception("Unhandled shortcut target data type: " + Enum.GetName(Commands.All[target].ValueType));
+            throw new Exception("Unhandled shortcut target data type: " + Enum.GetName(CommandTargetInfo.All[target].ValueType));
         }
 
         /// <summary>
