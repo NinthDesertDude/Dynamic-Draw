@@ -1,9 +1,6 @@
 using PaintDotNet;
 using PaintDotNet.Effects;
-using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Reflection;
 using DynamicDraw.Properties;
 
 namespace DynamicDraw
@@ -75,7 +72,8 @@ namespace DynamicDraw
         public override EffectConfigDialog CreateConfigDialog()
         {
             //Copies necessary user variables for dialog access.
-            UserSettings.userPrimaryColor = EnvironmentParameters.PrimaryColor;
+            PdnUserSettings.userPrimaryColor = EnvironmentParameters.PrimaryColor;
+            PdnUserSettings.userSecondaryColor = EnvironmentParameters.SecondaryColor;
 
             //Static variables are remembered between plugin calls, so clear them.
             RenderSettings.Clear();

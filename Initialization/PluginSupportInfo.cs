@@ -66,7 +66,7 @@ namespace DynamicDraw
         {
             get
             {
-                return new Uri("https://forums.getpaint.net/topic/110673-dynamic-draw-v3-christmas-2021/");
+                return new Uri("https://forums.getpaint.net/topic/110673-dynamic-draw-v33-7322/");
             }
         }
         #endregion

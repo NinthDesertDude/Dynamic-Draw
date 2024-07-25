@@ -1,10 +1,11 @@
-﻿using System;
+﻿using PaintDotNet;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace DynamicDraw
 {
-    public partial class EditCurveDialog : Form
+    public partial class EditCurveDialog : PdnBaseForm
     {
         Pen pen = new Pen(Color.Black, 2);
 

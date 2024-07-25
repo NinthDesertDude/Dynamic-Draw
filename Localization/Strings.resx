@@ -130,25 +130,25 @@
     <value>Add Brush Images</value>
   </data>
   <data name="AddBrushImagesTip" xml:space="preserve">
-    <value>Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings).</value>
+    <value>Select additional brush images to permanently add. They can be removed later from the options menu.</value>
   </data>
   <data name="AddFolder" xml:space="preserve">
     <value>Add folder</value>
   </data>
   <data name="AddFoldersTip" xml:space="preserve">
-    <value>Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not.</value>
+    <value>Browse for folders to load from when {0} starts. Only files in the chosen folder will be added, no files from sub-folders.</value>
   </data>
   <data name="BrushFlow" xml:space="preserve">
     <value>Brush Flow:</value>
   </data>
   <data name="BrushFlowTip" xml:space="preserve">
-    <value>Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color "builds up" as you draw. It's a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke.</value>
+    <value>This is how quickly the brush color "builds up" as you draw. It's a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke.</value>
   </data>
   <data name="BrushColor" xml:space="preserve">
     <value>Color</value>
   </data>
   <data name="BrushColorTip" xml:space="preserve">
-    <value>Lets you set the color of the brush.</value>
+    <value>Your brush colors (primary is top, secondary is bottom). Click primary to change colors, or secondary to swap.</value>
   </data>
   <data name="BrushDensity" xml:space="preserve">
     <value>Brush Stroke Density:</value>
@@ -157,19 +157,19 @@
     <value>Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines.</value>
   </data>
   <data name="BrushLocations" xml:space="preserve">
-    <value>Brush image directories and files to load when Dynamic Draw starts</value>
+    <value>Images and folders with images to add to your brush images when {0} starts</value>
   </data>
   <data name="BrushLocationsTextboxTip" xml:space="preserve">
-    <value>Places to look for brush images appear here. Type a new address or use 'add folder' to add your own.</value>
+    <value>When {0} starts, it will load all the images from these locations on your computer and make them available as brush images. You can add locations using the add file/folder buttons or by pasting them here.</value>
   </data>
   <data name="BrushRotationTip" xml:space="preserve">
-    <value>Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing.</value>
+    <value>Sets the brush rotation for tilting while drawing.</value>
   </data>
   <data name="BrushImageSelectorTip" xml:space="preserve">
     <value>Lets you choose another brush image to use.</value>
   </data>
   <data name="BrushSizeTip" xml:space="preserve">
-    <value>Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller.</value>
+    <value>Sets the brush size to make it larger or smaller.</value>
   </data>
   <data name="BrushSmoothingTip" xml:space="preserve">
     <value>Determines smoothness at the brush edges while drawing, and the quality of rotation/scaling.
@@ -184,24 +184,22 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
     <value>Quit without saving changes.</value>
   </data>
   <data name="CannotLoadSettingsError" xml:space="preserve">
-    <value>Your custom brush images couldn't be loaded. You can try defining them again.</value>
+    <value>Settings/preferences and custom brushes couldn't be loaded.</value>
   </data>
   <data name="CanvasZoom" xml:space="preserve">
     <value>Canvas Zoom:</value>
   </data>
   <data name="CanvasZoomTip" xml:space="preserve">
-    <value>Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
-
-Press Zero to reset the canvas position, zoom and angle.</value>
+    <value>Zooms the picture in and out to make editing easier.</value>
   </data>
   <data name="ClearSettings" xml:space="preserve">
-    <value>Clear Current Brush Settings</value>
+    <value>Clear Current Brush</value>
   </data>
   <data name="ClearSettingsTip" xml:space="preserve">
     <value>Clears all temporary changes to the current brush settings.</value>
   </data>
   <data name="ColorizeBrush" xml:space="preserve">
-    <value>No Mixing</value>
+    <value>Draw Solid Color</value>
   </data>
   <data name="ColorizeBrushTip" xml:space="preserve">
     <value>When activated, the brush image is replaced entirely with a solid color. When off, the original brush color will be used with options to influence it using the active color.</value>
@@ -213,13 +211,13 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Only the regular brush image colors are used at 0%. Only the active color is used at 100%. For values between, the active color is mixed into the brush image.</value>
   </data>
   <data name="ColorPickerTip" xml:space="preserve">
-    <value>Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards.</value>
+    <value>Selects a color on the canvas and switches to the last-used tool afterwards.</value>
   </data>
-  <data name="CustomBrushImageLocations" xml:space="preserve">
-    <value>Brush Image Locations</value>
+  <data name="UpdateCurrentBrush" xml:space="preserve">
+    <value>Update Current Brush</value>
   </data>
-  <data name="CustomBrushImageLocationsTip" xml:space="preserve">
-    <value>Define where to look for brush images when this plugin loads.</value>
+  <data name="UpdateCurrentBrushTip" xml:space="preserve">
+    <value>Writes any changes in the current settings over the most recently selected brush.</value>
   </data>
   <data name="JitterBlue" xml:space="preserve">
     <value>Blue Jitter:</value>
@@ -315,13 +313,13 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>While drawing, the size of the brush will randomly jitter so it will sometimes be normal size and sometimes up to this much smaller.</value>
   </data>
   <data name="RandRotLeft" xml:space="preserve">
-    <value>Random Rot to Left:</value>
+    <value>Random Rotate Left:</value>
   </data>
   <data name="RandRotLeftTip" xml:space="preserve">
     <value>While drawing, the brush will randomly rotate so it will sometimes be angled this much to the left.</value>
   </data>
   <data name="RandRotRight" xml:space="preserve">
-    <value>Random Rot to Right:</value>
+    <value>Random Rotate Right:</value>
   </data>
   <data name="RandRotRightTip" xml:space="preserve">
     <value>While drawing, the brush will randomly rotate so it will sometimes be angled this much to the right.</value>
@@ -336,15 +334,15 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Redo</value>
   </data>
   <data name="RedoTip" xml:space="preserve">
-    <value>Redo Shortcut: Ctrl + Y. Restores changes removed by undo, if possible.</value>
+    <value>Restores changes removed by undo, if possible.</value>
   </data>
   <data name="Rotation" xml:space="preserve">
     <value>Brush Rotation:</value>
   </data>
-  <data name="SavePreferences" xml:space="preserve">
+  <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="SavePreferencesTip" xml:space="preserve">
+  <data name="SaveTip" xml:space="preserve">
     <value>Saves all changes in the preferences.</value>
   </data>
   <data name="ShiftFlow" xml:space="preserve">
@@ -378,7 +376,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Undo</value>
   </data>
   <data name="UndoTip" xml:space="preserve">
-    <value>Undo Shortcut: Ctrl + Z. Undo the last drawing, if possible.</value>
+    <value>Undo the last drawing, if possible.</value>
   </data>
   <data name="SettingsUnavailableError" xml:space="preserve">
     <value>The settings folder could not be located. Your settings may not be loaded or saved.</value>
@@ -540,13 +538,13 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Spiral</value>
   </data>
   <data name="ToolBrushTip" xml:space="preserve">
-    <value>Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings.</value>
+    <value>The brush tool allows you to draw on the canvas.</value>
   </data>
   <data name="ToolEraserTip" xml:space="preserve">
-    <value>Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image.</value>
+    <value>The eraser tool lets you erase to reveal the original image. (If you want to erase to transparent, change the blending mode to overwrite and set the alpha to zero.)</value>
   </data>
   <data name="ToolOriginTip" xml:space="preserve">
-    <value>Set Origin Shortcut: O. Activate this tool to change the symmetry origin.</value>
+    <value>The origin tool lets you set a point of interest for symmetry mode and other tools to make use of.</value>
   </data>
   <data name="CustomBrushImagesDirectoryFilter" xml:space="preserve">
     <value>Images and abr brushes</value>
@@ -567,7 +565,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Saves the current brush settings as a brush under a unique name.</value>
   </data>
   <data name="MinDrawDistance" xml:space="preserve">
-    <value>Min. Draw Distance</value>
+    <value>Min. Draw Distance:</value>
   </data>
   <data name="CustomBrushDialogDescription" xml:space="preserve">
     <value>Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved).</value>
@@ -585,7 +583,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Add files</value>
   </data>
   <data name="AddFilesTip" xml:space="preserve">
-    <value>Browse for files to load as custom brush images when Dynamic Draw starts.</value>
+    <value>Browse for files to load when {0} starts.</value>
   </data>
   <data name="ClipboardErrorUnusable" xml:space="preserve">
     <value>Could not use clipboard image.</value>
@@ -672,10 +670,10 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Red Jitter Min</value>
   </data>
   <data name="ShortcutJitterRotLeft" xml:space="preserve">
-    <value>Random Rot to Left</value>
+    <value>Random Rotate Left</value>
   </data>
   <data name="ShortcutJitterRotRight" xml:space="preserve">
-    <value>Random Rot to Right</value>
+    <value>Random Rotate Right</value>
   </data>
   <data name="ShortcutJitterSatMax" xml:space="preserve">
     <value>Saturation Jitter Max</value>
@@ -750,7 +748,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Subtract (wrap around)</value>
   </data>
   <data name="AutomaticBrushDensity" xml:space="preserve">
-    <value>Auto manage density</value>
+    <value>Auto Manage Density</value>
   </data>
   <data name="AutomaticBrushDensityTip" xml:space="preserve">
     <value>If this is toggled on, the density will automatically adjust based on the brush size to ensure a smooth line at any brush size.</value>
@@ -807,9 +805,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Canvas Angle:</value>
   </data>
   <data name="CanvasAngleTip" xml:space="preserve">
-    <value>Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
-
-Press Zero to reset the canvas position, zoom and angle.</value>
+    <value>Rotates the canvas around its center (this is mainly useful with a tablet).</value>
   </data>
   <data name="Confirm" xml:space="preserve">
     <value>Confirm</value>
@@ -857,42 +853,42 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Square</value>
   </data>
   <data name="DitherDraw" xml:space="preserve">
-    <value>Checkerboard Dithering</value>
+    <value>Checkered Dithering</value>
   </data>
   <data name="DitherDrawTip" xml:space="preserve">
     <value>Only draw every other pixel, in a checkerboard pattern. Useful for pixel art.</value>
   </data>
-  <data name="LockHue" xml:space="preserve">
+  <data name="ColorHueAbbr" xml:space="preserve">
     <value>H</value>
   </data>
   <data name="LockHueTip" xml:space="preserve">
     <value>Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results.</value>
   </data>
-  <data name="LockSat" xml:space="preserve">
+  <data name="ColorSatAbbr" xml:space="preserve">
     <value>S</value>
   </data>
   <data name="LockSatTip" xml:space="preserve">
     <value>Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation.</value>
   </data>
-  <data name="LockVal" xml:space="preserve">
+  <data name="ColorValAbbr" xml:space="preserve">
     <value>V</value>
   </data>
   <data name="LockValTip" xml:space="preserve">
     <value>Prevents drawing from affecting the value (brightness) of the image.</value>
   </data>
-  <data name="LockB" xml:space="preserve">
+  <data name="ColorBlueAbbr" xml:space="preserve">
     <value>B</value>
   </data>
   <data name="LockBTip" xml:space="preserve">
     <value>Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa.</value>
   </data>
-  <data name="LockG" xml:space="preserve">
+  <data name="ColorGreenAbbr" xml:space="preserve">
     <value>G</value>
   </data>
   <data name="LockGTip" xml:space="preserve">
     <value>Prevents drawing from affecting the greenness of the image. Note that bright values have more green and vice versa.</value>
   </data>
-  <data name="LockR" xml:space="preserve">
+  <data name="ColorRedAbbr" xml:space="preserve">
     <value>R</value>
   </data>
   <data name="LockRTip" xml:space="preserve">
@@ -944,7 +940,7 @@ Press Zero to reset the canvas position, zoom and angle.</value>
     <value>Brush Opacity</value>
   </data>
   <data name="BrushOpacityTip" xml:space="preserve">
-    <value>Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here.</value>
+    <value>This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here.</value>
   </data>
   <data name="ChosenEffectTip" xml:space="preserve">
     <value>When an effect is chosen, it'll be applied in brush strokes according to its settings.</value>
@@ -955,16 +951,509 @@ Press Zero to reset the canvas position, zoom and angle.</value>
   <data name="EffectDefaultNone" xml:space="preserve">
     <value>No effect chosen</value>
   </data>
-  <data name="EffectFailedToStartError" xml:space="preserve">
-    <value>Effect failed to work (couldn't start).</value>
-  </data>
   <data name="EffectFailedToWorkError" xml:space="preserve">
-    <value>Effect failed to work (couldn't open the dialog).</value>
-  </data>
-  <data name="EffectFailedExternalError" xml:space="preserve">
-    <value>Effect failed to work (generic error with effect).</value>
+    <value>Couldn't apply the chosen effect.</value>
   </data>
   <data name="BrushFlowAlpha" xml:space="preserve">
     <value>Alpha:</value>
+  </data>
+  <data name="CannotSaveSettingsError" xml:space="preserve">
+    <value>Any changes to settings/preferences couldn't be saved.</value>
+  </data>
+  <data name="DialogCustomBrushImagesTitle" xml:space="preserve">
+    <value>Image and Palette Paths</value>
+  </data>
+  <data name="DialogKeyboardShortcutsTitle" xml:space="preserve">
+    <value>Keyboard Shortcuts</value>
+  </data>
+  <data name="ShortcutNudgeCanvasX" xml:space="preserve">
+    <value>Nudge Canvas Horizontally</value>
+  </data>
+  <data name="ShortcutNudgeCanvasY" xml:space="preserve">
+    <value>Nudge Canvas Vertically</value>
+  </data>
+  <data name="ShortcutResetCanvas" xml:space="preserve">
+    <value>Reset Canvas</value>
+  </data>
+  <data name="ShortcutRotateCanvas" xml:space="preserve">
+    <value>Rotate Canvas</value>
+  </data>
+  <data name="KeyboardShortcutsTip" xml:space="preserve">
+    <value>The bolded names are the command to perform. The sequence to invoke it comes next. The text below some commands is associated data that tells the command how to behave.</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="KeyboardShortcuts" xml:space="preserve">
+    <value>Keyboard shortcuts</value>
+  </data>
+  <data name="KeyboardShortcutsActionDataPlaceholder" xml:space="preserve">
+    <value>Action data</value>
+  </data>
+  <data name="RestoreDefaults" xml:space="preserve">
+    <value>Restore defaults</value>
+  </data>
+  <data name="SaveKeyboardShortcutsTip" xml:space="preserve">
+    <value>Save the current keyboard shortcuts.</value>
+  </data>
+  <data name="ShortcutInputWheelDown" xml:space="preserve">
+    <value>Wheel down</value>
+  </data>
+  <data name="ShortcutInputWheelUp" xml:space="preserve">
+    <value>Wheel up</value>
+  </data>
+  <data name="ShortcutInputAlt" xml:space="preserve">
+    <value>Alt</value>
+  </data>
+  <data name="ShortcutInputBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="ShortcutInputCapsLock" xml:space="preserve">
+    <value>Caps lock</value>
+  </data>
+  <data name="ShortcutInputCtrl" xml:space="preserve">
+    <value>Ctrl</value>
+  </data>
+  <data name="ShortcutInputDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ShortcutInputEnd" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="ShortcutInputEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="ShortcutInputEscape" xml:space="preserve">
+    <value>Escape</value>
+  </data>
+  <data name="ShortcutInputHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="ShortcutInputInsert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="ShortcutInputNumLock" xml:space="preserve">
+    <value>Num lock</value>
+  </data>
+  <data name="ShortcutInputPageDown" xml:space="preserve">
+    <value>Page down</value>
+  </data>
+  <data name="ShortcutInputPageUp" xml:space="preserve">
+    <value>Page up</value>
+  </data>
+  <data name="ShortcutInputPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="ShortcutInputPrintScreen" xml:space="preserve">
+    <value>Print screen</value>
+  </data>
+  <data name="ShortcutInputScrollLock" xml:space="preserve">
+    <value>Scroll lock</value>
+  </data>
+  <data name="ShortcutInputShift" xml:space="preserve">
+    <value>Shift</value>
+  </data>
+  <data name="ShortcutInputSpace" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="ShortcutInputTab" xml:space="preserve">
+    <value>Tab</value>
+  </data>
+  <data name="ShortcutInputWheel" xml:space="preserve">
+    <value>Wheel</value>
+  </data>
+  <data name="ShortcutSelectACommand" xml:space="preserve">
+    <value>Select a command...</value>
+  </data>
+  <data name="ShortcutSetTheSequence" xml:space="preserve">
+    <value>Set the key sequence...</value>
+  </data>
+  <data name="ShortcutChosenEffect" xml:space="preserve">
+    <value>Chosen Effect</value>
+  </data>
+  <data name="ShortcutInputDigitNumber" xml:space="preserve">
+    <value>{0} (digit)</value>
+  </data>
+  <data name="ShortcutInputNumpadNumber" xml:space="preserve">
+    <value>{0} (numpad)</value>
+  </data>
+  <data name="ShortcutCanvasZoomFit" xml:space="preserve">
+    <value>Fit To Window</value>
+  </data>
+  <data name="ShortcutCanvasAngle" xml:space="preserve">
+    <value>Canvas Angle</value>
+  </data>
+  <data name="MenuCanvasBgStretchToFit" xml:space="preserve">
+    <value>stretch to fit</value>
+  </data>
+  <data name="MenuCanvasBgUseOnlyIfSameSize" xml:space="preserve">
+    <value>use only if same size</value>
+  </data>
+  <data name="MenuColorPickerCopiesTransparency" xml:space="preserve">
+    <value>color picker copies transparency</value>
+  </data>
+  <data name="MenuColorPickerSwitches" xml:space="preserve">
+    <value>color picker switches to last tool when used</value>
+  </data>
+  <data name="MenuCustomBrushImages" xml:space="preserve">
+    <value>brush images and palettes...</value>
+  </data>
+  <data name="MenuDisplayBrushIndicator" xml:space="preserve">
+    <value>brush indicator</value>
+  </data>
+  <data name="MenuDisplayBrushIndicatorPreview" xml:space="preserve">
+    <value>brush preview</value>
+  </data>
+  <data name="MenuDisplayBrushIndicatorSquare" xml:space="preserve">
+    <value>square</value>
+  </data>
+  <data name="MenuDisplaySettings" xml:space="preserve">
+    <value>display settings</value>
+  </data>
+  <data name="MenuDisplayShowMinDistCircle" xml:space="preserve">
+    <value>show the circle for minimum distance when in use</value>
+  </data>
+  <data name="MenuDisplayShowSymmetryLines" xml:space="preserve">
+    <value>show symmetry lines when in use</value>
+  </data>
+  <data name="MenuDontConfirmCloseSave" xml:space="preserve">
+    <value>don't ask to confirm when closing/saving</value>
+  </data>
+  <data name="MenuKeyboardShortcuts" xml:space="preserve">
+    <value>keyboard shortcuts...</value>
+  </data>
+  <data name="MenuOptions" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="MenuRecenterTheCanvas" xml:space="preserve">
+    <value>re-center the canvas</value>
+  </data>
+  <data name="MenuRemoveUnfoundImagePaths" xml:space="preserve">
+    <value>remove brush image paths when not found</value>
+  </data>
+  <data name="MenuRotate180" xml:space="preserve">
+    <value>rotate to 180</value>
+  </data>
+  <data name="MenuRotate270" xml:space="preserve">
+    <value>rotate to 270</value>
+  </data>
+  <data name="MenuRotate90" xml:space="preserve">
+    <value>rotate to 90</value>
+  </data>
+  <data name="MenuRotateReset" xml:space="preserve">
+    <value>reset canvas angle</value>
+  </data>
+  <data name="MenuRotateTo" xml:space="preserve">
+    <value>rotate to...</value>
+  </data>
+  <data name="MenuSetCanvasBackground" xml:space="preserve">
+    <value>set canvas background</value>
+  </data>
+  <data name="MenuZoomFit" xml:space="preserve">
+    <value>fit to window</value>
+  </data>
+  <data name="MenuZoomReset" xml:space="preserve">
+    <value>reset zoom</value>
+  </data>
+  <data name="MenuZoomTo" xml:space="preserve">
+    <value>zoom to...</value>
+  </data>
+  <data name="TextboxDialogRangeInvalid" xml:space="preserve">
+    <value>Number has to lie in range {0} to {1}.</value>
+  </data>
+  <data name="VersionString" xml:space="preserve">
+    <value>{0} (version {1}.{2})</value>
+  </data>
+  <data name="ShortcutMinDrawDist" xml:space="preserve">
+    <value>Min. Draw Distance</value>
+  </data>
+  <data name="ConfirmResetShortcuts" xml:space="preserve">
+    <value>All shortcuts will be reset to installation defaults. Are you sure?</value>
+  </data>
+  <data name="ConfirmResetShortcutsTitle" xml:space="preserve">
+    <value>Reset keyboard shortcuts</value>
+  </data>
+  <data name="DialogKeyboardShortcutsRecordKeys" xml:space="preserve">
+    <value>Recording keys...</value>
+  </data>
+  <data name="ShortcutLockB" xml:space="preserve">
+    <value>Lock Blue</value>
+  </data>
+  <data name="ShortcutLockG" xml:space="preserve">
+    <value>Lock Green</value>
+  </data>
+  <data name="ShortcutLockHue" xml:space="preserve">
+    <value>Lock Hue</value>
+  </data>
+  <data name="ShortcutLockR" xml:space="preserve">
+    <value>Lock Red</value>
+  </data>
+  <data name="ShortcutLockSat" xml:space="preserve">
+    <value>Lock Saturation</value>
+  </data>
+  <data name="ShortcutLockVal" xml:space="preserve">
+    <value>Lock Value</value>
+  </data>
+  <data name="ShortcutsOver3Tip" xml:space="preserve">
+    <value>... +{0} more</value>
+  </data>
+  <data name="ShortcutsTooltipTip" xml:space="preserve">
+    <value>Shortcuts:</value>
+  </data>
+  <data name="CloseWithoutSaving" xml:space="preserve">
+    <value>There are unsaved changes. Close without saving?</value>
+  </data>
+  <data name="CloseWithoutSavingTitle" xml:space="preserve">
+    <value>Close without saving</value>
+  </data>
+  <data name="KeyboardShortcutsSaveAndDiscardEdits" xml:space="preserve">
+    <value>Changes to shortcuts will be saved, but you also have unapplied edits that will be lost.</value>
+  </data>
+  <data name="MenuSetTheme" xml:space="preserve">
+    <value>Set theme</value>
+  </data>
+  <data name="MenuSetThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="MenuSetThemeDefault" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="MenuSetThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Current" xml:space="preserve">
+    <value>Current</value>
+  </data>
+  <data name="PaletteLocations" xml:space="preserve">
+    <value>Palettes and folders with palettes to add to your available palettes when {0} starts</value>
+  </data>
+  <data name="PalettesTextboxTip" xml:space="preserve">
+    <value>When {0} starts, it will load all the palettes from these locations on your computer, up to 128 colors (Paint.NET stops at 96). You can add locations using the add file/folder buttons or by pasting them here.</value>
+  </data>
+  <data name="LoadPaletteError" xml:space="preserve">
+    <value>The palette couldn't be loaded.</value>
+  </data>
+  <data name="RestoreDefaultsPaletteLocationsTip" xml:space="preserve">
+    <value>Restores the default palette locations if they're missing. Does not remove any custom locations.</value>
+  </data>
+  <data name="ShortcutSwapColors" xml:space="preserve">
+    <value>Swap Colors</value>
+  </data>
+  <data name="Alpha" xml:space="preserve">
+    <value>Alpha</value>
+  </data>
+  <data name="ATip" xml:space="preserve">
+    <value>How opaque the current color is.</value>
+  </data>
+  <data name="BTip" xml:space="preserve">
+    <value>How blue the current color is.</value>
+  </data>
+  <data name="GTip" xml:space="preserve">
+    <value>How green the current color is.</value>
+  </data>
+  <data name="HueTip" xml:space="preserve">
+    <value>The hue of the current color.</value>
+  </data>
+  <data name="RTip" xml:space="preserve">
+    <value>How red the current color is.</value>
+  </data>
+  <data name="SatTip" xml:space="preserve">
+    <value>The saturation of the current color (vibrance).</value>
+  </data>
+  <data name="ValTip" xml:space="preserve">
+    <value>The value of the current color (brightness).</value>
+  </data>
+  <data name="BrushPrimaryColorTip" xml:space="preserve">
+    <value>Your current color. Click to change colors.</value>
+  </data>
+  <data name="ConfirmDeleteBrush" xml:space="preserve">
+    <value>Delete this brush?</value>
+  </data>
+  <data name="PickAColor" xml:space="preserve">
+    <value>Pick a color</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="OpenColorPickerDialog" xml:space="preserve">
+    <value>Open color picker</value>
+  </data>
+  <data name="OpenQuickCommandDialog" xml:space="preserve">
+    <value>Open quick commands</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="DeleteOrToggle" xml:space="preserve">
+    <value>Delete / Toggle</value>
+  </data>
+  <data name="Toggle" xml:space="preserve">
+    <value>Toggle</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ShortcutNameDecreaseBrushFlow" xml:space="preserve">
+    <value>Decrease brush flow</value>
+  </data>
+  <data name="ShortcutNameDecreaseBrushOpacity" xml:space="preserve">
+    <value>Decrease brush opacity</value>
+  </data>
+  <data name="ShortcutNameDecreaseBrushSize" xml:space="preserve">
+    <value>Decrease brush size</value>
+  </data>
+  <data name="ShortcutNameIncreaseBrushFlow" xml:space="preserve">
+    <value>Increase brush flow</value>
+  </data>
+  <data name="ShortcutNameIncreaseBrushOpacity" xml:space="preserve">
+    <value>Increase brush opacity</value>
+  </data>
+  <data name="ShortcutNameIncreaseBrushSize" xml:space="preserve">
+    <value>Increase brush size</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasDown" xml:space="preserve">
+    <value>Nudge canvas down</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasLeft" xml:space="preserve">
+    <value>Nudge canvas left</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasRight" xml:space="preserve">
+    <value>Nudge canvas right</value>
+  </data>
+  <data name="ShortcutNameNudgeCanvasUp" xml:space="preserve">
+    <value>Nudge canvas up</value>
+  </data>
+  <data name="ShortcutNameOpenQuickCommand" xml:space="preserve">
+    <value>Open quick command</value>
+  </data>
+  <data name="ShortcutNameRecenterTheCanvas" xml:space="preserve">
+    <value>Re-center the canvas</value>
+  </data>
+  <data name="ShortcutNameRotateBrushClockwise" xml:space="preserve">
+    <value>Rotate brush clockwise</value>
+  </data>
+  <data name="ShortcutNameRotateBrushCounter" xml:space="preserve">
+    <value>Rotate brush counter-clockwise</value>
+  </data>
+  <data name="ShortcutNameRotateCanvasClockwise" xml:space="preserve">
+    <value>Rotate canvas clockwise</value>
+  </data>
+  <data name="ShortcutNameRotateCanvasCounter" xml:space="preserve">
+    <value>Rotate canvas counter-clockwise</value>
+  </data>
+  <data name="ShortcutNameSwitchPrimarySecondary" xml:space="preserve">
+    <value>Switch primary and secondary colors</value>
+  </data>
+  <data name="ShortcutNameSwitchToBrush" xml:space="preserve">
+    <value>Switch to brush</value>
+  </data>
+  <data name="ShortcutNameSwitchToColorPicker" xml:space="preserve">
+    <value>Switch to color picker</value>
+  </data>
+  <data name="ShortcutNameSwitchToEraser" xml:space="preserve">
+    <value>Switch to eraser</value>
+  </data>
+  <data name="ShortcutNameSwitchToSetOrigin" xml:space="preserve">
+    <value>Switch to set origin</value>
+  </data>
+  <data name="ShortcutNameZoomIn" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="ShortcutNameZoomOut" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
+  <data name="ColorSchemeAnalogous3" xml:space="preserve">
+    <value>Analogous 3</value>
+  </data>
+  <data name="ColorSchemeAnalogous4" xml:space="preserve">
+    <value>Analogous 4</value>
+  </data>
+  <data name="ColorSchemeComplementary" xml:space="preserve">
+    <value>Complementary</value>
+  </data>
+  <data name="ColorSchemeMonochromatic" xml:space="preserve">
+    <value>Monochromatic</value>
+  </data>
+  <data name="ColorSchemeGradient" xml:space="preserve">
+    <value>Color Blend</value>
+  </data>
+  <data name="ColorSchemeRecent" xml:space="preserve">
+    <value>Recent</value>
+  </data>
+  <data name="ColorSchemeSplitComplementary" xml:space="preserve">
+    <value>Split Complement</value>
+  </data>
+  <data name="ColorSchemeSquare" xml:space="preserve">
+    <value>Square</value>
+  </data>
+  <data name="ColorSchemeTriadic" xml:space="preserve">
+    <value>Triadic</value>
+  </data>
+  <data name="ColorSchemeTip" xml:space="preserve">
+    <value>The type of palette to use.</value>
+  </data>
+  <data name="LiveRefreshTip" xml:space="preserve">
+    <value>Turning this on will cause generated palettes to refresh any time the primary color changes.</value>
+  </data>
+  <data name="ShortcutNamePickFromPalette" xml:space="preserve">
+    <value>Pick from Palette</value>
+  </data>
+  <data name="ShortcutNameSwitchPalette" xml:space="preserve">
+    <value>Switch Palette</value>
+  </data>
+  <data name="PaletteTip" xml:space="preserve">
+    <value>Click a color on the palette to make it your primary color.</value>
+  </data>
+  <data name="SwitchPaletteTip" xml:space="preserve">
+    <value>Click to switch the active palette. This defaults to the same palette active in Paint.NET. It includes generated palettes and below them, any palettes or palette folders found in palette directories. The generated palettes are:
+
+Recent: a list of recently-used colors. This only updates when a color is used, not selected.
+Color Blend: a gradient from the primary color to secondary color.
+Monochromatic: a gradient from white, to the primary color, then to black.
+Analogous 3: gradients of 3 nearby hues, including the current one.
+Analogous 4: gradients of 4 nearby hues.
+Complementary: gradients of the current and opposite hue.
+Split Complement: gradients of the current and opposite hue, and 2 hues near them.
+Triadic: gradients of 3 hues that are equidistant on the color wheel.
+Square: gradients of 4 hues that are equidistant on the color wheel.</value>
+  </data>
+  <data name="ColorHexfieldTip" xml:space="preserve">
+    <value>This is the hexadecimal color code of the current color, shown in ARGB (alpha, RGB) format. You can enter hex codes with 6 digits (RGB) or 8 digits (ARGB) to update the current color.</value>
+  </data>
+  <data name="ColorWheelTip" xml:space="preserve">
+    <value>Click anywhere to set the hue and saturation of the current color.</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="ShortcutNameSwitchToCloneStamp" xml:space="preserve">
+    <value>Switch to clone stamp</value>
+  </data>
+  <data name="ToolCloneStampTip" xml:space="preserve">
+    <value>The clone stamp tool lets you copy from one area to another, useful in photo touch-up.</value>
+  </data>
+  <data name="CloneStampOriginError" xml:space="preserve">
+    <value>You're using the clone stamp tool, which copies pixels from one location to another. You need to use Ctrl + Click to set the point on the canvas to copy from.</value>
+  </data>
+  <data name="ShortcutNameSwitchToLine" xml:space="preserve">
+    <value>Switch to line tool</value>
+  </data>
+  <data name="ToolLineTip" xml:space="preserve">
+    <value>The line tool lets you draw from one point to another.</value>
+  </data>
+  <data name="ShortcutNameConfirmLine" xml:space="preserve">
+    <value>Confirm line tool</value>
+  </data>
+  <data name="BrushDensityMax" xml:space="preserve">
+    <value>Max</value>
   </data>
 </root>

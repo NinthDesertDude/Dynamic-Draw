@@ -356,7 +356,7 @@ namespace DynamicDraw
                 string copy = "";
                 for (int i = 0; i < curveControlPoints.Length; i++)
                 {
-                    copy += curveControlPoints[i].X + ", " + curveControlPoints[i].Y + "\n";
+                    copy += curveControlPoints[i].X + ", " + curveControlPoints[i].Y + Environment.NewLine;
                 }
                 Clipboard.SetText(copy);
             }

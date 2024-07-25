@@ -51,13 +51,37 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Gui\Main\CmbxTabletValueType.cs">
+    <Compile Update="Gui\Components\ColorWheel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Main\Accordion.cs">
+    <Compile Update="Gui\Components\ColorTextbox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Main\DoubleBufferedListView.cs">
+    <Compile Update="Gui\Components\SliderColorMode.cs" />
+    <Compile Update="Gui\Components\SwatchBox.cs" />
+    <Compile Update="Gui\Components\ThemedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Components\ThemedListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Forms\CommandDialog.cs" />
+    <Compile Update="Gui\Forms\ColorPickerDialog.cs" />
+    <Compile Update="Gui\Forms\EditKeyboardShortcuts.cs" />
+    <Compile Update="Gui\Components\ThemedButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Components\ThemedCheckbox.cs" />
+    <Compile Update="Gui\Components\Slider.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Components\CmbxTabletValueType.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Components\Accordion.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Gui\Components\DoubleBufferedListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Localization\Strings.Designer.cs">

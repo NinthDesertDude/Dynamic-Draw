@@ -151,6 +151,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        internal static string Add {
+            get {
+                return ResourceManager.GetString("Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Brush Images.
         /// </summary>
         internal static string AddBrushImages {
@@ -160,7 +169,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select additional brush images to permanently add. They can be removed later from custom brush locations (under Special Settings)..
+        ///   Looks up a localized string similar to Select additional brush images to permanently add. They can be removed later from the options menu..
         /// </summary>
         internal static string AddBrushImagesTip {
             get {
@@ -178,7 +187,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for files to load as custom brush images when Dynamic Draw starts..
+        ///   Looks up a localized string similar to Browse for files to load when {0} starts..
         /// </summary>
         internal static string AddFilesTip {
             get {
@@ -196,7 +205,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse for a folder to add to the list of places to load custom brush images from. All images directly within the folder will be loaded when Dynamic Draw starts. Images in sub-folders will not..
+        ///   Looks up a localized string similar to Browse for folders to load from when {0} starts. Only files in the chosen folder will be added, no files from sub-folders..
         /// </summary>
         internal static string AddFoldersTip {
             get {
@@ -205,7 +214,25 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Auto manage density.
+        ///   Looks up a localized string similar to Alpha.
+        /// </summary>
+        internal static string Alpha {
+            get {
+                return ResourceManager.GetString("Alpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How opaque the current color is..
+        /// </summary>
+        internal static string ATip {
+            get {
+                return ResourceManager.GetString("ATip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto Manage Density.
         /// </summary>
         internal static string AutomaticBrushDensity {
             get {
@@ -421,7 +448,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lets you set the color of the brush..
+        ///   Looks up a localized string similar to Your brush colors (primary is top, secondary is bottom). Click primary to change colors, or secondary to swap..
         /// </summary>
         internal static string BrushColorTip {
             get {
@@ -435,6 +462,15 @@ namespace DynamicDraw.Localization {
         internal static string BrushDensity {
             get {
                 return ResourceManager.GetString("BrushDensity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max.
+        /// </summary>
+        internal static string BrushDensityMax {
+            get {
+                return ResourceManager.GetString("BrushDensityMax", resourceCulture);
             }
         }
         
@@ -466,7 +502,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush flow shortcut: Ctrl + F + Mouse Wheel. This is how quickly the brush color &quot;builds up&quot; as you draw. It&apos;s a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke..
+        ///   Looks up a localized string similar to This is how quickly the brush color &quot;builds up&quot; as you draw. It&apos;s a way to achieve transparency, allowing the brush to overlap and get darker within a single brush stroke..
         /// </summary>
         internal static string BrushFlowTip {
             get {
@@ -484,7 +520,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush image directories and files to load when Dynamic Draw starts.
+        ///   Looks up a localized string similar to Images and folders with images to add to your brush images when {0} starts.
         /// </summary>
         internal static string BrushLocations {
             get {
@@ -493,7 +529,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Places to look for brush images appear here. Type a new address or use &apos;add folder&apos; to add your own..
+        ///   Looks up a localized string similar to When {0} starts, it will load all the images from these locations on your computer and make them available as brush images. You can add locations using the add file/folder buttons or by pasting them here..
         /// </summary>
         internal static string BrushLocationsTextboxTip {
             get {
@@ -511,7 +547,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush opacity shortcut: Ctrl + O + Mouse Wheel. This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here..
+        ///   Looks up a localized string similar to This changes the brush transparency, preventing the brush from layering over itself repeatedly. It can only get as opaque as allowed here..
         /// </summary>
         internal static string BrushOpacityTip {
             get {
@@ -520,7 +556,16 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush rotation shortcut: Ctrl + R + Mouse Wheel. Sets the brush rotation for tilting while drawing..
+        ///   Looks up a localized string similar to Your current color. Click to change colors..
+        /// </summary>
+        internal static string BrushPrimaryColorTip {
+            get {
+                return ResourceManager.GetString("BrushPrimaryColorTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sets the brush rotation for tilting while drawing..
         /// </summary>
         internal static string BrushRotationTip {
             get {
@@ -538,7 +583,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush size shortcut: Ctrl + S + Mouse Wheel. Sets the brush size to make it larger or smaller..
+        ///   Looks up a localized string similar to Sets the brush size to make it larger or smaller..
         /// </summary>
         internal static string BrushSizeTip {
             get {
@@ -555,6 +600,15 @@ namespace DynamicDraw.Localization {
         internal static string BrushSmoothingTip {
             get {
                 return ResourceManager.GetString("BrushSmoothingTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How blue the current color is..
+        /// </summary>
+        internal static string BTip {
+            get {
+                return ResourceManager.GetString("BTip", resourceCulture);
             }
         }
         
@@ -622,11 +676,20 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your custom brush images couldn&apos;t be loaded. You can try defining them again..
+        ///   Looks up a localized string similar to Settings/preferences and custom brushes couldn&apos;t be loaded..
         /// </summary>
         internal static string CannotLoadSettingsError {
             get {
                 return ResourceManager.GetString("CannotLoadSettingsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Any changes to settings/preferences couldn&apos;t be saved..
+        /// </summary>
+        internal static string CannotSaveSettingsError {
+            get {
+                return ResourceManager.GetString("CannotSaveSettingsError", resourceCulture);
             }
         }
         
@@ -640,9 +703,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Canvas angle shortcuts: Shift + Mouse Wheel, and Shift + Left/Right Arrow. Rotates the canvas around its center (this is mainly useful with a tablet).
-        ///
-        ///Press Zero to reset the canvas position, zoom and angle..
+        ///   Looks up a localized string similar to Rotates the canvas around its center (this is mainly useful with a tablet)..
         /// </summary>
         internal static string CanvasAngleTip {
             get {
@@ -687,9 +748,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Canvas zoom shortcut: Ctrl + Mouse Wheel. Zooms the picture in and out to make editing easier.
-        ///
-        ///Press Zero to reset the canvas position, zoom and angle..
+        ///   Looks up a localized string similar to Zooms the picture in and out to make editing easier..
         /// </summary>
         internal static string CanvasZoomTip {
             get {
@@ -716,7 +775,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear Current Brush Settings.
+        ///   Looks up a localized string similar to Clear Current Brush.
         /// </summary>
         internal static string ClearSettings {
             get {
@@ -739,6 +798,69 @@ namespace DynamicDraw.Localization {
         internal static string ClipboardErrorUnusable {
             get {
                 return ResourceManager.GetString("ClipboardErrorUnusable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re using the clone stamp tool, which copies pixels from one location to another. You need to use Ctrl + Click to set the point on the canvas to copy from..
+        /// </summary>
+        internal static string CloneStampOriginError {
+            get {
+                return ResourceManager.GetString("CloneStampOriginError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are unsaved changes. Close without saving?.
+        /// </summary>
+        internal static string CloseWithoutSaving {
+            get {
+                return ResourceManager.GetString("CloseWithoutSaving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close without saving.
+        /// </summary>
+        internal static string CloseWithoutSavingTitle {
+            get {
+                return ResourceManager.GetString("CloseWithoutSavingTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to B.
+        /// </summary>
+        internal static string ColorBlueAbbr {
+            get {
+                return ResourceManager.GetString("ColorBlueAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to G.
+        /// </summary>
+        internal static string ColorGreenAbbr {
+            get {
+                return ResourceManager.GetString("ColorGreenAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is the hexadecimal color code of the current color, shown in ARGB (alpha, RGB) format. You can enter hex codes with 6 digits (RGB) or 8 digits (ARGB) to update the current color..
+        /// </summary>
+        internal static string ColorHexfieldTip {
+            get {
+                return ResourceManager.GetString("ColorHexfieldTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to H.
+        /// </summary>
+        internal static string ColorHueAbbr {
+            get {
+                return ResourceManager.GetString("ColorHueAbbr", resourceCulture);
             }
         }
         
@@ -788,7 +910,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No Mixing.
+        ///   Looks up a localized string similar to Draw Solid Color.
         /// </summary>
         internal static string ColorizeBrush {
             get {
@@ -806,11 +928,146 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color picker Shortcut: K. Activate this tool to select a color on-screen, and switch to the last-used tool afterwards..
+        ///   Looks up a localized string similar to Selects a color on the canvas and switches to the last-used tool afterwards..
         /// </summary>
         internal static string ColorPickerTip {
             get {
                 return ResourceManager.GetString("ColorPickerTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to R.
+        /// </summary>
+        internal static string ColorRedAbbr {
+            get {
+                return ResourceManager.GetString("ColorRedAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.
+        /// </summary>
+        internal static string ColorSatAbbr {
+            get {
+                return ResourceManager.GetString("ColorSatAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Analogous 3.
+        /// </summary>
+        internal static string ColorSchemeAnalogous3 {
+            get {
+                return ResourceManager.GetString("ColorSchemeAnalogous3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Analogous 4.
+        /// </summary>
+        internal static string ColorSchemeAnalogous4 {
+            get {
+                return ResourceManager.GetString("ColorSchemeAnalogous4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Complementary.
+        /// </summary>
+        internal static string ColorSchemeComplementary {
+            get {
+                return ResourceManager.GetString("ColorSchemeComplementary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Color Blend.
+        /// </summary>
+        internal static string ColorSchemeGradient {
+            get {
+                return ResourceManager.GetString("ColorSchemeGradient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monochromatic.
+        /// </summary>
+        internal static string ColorSchemeMonochromatic {
+            get {
+                return ResourceManager.GetString("ColorSchemeMonochromatic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recent.
+        /// </summary>
+        internal static string ColorSchemeRecent {
+            get {
+                return ResourceManager.GetString("ColorSchemeRecent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Split Complement.
+        /// </summary>
+        internal static string ColorSchemeSplitComplementary {
+            get {
+                return ResourceManager.GetString("ColorSchemeSplitComplementary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Square.
+        /// </summary>
+        internal static string ColorSchemeSquare {
+            get {
+                return ResourceManager.GetString("ColorSchemeSquare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type of palette to use..
+        /// </summary>
+        internal static string ColorSchemeTip {
+            get {
+                return ResourceManager.GetString("ColorSchemeTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Triadic.
+        /// </summary>
+        internal static string ColorSchemeTriadic {
+            get {
+                return ResourceManager.GetString("ColorSchemeTriadic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to V.
+        /// </summary>
+        internal static string ColorValAbbr {
+            get {
+                return ResourceManager.GetString("ColorValAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click anywhere to set the hue and saturation of the current color..
+        /// </summary>
+        internal static string ColorWheelTip {
+            get {
+                return ResourceManager.GetString("ColorWheelTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Command.
+        /// </summary>
+        internal static string Command {
+            get {
+                return ResourceManager.GetString("Command", resourceCulture);
             }
         }
         
@@ -842,6 +1099,42 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete this brush?.
+        /// </summary>
+        internal static string ConfirmDeleteBrush {
+            get {
+                return ResourceManager.GetString("ConfirmDeleteBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All shortcuts will be reset to installation defaults. Are you sure?.
+        /// </summary>
+        internal static string ConfirmResetShortcuts {
+            get {
+                return ResourceManager.GetString("ConfirmResetShortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset keyboard shortcuts.
+        /// </summary>
+        internal static string ConfirmResetShortcutsTitle {
+            get {
+                return ResourceManager.GetString("ConfirmResetShortcutsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current.
+        /// </summary>
+        internal static string Current {
+            get {
+                return ResourceManager.GetString("Current", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Give a unique name for the brush below. All brush-related settings will be saved as part of this brush, except which brush images are loaded (although the selected image will be saved)..
         /// </summary>
         internal static string CustomBrushDialogDescription {
@@ -865,24 +1158,6 @@ namespace DynamicDraw.Localization {
         internal static string CustomBrushDialogTitle {
             get {
                 return ResourceManager.GetString("CustomBrushDialogTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Brush Image Locations.
-        /// </summary>
-        internal static string CustomBrushImageLocations {
-            get {
-                return ResourceManager.GetString("CustomBrushImageLocations", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Define where to look for brush images when this plugin loads..
-        /// </summary>
-        internal static string CustomBrushImageLocationsTip {
-            get {
-                return ResourceManager.GetString("CustomBrushImageLocationsTip", resourceCulture);
             }
         }
         
@@ -1103,6 +1378,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        internal static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete Brush.
         /// </summary>
         internal static string DeleteBrush {
@@ -1121,7 +1405,43 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Checkerboard Dithering.
+        ///   Looks up a localized string similar to Delete / Toggle.
+        /// </summary>
+        internal static string DeleteOrToggle {
+            get {
+                return ResourceManager.GetString("DeleteOrToggle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Image and Palette Paths.
+        /// </summary>
+        internal static string DialogCustomBrushImagesTitle {
+            get {
+                return ResourceManager.GetString("DialogCustomBrushImagesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recording keys....
+        /// </summary>
+        internal static string DialogKeyboardShortcutsRecordKeys {
+            get {
+                return ResourceManager.GetString("DialogKeyboardShortcutsRecordKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keyboard Shortcuts.
+        /// </summary>
+        internal static string DialogKeyboardShortcutsTitle {
+            get {
+                return ResourceManager.GetString("DialogKeyboardShortcutsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checkered Dithering.
         /// </summary>
         internal static string DitherDraw {
             get {
@@ -1139,6 +1459,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        internal static string Edit {
+            get {
+                return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No effect chosen.
         /// </summary>
         internal static string EffectDefaultNone {
@@ -1148,29 +1477,20 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Effect failed to work (generic error with effect)..
-        /// </summary>
-        internal static string EffectFailedExternalError {
-            get {
-                return ResourceManager.GetString("EffectFailedExternalError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Effect failed to work (couldn&apos;t start)..
-        /// </summary>
-        internal static string EffectFailedToStartError {
-            get {
-                return ResourceManager.GetString("EffectFailedToStartError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Effect failed to work (couldn&apos;t open the dialog)..
+        ///   Looks up a localized string similar to Couldn&apos;t apply the chosen effect..
         /// </summary>
         internal static string EffectFailedToWorkError {
             get {
                 return ResourceManager.GetString("EffectFailedToWorkError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How green the current color is..
+        /// </summary>
+        internal static string GTip {
+            get {
+                return ResourceManager.GetString("GTip", resourceCulture);
             }
         }
         
@@ -1180,6 +1500,15 @@ namespace DynamicDraw.Localization {
         internal static string HueAbbr {
             get {
                 return ResourceManager.GetString("HueAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The hue of the current color..
+        /// </summary>
+        internal static string HueTip {
+            get {
+                return ResourceManager.GetString("HueTip", resourceCulture);
             }
         }
         
@@ -1292,6 +1621,51 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Keyboard shortcuts.
+        /// </summary>
+        internal static string KeyboardShortcuts {
+            get {
+                return ResourceManager.GetString("KeyboardShortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Action data.
+        /// </summary>
+        internal static string KeyboardShortcutsActionDataPlaceholder {
+            get {
+                return ResourceManager.GetString("KeyboardShortcutsActionDataPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Changes to shortcuts will be saved, but you also have unapplied edits that will be lost..
+        /// </summary>
+        internal static string KeyboardShortcutsSaveAndDiscardEdits {
+            get {
+                return ResourceManager.GetString("KeyboardShortcutsSaveAndDiscardEdits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bolded names are the command to perform. The sequence to invoke it comes next. The text below some commands is associated data that tells the command how to behave..
+        /// </summary>
+        internal static string KeyboardShortcutsTip {
+            get {
+                return ResourceManager.GetString("KeyboardShortcutsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Turning this on will cause generated palettes to refresh any time the primary color changes..
+        /// </summary>
+        internal static string LiveRefreshTip {
+            get {
+                return ResourceManager.GetString("LiveRefreshTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Load Default Brush Images?.
         /// </summary>
         internal static string LoadDefaultBrushes {
@@ -1306,6 +1680,15 @@ namespace DynamicDraw.Localization {
         internal static string LoadDefaultBrushesTip {
             get {
                 return ResourceManager.GetString("LoadDefaultBrushesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The palette couldn&apos;t be loaded..
+        /// </summary>
+        internal static string LoadPaletteError {
+            get {
+                return ResourceManager.GetString("LoadPaletteError", resourceCulture);
             }
         }
         
@@ -1328,29 +1711,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to B.
-        /// </summary>
-        internal static string LockB {
-            get {
-                return ResourceManager.GetString("LockB", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Prevents drawing from affecting the blueness of the image. Note that bright values have more blue and vice versa..
         /// </summary>
         internal static string LockBTip {
             get {
                 return ResourceManager.GetString("LockBTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to G.
-        /// </summary>
-        internal static string LockG {
-            get {
-                return ResourceManager.GetString("LockG", resourceCulture);
             }
         }
         
@@ -1364,29 +1729,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to H.
-        /// </summary>
-        internal static string LockHue {
-            get {
-                return ResourceManager.GetString("LockHue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Prevents drawing from affecting the hue (color spectrum) of the image. Note that perfectly black/white/transparent pixels are considered red. This may lead to correct, but unexpected results..
         /// </summary>
         internal static string LockHueTip {
             get {
                 return ResourceManager.GetString("LockHueTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to R.
-        /// </summary>
-        internal static string LockR {
-            get {
-                return ResourceManager.GetString("LockR", resourceCulture);
             }
         }
         
@@ -1400,29 +1747,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to S.
-        /// </summary>
-        internal static string LockSat {
-            get {
-                return ResourceManager.GetString("LockSat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Prevents drawing from affecting the saturation (grayness) of the image. Note that desaturated colors that look very similar may naturally look very different when increasing saturation..
         /// </summary>
         internal static string LockSatTip {
             get {
                 return ResourceManager.GetString("LockSatTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to V.
-        /// </summary>
-        internal static string LockVal {
-            get {
-                return ResourceManager.GetString("LockVal", resourceCulture);
             }
         }
         
@@ -1454,7 +1783,268 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Min. Draw Distance.
+        ///   Looks up a localized string similar to stretch to fit.
+        /// </summary>
+        internal static string MenuCanvasBgStretchToFit {
+            get {
+                return ResourceManager.GetString("MenuCanvasBgStretchToFit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to use only if same size.
+        /// </summary>
+        internal static string MenuCanvasBgUseOnlyIfSameSize {
+            get {
+                return ResourceManager.GetString("MenuCanvasBgUseOnlyIfSameSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to color picker copies transparency.
+        /// </summary>
+        internal static string MenuColorPickerCopiesTransparency {
+            get {
+                return ResourceManager.GetString("MenuColorPickerCopiesTransparency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to color picker switches to last tool when used.
+        /// </summary>
+        internal static string MenuColorPickerSwitches {
+            get {
+                return ResourceManager.GetString("MenuColorPickerSwitches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to brush images and palettes....
+        /// </summary>
+        internal static string MenuCustomBrushImages {
+            get {
+                return ResourceManager.GetString("MenuCustomBrushImages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to brush indicator.
+        /// </summary>
+        internal static string MenuDisplayBrushIndicator {
+            get {
+                return ResourceManager.GetString("MenuDisplayBrushIndicator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to brush preview.
+        /// </summary>
+        internal static string MenuDisplayBrushIndicatorPreview {
+            get {
+                return ResourceManager.GetString("MenuDisplayBrushIndicatorPreview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to square.
+        /// </summary>
+        internal static string MenuDisplayBrushIndicatorSquare {
+            get {
+                return ResourceManager.GetString("MenuDisplayBrushIndicatorSquare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to display settings.
+        /// </summary>
+        internal static string MenuDisplaySettings {
+            get {
+                return ResourceManager.GetString("MenuDisplaySettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to show the circle for minimum distance when in use.
+        /// </summary>
+        internal static string MenuDisplayShowMinDistCircle {
+            get {
+                return ResourceManager.GetString("MenuDisplayShowMinDistCircle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to show symmetry lines when in use.
+        /// </summary>
+        internal static string MenuDisplayShowSymmetryLines {
+            get {
+                return ResourceManager.GetString("MenuDisplayShowSymmetryLines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to don&apos;t ask to confirm when closing/saving.
+        /// </summary>
+        internal static string MenuDontConfirmCloseSave {
+            get {
+                return ResourceManager.GetString("MenuDontConfirmCloseSave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to keyboard shortcuts....
+        /// </summary>
+        internal static string MenuKeyboardShortcuts {
+            get {
+                return ResourceManager.GetString("MenuKeyboardShortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        internal static string MenuOptions {
+            get {
+                return ResourceManager.GetString("MenuOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to re-center the canvas.
+        /// </summary>
+        internal static string MenuRecenterTheCanvas {
+            get {
+                return ResourceManager.GetString("MenuRecenterTheCanvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to remove brush image paths when not found.
+        /// </summary>
+        internal static string MenuRemoveUnfoundImagePaths {
+            get {
+                return ResourceManager.GetString("MenuRemoveUnfoundImagePaths", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to 180.
+        /// </summary>
+        internal static string MenuRotate180 {
+            get {
+                return ResourceManager.GetString("MenuRotate180", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to 270.
+        /// </summary>
+        internal static string MenuRotate270 {
+            get {
+                return ResourceManager.GetString("MenuRotate270", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to 90.
+        /// </summary>
+        internal static string MenuRotate90 {
+            get {
+                return ResourceManager.GetString("MenuRotate90", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to reset canvas angle.
+        /// </summary>
+        internal static string MenuRotateReset {
+            get {
+                return ResourceManager.GetString("MenuRotateReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rotate to....
+        /// </summary>
+        internal static string MenuRotateTo {
+            get {
+                return ResourceManager.GetString("MenuRotateTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to set canvas background.
+        /// </summary>
+        internal static string MenuSetCanvasBackground {
+            get {
+                return ResourceManager.GetString("MenuSetCanvasBackground", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set theme.
+        /// </summary>
+        internal static string MenuSetTheme {
+            get {
+                return ResourceManager.GetString("MenuSetTheme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dark.
+        /// </summary>
+        internal static string MenuSetThemeDark {
+            get {
+                return ResourceManager.GetString("MenuSetThemeDark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default.
+        /// </summary>
+        internal static string MenuSetThemeDefault {
+            get {
+                return ResourceManager.GetString("MenuSetThemeDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Light.
+        /// </summary>
+        internal static string MenuSetThemeLight {
+            get {
+                return ResourceManager.GetString("MenuSetThemeLight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to fit to window.
+        /// </summary>
+        internal static string MenuZoomFit {
+            get {
+                return ResourceManager.GetString("MenuZoomFit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to reset zoom.
+        /// </summary>
+        internal static string MenuZoomReset {
+            get {
+                return ResourceManager.GetString("MenuZoomReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to zoom to....
+        /// </summary>
+        internal static string MenuZoomTo {
+            get {
+                return ResourceManager.GetString("MenuZoomTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Min. Draw Distance:.
         /// </summary>
         internal static string MinDrawDistance {
             get {
@@ -1472,11 +2062,38 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        internal static string No {
+            get {
+                return ResourceManager.GetString("No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Shortcut.
         /// </summary>
         internal static string NoShortcut {
             get {
                 return ResourceManager.GetString("NoShortcut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        internal static string Off {
+            get {
+                return ResourceManager.GetString("Off", resourceCulture);
             }
         }
         
@@ -1499,6 +2116,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open color picker.
+        /// </summary>
+        internal static string OpenColorPickerDialog {
+            get {
+                return ResourceManager.GetString("OpenColorPickerDialog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open quick commands.
+        /// </summary>
+        internal static string OpenQuickCommandDialog {
+            get {
+                return ResourceManager.GetString("OpenQuickCommandDialog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rotate With Mouse.
         /// </summary>
         internal static string OrientToMouse {
@@ -1513,6 +2148,42 @@ namespace DynamicDraw.Localization {
         internal static string OrientToMouseTip {
             get {
                 return ResourceManager.GetString("OrientToMouseTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Palettes and folders with palettes to add to your available palettes when {0} starts.
+        /// </summary>
+        internal static string PaletteLocations {
+            get {
+                return ResourceManager.GetString("PaletteLocations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When {0} starts, it will load all the palettes from these locations on your computer, up to 128 colors (Paint.NET stops at 96). You can add locations using the add file/folder buttons or by pasting them here..
+        /// </summary>
+        internal static string PalettesTextboxTip {
+            get {
+                return ResourceManager.GetString("PalettesTextboxTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click a color on the palette to make it your primary color..
+        /// </summary>
+        internal static string PaletteTip {
+            get {
+                return ResourceManager.GetString("PaletteTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pick a color.
+        /// </summary>
+        internal static string PickAColor {
+            get {
+                return ResourceManager.GetString("PickAColor", resourceCulture);
             }
         }
         
@@ -1589,7 +2260,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Rot to Left:.
+        ///   Looks up a localized string similar to Random Rotate Left:.
         /// </summary>
         internal static string RandRotLeft {
             get {
@@ -1607,7 +2278,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Rot to Right:.
+        ///   Looks up a localized string similar to Random Rotate Right:.
         /// </summary>
         internal static string RandRotRight {
             get {
@@ -1661,7 +2332,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Redo Shortcut: Ctrl + Y. Restores changes removed by undo, if possible..
+        ///   Looks up a localized string similar to Restores changes removed by undo, if possible..
         /// </summary>
         internal static string RedoTip {
             get {
@@ -1679,6 +2350,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Restore defaults.
+        /// </summary>
+        internal static string RestoreDefaults {
+            get {
+                return ResourceManager.GetString("RestoreDefaults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restores the default palette locations if they&apos;re missing. Does not remove any custom locations..
+        /// </summary>
+        internal static string RestoreDefaultsPaletteLocationsTip {
+            get {
+                return ResourceManager.GetString("RestoreDefaultsPaletteLocationsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Brush Rotation:.
         /// </summary>
         internal static string Rotation {
@@ -1688,11 +2377,47 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to How red the current color is..
+        /// </summary>
+        internal static string RTip {
+            get {
+                return ResourceManager.GetString("RTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sat.
         /// </summary>
         internal static string SatAbbr {
             get {
                 return ResourceManager.GetString("SatAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The saturation of the current color (vibrance)..
+        /// </summary>
+        internal static string SatTip {
+            get {
+                return ResourceManager.GetString("SatTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        internal static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save the current keyboard shortcuts..
+        /// </summary>
+        internal static string SaveKeyboardShortcutsTip {
+            get {
+                return ResourceManager.GetString("SaveKeyboardShortcutsTip", resourceCulture);
             }
         }
         
@@ -1715,20 +2440,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save.
-        /// </summary>
-        internal static string SavePreferences {
-            get {
-                return ResourceManager.GetString("SavePreferences", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Saves all changes in the preferences..
         /// </summary>
-        internal static string SavePreferencesTip {
+        internal static string SaveTip {
             get {
-                return ResourceManager.GetString("SavePreferencesTip", resourceCulture);
+                return ResourceManager.GetString("SaveTip", resourceCulture);
             }
         }
         
@@ -1850,11 +2566,38 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Canvas Angle.
+        /// </summary>
+        internal static string ShortcutCanvasAngle {
+            get {
+                return ResourceManager.GetString("ShortcutCanvasAngle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Canvas Zoom.
         /// </summary>
         internal static string ShortcutCanvasZoom {
             get {
                 return ResourceManager.GetString("ShortcutCanvasZoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fit To Window.
+        /// </summary>
+        internal static string ShortcutCanvasZoomFit {
+            get {
+                return ResourceManager.GetString("ShortcutCanvasZoomFit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chosen Effect.
+        /// </summary>
+        internal static string ShortcutChosenEffect {
+            get {
+                return ResourceManager.GetString("ShortcutChosenEffect", resourceCulture);
             }
         }
         
@@ -1900,6 +2643,222 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutFlowShift {
             get {
                 return ResourceManager.GetString("ShortcutFlowShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alt.
+        /// </summary>
+        internal static string ShortcutInputAlt {
+            get {
+                return ResourceManager.GetString("ShortcutInputAlt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Back.
+        /// </summary>
+        internal static string ShortcutInputBack {
+            get {
+                return ResourceManager.GetString("ShortcutInputBack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Caps lock.
+        /// </summary>
+        internal static string ShortcutInputCapsLock {
+            get {
+                return ResourceManager.GetString("ShortcutInputCapsLock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl.
+        /// </summary>
+        internal static string ShortcutInputCtrl {
+            get {
+                return ResourceManager.GetString("ShortcutInputCtrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        internal static string ShortcutInputDelete {
+            get {
+                return ResourceManager.GetString("ShortcutInputDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (digit).
+        /// </summary>
+        internal static string ShortcutInputDigitNumber {
+            get {
+                return ResourceManager.GetString("ShortcutInputDigitNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End.
+        /// </summary>
+        internal static string ShortcutInputEnd {
+            get {
+                return ResourceManager.GetString("ShortcutInputEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter.
+        /// </summary>
+        internal static string ShortcutInputEnter {
+            get {
+                return ResourceManager.GetString("ShortcutInputEnter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escape.
+        /// </summary>
+        internal static string ShortcutInputEscape {
+            get {
+                return ResourceManager.GetString("ShortcutInputEscape", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Home.
+        /// </summary>
+        internal static string ShortcutInputHome {
+            get {
+                return ResourceManager.GetString("ShortcutInputHome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Insert.
+        /// </summary>
+        internal static string ShortcutInputInsert {
+            get {
+                return ResourceManager.GetString("ShortcutInputInsert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Num lock.
+        /// </summary>
+        internal static string ShortcutInputNumLock {
+            get {
+                return ResourceManager.GetString("ShortcutInputNumLock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (numpad).
+        /// </summary>
+        internal static string ShortcutInputNumpadNumber {
+            get {
+                return ResourceManager.GetString("ShortcutInputNumpadNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page down.
+        /// </summary>
+        internal static string ShortcutInputPageDown {
+            get {
+                return ResourceManager.GetString("ShortcutInputPageDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page up.
+        /// </summary>
+        internal static string ShortcutInputPageUp {
+            get {
+                return ResourceManager.GetString("ShortcutInputPageUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pause.
+        /// </summary>
+        internal static string ShortcutInputPause {
+            get {
+                return ResourceManager.GetString("ShortcutInputPause", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Print screen.
+        /// </summary>
+        internal static string ShortcutInputPrintScreen {
+            get {
+                return ResourceManager.GetString("ShortcutInputPrintScreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scroll lock.
+        /// </summary>
+        internal static string ShortcutInputScrollLock {
+            get {
+                return ResourceManager.GetString("ShortcutInputScrollLock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shift.
+        /// </summary>
+        internal static string ShortcutInputShift {
+            get {
+                return ResourceManager.GetString("ShortcutInputShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Space.
+        /// </summary>
+        internal static string ShortcutInputSpace {
+            get {
+                return ResourceManager.GetString("ShortcutInputSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tab.
+        /// </summary>
+        internal static string ShortcutInputTab {
+            get {
+                return ResourceManager.GetString("ShortcutInputTab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wheel.
+        /// </summary>
+        internal static string ShortcutInputWheel {
+            get {
+                return ResourceManager.GetString("ShortcutInputWheel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wheel down.
+        /// </summary>
+        internal static string ShortcutInputWheelDown {
+            get {
+                return ResourceManager.GetString("ShortcutInputWheelDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wheel up.
+        /// </summary>
+        internal static string ShortcutInputWheelUp {
+            get {
+                return ResourceManager.GetString("ShortcutInputWheelUp", resourceCulture);
             }
         }
         
@@ -2084,7 +3043,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Rot to Left.
+        ///   Looks up a localized string similar to Random Rotate Left.
         /// </summary>
         internal static string ShortcutJitterRotLeft {
             get {
@@ -2093,7 +3052,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random Rot to Right.
+        ///   Looks up a localized string similar to Random Rotate Right.
         /// </summary>
         internal static string ShortcutJitterRotRight {
             get {
@@ -2147,6 +3106,357 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lock Blue.
+        /// </summary>
+        internal static string ShortcutLockB {
+            get {
+                return ResourceManager.GetString("ShortcutLockB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Green.
+        /// </summary>
+        internal static string ShortcutLockG {
+            get {
+                return ResourceManager.GetString("ShortcutLockG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Hue.
+        /// </summary>
+        internal static string ShortcutLockHue {
+            get {
+                return ResourceManager.GetString("ShortcutLockHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Red.
+        /// </summary>
+        internal static string ShortcutLockR {
+            get {
+                return ResourceManager.GetString("ShortcutLockR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Saturation.
+        /// </summary>
+        internal static string ShortcutLockSat {
+            get {
+                return ResourceManager.GetString("ShortcutLockSat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Value.
+        /// </summary>
+        internal static string ShortcutLockVal {
+            get {
+                return ResourceManager.GetString("ShortcutLockVal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Min. Draw Distance.
+        /// </summary>
+        internal static string ShortcutMinDrawDist {
+            get {
+                return ResourceManager.GetString("ShortcutMinDrawDist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm line tool.
+        /// </summary>
+        internal static string ShortcutNameConfirmLine {
+            get {
+                return ResourceManager.GetString("ShortcutNameConfirmLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decrease brush flow.
+        /// </summary>
+        internal static string ShortcutNameDecreaseBrushFlow {
+            get {
+                return ResourceManager.GetString("ShortcutNameDecreaseBrushFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decrease brush opacity.
+        /// </summary>
+        internal static string ShortcutNameDecreaseBrushOpacity {
+            get {
+                return ResourceManager.GetString("ShortcutNameDecreaseBrushOpacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decrease brush size.
+        /// </summary>
+        internal static string ShortcutNameDecreaseBrushSize {
+            get {
+                return ResourceManager.GetString("ShortcutNameDecreaseBrushSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase brush flow.
+        /// </summary>
+        internal static string ShortcutNameIncreaseBrushFlow {
+            get {
+                return ResourceManager.GetString("ShortcutNameIncreaseBrushFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase brush opacity.
+        /// </summary>
+        internal static string ShortcutNameIncreaseBrushOpacity {
+            get {
+                return ResourceManager.GetString("ShortcutNameIncreaseBrushOpacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase brush size.
+        /// </summary>
+        internal static string ShortcutNameIncreaseBrushSize {
+            get {
+                return ResourceManager.GetString("ShortcutNameIncreaseBrushSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas down.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasDown {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas left.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasLeft {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas right.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasRight {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge canvas up.
+        /// </summary>
+        internal static string ShortcutNameNudgeCanvasUp {
+            get {
+                return ResourceManager.GetString("ShortcutNameNudgeCanvasUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open quick command.
+        /// </summary>
+        internal static string ShortcutNameOpenQuickCommand {
+            get {
+                return ResourceManager.GetString("ShortcutNameOpenQuickCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pick from Palette.
+        /// </summary>
+        internal static string ShortcutNamePickFromPalette {
+            get {
+                return ResourceManager.GetString("ShortcutNamePickFromPalette", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Re-center the canvas.
+        /// </summary>
+        internal static string ShortcutNameRecenterTheCanvas {
+            get {
+                return ResourceManager.GetString("ShortcutNameRecenterTheCanvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate brush clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateBrushClockwise {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateBrushClockwise", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate brush counter-clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateBrushCounter {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateBrushCounter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate canvas clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateCanvasClockwise {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateCanvasClockwise", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate canvas counter-clockwise.
+        /// </summary>
+        internal static string ShortcutNameRotateCanvasCounter {
+            get {
+                return ResourceManager.GetString("ShortcutNameRotateCanvasCounter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch Palette.
+        /// </summary>
+        internal static string ShortcutNameSwitchPalette {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchPalette", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch primary and secondary colors.
+        /// </summary>
+        internal static string ShortcutNameSwitchPrimarySecondary {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchPrimarySecondary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to brush.
+        /// </summary>
+        internal static string ShortcutNameSwitchToBrush {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to clone stamp.
+        /// </summary>
+        internal static string ShortcutNameSwitchToCloneStamp {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToCloneStamp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to color picker.
+        /// </summary>
+        internal static string ShortcutNameSwitchToColorPicker {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToColorPicker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to eraser.
+        /// </summary>
+        internal static string ShortcutNameSwitchToEraser {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToEraser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to line tool.
+        /// </summary>
+        internal static string ShortcutNameSwitchToLine {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to set origin.
+        /// </summary>
+        internal static string ShortcutNameSwitchToSetOrigin {
+            get {
+                return ResourceManager.GetString("ShortcutNameSwitchToSetOrigin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom in.
+        /// </summary>
+        internal static string ShortcutNameZoomIn {
+            get {
+                return ResourceManager.GetString("ShortcutNameZoomIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom out.
+        /// </summary>
+        internal static string ShortcutNameZoomOut {
+            get {
+                return ResourceManager.GetString("ShortcutNameZoomOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge Canvas Horizontally.
+        /// </summary>
+        internal static string ShortcutNudgeCanvasX {
+            get {
+                return ResourceManager.GetString("ShortcutNudgeCanvasX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nudge Canvas Vertically.
+        /// </summary>
+        internal static string ShortcutNudgeCanvasY {
+            get {
+                return ResourceManager.GetString("ShortcutNudgeCanvasY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset Canvas.
+        /// </summary>
+        internal static string ShortcutResetCanvas {
+            get {
+                return ResourceManager.GetString("ShortcutResetCanvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotate Canvas.
+        /// </summary>
+        internal static string ShortcutRotateCanvas {
+            get {
+                return ResourceManager.GetString("ShortcutRotateCanvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rotation.
         /// </summary>
         internal static string ShortcutRotation {
@@ -2161,6 +3471,15 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutRotShift {
             get {
                 return ResourceManager.GetString("ShortcutRotShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select a command....
+        /// </summary>
+        internal static string ShortcutSelectACommand {
+            get {
+                return ResourceManager.GetString("ShortcutSelectACommand", resourceCulture);
             }
         }
         
@@ -2192,6 +3511,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Set the key sequence....
+        /// </summary>
+        internal static string ShortcutSetTheSequence {
+            get {
+                return ResourceManager.GetString("ShortcutSetTheSequence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Size.
         /// </summary>
         internal static string ShortcutSize {
@@ -2206,6 +3534,33 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutSizeShift {
             get {
                 return ResourceManager.GetString("ShortcutSizeShift", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ... +{0} more.
+        /// </summary>
+        internal static string ShortcutsOver3Tip {
+            get {
+                return ResourceManager.GetString("ShortcutsOver3Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shortcuts:.
+        /// </summary>
+        internal static string ShortcutsTooltipTip {
+            get {
+                return ResourceManager.GetString("ShortcutsTooltipTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Swap Colors.
+        /// </summary>
+        internal static string ShortcutSwapColors {
+            get {
+                return ResourceManager.GetString("ShortcutSwapColors", resourceCulture);
             }
         }
         
@@ -2251,6 +3606,20 @@ namespace DynamicDraw.Localization {
         internal static string SmoothingNormal {
             get {
                 return ResourceManager.GetString("SmoothingNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click to switch the active palette. This defaults to the same palette active in Paint.NET. It includes generated palettes and below them, any palettes or palette folders found in palette directories. The generated palettes are:
+        ///
+        ///Recent: a list of recently-used colors. This only updates when a color is used, not selected.
+        ///Color Blend: a gradient from the primary color to secondary color.
+        ///Monochromatic: a gradient from white, to the primary color, then to black.
+        ///Analogous 3: gradients of 3 nearby hues, i [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SwitchPaletteTip {
+            get {
+                return ResourceManager.GetString("SwitchPaletteTip", resourceCulture);
             }
         }
         
@@ -2417,6 +3786,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Number has to lie in range {0} to {1}..
+        /// </summary>
+        internal static string TextboxDialogRangeInvalid {
+            get {
+                return ResourceManager.GetString("TextboxDialogRangeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dynamic Draw.
         /// </summary>
         internal static string Title {
@@ -2426,7 +3804,16 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brush Shortcut: B. Activate this tool to draw with the chosen brush and its settings..
+        ///   Looks up a localized string similar to Toggle.
+        /// </summary>
+        internal static string Toggle {
+            get {
+                return ResourceManager.GetString("Toggle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The brush tool allows you to draw on the canvas..
         /// </summary>
         internal static string ToolBrushTip {
             get {
@@ -2435,7 +3822,16 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Eraser Shortcut: E. Activate this tool to erase with the chosen brush and its settings, revealing the original image..
+        ///   Looks up a localized string similar to The clone stamp tool lets you copy from one area to another, useful in photo touch-up..
+        /// </summary>
+        internal static string ToolCloneStampTip {
+            get {
+                return ResourceManager.GetString("ToolCloneStampTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The eraser tool lets you erase to reveal the original image. (If you want to erase to transparent, change the blending mode to overwrite and set the alpha to zero.).
         /// </summary>
         internal static string ToolEraserTip {
             get {
@@ -2444,7 +3840,16 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Set Origin Shortcut: O. Activate this tool to change the symmetry origin..
+        ///   Looks up a localized string similar to The line tool lets you draw from one point to another..
+        /// </summary>
+        internal static string ToolLineTip {
+            get {
+                return ResourceManager.GetString("ToolLineTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The origin tool lets you set a point of interest for symmetry mode and other tools to make use of..
         /// </summary>
         internal static string ToolOriginTip {
             get {
@@ -2462,11 +3867,29 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Undo Shortcut: Ctrl + Z. Undo the last drawing, if possible..
+        ///   Looks up a localized string similar to Undo the last drawing, if possible..
         /// </summary>
         internal static string UndoTip {
             get {
                 return ResourceManager.GetString("UndoTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Current Brush.
+        /// </summary>
+        internal static string UpdateCurrentBrush {
+            get {
+                return ResourceManager.GetString("UpdateCurrentBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Writes any changes in the current settings over the most recently selected brush..
+        /// </summary>
+        internal static string UpdateCurrentBrushTip {
+            get {
+                return ResourceManager.GetString("UpdateCurrentBrushTip", resourceCulture);
             }
         }
         
@@ -2476,6 +3899,15 @@ namespace DynamicDraw.Localization {
         internal static string ValAbbr {
             get {
                 return ResourceManager.GetString("ValAbbr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value of the current color (brightness)..
+        /// </summary>
+        internal static string ValTip {
+            get {
+                return ResourceManager.GetString("ValTip", resourceCulture);
             }
         }
         
@@ -2593,6 +4025,24 @@ namespace DynamicDraw.Localization {
         internal static string ValueTypeNothingTip {
             get {
                 return ResourceManager.GetString("ValueTypeNothingTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (version {1}.{2}).
+        /// </summary>
+        internal static string VersionString {
+            get {
+                return ResourceManager.GetString("VersionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        internal static string Yes {
+            get {
+                return ResourceManager.GetString("Yes", resourceCulture);
             }
         }
     }
