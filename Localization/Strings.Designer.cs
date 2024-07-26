@@ -1459,6 +1459,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Done.
+        /// </summary>
+        internal static string Done {
+            get {
+                return ResourceManager.GetString("Done", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply changes and finish..
+        /// </summary>
+        internal static string DoneTip {
+            get {
+                return ResourceManager.GetString("DoneTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit.
         /// </summary>
         internal static string Edit {
@@ -2103,15 +2121,6 @@ namespace DynamicDraw.Localization {
         internal static string Ok {
             get {
                 return ResourceManager.GetString("Ok", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Apply changes and finish..
-        /// </summary>
-        internal static string OkTip {
-            get {
-                return ResourceManager.GetString("OkTip", resourceCulture);
             }
         }
         

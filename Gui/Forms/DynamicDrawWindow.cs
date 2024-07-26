@@ -447,7 +447,7 @@ namespace DynamicDraw
         private int visibleBrushImagesIndex;
 
         private ThemedButton bttnCancel;
-        private ThemedButton bttnOk;
+        private ThemedButton bttnDone;
 
         private IContainer components;
         internal PictureBox displayCanvas;
@@ -967,6 +967,7 @@ namespace DynamicDraw
                     lineOrigins.dragIndex = null;
                     contexts.Remove(CommandContext.LineToolConfirmStage);
                     contexts.Add(CommandContext.LineToolUnstartedStage);
+                    displayCanvas.Refresh();
                 }
                 else
                 {
@@ -986,7 +987,7 @@ namespace DynamicDraw
                 }
                 else
                 {
-                    BttnOk_Click(null, null);
+                    BttnDone_Click(null, null);
                 }
             }
 
@@ -3505,7 +3506,7 @@ namespace DynamicDraw
             panelOkCancel = new FlowLayoutPanel();
             menuUndo = new ThemedButton();
             menuRedo = new ThemedButton();
-            bttnOk = new ThemedButton(false, true);
+            bttnDone = new ThemedButton(false, true);
             bttnCancel = new ThemedButton(false, true);
             brushImageLoadingWorker = new BackgroundWorker();
             bttnColorPicker = new ThemedCheckbox(false);
@@ -4173,7 +4174,7 @@ namespace DynamicDraw
             #endregion
 
             #region panelOkCancel
-            panelOkCancel.Controls.Add(bttnOk);
+            panelOkCancel.Controls.Add(bttnDone);
             panelOkCancel.Controls.Add(bttnCancel);
             panelOkCancel.Dock = DockStyle.Bottom;
             panelOkCancel.Location = new Point(0, 484);
@@ -4182,14 +4183,14 @@ namespace DynamicDraw
             panelOkCancel.TabIndex = 145;
             #endregion
 
-            #region bttnOk
-            bttnOk.Location = new Point(3, 32);
-            bttnOk.Margin = new Padding(3, 3, 13, 3);
-            bttnOk.Size = new Size(77, 23);
-            bttnOk.TabIndex = 143;
-            bttnOk.Text = Strings.Ok;
-            bttnOk.Click += BttnOk_Click;
-            bttnOk.MouseEnter += BttnOk_MouseEnter;
+            #region bttnDone
+            bttnDone.Location = new Point(3, 32);
+            bttnDone.Margin = new Padding(3, 3, 13, 3);
+            bttnDone.Size = new Size(77, 23);
+            bttnDone.TabIndex = 143;
+            bttnDone.Text = Strings.Done;
+            bttnDone.Click += BttnDone_Click;
+            bttnDone.MouseEnter += BttnDone_MouseEnter;
             #endregion
 
             #region bttnCancel
@@ -5448,6 +5449,8 @@ namespace DynamicDraw
 
             CommandContextHelper.RemoveContextsFromOtherTools(toolToSwitchTo, contexts);
             displayCanvas.Cursor = toolToSwitchTo == Tool.SetSymmetryOrigin ? Cursors.Hand : Cursors.Default;
+            lineOrigins.points.Clear();
+            lineOrigins.dragIndex = null;
 
             switch (toolToSwitchTo)
             {
@@ -6710,7 +6713,7 @@ namespace DynamicDraw
                     // If start and end are set, clears staged and draws the line.
                     if (lineOrigins.points.Count >= 2)
                     {
-                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        DrawingUtils.ColorImage(bmpStaged, Color.Black, 0f);
                         DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
                     }
                 }
@@ -6882,7 +6885,7 @@ namespace DynamicDraw
                         else if (pt != ptNew)
                         {
                             lineOrigins.points[lineOrigins.dragIndex.Value] = ptNew;
-                            DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                            DrawingUtils.ColorImage(bmpStaged, Color.Black, 0f);
                             DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
                         }
                     }
@@ -6890,7 +6893,7 @@ namespace DynamicDraw
                     // Updates the preview while drawing.
                     else if (lineOrigins.points.Count == 1)
                     {
-                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        DrawingUtils.ColorImage(bmpStaged, Color.Black, 0f);
                         DrawBrushLine(lineOrigins.points[0], new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
                     }
                 }
@@ -7083,6 +7086,18 @@ namespace DynamicDraw
 
             if (sliderCanvasAngle.ValueInt == 0)
             {
+                if (activeTool == Tool.Line && lineOrigins.points.Count >= 1)
+                {
+                    e.Graphics.DrawImage(
+                        bmpCommitted,
+                        visibleBounds,
+                        lCutoffUnzoomed,
+                        tCutoffUnzoomed,
+                        EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                        EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                        GraphicsUnit.Pixel);
+                }
+
                 e.Graphics.DrawImage(
                     bmpToDraw,
                     visibleBounds,
@@ -7094,6 +7109,11 @@ namespace DynamicDraw
             }
             else
             {
+                if (activeTool == Tool.Line && lineOrigins.points.Count >= 1)
+                {
+                    e.Graphics.DrawImage(bmpCommitted, 0, 0, canvas.width, canvas.height);
+                }
+
                 e.Graphics.DrawImage(bmpToDraw, 0, 0, canvas.width, canvas.height);
             }
             #endregion
@@ -7360,10 +7380,15 @@ namespace DynamicDraw
                 {
                     var pt = TransformPoint(lineOrigins.points[i], true, true, true);
                     e.Graphics.DrawEllipse(
+                        Pens.White,
+                        pt.X * canvasZoom - 7,
+                        pt.Y * canvasZoom - 7,
+                        14, 14);
+                    e.Graphics.DrawEllipse(
                         Pens.Black,
-                        pt.X * canvasZoom - 3,
-                        pt.Y * canvasZoom - 3,
-                        6, 6);
+                        pt.X * canvasZoom - 6,
+                        pt.Y * canvasZoom - 6,
+                        12, 12);
                 }
             }
             #endregion
@@ -7761,13 +7786,13 @@ namespace DynamicDraw
         /// <summary>
         /// Accepts and applies the effect.
         /// </summary>
-        private void BttnOk_Click(object sender, EventArgs e)
+        private void BttnDone_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
 
             // It's easy to hit the enter key on accident, especially when toggling other controls.
             // If any changes were made and the OK button was indirectly invoked, ask for confirmation first.
-            if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnOk.Focused &&
+            if (!UserSettings.DisableConfirmationOnCloseOrSave && undoHistory.Count > 0 && !bttnDone.Focused &&
                 ThemedMessageBox.Show(Strings.ConfirmChanges, Strings.Confirm, MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
                 currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
@@ -7779,7 +7804,7 @@ namespace DynamicDraw
 
             //Disables the button so it can't accidentally be called twice.
             //Ensures settings will be saved.
-            bttnOk.Enabled = false;
+            bttnDone.Enabled = false;
 
             //Sets the bitmap to draw. Locks to prevent concurrency.
             lock (RenderSettings.SurfaceToRender)
@@ -7794,9 +7819,9 @@ namespace DynamicDraw
             Close();
         }
 
-        private void BttnOk_MouseEnter(object sender, EventArgs e)
+        private void BttnDone_MouseEnter(object sender, EventArgs e)
         {
-            UpdateTooltip(Strings.OkTip);
+            UpdateTooltip(Strings.DoneTip);
         }
 
         /// <summary>

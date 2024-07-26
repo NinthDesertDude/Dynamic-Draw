@@ -213,6 +213,12 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="ColorPickerTip" xml:space="preserve">
     <value>Selects a color on the canvas and switches to the last-used tool afterwards.</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="DoneTip" xml:space="preserve">
+    <value>Apply changes and finish.</value>
+  </data>
   <data name="UpdateCurrentBrush" xml:space="preserve">
     <value>Update Current Brush</value>
   </data>
@@ -278,9 +284,6 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="Ok" xml:space="preserve">
     <value>Ok</value>
-  </data>
-  <data name="OkTip" xml:space="preserve">
-    <value>Apply changes and finish.</value>
   </data>
   <data name="OrientToMouse" xml:space="preserve">
     <value>Rotate With Mouse</value>
