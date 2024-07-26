@@ -45,7 +45,7 @@ namespace DynamicDraw
                 Name = Strings.ShortcutNameSwitchToEraser,
                 Target = CommandTarget.SelectedTool
             },
-            new Command() // Ctrl+O: origin tool
+            new Command() // Ctrl + Shift + O: origin tool
             {
                 ActionData = $"{(int)Tool.SetSymmetryOrigin},{(int)Tool.PreviousTool}|cycle",
                 BuiltInShortcutId = 3,
@@ -53,6 +53,7 @@ namespace DynamicDraw
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.O },
                 Name = Strings.ShortcutNameSwitchToSetOrigin,
                 RequireCtrl = true,
+                RequireShift = true,
                 Target = CommandTarget.SelectedTool
             },
             new Command() // Ctrl + Z: undo
@@ -342,6 +343,27 @@ namespace DynamicDraw
                 RequireCtrl = true,
                 RequireWheelDown = true
             },
+            new Command() // ]: increase brush size
+            {
+                ActionData = "1|add",
+                BuiltInShortcutId = 53,
+                CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemCloseBrackets },
+                Name = Strings.ShortcutNameIncreaseBrushSize,
+                Target = CommandTarget.Size
+            },
+            new Command() // Ctrl + ]: increase brush size (faster)
+            {
+                ActionData = "5|add",
+                BuiltInShortcutId = 54,
+                CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemCloseBrackets },
+                Name = Strings.ShortcutNameIncreaseBrushSize,
+                Target = CommandTarget.Size,
+                RequireCtrl = true
+            },
             new Command() // Ctrl + S + ]: increase brush size
             {
                 ActionData = "1|add",
@@ -364,6 +386,27 @@ namespace DynamicDraw
                 Target = CommandTarget.Size,
                 RequireCtrl = true,
                 RequireShift = true
+            },
+            new Command() // [: decrease brush size
+            {
+                ActionData = "1|sub",
+                BuiltInShortcutId = 55,
+                CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemOpenBrackets },
+                Name = Strings.ShortcutNameIncreaseBrushSize,
+                Target = CommandTarget.Size
+            },
+            new Command() // Ctrl + [: decrease brush size (faster)
+            {
+                ActionData = "5|sub",
+                BuiltInShortcutId = 56,
+                CommandDialogIgnore = true,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemOpenBrackets },
+                Name = Strings.ShortcutNameIncreaseBrushSize,
+                Target = CommandTarget.Size,
+                RequireCtrl = true
             },
             new Command() // Ctrl + S + [: decrease brush size
             {

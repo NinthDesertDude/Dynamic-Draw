@@ -151,15 +151,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add.
-        /// </summary>
-        internal static string Add {
-            get {
-                return ResourceManager.GetString("Add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Add Brush Images.
         /// </summary>
         internal static string AddBrushImages {
@@ -210,6 +201,15 @@ namespace DynamicDraw.Localization {
         internal static string AddFoldersTip {
             get {
                 return ResourceManager.GetString("AddFoldersTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add new.
+        /// </summary>
+        internal static string AddNew {
+            get {
+                return ResourceManager.GetString("AddNew", resourceCulture);
             }
         }
         
@@ -1477,15 +1477,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit.
-        /// </summary>
-        internal static string Edit {
-            get {
-                return ResourceManager.GetString("Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No effect chosen.
         /// </summary>
         internal static string EffectDefaultNone {
@@ -2418,6 +2409,15 @@ namespace DynamicDraw.Localization {
         internal static string Save {
             get {
                 return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Changes.
+        /// </summary>
+        internal static string SaveChanges {
+            get {
+                return ResourceManager.GetString("SaveChanges", resourceCulture);
             }
         }
         

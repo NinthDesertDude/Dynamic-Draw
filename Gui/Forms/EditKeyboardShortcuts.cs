@@ -14,6 +14,7 @@ namespace DynamicDraw
     /// A dialog that allows the user to toggle whether built-in shortcuts are enabled or disabled, and create/delete
     /// or edit their own.
     /// </summary>
+    [System.ComponentModel.DesignerCategory("")]
     public class EditKeyboardShortcuts : PdnBaseForm
     {
         private BindingList<Tuple<string, Command>> shortcutsList;
@@ -432,7 +433,7 @@ namespace DynamicDraw
             bttnAddShortcut.Margin = new Padding(4, 0, 4, 0);
             bttnAddShortcut.Size = new Size(90, 27);
             bttnAddShortcut.TabIndex = 29;
-            bttnAddShortcut.Text = Strings.Add;
+            bttnAddShortcut.Text = Strings.AddNew;
             bttnAddShortcut.Click += BttnAddShortcut_Click;
             #endregion
 
@@ -596,7 +597,7 @@ namespace DynamicDraw
             bttnEditShortcut.Margin = new Padding(4, 0, 4, 0);
             bttnEditShortcut.Size = new Size(90, 27);
             bttnEditShortcut.TabIndex = 32;
-            bttnEditShortcut.Text = Strings.Edit;
+            bttnEditShortcut.Text = Strings.SaveChanges;
             bttnEditShortcut.Click += BttnEditShortcut_Click;
             #endregion
 

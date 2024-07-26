@@ -11,6 +11,7 @@ namespace DynamicDraw
     /// <summary>
     /// A color dialog that includes a hue-sat color wheel, with RGB and HSV sliders and optionally alpha.
     /// </summary>
+    [System.ComponentModel.DesignerCategory("")]
     public class ColorPickerDialog : PdnBaseForm
     {
         private Color associatedColor;

@@ -6,6 +6,7 @@ using PaintDotNet;
 
 namespace DynamicDraw.Gui
 {
+    [System.ComponentModel.DesignerCategory("")]
     public class EditCustomAssetDirectories : PdnBaseForm
     {
         private readonly SettingsSerialization settings;

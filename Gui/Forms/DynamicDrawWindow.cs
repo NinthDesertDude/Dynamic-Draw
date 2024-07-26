@@ -26,6 +26,7 @@ namespace DynamicDraw
     /// <summary>
     /// The dialog used for working with the effect.
     /// </summary>
+    [System.ComponentModel.DesignerCategory("")] // disable winforms designer, it will corrupt this.
     public class WinDynamicDraw : EffectConfigDialog
     {
         #region Fields (Non Gui)
@@ -958,37 +959,24 @@ namespace DynamicDraw
 
             currentKeysPressed.Add(e.KeyCode & Keys.KeyCode);
 
-            if (e.KeyCode == Keys.Escape)
+            // Apply line with line tool, or click done/cancel
+            if (lineOrigins.points.Count >= 2 && lineOrigins.points.Count == 2 &&
+                (e.KeyCode == Keys.Escape || e.KeyCode == Keys.Enter))
             {
-                if (lineOrigins.points.Count >= 2 && lineOrigins.points.Count == 2)
-                {
-                    MergeStaged();
-                    lineOrigins.points.Clear();
-                    lineOrigins.dragIndex = null;
-                    contexts.Remove(CommandContext.LineToolConfirmStage);
-                    contexts.Add(CommandContext.LineToolUnstartedStage);
-                    displayCanvas.Refresh();
-                }
-                else
-                {
-                    BttnCancel_Click(null, null);
-                }
+                MergeStaged();
+                lineOrigins.points.Clear();
+                lineOrigins.dragIndex = null;
+                contexts.Remove(CommandContext.LineToolConfirmStage);
+                contexts.Add(CommandContext.LineToolUnstartedStage);
+                displayCanvas.Refresh();
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                BttnCancel_Click(null, null);
             }
             else if (e.KeyCode == Keys.Enter)
             {
-                if (lineOrigins.points.Count >= 2 && lineOrigins.points.Count == 2)
-                {
-                    MergeStaged();
-                    lineOrigins.points.Clear();
-                    lineOrigins.dragIndex = null;
-                    contexts.Remove(CommandContext.LineToolConfirmStage);
-                    contexts.Add(CommandContext.LineToolUnstartedStage);
-                    displayCanvas.Refresh();
-                }
-                else
-                {
-                    BttnDone_Click(null, null);
-                }
+                BttnDone_Click(null, null);
             }
 
             // Fires any shortcuts that don't require the mouse wheel.
@@ -6711,10 +6699,15 @@ namespace DynamicDraw
                     }
 
                     // If start and end are set, clears staged and draws the line.
-                    if (lineOrigins.points.Count >= 2)
+                    if (lineOrigins.points.Count >= 2 && lineOrigins.dragIndex == null)
                     {
                         DrawingUtils.ColorImage(bmpStaged, Color.Black, 0f);
                         DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
+
+                        MergeStaged();
+                        lineOrigins.points.Clear();
+                        lineOrigins.points.Add(new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
+                        contexts.Remove(CommandContext.LineToolConfirmStage);
                     }
                 }
             }

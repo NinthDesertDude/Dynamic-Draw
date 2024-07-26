@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 namespace DynamicDraw
 {
+    [System.ComponentModel.DesignerCategory("")]
     public class CommandDialog : PdnBaseForm
     {
         /// <summary>
