@@ -992,6 +992,13 @@ namespace DynamicDraw
             bool isShiftHeld = key.HasFlag(System.Windows.Forms.Keys.Shift);
             int keyValue = (int)key;
 
+            // Remove any modifiers if present
+            keyValue = keyValue & ~(
+                (int)System.Windows.Forms.Keys.Control|
+                (int)System.Windows.Forms.Keys.Alt|
+                (int)System.Windows.Forms.Keys.Shift);
+            key = (Keys)keyValue;
+
             // Alphabet
             if (keyValue >= 65 && keyValue <= 90)
             {
@@ -1004,21 +1011,21 @@ namespace DynamicDraw
             }
 
             // Digits
-            if (key == System.Windows.Forms.Keys.D0 || key == System.Windows.Forms.Keys.NumPad0) { return "0"; }
-            if (key == System.Windows.Forms.Keys.D1 || key == System.Windows.Forms.Keys.NumPad1) { return "1"; }
-            if (key == System.Windows.Forms.Keys.D2 || key == System.Windows.Forms.Keys.NumPad2) { return "2"; }
-            if (key == System.Windows.Forms.Keys.D3 || key == System.Windows.Forms.Keys.NumPad3) { return "3"; }
-            if (key == System.Windows.Forms.Keys.D4 || key == System.Windows.Forms.Keys.NumPad4) { return "4"; }
-            if (key == System.Windows.Forms.Keys.D5 || key == System.Windows.Forms.Keys.NumPad5) { return "5"; }
-            if (key == System.Windows.Forms.Keys.D6 || key == System.Windows.Forms.Keys.NumPad6) { return "6"; }
-            if (key == System.Windows.Forms.Keys.D7 || key == System.Windows.Forms.Keys.NumPad7) { return "7"; }
-            if (key == System.Windows.Forms.Keys.D8 || key == System.Windows.Forms.Keys.NumPad8) { return "8"; }
-            if (key == System.Windows.Forms.Keys.D9 || key == System.Windows.Forms.Keys.NumPad9) { return "9"; }
+            if (key == System.Windows.Forms.Keys.D0 || key == System.Windows.Forms.Keys.NumPad0) { return isShiftHeld ? ")" : "0"; }
+            if (key == System.Windows.Forms.Keys.D1 || key == System.Windows.Forms.Keys.NumPad1) { return isShiftHeld ? "!" : "1"; }
+            if (key == System.Windows.Forms.Keys.D2 || key == System.Windows.Forms.Keys.NumPad2) { return isShiftHeld ? "@" : "2"; }
+            if (key == System.Windows.Forms.Keys.D3 || key == System.Windows.Forms.Keys.NumPad3) { return isShiftHeld ? "#" : "3"; }
+            if (key == System.Windows.Forms.Keys.D4 || key == System.Windows.Forms.Keys.NumPad4) { return isShiftHeld ? "$" : "4"; }
+            if (key == System.Windows.Forms.Keys.D5 || key == System.Windows.Forms.Keys.NumPad5) { return isShiftHeld ? "%" : "5"; }
+            if (key == System.Windows.Forms.Keys.D6 || key == System.Windows.Forms.Keys.NumPad6) { return isShiftHeld ? "^" : "6"; }
+            if (key == System.Windows.Forms.Keys.D7 || key == System.Windows.Forms.Keys.NumPad7) { return isShiftHeld ? "&" : "7"; }
+            if (key == System.Windows.Forms.Keys.D8 || key == System.Windows.Forms.Keys.NumPad8) { return isShiftHeld ? "*" : "8"; }
+            if (key == System.Windows.Forms.Keys.D9 || key == System.Windows.Forms.Keys.NumPad9) { return isShiftHeld ? "(" : "9"; }
 
             // Symbols
             if (isShiftHeld)
             {
-                if (key == System.Windows.Forms.Keys.Add || key == System.Windows.Forms.Keys.Oemplus) { return "+"; }
+                if (key == System.Windows.Forms.Keys.Oemplus) { return "+"; }
                 if (key == System.Windows.Forms.Keys.OemBackslash) { return "|"; }
                 if (key == System.Windows.Forms.Keys.OemCloseBrackets) { return "}"; }
                 if (key == System.Windows.Forms.Keys.Oemcomma) { return "<"; }
@@ -1033,20 +1040,22 @@ namespace DynamicDraw
             }
             else
             {
-                if (key == System.Windows.Forms.Keys.Add || key == System.Windows.Forms.Keys.Oemplus) { return "="; }
+                if (key == System.Windows.Forms.Keys.Oemplus) { return "="; }
                 if (key == System.Windows.Forms.Keys.OemBackslash) { return "\\"; }
                 if (key == System.Windows.Forms.Keys.OemCloseBrackets) { return "]"; }
                 if (key == System.Windows.Forms.Keys.Oemcomma) { return ","; }
                 if (key == System.Windows.Forms.Keys.OemMinus || key == System.Windows.Forms.Keys.Subtract) { return "-"; }
                 if (key == System.Windows.Forms.Keys.OemOpenBrackets) { return "["; }
                 if (key == System.Windows.Forms.Keys.OemPeriod) { return "."; }
-                if (key == System.Windows.Forms.Keys.OemPipe) { return "|"; }
+                if (key == System.Windows.Forms.Keys.OemPipe) { return "\\"; }
                 if (key == System.Windows.Forms.Keys.OemQuestion) { return "/"; }
                 if (key == System.Windows.Forms.Keys.OemQuotes) { return "'"; }
                 if (key == System.Windows.Forms.Keys.OemSemicolon) { return ";"; }
                 if (key == System.Windows.Forms.Keys.Oemtilde) { return "`"; }
             }
 
+            if (key == System.Windows.Forms.Keys.Add) { return "+"; }
+            if (key == System.Windows.Forms.Keys.Divide) { return "/"; }
             if (key == System.Windows.Forms.Keys.Multiply) { return "*"; }
             if (key == System.Windows.Forms.Keys.Space) { return " "; }
 

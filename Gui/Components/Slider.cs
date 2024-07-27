@@ -710,14 +710,18 @@ namespace DynamicDraw
                 {
                     if (isTypingNewValue)
                     {
-                        if (newValueString != "" && float.TryParse(newValueString, out float result))
+                        try
                         {
-                            Value = Math.Clamp(
-                                integerOnly ? (int)result : result,
-                                numericStops[0],
-                                numericStops[^1]);
-
+                            string expressionResult = Parsing.Parser.Eval(newValueString);
+                            if (newValueString != "" && float.TryParse(expressionResult, out float result))
+                            {
+                                Value = Math.Clamp(
+                                    integerOnly ? (int)result : result,
+                                    numericStops[0],
+                                    numericStops[^1]);
+                            }
                         }
+                        catch { }
 
                         isTypingNewValue = false;
                         newValueString = "";
