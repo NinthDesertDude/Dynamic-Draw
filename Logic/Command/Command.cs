@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Text.Json.Serialization;
 using DynamicDraw.Localization;
@@ -209,9 +208,9 @@ namespace DynamicDraw
                     }
 
                     // While no color is matched, track the nearest one to snap to.
-                    int rDiff = (colors[i].R - origColor.R) * (doSub ? -1 : 1);
-                    int gDiff = (colors[i].G - origColor.G) * (doSub ? -1 : 1);
-                    int bDiff = (colors[i].B - origColor.B) * (doSub ? -1 : 1);
+                    int rDiff = (origColor.R - colors[i].R) * (doSub ? -1 : 1);
+                    int gDiff = (origColor.G - colors[i].G) * (doSub ? -1 : 1);
+                    int bDiff = (origColor.B - colors[i].B) * (doSub ? -1 : 1);
                     int combinedDiff = rDiff + gDiff + bDiff;
 
                     if (combinedDiff > 0 && combinedDiff < nearestRGBDiff)
@@ -227,13 +226,100 @@ namespace DynamicDraw
                     : colors[0];
             }
 
+            Color col = Color.Transparent;
+            bool isColorSet = false;
+
+
+            /**
+             * random-list-set: randomly picks a value from the list, then sets to it.
+             * random-list-add: randomly picks a value from the list, then adds it.
+             * random-list-sub: randomly picks a value from the list, then subtracts it.
+             * random-list-mul: randomly picks a value from the list, then multiplies it.
+             * random-list-div: randomly picks a value from the list, then divides it.
+             * random-list-add-hsv, random-list-sub-hsv, random-list-mul-hsv, random-list-div-hsv: same but works in HSV arithmetic
+             */
+            if (chunks[1].StartsWith("random-list-"))
+            {
+                List<Color> colors = new List<Color>();
+                string[] colorStrings = chunks[0].Split(",");
+
+                // If alpha isn't provided, default to opaque for set (it's absolute), else 0 for arithmetic (since it's relative math).
+                byte defaultAlpha = chunks[1].Equals("random-list-set") ? (byte)255 : (byte)0;
+
+                for (int i = 0; i < colorStrings.Length; i++)
+                {
+                    Color? color = ColorUtils.GetColorFromText(colorStrings[i], true, defaultAlpha)
+                        ?? throw new Exception("Was expecting command to contain purely color data with comma delimiters.");
+
+                    colors.Add((Color)color);
+                }
+
+                if (colors.Count == 0)
+                {
+                    throw new Exception("Was expecting command to contain at least one color for random list.");
+                }
+
+                // Pick a random color from the list.
+                Random rng = new Random();
+                col = colors[rng.Next(colors.Count)];
+                isColorSet = true;
+
+                // Remove the prefix and continue.
+                chunks[1] = chunks[1][12..];
+            }
+
+            /**
+             * random-set: sets to a value between [min, max).
+             * random-add: adds a value between [min, max].
+             * random-sub: subtracts a value between [min, max].
+             * random-mul: multiplies by a value between [min, max].
+             * random-div: divides by a value between [min, max].
+             * random-add-hsv, random-sub-hsv, random-mul-hsv, random-div-hsv: same but works in HSV arithmetic
+             */
+            else if (chunks[1].StartsWith("random-"))
+            {
+                List<Color> colors = new List<Color>();
+                string[] colorStrings = chunks[0].Split(",");
+
+                // If alpha isn't provided, default to opaque for set (it's absolute), else 0 for arithmetic (since it's relative math).
+                byte defaultAlpha = chunks[1].Equals("random-set") ? (byte)255 : (byte)0;
+
+                for (int i = 0; i < colorStrings.Length; i++)
+                {
+                    Color? color = ColorUtils.GetColorFromText(colorStrings[i], true, defaultAlpha)
+                        ?? throw new Exception("Was expecting command to contain purely color data with comma delimiters.");
+
+                    colors.Add((Color)color);
+                }
+
+                if (colors.Count != 2)
+                {
+                    throw new Exception("Was expecting command to contain exactly two colors for min,max range.");
+                }
+
+                // Pick a random color from the list.
+                Random rng = new Random();
+                int R = Math.Clamp(rng.Next(colors[0].R, colors[1].R), 0, 255);
+                int G = Math.Clamp(rng.Next(colors[0].G, colors[1].G), 0, 255);
+                int B = Math.Clamp(rng.Next(colors[0].B, colors[1].B), 0, 255);
+                int A = Math.Clamp(rng.Next(colors[0].A, colors[1].A), 0, 255);
+                col = Color.FromArgb(A, R, G, B);
+                isColorSet = true;
+
+                // Remove the prefix and continue.
+                chunks[1] = chunks[1][7..];
+            }
+
             if (chunks[1].Equals("set"))
             {
-                return (Color)ColorUtils.GetColorFromText(chunks[0], true);
+                return isColorSet ? col : (Color)ColorUtils.GetColorFromText(chunks[0], true);
             }
 
             // default to alpha 0 for relative operations.
-            Color col = (Color)ColorUtils.GetColorFromText(chunks[0], true, 0);
+            if (!isColorSet)
+            {
+                col = (Color)ColorUtils.GetColorFromText(chunks[0], true, 0);
+            }
 
             if (chunks[1].Equals("add"))
             {
@@ -273,7 +359,7 @@ namespace DynamicDraw
             }
             if (chunks[1].Equals("add-hsv"))
             {
-                // Note channels like col.R in the hsv arithemtic are just used as relative numbers, not real colors.
+                // Note channels like col.R in the hsv arithmetic are just used as relative numbers, not real colors.
                 HsvColor origHsv = HsvColor.FromColor(origColor);
                 int newAlpha = Math.Clamp(origColor.A + col.A, 0, 255);
 
@@ -291,7 +377,7 @@ namespace DynamicDraw
             }
             if (chunks[1].Equals("sub-hsv"))
             {
-                // Note channels like col.R in the hsv arithemtic are just used as relative numbers, not real colors.
+                // Note channels like col.R in the hsv arithmetic are just used as relative numbers, not real colors.
                 HsvColor origHsv = HsvColor.FromColor(origColor);
                 int newAlpha = Math.Clamp(origColor.A - col.A, 0, 255);
 
@@ -434,7 +520,7 @@ namespace DynamicDraw
                         (doSub && origValue - numbers[i] > 0 && origValue - numbers[i] < nearestValueDiff))
                     {
                         nearestValueIndex = i;
-                        nearestValueDiff = numbers[i];
+                        nearestValueDiff = origValue - numbers[i];
                     }
                 }
 
@@ -446,7 +532,64 @@ namespace DynamicDraw
 
             float value = origValue;
 
-            if (chunks[1].StartsWith("random"))
+            /** Performs randomization. Valid syntaxes:
+             * random-set: sets to a value between [min, max).
+             * random-add: adds a value between [min, max].
+             * random-sub: subtracts a value between [min, max].
+             * random-mul: multiplies by a value between [min, max].
+             * random-div: divides by a value between [min, max].
+             * random-list-set: randomly picks a value from the list, then sets to it.
+             * random-list-add: randomly picks a value from the list, then adds it.
+             * random-list-sub: randomly picks a value from the list, then subtracts it.
+             * random-list-mul: randomly picks a value from the list, then multiplies it.
+             * random-list-div: randomly picks a value from the list, then divides it.
+             */
+            if (chunks[1].StartsWith("random-list"))
+            {
+                List<float> numbers = new List<float>();
+                string[] numberStrings = chunks[0].Split(",");
+                if (numberStrings.Length < 1)
+                {
+                    throw new Exception("Was expecting at least one number to pick from for randomization.");
+                }
+
+                for (int i = 0; i < numberStrings.Length; i++)
+                {
+                    if (!float.TryParse(numberStrings[i], out float result))
+                    {
+                        throw new Exception("Was expecting random number list to contain purely numeric data with comma delimiters.");
+                    }
+
+                    numbers.Add(result);
+                }
+
+                Random rng = new Random();
+                float pickedNumber = numbers[rng.Next(numbers.Count)];
+
+                if (chunks[1].Equals("random-list-set"))
+                {
+                    value = Math.Clamp(pickedNumber, minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-list-add"))
+                {
+                    value = Math.Clamp(origValue + pickedNumber, minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-list-sub"))
+                {
+                    value = Math.Clamp(origValue - pickedNumber, minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-list-mul"))
+                {
+                    value = Math.Clamp(origValue * pickedNumber, minValue, maxValue);
+                }
+                else if (chunks[1].Equals("random-list-div"))
+                {
+                    value = Math.Clamp(origValue / pickedNumber, minValue, maxValue);
+                }
+
+                return value;
+            }
+            else if (chunks[1].StartsWith("random"))
             {
                 List<float> numbers = new List<float>();
                 string[] rangeStrings = chunks[0].Split(",");
@@ -595,39 +738,50 @@ namespace DynamicDraw
                     return false;
                 }
 
-                bool isCycleType =
+                bool isListType =
                     chunks[1] == "cycle" ||
                     chunks[1] == "cycle-stop" ||
                     chunks[1] == "cycle-add" ||
                     chunks[1] == "cycle-add-stop" ||
                     chunks[1] == "cycle-sub" ||
-                    chunks[1] == "cycle-sub-stop";
+                    chunks[1] == "cycle-sub-stop" ||
+                    chunks[1] == "random-list-set" ||
+                    chunks[1] == "random-list-add" ||
+                    chunks[1] == "random-list-sub" ||
+                    chunks[1] == "random-list-mul" ||
+                    chunks[1] == "random-list-div";
+
+                bool isRangeType =
+                    chunks[1] == "random-add" ||
+                    chunks[1] == "random-set" ||
+                    chunks[1] == "random-sub" ||
+                    chunks[1] == "random-mul" ||
+                    chunks[1] == "random-div";
 
                 // Type must be recognized.
-                if (!isCycleType &&
+                if (!isListType && !isRangeType &&
                     chunks[1] != "add" &&
                     chunks[1] != "set" &&
                     chunks[1] != "sub" &&
                     chunks[1] != "mul" &&
                     chunks[1] != "div" &&
                     chunks[1] != "add-wrap" &&
-                    chunks[1] != "sub-wrap" &&
-                    chunks[1] != "random-add" &&
-                    chunks[1] != "random-set" &&
-                    chunks[1] != "random-sub" &&
-                    chunks[1] != "random-mul" &&
-                    chunks[1] != "random-div")
+                    chunks[1] != "sub-wrap")
                 {
                     return false;
                 }
 
-                // There must be at least 1 cycle value, and all values must be valid floats (this is intentional for
+                // There must be at least 1 value, and all values must be valid floats (this is intentional for
                 // int types, since float math can still be useful).
-                if (isCycleType)
+                if (isListType || isRangeType)
                 {
                     string[] numberStrings = chunks[0].Split(",");
 
                     if (numberStrings.Length == 0)
+                    {
+                        return false;
+                    }
+                    if (isRangeType && numberStrings.Length != 2)
                     {
                         return false;
                     }
@@ -662,16 +816,36 @@ namespace DynamicDraw
                     return false;
                 }
 
-                bool isCycleType =
+                bool isListType =
                     chunks[1] == "cycle" ||
                     chunks[1] == "cycle-stop" ||
                     chunks[1] == "cycle-add" ||
                     chunks[1] == "cycle-add-stop" ||
                     chunks[1] == "cycle-sub" ||
-                    chunks[1] == "cycle-sub-stop";
+                    chunks[1] == "cycle-sub-stop" ||
+                    chunks[1] == "random-list-add" ||
+                    chunks[1] == "random-list-set" ||
+                    chunks[1] == "random-list-sub" ||
+                    chunks[1] == "random-list-mul" ||
+                    chunks[1] == "random-list-div" ||
+                    chunks[1] == "random-list-add-hsv" ||
+                    chunks[1] == "random-list-sub-hsv" ||
+                    chunks[1] == "random-list-mul-hsv" ||
+                    chunks[1] == "random-list-div-hsv";
+
+                bool isRangeType =
+                    chunks[1] == "random-add" ||
+                    chunks[1] == "random-set" ||
+                    chunks[1] == "random-sub" ||
+                    chunks[1] == "random-mul" ||
+                    chunks[1] == "random-div" ||
+                    chunks[1] == "random-add-hsv" ||
+                    chunks[1] == "random-sub-hsv" ||
+                    chunks[1] == "random-mul-hsv" ||
+                    chunks[1] == "random-div-hsv";
 
                 // Type must be recognized.
-                if (!isCycleType &&
+                if (!isListType && !isRangeType &&
                     chunks[1] != "add" &&
                     chunks[1] != "set" &&
                     chunks[1] != "sub" &&
@@ -685,8 +859,8 @@ namespace DynamicDraw
                     return false;
                 }
 
-                // There must be at least 1 cycle value, and all values must be valid colors
-                if (isCycleType)
+                // There must be at least 1 value, and all values must be valid colors
+                if (isListType || isRangeType)
                 {
                     string[] colorStrings = chunks[0].Split(",");
 
@@ -694,13 +868,29 @@ namespace DynamicDraw
                     {
                         return false;
                     }
+                    if (isRangeType && colorStrings.Length != 2)
+                    {
+                        return false;
+                    }
 
+                    List<Color> colors = new();
                     foreach (string colorString in colorStrings)
                     {
-                        if (ColorUtils.GetColorFromText(colorString, true) == null)
+                        Color? col = ColorUtils.GetColorFromText(colorString, true);
+                        if (col == null)
                         {
                             return false;
                         }
+                        colors.Add(col.Value);
+                    }
+
+                    if (isRangeType &&
+                        (colors[0].R > colors[1].R ||
+                        colors[0].G > colors[1].G ||
+                        colors[0].B > colors[1].B ||
+                        colors[0].A > colors[1].A))
+                    {
+                        return false;
                     }
 
                     return true;
