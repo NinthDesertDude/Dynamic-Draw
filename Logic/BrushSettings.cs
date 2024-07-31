@@ -578,7 +578,7 @@ namespace DynamicDraw
         /// </summary>
         [JsonInclude]
         [JsonPropertyName("BrushScripts")]
-        public BrushScripts BrushScripts { get; set; }
+        public ToolScripts BrushScripts { get; set; }
 
         /// <summary>
         /// Whether the areas of the brush that clip at the canvas edge should be wrapped around and drawn on the
@@ -672,7 +672,7 @@ namespace DynamicDraw
             RandMinH = 0;
             RandMinS = 0;
             RandMinV = 0;
-            BrushScripts = new BrushScripts();
+            BrushScripts = new ToolScripts();
             SeamlessDrawing = false;
             SizeChange = 0;
             RotChange = 0;

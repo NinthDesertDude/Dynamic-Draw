@@ -146,7 +146,8 @@ namespace DynamicDraw
             string[] chunks = ActionData.Split('|');
             if (chunks.Length != 2)
             {
-                throw new Exception("Was expecting color command to have two pieces of data.");
+                ActionData = $"{ActionData}|set";
+                chunks = ActionData.Split('|');
             }
 
             if (CommandTargetInfo.All[Target].ValueType != CommandActionDataType.Color)
@@ -452,9 +453,16 @@ namespace DynamicDraw
         public float GetDataAsFloat(float origValue, float minValue, float maxValue)
         {
             string[] chunks = ActionData.Split('|');
+
             if (chunks.Length != 2)
             {
-                throw new Exception("Was expecting numeric command to have two pieces of data.");
+                if (!float.TryParse(ActionData, out float actionDataAsNum))
+                {
+                    throw new Exception("Was expecting command to have two pieces of data.");
+                }
+
+                ActionData = $"{actionDataAsNum}|set";
+                chunks = ActionData.Split('|');
             }
 
             if (CommandTargetInfo.All[Target].ValueType != CommandActionDataType.Integer &&

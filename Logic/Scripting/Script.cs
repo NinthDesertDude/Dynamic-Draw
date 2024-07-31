@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace DynamicDraw
 {
     /// <summary>
-    /// Scripted brushes store a series of actions that start with a trigger and perform the given actions.
+    /// Scripts store a series of actions that start with a trigger and perform the given actions.
     /// </summary>
     public class Script
     {
@@ -69,7 +69,6 @@ namespace DynamicDraw
         private static readonly string BuiltInPaletteSwapColors = "palette.swapcolors";
         private static readonly string BuiltInPaletteSwitch = "palette.switch";
         private static readonly string BuiltInBrushSymmetry = "brush.symmetry";
-        private static readonly string input_pressure = "input_pressure";
         private static readonly string BuiltInBrushStrokeDensityPressure = $"{input_pressure}{BuiltInBrushStrokeDensity}";
         private static readonly string BuiltInBrushFlowShiftPressure = $"{input_pressure}{BuiltInBrushFlowShift}";
         private static readonly string BuiltInBrushJitterBlueMaxPressure = $"{input_pressure}{BuiltInBrushJitterBlueMax}";
@@ -94,16 +93,37 @@ namespace DynamicDraw
         private static readonly string BuiltInBrushMinDrawDistPressure = $"{input_pressure}{BuiltInBrushMinDrawDist}";
         private static readonly string BuiltInBrushAnglePressure = $"{input_pressure}{BuiltInBrushAngle}";
         private static readonly string BuiltInBrushSizePressure = $"{input_pressure}{BuiltInBrushSize}";
+        private static readonly string BuiltInCanvasAngle = "canvas.angle";
+        private static readonly string BuiltInCanvasX = "canvas.x";
+        private static readonly string BuiltInCanvasY = "canvas.y";
+        private static readonly string BuiltInCanvasZoom = "canvas.zoom";
+        private static readonly string input_pressure = "input_pressure";
         #endregion
 
         #region Properties
         /// <summary>
-        /// This identifies the version of the script. Newer versions of the plugin may update this version and change
-        /// the way it works, in which case it's useful to track versions to support old scripts effectively. The
-        /// version will only be updated when a breaking change is introduced.
+        /// If the script is triggered, it performs this action in a LUA interpreter.
         /// </summary>
-        [JsonPropertyName("Version")]
-        public string Version { get; set; }
+        [JsonPropertyName("Action")]
+        public string Action { get; set; }
+
+        /// <summary>
+        /// An optional author field for who made the script. Appears in script details.
+        /// </summary>
+        [JsonPropertyName("Author")]
+        public string Author { get; set; }
+
+        /// <summary>
+        /// An optional description for what the script does. Appears in script details.
+        /// </summary>
+        [JsonPropertyName("Description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The name of the script is provided by its creator and used in GUIs for easy display.
+        /// </summary>
+        [JsonPropertyName("Name")]
+        public string Name { get; set; }
 
         /// <summary>
         /// The event that causes this script to begin.
@@ -111,19 +131,25 @@ namespace DynamicDraw
         [JsonPropertyName("Trigger")]
         public ScriptTrigger Trigger { get; set; }
 
+
         /// <summary>
-        /// If a script is triggered, it performs these actions in order (via the parser).
+        /// This identifies the version of the script. Newer versions of the plugin may update this version and change
+        /// the way it works, in which case it's useful to track versions to support old scripts effectively. The
+        /// version will only be updated when a breaking change is introduced.
         /// </summary>
-        [JsonPropertyName("Actions")]
-        public List<string> Actions { get; set; }
+        [JsonPropertyName("Version")]
+        public string Version { get; set; }
         #endregion
 
         [JsonConstructor]
         public Script()
         {
+            Action = "";
+            Author = "";
+            Description = "";
+            Name = "";
             Version = ScriptVersion;
             Trigger = ScriptTrigger.OnBrushStroke;
-            Actions = new List<string>();
         }
 
         /// <summary>
@@ -131,9 +157,12 @@ namespace DynamicDraw
         /// </summary>
         public Script(Script other)
         {
+            Action = other.Action;
+            Author = other.Author;
+            Description = other.Description;
+            Name = other.Name;
             Version = other.Version;
             Trigger = other.Trigger;
-            Actions = new List<string>(other.Actions);
         }
 
         #region Public Static Methods
@@ -167,7 +196,13 @@ namespace DynamicDraw
         /// names are part of a versioned public API and should not be changed without incrementing the version and
         /// adding special casing for changed API.
         /// </summary>
-        public static CommandTarget ResolveBuiltInToCommandTarget(string targetName)
+        /// <param name="targetName">The name of the command to be resolved.</param>
+        /// <param name="includeReadOnly">
+        /// When true, this is able to return commands that are marked as readonly. Some command targets shouldn't be
+        /// editable by automatic scripts, such as canvas zoom. Keeping these off limits helps prevent scripts from
+        /// creating a jarring user experience.
+        /// </param>
+        public static CommandTarget ResolveBuiltInToCommandTarget(string targetName, bool includeReadOnly = false)
         {
             string lowercased = targetName.ToLower();
 
@@ -175,7 +210,14 @@ namespace DynamicDraw
             if (lowercased == BuiltInBrushBlendMode) { return CommandTarget.BlendMode; }
             if (lowercased == BuiltInBrushOpacity) { return CommandTarget.BrushOpacity; }
             if (lowercased == BuiltInBrushStrokeDensity) { return CommandTarget.BrushStrokeDensity; }
-            // CanvasAngle, CanvasX, CanvasY, CanvasZoom, CanvasZoomFit and CanvasZoomToMouse are omitted
+            if (includeReadOnly)
+            {
+                if (lowercased == BuiltInCanvasAngle) { return CommandTarget.CanvasRotation; }
+                if (lowercased == BuiltInCanvasX) { return CommandTarget.CanvasX; }
+                if (lowercased == BuiltInCanvasY) { return CommandTarget.CanvasY; }
+                if (lowercased == BuiltInCanvasZoom) { return CommandTarget.CanvasZoom; }
+            }
+            // CanvasZoomFit and CanvasZoomToMouse are omitted
             if (lowercased == BuiltInBrushEffect) { return CommandTarget.ChosenEffect; }
             if (lowercased == BuiltInBrushColor) { return CommandTarget.Color; }
             if (lowercased == BuiltInBrushColorInfluence) { return CommandTarget.ColorInfluence; }

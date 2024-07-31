@@ -252,16 +252,15 @@ namespace DynamicDraw
         private Tool activeTool = Tool.Brush;
 
         /// <summary>
-        /// The loaded scripts for the current brush. TODO: Once a GUI is supported for this, the textboxes of that
-        /// GUI will be used as the source of truth, and this variable can be deleted.
+        /// The loaded scripts for the current brush.
         /// </summary>
-        private BrushScripts currentBrushScripts = null;
+        private ToolScripts currentBrushScripts = null;
 
         /// <summary>
-        /// The LUA interpreter used to execute brush scripts, if present. It's loaded when a scripted tool is selected
-        /// if it's null, otherwise it's cleared to refresh the local variables.
+        /// The LUA interpreter used to execute brush scripts, if present. It's loaded when a scripted tool is set, and
+        /// global variables persist until a different set of scripts is loaded.
         /// </summary>
-        private MoonSharp.Interpreter.Script brushScriptShell = null;
+        private MoonSharp.Interpreter.Script scriptEnv = null;
 
         /// <summary>
         /// Active brush in settings. The file path identifying the currently loaded brush, or name for built-in
@@ -520,6 +519,7 @@ namespace DynamicDraw
         private ThemedCheckbox chkbxColorInfluenceHue;
         private ThemedCheckbox chkbxColorInfluenceSat;
         private ThemedCheckbox chkbxColorInfluenceVal;
+        private ThemedButton bttnSetScript;
         private Panel panelChosenEffect;
         private ThemedComboBox cmbxChosenEffect;
         private ThemedButton bttnChooseEffectSettings;
@@ -945,6 +945,7 @@ namespace DynamicDraw
             chkbxColorInfluenceHue.Text = Strings.HueAbbr;
             chkbxColorInfluenceSat.Text = Strings.SatAbbr;
             chkbxColorInfluenceVal.Text = Strings.ValAbbr;
+            bttnSetScript.Text = Strings.SetScript;
             chkbxLockAlpha.Text = Strings.LockAlpha;
             chkbxLockR.Text = Strings.ColorRedAbbr;
             chkbxLockG.Text = Strings.ColorGreenAbbr;
@@ -1548,37 +1549,44 @@ namespace DynamicDraw
             }
 
             int scriptNum = 0;
-            int actionNum = 0;
 
             try
             {
                 for (; scriptNum < currentBrushScripts.Scripts.Count; scriptNum++)
                 {
-                    if (currentBrushScripts.Scripts[scriptNum].Trigger == trigger)
+                    if (currentBrushScripts.Scripts[scriptNum].Trigger == trigger &&
+                        currentBrushScripts.Scripts[scriptNum].Action != "")
                     {
-                        for (actionNum = 0; actionNum < currentBrushScripts.Scripts[scriptNum].Actions.Count; actionNum++)
-                        {
-                            brushScriptShell.DoString(currentBrushScripts.Scripts[scriptNum].Actions[actionNum]);
-                        }
+                        scriptEnv.DoString(
+                            currentBrushScripts.Scripts[scriptNum].Action);
                     }
                 }
             }
             catch (Exception e)
             {
+                var script = currentBrushScripts.Scripts[scriptNum];
+
                 if (e is MoonSharp.Interpreter.SyntaxErrorException ||
                     e is MoonSharp.Interpreter.ScriptRuntimeException ||
                     e is MoonSharp.Interpreter.DynamicExpressionException ||
                     e is MoonSharp.Interpreter.InternalErrorException)
                 {
                     ThemedMessageBox.Show(
-                        string.Format(Strings.BrushScriptError, scriptNum + 1, actionNum + 1, e.Message),
+                        string.Format(
+                            Strings.BrushScriptError,
+                            string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\"",
+                            e.Message),
                         Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
                 else
                 {
                     ThemedMessageBox.Show(
-                        string.Format(Strings.BrushScriptGenericError, scriptNum + 1, actionNum + 1),
+                        string.Format(
+                            Strings.BrushScriptGenericError,
+                            string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\""),
                         Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
 
                 // Temp-disables all scripts (until this is repopulated by e.g. reselecting the brush, restarting the
@@ -1605,17 +1613,17 @@ namespace DynamicDraw
                 return;
             }
 
-            if (brushScriptShell == null)
+            if (scriptEnv == null)
             {
-                brushScriptShell = new MoonSharp.Interpreter.Script(MoonSharp.Interpreter.CoreModules.Preset_SoftSandbox);
+                scriptEnv = new MoonSharp.Interpreter.Script(MoonSharp.Interpreter.CoreModules.Preset_SoftSandbox);
                 MoonSharp.Interpreter.Script.WarmUp();
             }
 
             if (clearCustomVariables)
             {
-                brushScriptShell.Globals.Clear();
-                brushScriptShell.Globals["get"] = (Func<string, MoonSharp.Interpreter.DynValue>)BrushScriptsGetValue;
-                brushScriptShell.Globals["set"] = (Action<string, MoonSharp.Interpreter.DynValue>)BrushScriptsSetValue;
+                scriptEnv.Globals.Clear();
+                scriptEnv.Globals["get"] = (Func<string, MoonSharp.Interpreter.DynValue>)BrushScriptsGetValue;
+                scriptEnv.Globals["set"] = (Action<string, MoonSharp.Interpreter.DynValue>)BrushScriptsSetValue;
             }
         }
 
@@ -1625,7 +1633,7 @@ namespace DynamicDraw
         /// </summary>
         private MoonSharp.Interpreter.DynValue BrushScriptsGetValue(string specialVariableName)
         {
-            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName);
+            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName, true);
 
             // Returns the value of special variables from Dynamic Draw.
             if (resolvedTarget != CommandTarget.None)
@@ -3829,6 +3837,7 @@ namespace DynamicDraw
             txtbxColorHexfield = new ColorTextbox(Color.Black, true);
             bttnSpecialSettings = new Accordion(true);
             panelSpecialSettings = new FlowLayoutPanel();
+            bttnSetScript = new ThemedButton();
             panelChosenEffect = new Panel();
             cmbxChosenEffect = new ThemedComboBox();
             bttnChooseEffectSettings = new ThemedButton();
@@ -4910,6 +4919,7 @@ namespace DynamicDraw
             panelSpecialSettings.TabIndex = 19;
             panelSpecialSettings.AutoSize = true;
             panelSpecialSettings.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelSpecialSettings.Controls.Add(bttnSetScript);
             panelSpecialSettings.Controls.Add(panelChosenEffect);
             panelSpecialSettings.Controls.Add(sliderMinDrawDistance);
             panelSpecialSettings.Controls.Add(chkbxAutomaticBrushDensity);
@@ -4924,8 +4934,17 @@ namespace DynamicDraw
             panelSpecialSettings.Controls.Add(panelHSVLocks);
             #endregion
 
+            #region bttnSetScript
+            bttnSetScript.Location = new Point(0, 3);
+            bttnSetScript.Margin = new Padding(3, 3, 3, 3);
+            bttnSetScript.Size = new Size(150, 23);
+            bttnSetScript.TabIndex = 137;
+            bttnSetScript.Click += BttnSetScript_Click;
+            bttnSetScript.MouseEnter += BttnSetScript_MouseEnter;
+            #endregion
+
             #region panelChosenEffect
-            panelChosenEffect.Location = new Point(0, 3);
+            panelChosenEffect.Location = new Point(0, 61);
             panelChosenEffect.Margin = new Padding(0, 3, 0, 0);
             panelChosenEffect.Size = new Size(156, 33);
             panelChosenEffect.TabIndex = 20;
@@ -4958,7 +4977,7 @@ namespace DynamicDraw
             #region sliderMinDrawDistance
             sliderMinDrawDistance.AutoSize = false;
             sliderMinDrawDistance.IntegerOnly = true;
-            sliderMinDrawDistance.Location = new Point(3, 52);
+            sliderMinDrawDistance.Location = new Point(3, 110);
             sliderMinDrawDistance.Size = new Size(150, 25);
             sliderMinDrawDistance.TabIndex = 21;
             sliderMinDrawDistance.ComputeText = (val) => string.Format("{0} {1}", Strings.MinDrawDistance, val);
@@ -5902,24 +5921,37 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Refreshes all scripted brush settings if a script is present and isn't ref-equal to the current brush's
+        /// scripts. The assumption is if any are ref-equal, the user hasn't changed their brush (in which case it's
+        /// bad to clear their custom variables). See PrepareBrushScripts for more reasoning.
+        /// </summary>
+        private void UpdateBrushScripts(ToolScripts scripts)
+        {
+            if (scripts != null && scripts.Scripts != null && scripts.Scripts.Count != 0)
+            {
+                if (currentBrushScripts == null || currentBrushScripts.Scripts == null || currentBrushScripts.Scripts.Count == 0 ||
+                    (scripts.Scripts[0] != currentBrushScripts.Scripts[0]))
+                {
+                    bttnSetScript.Text = Strings.EditScript;
+                    currentBrushScripts = new(scripts);
+                    BrushScriptsPrepare(true);
+                }
+            }
+            else
+            {
+                currentBrushScripts = null;
+                bttnSetScript.Text = Strings.SetScript;
+            }
+        }
+
+        /// <summary>
         /// Updates all settings based on the currently selected brush.
         /// </summary>
         private void UpdateBrush(BrushSettings settings)
         {
-            // Refreshes all scripted brush settings if a script is present and isn't ref-equal to the current brush's
-            // scripts. The assumption is if any are ref-equal, the user hasn't changed their brush (in which case it's
-            // bad to clear their custom variables). See PrepareBrushScripts for more reasoning.
-            if (settings.BrushScripts != null && settings.BrushScripts.Scripts != null && settings.BrushScripts.Scripts.Count != 0)
-            {
-                if (currentBrushScripts == null || currentBrushScripts.Scripts == null || currentBrushScripts.Scripts.Count == 0 ||
-                    (settings.BrushScripts.Scripts[0] != currentBrushScripts.Scripts[0]))
-                {
-                    currentBrushScripts = new(settings.BrushScripts);
-                    BrushScriptsPrepare(true);
-                }
-            }
+            UpdateBrushScripts(settings.BrushScripts);
 
-            // Whether the delete brush button is enabled or not.
+            // Whether the update/delete brush buttons are enabled or not.
             bttnUpdateCurrentBrush.Enabled = currentBrushPath != null &&
                 !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath);
             bttnDeleteBrush.Enabled = bttnUpdateCurrentBrush.Enabled;
@@ -8138,6 +8170,32 @@ namespace DynamicDraw
         {
             UpdateTooltip(Strings.UpdateCurrentBrushTip);
         }
+
+        /// <summary>
+        /// Opens a dialog to edit brush scripts.
+        /// </summary>
+        private void BttnSetScript_Click(object sender, EventArgs e)
+        {
+            var scriptsDialog = new EditScriptDialog(new (currentBrushScripts));
+            if (scriptsDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (bttnSetScript.Text == Strings.EditScript)
+                {
+                    UpdateBrushScripts(scriptsDialog.GetScriptAfterDialogOK());
+                    if (bttnUpdateCurrentBrush.Enabled)
+                    {
+                        BttnUpdateCurrentBrush_Click(null, null);
+                    }
+                }
+            }
+            currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
+        }
+
+        private void BttnSetScript_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateTooltip(Strings.SetScriptTip);
+        }
+
 
         /// <summary>
         /// Reverts to a previously-undone drawing stored in a temporary file.

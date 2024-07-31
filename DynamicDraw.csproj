@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <StartupObject></StartupObject>
@@ -25,6 +26,14 @@
     <OutputPath></OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="TabletSupport\**" />
+    <EmbeddedResource Remove="TabletSupport\**" />
+    <None Remove="TabletSupport\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MoonSharp.Interpreter">
+      <HintPath>Resources\MoonSharpInterpreter.dll</HintPath>
+    </Reference>
     <Reference Include="PaintDotNet.Base">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
     </Reference>
@@ -118,8 +127,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TabletSupport\WintabDN.dll" />
     <Content Include="Resources\icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MoonSharp" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Localization\Strings.resx">
@@ -131,6 +142,20 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Resources\MoonSharp.Interpreter.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Interop\MoonSharpInterpreter.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\sprChecked.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Interop\WintabDN.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -141,6 +166,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\DynamicDraw.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
+    <Exec Command="mkdir -p &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetPath)&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\WintabDN.dll&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\DynamicDraw.deps.json&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;move &quot;$(TargetDir)\MoonSharp.Interpreter.dll&quot; &quot;C:\Program Files\paint.net\Effects\DynamicDraw&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\paint.net\paintdotnet.exe&quot;" />
   </Target>
 </Project>

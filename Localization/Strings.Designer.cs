@@ -574,7 +574,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered a scripting error in script # {0}, action # {1}. To avoid instability, scripts will stop running for this brush until it&apos;s reselected. The error message from the script is: {2}..
+        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered a scripting error in script {0}. To avoid instability, scripts will stop running for this brush until it&apos;s reselected. The error message from the script is: {1}..
         /// </summary>
         internal static string BrushScriptError {
             get {
@@ -583,7 +583,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered an unexpected error in script # {0}, action # {1} that occured during script evaluation, but might not be a problem with the script (it still could be). To avoid instability, scripts will stop running for this brush until it&apos;s reselected..
+        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered an unexpected error in script {0} that occured during script evaluation. To avoid instability, scripts will stop running for this brush until it&apos;s reselected..
         /// </summary>
         internal static string BrushScriptGenericError {
             get {
@@ -1441,6 +1441,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Or Edit Scripts.
+        /// </summary>
+        internal static string DialogEditScriptsTitle {
+            get {
+                return ResourceManager.GetString("DialogEditScriptsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Recording keys....
         /// </summary>
         internal static string DialogKeyboardShortcutsRecordKeys {
@@ -1491,6 +1500,15 @@ namespace DynamicDraw.Localization {
         internal static string DoneTip {
             get {
                 return ResourceManager.GetString("DoneTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit Script.
+        /// </summary>
+        internal static string EditScript {
+            get {
+                return ResourceManager.GetString("EditScript", resourceCulture);
             }
         }
         
@@ -2476,6 +2494,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to LUA script data:.
+        /// </summary>
+        internal static string ScriptData {
+            get {
+                return ResourceManager.GetString("ScriptData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Seamless Drawing.
         /// </summary>
         internal static string SeamlessDrawing {
@@ -2490,6 +2517,24 @@ namespace DynamicDraw.Localization {
         internal static string SeamlessDrawingTip {
             get {
                 return ResourceManager.GetString("SeamlessDrawingTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set Script.
+        /// </summary>
+        internal static string SetScript {
+            get {
+                return ResourceManager.GetString("SetScript", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scripts allow users to manipulate settings using Lua scripts, which allows for the creation of unique brushes with highly complex behavior..
+        /// </summary>
+        internal static string SetScriptTip {
+            get {
+                return ResourceManager.GetString("SetScriptTip", resourceCulture);
             }
         }
         

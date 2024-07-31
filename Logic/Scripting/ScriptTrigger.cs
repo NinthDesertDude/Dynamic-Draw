@@ -3,8 +3,7 @@
 namespace DynamicDraw
 {
     /// <summary>
-    /// Scripted brushes store a series of actions that start with a trigger, exit unless all conditions are met, and
-    /// otherwise perform the given actions.
+    /// Scripts store an action that is executed when these trigger(s) occur.
     /// </summary>
     public enum ScriptTrigger
     {

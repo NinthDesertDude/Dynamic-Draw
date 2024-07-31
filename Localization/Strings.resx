@@ -1460,9 +1460,24 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
     <value>Max</value>
   </data>
   <data name="BrushScriptError" xml:space="preserve">
-    <value>The scripted brush you're using encountered a scripting error in script # {0}, action # {1}. To avoid instability, scripts will stop running for this brush until it's reselected. The error message from the script is: {2}.</value>
+    <value>The scripted brush you're using encountered a scripting error in script {0}. To avoid instability, scripts will stop running for this brush until it's reselected. The error message from the script is: {1}.</value>
   </data>
   <data name="BrushScriptGenericError" xml:space="preserve">
-    <value>The scripted brush you're using encountered an unexpected error in script # {0}, action # {1} that occured during script evaluation, but might not be a problem with the script (it still could be). To avoid instability, scripts will stop running for this brush until it's reselected.</value>
+    <value>The scripted brush you're using encountered an unexpected error in script {0} that occured during script evaluation. To avoid instability, scripts will stop running for this brush until it's reselected.</value>
+  </data>
+  <data name="SetScriptTip" xml:space="preserve">
+    <value>Scripts allow users to manipulate settings using Lua scripts, which allows for the creation of unique brushes with highly complex behavior.</value>
+  </data>
+  <data name="DialogEditScriptsTitle" xml:space="preserve">
+    <value>Add Or Edit Scripts</value>
+  </data>
+  <data name="EditScript" xml:space="preserve">
+    <value>Edit Script</value>
+  </data>
+  <data name="SetScript" xml:space="preserve">
+    <value>Set Script</value>
+  </data>
+  <data name="ScriptData" xml:space="preserve">
+    <value>LUA script data:</value>
   </data>
 </root>
