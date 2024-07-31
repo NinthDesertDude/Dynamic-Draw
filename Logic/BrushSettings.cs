@@ -1,7 +1,5 @@
-using DynamicDraw.Gui;
 using DynamicDraw.Localization;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -574,6 +572,15 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// These are optional scripts that fire when an event occurs, and perform actions in order. They follow a
+        /// versioned API of allowed script actions, and brushes that use brush scripting do not stamp the brush as
+        /// it's used by default.
+        /// </summary>
+        [JsonInclude]
+        [JsonPropertyName("BrushScripts")]
+        public BrushScripts BrushScripts { get; set; }
+
+        /// <summary>
         /// Whether the areas of the brush that clip at the canvas edge should be wrapped around and drawn on the
         /// opposite sides.
         /// </summary>
@@ -665,6 +672,7 @@ namespace DynamicDraw
             RandMinH = 0;
             RandMinS = 0;
             RandMinV = 0;
+            BrushScripts = new BrushScripts();
             SeamlessDrawing = false;
             SizeChange = 0;
             RotChange = 0;
@@ -726,6 +734,7 @@ namespace DynamicDraw
             RandMinV = other.RandMinV;
             CmbxChosenEffect = other.CmbxChosenEffect;
             TabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>(other.TabPressureConstraints);
+            BrushScripts = other.BrushScripts;
             SeamlessDrawing = other.SeamlessDrawing;
             SizeChange = other.SizeChange;
             RotChange = other.RotChange;

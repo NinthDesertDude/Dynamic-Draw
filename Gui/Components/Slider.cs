@@ -712,13 +712,19 @@ namespace DynamicDraw
                     {
                         try
                         {
-                            string expressionResult = Parsing.Parser.Eval(newValueString);
-                            if (newValueString != "" && float.TryParse(expressionResult, out float result))
+                            if (newValueString != "")
                             {
-                                Value = Math.Clamp(
-                                    integerOnly ? (int)result : result,
-                                    numericStops[0],
-                                    numericStops[^1]);
+                                // Allows simple evaluation.
+                                MoonSharp.Interpreter.Script tempEnv = new(MoonSharp.Interpreter.CoreModules.Preset_HardSandbox);
+                                string expressionResult = tempEnv.CreateDynamicExpression(newValueString).Evaluate().ToPrintString();
+
+                                if (float.TryParse(expressionResult, out float result))
+                                {
+                                    Value = Math.Clamp(
+                                        integerOnly ? (int)result : result,
+                                        numericStops[0],
+                                        numericStops[^1]);
+                                }
                             }
                         }
                         catch { }

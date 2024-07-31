@@ -681,8 +681,8 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Interprets the data as representing true or false from either "t" or "f". Alternatively, it can be
-        /// "toggle" to flip the value.
+        /// Interprets the data as representing true or false from either "t" or "true" or "f" or "false".
+        /// Alternatively, it can be "toggle" to flip the value.
         /// Assumes the data is already in the proper format. Use <see cref="IsActionValid"/> to ensure.
         /// </summary>
         public bool GetDataAsBool(bool origValue)
@@ -697,7 +697,7 @@ namespace DynamicDraw
                 return !origValue;
             }
 
-            return ActionData.Equals("t");
+            return ActionData.Equals("t") || ActionData.Equals("true", StringComparison.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
@@ -800,10 +800,13 @@ namespace DynamicDraw
                 return float.TryParse(chunks[0], out float _);
             }
 
-            // Bools must be t for true, f for false, or toggle to switch when fired.
+            // Bools must be t or true for true, f or false for false, or toggle to switch when fired.
             if (CommandTargetInfo.All[target].ValueType == CommandActionDataType.Bool)
             {
-                return actionData.Equals("t") || actionData.Equals("f") || actionData.Equals("toggle");
+                string actionDataLower = actionData.ToLower();
+                return actionDataLower.Equals("t") || actionDataLower.Equals("true") ||
+                    actionDataLower.Equals("f") || actionDataLower.Equals("false") ||
+                    actionDataLower.Equals("toggle");
             }
 
             // Colors must follow the allowed value|type syntaxes and be 6 or 8 hexadecimal lowercase characters.

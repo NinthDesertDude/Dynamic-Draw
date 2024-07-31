@@ -252,6 +252,18 @@ namespace DynamicDraw
         private Tool activeTool = Tool.Brush;
 
         /// <summary>
+        /// The loaded scripts for the current brush. TODO: Once a GUI is supported for this, the textboxes of that
+        /// GUI will be used as the source of truth, and this variable can be deleted.
+        /// </summary>
+        private BrushScripts currentBrushScripts = null;
+
+        /// <summary>
+        /// The LUA interpreter used to execute brush scripts, if present. It's loaded when a scripted tool is selected
+        /// if it's null, otherwise it's cleared to refresh the local variables.
+        /// </summary>
+        private MoonSharp.Interpreter.Script brushScriptShell = null;
+
+        /// <summary>
         /// Active brush in settings. The file path identifying the currently loaded brush, or name for built-in
         /// brushes, or null if no saved brush is currently active.
         /// </summary>
@@ -1523,6 +1535,142 @@ namespace DynamicDraw
         }
 
         /// <summary>
+        /// Executes all scripts of the current brush, if any, that are triggered by the given trigger.
+        /// </summary>
+        /// <param name="trigger">The trigger for which the scripts should execute.</param>
+        private void BrushScriptsExecute(ScriptTrigger trigger)
+        {
+            if (currentBrushScripts == null ||
+                currentBrushScripts.Scripts == null ||
+                currentBrushScripts.Scripts.Count == 0)
+            {
+                return;
+            }
+
+            int scriptNum = 0;
+            int actionNum = 0;
+
+            try
+            {
+                for (; scriptNum < currentBrushScripts.Scripts.Count; scriptNum++)
+                {
+                    if (currentBrushScripts.Scripts[scriptNum].Trigger == trigger)
+                    {
+                        for (actionNum = 0; actionNum < currentBrushScripts.Scripts[scriptNum].Actions.Count; actionNum++)
+                        {
+                            brushScriptShell.DoString(currentBrushScripts.Scripts[scriptNum].Actions[actionNum]);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is MoonSharp.Interpreter.SyntaxErrorException ||
+                    e is MoonSharp.Interpreter.ScriptRuntimeException ||
+                    e is MoonSharp.Interpreter.DynamicExpressionException ||
+                    e is MoonSharp.Interpreter.InternalErrorException)
+                {
+                    ThemedMessageBox.Show(
+                        string.Format(Strings.BrushScriptError, scriptNum + 1, actionNum + 1, e.Message),
+                        Text, MessageBoxButtons.OK);
+                }
+                else
+                {
+                    ThemedMessageBox.Show(
+                        string.Format(Strings.BrushScriptGenericError, scriptNum + 1, actionNum + 1),
+                        Text, MessageBoxButtons.OK);
+                }
+
+                // Temp-disables all scripts (until this is repopulated by e.g. reselecting the brush, restarting the
+                // plugin, etc.) because scripts may depend on each other and lead to dangerous unexpected behavior if
+                // partially disabled.
+                currentBrushScripts.Scripts.Clear();
+            }
+        }
+
+        /// <summary>
+        /// If the current brush supports scripting, this sets the values of many special variables for its scripts.
+        /// If <paramref name="clearCustomVariables"/> is true, all user-defined variables are also wiped, which
+        /// should be done only when a different scripted brush is selected because it's valuable to allow users to
+        /// create persisting variables in their scripts (but it's bad to allow variables set by other brushes to affect
+        /// each other).
+        /// </summary>
+        /// <param name="clearCustomVariables">If true, removes all user-set variables.</param>
+        private void BrushScriptsPrepare(bool clearCustomVariables)
+        {
+            if (currentBrushScripts == null ||
+                currentBrushScripts.Scripts == null ||
+                currentBrushScripts.Scripts.Count == 0)
+            {
+                return;
+            }
+
+            if (brushScriptShell == null)
+            {
+                brushScriptShell = new MoonSharp.Interpreter.Script(MoonSharp.Interpreter.CoreModules.Preset_SoftSandbox);
+                MoonSharp.Interpreter.Script.WarmUp();
+            }
+
+            if (clearCustomVariables)
+            {
+                brushScriptShell.Globals.Clear();
+                brushScriptShell.Globals["get"] = (Func<string, MoonSharp.Interpreter.DynValue>)BrushScriptsGetValue;
+                brushScriptShell.Globals["set"] = (Action<string, MoonSharp.Interpreter.DynValue>)BrushScriptsSetValue;
+            }
+        }
+
+        /// <summary>
+        /// Takes 1 token, a reserved brush script API identifier for a variable name, and attempts to resolve it.
+        /// Returns the resolved value as a literal token, or a variable token with a null value on failure.
+        /// </summary>
+        private MoonSharp.Interpreter.DynValue BrushScriptsGetValue(string specialVariableName)
+        {
+            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName);
+
+            // Returns the value of special variables from Dynamic Draw.
+            if (resolvedTarget != CommandTarget.None)
+            {
+                string resultStr = GetTargetValue(resolvedTarget);
+                switch (CommandTargetInfo.All[resolvedTarget].ValueType)
+                {
+                    case CommandActionDataType.Action:
+                        return null;
+                    case CommandActionDataType.Bool:
+                        return MoonSharp.Interpreter.DynValue.NewBoolean(bool.Parse(resultStr));
+                    case CommandActionDataType.Float:
+                        return MoonSharp.Interpreter.DynValue.NewNumber(float.Parse(resultStr));
+                    case CommandActionDataType.Integer:
+                        return MoonSharp.Interpreter.DynValue.NewNumber(int.Parse(resultStr));
+                    case CommandActionDataType.Color:
+                    case CommandActionDataType.String:
+                        return MoonSharp.Interpreter.DynValue.NewString(resultStr);
+                }
+            }
+
+            return MoonSharp.Interpreter.DynValue.NewNil();
+        }
+
+        /// <summary>
+        /// Takes 1 or 2 tokens and attempts to create a command with a valid target, defaulting to
+        /// <see cref="CommandTarget.None"/>. Token 1 should be a reserved brush script API identifier for the target,
+        /// and token 2 should be an optional string of action data for it. Returns a token equal to 0.
+        /// </summary>
+        private void BrushScriptsSetValue(string specialVariableName, MoonSharp.Interpreter.DynValue result)
+        {
+            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName);
+
+            // Allows setting arbitrary variables with primitive-type values.
+            if (resolvedTarget != CommandTarget.None)
+            {
+                HandleShortcut(new Command()
+                {
+                    Target = resolvedTarget,
+                    ActionData = result.ToPrintString()
+                });
+            }
+        }
+
+        /// <summary>
         /// Returns a new brush settings object using all current settings values.
         /// </summary>
         private BrushSettings CreateSettingsObjectFromCurrentSettings(bool fallbackToCircleBrushPath = false)
@@ -1581,11 +1729,12 @@ namespace DynamicDraw
                 RandRotRight = sliderRandRotRight.ValueInt,
                 RandVertShift = sliderRandVertShift.ValueInt,
                 RotChange = sliderShiftRotation.ValueInt,
+                BrushScripts = new(currentBrushScripts),
                 SizeChange = sliderShiftSize.ValueInt,
                 Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
                 Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
                 CmbxChosenEffect = cmbxChosenEffect.SelectedIndex,
-                TabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>(tabPressureConstraints),
+                TabPressureConstraints = new(tabPressureConstraints),
             };
 
             return newSettings;
@@ -1666,7 +1815,13 @@ namespace DynamicDraw
 
                 //Removes all redo history.
                 redoHistory.Clear();
+
+                // Scripted brushes execute their pre-brush stamp logic now.
+                BrushScriptsExecute(ScriptTrigger.OnBrushStroke);
             }
+
+            // Scripted brushes execute their pre-brush stamp logic now.
+            BrushScriptsExecute(ScriptTrigger.OnStartBrushStamp);
 
             #region apply size jitter
             // Change the brush size based on settings.
@@ -2047,6 +2202,9 @@ namespace DynamicDraw
                     g.RotateTransform(-sliderCanvasAngle.ValueInt);
                     g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
                 }
+
+                // Scripted brushes execute their post-brush stamp logic now.
+                BrushScriptsExecute(ScriptTrigger.OnEndBrushStamp);
 
                 #region Draw the brush with blend modes or without a recolor matrix, considering symmetry
                 if (recolorMatrix == null || useLockbitsDrawing)
@@ -2909,6 +3067,144 @@ namespace DynamicDraw
             }
 
             return range;
+        }
+
+        /// <summary>
+        /// Returns a string with the current value of the given command target, or an empty string if it fails.
+        /// </summary>
+        /// <param name="target">A target for a command.</param>
+        private string GetTargetValue(CommandTarget target)
+        {
+            switch (target)
+            {
+                case CommandTarget.Flow:
+                    return sliderBrushFlow.Value.ToString();
+                case CommandTarget.FlowShift:
+                    return sliderBrushFlow.Value.ToString();
+                case CommandTarget.AutomaticBrushDensity:
+                    return chkbxAutomaticBrushDensity.Checked.ToString();
+                case CommandTarget.BrushStrokeDensity:
+                    return sliderBrushDensity.Value.ToString();
+                case CommandTarget.CanvasZoom:
+                    return sliderCanvasZoom.Value.ToString();
+                case CommandTarget.Color:
+                    return ColorUtils.GetTextFromColor(swatchPrimaryColor.Swatches[0]);
+                case CommandTarget.ColorizeBrush:
+                    return chkbxColorizeBrush.Checked.ToString();
+                case CommandTarget.ColorInfluence:
+                    return sliderColorInfluence.Value.ToString();
+                case CommandTarget.ColorInfluenceHue:
+                    return chkbxColorInfluenceHue.Checked.ToString();
+                case CommandTarget.ColorInfluenceSat:
+                    return chkbxColorInfluenceSat.Checked.ToString();
+                case CommandTarget.ColorInfluenceVal:
+                    return chkbxColorInfluenceVal.Checked.ToString();
+                case CommandTarget.DitherDraw:
+                    return chkbxDitherDraw.Checked.ToString();
+                case CommandTarget.JitterBlueMax:
+                    return sliderJitterMaxBlue.Value.ToString();
+                case CommandTarget.JitterBlueMin:
+                    return sliderJitterMinBlue.Value.ToString();
+                case CommandTarget.JitterGreenMax:
+                    return sliderJitterMaxGreen.Value.ToString();
+                case CommandTarget.JitterGreenMin:
+                    return sliderJitterMinGreen.Value.ToString();
+                case CommandTarget.JitterHorSpray:
+                    return sliderRandHorzShift.Value.ToString();
+                case CommandTarget.JitterHueMax:
+                    return sliderJitterMaxHue.Value.ToString();
+                case CommandTarget.JitterHueMin:
+                    return sliderJitterMinHue.Value.ToString();
+                case CommandTarget.JitterFlowLoss:
+                    return sliderRandFlowLoss.Value.ToString();
+                case CommandTarget.JitterMaxSize:
+                    return sliderRandMaxSize.Value.ToString();
+                case CommandTarget.JitterMinSize:
+                    return sliderRandMinSize.Value.ToString();
+                case CommandTarget.JitterRedMax:
+                    return sliderJitterMaxRed.Value.ToString();
+                case CommandTarget.JitterRedMin:
+                    return sliderJitterMinRed.Value.ToString();
+                case CommandTarget.JitterRotLeft:
+                    return sliderRandRotLeft.Value.ToString();
+                case CommandTarget.JitterRotRight:
+                    return sliderRandRotRight.Value.ToString();
+                case CommandTarget.JitterSatMax:
+                    return sliderJitterMaxSat.Value.ToString();
+                case CommandTarget.JitterSatMin:
+                    return sliderJitterMinSat.Value.ToString();
+                case CommandTarget.JitterValMax:
+                    return sliderJitterMaxVal.Value.ToString();
+                case CommandTarget.JitterValMin:
+                    return sliderJitterMinVal.Value.ToString();
+                case CommandTarget.JitterVerSpray:
+                    return sliderRandVertShift.Value.ToString();
+                case CommandTarget.DoLockAlpha:
+                    return chkbxLockAlpha.Checked.ToString();
+                case CommandTarget.DoLockR:
+                    return chkbxLockR.Checked.ToString();
+                case CommandTarget.DoLockG:
+                    return chkbxLockG.Checked.ToString();
+                case CommandTarget.DoLockB:
+                    return chkbxLockB.Checked.ToString();
+                case CommandTarget.DoLockHue:
+                    return chkbxLockHue.Checked.ToString();
+                case CommandTarget.DoLockSat:
+                    return chkbxLockSat.Checked.ToString();
+                case CommandTarget.DoLockVal:
+                    return chkbxLockVal.Checked.ToString();
+                case CommandTarget.MinDrawDistance:
+                    return sliderMinDrawDistance.Value.ToString();
+                case CommandTarget.RotateWithMouse:
+                    return chkbxOrientToMouse.Checked.ToString();
+                case CommandTarget.Rotation:
+                    return sliderBrushRotation.Value.ToString();
+                case CommandTarget.RotShift:
+                    return sliderShiftRotation.Value.ToString();
+                case CommandTarget.SelectedBrush:
+                    return currentBrushPath;
+                case CommandTarget.SelectedBrushImage:
+                    string allImages = "";
+                    for (int i = 0; i < listviewBrushImagePicker.SelectedIndices.Count; i++)
+                    {
+                        allImages += loadedBrushImages[0].Name;
+                        if (i < listviewBrushImagePicker.SelectedIndices.Count - 1)
+                        {
+                            allImages += ",";
+                        }
+                    }
+                    return allImages;
+                case CommandTarget.SelectedTool:
+                    // TODO: this is not a protected value across API. If the combobox gets new items it'll change the depended behavior.
+                    return ((int)activeTool).ToString();
+                case CommandTarget.Size:
+                    return sliderBrushSize.Value.ToString();
+                case CommandTarget.SizeShift:
+                    return sliderShiftSize.Value.ToString();
+                case CommandTarget.SmoothingMode:
+                    // TODO: this is not a protected value across API. If the combobox gets new items it'll change the depended behavior.
+                    return cmbxBrushSmoothing.SelectedIndex.ToString();
+                case CommandTarget.SymmetryMode:
+                    // TODO: this is not a protected value across API. If the combobox gets new items it'll change the depended behavior.
+                    return cmbxSymmetry.SelectedIndex.ToString();
+                case CommandTarget.CanvasX:
+                    return canvas.x.ToString();
+                case CommandTarget.CanvasY:
+                    return canvas.y.ToString();
+                case CommandTarget.CanvasRotation:
+                    return sliderCanvasAngle.Value.ToString();
+                case CommandTarget.BlendMode:
+                    // TODO: this is not a protected value across API. If the combobox gets new items it'll change the depended behavior.
+                    return cmbxBlendMode.SelectedIndex.ToString();
+                case CommandTarget.SeamlessDrawing:
+                    return chkbxSeamlessDrawing.Checked.ToString();
+                case CommandTarget.BrushOpacity:
+                    return sliderBrushOpacity.Value.ToString();
+                case CommandTarget.ChosenEffect:
+                    return cmbxChosenEffect.SelectedIndex.ToString();
+                default:
+                    return "";
+            };
         }
 
         /// <summary>
@@ -5610,6 +5906,19 @@ namespace DynamicDraw
         /// </summary>
         private void UpdateBrush(BrushSettings settings)
         {
+            // Refreshes all scripted brush settings if a script is present and isn't ref-equal to the current brush's
+            // scripts. The assumption is if any are ref-equal, the user hasn't changed their brush (in which case it's
+            // bad to clear their custom variables). See PrepareBrushScripts for more reasoning.
+            if (settings.BrushScripts != null && settings.BrushScripts.Scripts != null && settings.BrushScripts.Scripts.Count != 0)
+            {
+                if (currentBrushScripts == null || currentBrushScripts.Scripts == null || currentBrushScripts.Scripts.Count == 0 ||
+                    (settings.BrushScripts.Scripts[0] != currentBrushScripts.Scripts[0]))
+                {
+                    currentBrushScripts = new(settings.BrushScripts);
+                    BrushScriptsPrepare(true);
+                }
+            }
+
             // Whether the delete brush button is enabled or not.
             bttnUpdateCurrentBrush.Enabled = currentBrushPath != null &&
                 !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath);

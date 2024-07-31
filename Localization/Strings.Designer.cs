@@ -574,6 +574,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered a scripting error in script # {0}, action # {1}. To avoid instability, scripts will stop running for this brush until it&apos;s reselected. The error message from the script is: {2}..
+        /// </summary>
+        internal static string BrushScriptError {
+            get {
+                return ResourceManager.GetString("BrushScriptError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered an unexpected error in script # {0}, action # {1} that occured during script evaluation, but might not be a problem with the script (it still could be). To avoid instability, scripts will stop running for this brush until it&apos;s reselected..
+        /// </summary>
+        internal static string BrushScriptGenericError {
+            get {
+                return ResourceManager.GetString("BrushScriptGenericError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen..
         /// </summary>
         internal static string BrushSelectorTip {

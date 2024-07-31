@@ -1459,4 +1459,10 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
   <data name="BrushDensityMax" xml:space="preserve">
     <value>Max</value>
   </data>
+  <data name="BrushScriptError" xml:space="preserve">
+    <value>The scripted brush you're using encountered a scripting error in script # {0}, action # {1}. To avoid instability, scripts will stop running for this brush until it's reselected. The error message from the script is: {2}.</value>
+  </data>
+  <data name="BrushScriptGenericError" xml:space="preserve">
+    <value>The scripted brush you're using encountered an unexpected error in script # {0}, action # {1} that occured during script evaluation, but might not be a problem with the script (it still could be). To avoid instability, scripts will stop running for this brush until it's reselected.</value>
+  </data>
 </root>
