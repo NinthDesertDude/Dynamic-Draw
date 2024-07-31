@@ -8179,13 +8179,12 @@ namespace DynamicDraw
             var scriptsDialog = new EditScriptDialog(new (currentBrushScripts));
             if (scriptsDialog.ShowDialog() == DialogResult.OK)
             {
-                if (bttnSetScript.Text == Strings.EditScript)
+                UpdateBrushScripts(scriptsDialog.GetScriptAfterDialogOK());
+
+                // If editing a saved brush, save changes immediately.
+                if (currentBrushPath != null && !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
                 {
-                    UpdateBrushScripts(scriptsDialog.GetScriptAfterDialogOK());
-                    if (bttnUpdateCurrentBrush.Enabled)
-                    {
-                        BttnUpdateCurrentBrush_Click(null, null);
-                    }
+                    settings.CustomBrushes[currentBrushPath].BrushScripts = currentBrushScripts;
                 }
             }
             currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.

@@ -717,6 +717,7 @@ namespace DynamicDraw
                 if (ThemedMessageBox.Show(Strings.CloseWithoutSaving, Strings.CloseWithoutSavingTitle,
                     MessageBoxButtons.YesNo) != DialogResult.OK)
                 {
+                    DialogResult = DialogResult.None;
                     return;
                 }
             }
