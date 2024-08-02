@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using DynamicDraw.Properties;
 using PaintDotNet;
@@ -10,43 +11,38 @@ namespace DynamicDraw.Gui
     public class EditScriptDialog : PdnBaseForm
     {
         private readonly ToolScripts scripts;
+        private readonly List<EditScript> scriptsGui;
 
         #region Gui Members
-        private System.ComponentModel.IContainer components = null;
-        private Label txtScript;
-        private TextBox txtbxScript;
         private ThemedButton bttnSave, bttnCancel;
         private FlowLayoutPanel outerContainer;
-        private FlowLayoutPanel brushScriptContainer;
+        private FlowLayoutPanel brushScriptsContainer;
         private FlowLayoutPanel cancelSaveContainer;
         #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EditScriptDialog" /> class.
+        /// Creates a dialog to edit all scripts in a new copy of the given toolscript instance. After the dialog is
+        /// accepted, read the final data with <see cref="GetScriptsAfterDialogOK"/>.
         /// </summary>
-        /// <param name="scripts">The settings.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="scripts"/> is null.</exception>
         public EditScriptDialog(ToolScripts scripts)
         {
-            this.scripts = scripts ?? throw new ArgumentNullException(nameof(scripts));
+            this.scripts = new ToolScripts(scripts) ?? new ToolScripts();
+            scriptsGui = new List<EditScript>();
+
+            // Automatically create a new script if none exist.
+            if (scripts.Scripts.Count == 0)
+            {
+                scripts.Scripts.Add(new Script()
+                {
+                    Trigger = ScriptTrigger.OnBrushStroke
+                });
+            }
+
             SetupGui();
             CenterToScreen();
         }
 
         #region Methods (overridden)
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         /// <summary>
         /// Configures the drawing area and loads text localizations.
         /// </summary>
@@ -60,59 +56,29 @@ namespace DynamicDraw.Gui
         /// <summary>
         /// Returns the edited copy of the scripts object, assuming the dialog was closed and accepted.
         /// </summary>
-        public ToolScripts GetScriptAfterDialogOK()
+        public ToolScripts GetScriptsAfterDialogOK()
         {
             return scripts;
         }
 
-        /// <summary>
-        /// Saves values to the preferences file.
-        /// </summary>
-        public void SaveSettings()
-        {
-            if (scripts.Scripts.Count == 0)
-            {
-                scripts.Scripts.Add(new Script());
-            }
-
-            scripts.Scripts[0].Action = txtbxScript.Text;
-        }
-
         private void SetupGui()
         {
-            components = new System.ComponentModel.Container();
-            txtScript = new Label();
-            txtbxScript = new TextBox();
             bttnSave = new ThemedButton();
             bttnCancel = new ThemedButton();
-            brushScriptContainer = new FlowLayoutPanel();
+            brushScriptsContainer = new FlowLayoutPanel();
             outerContainer = new FlowLayoutPanel();
             cancelSaveContainer = new FlowLayoutPanel();
-            brushScriptContainer.SuspendLayout();
+
+            // Create the GUI for each script
+            foreach (var script in scripts?.Scripts)
+            {
+                scriptsGui.Add(new EditScript(script));
+            }
+
+            brushScriptsContainer.SuspendLayout();
             outerContainer.SuspendLayout();
             cancelSaveContainer.SuspendLayout();
             SuspendLayout();
-
-            #region txtScript
-            txtScript.AutoSize = true;
-            txtScript.Location = new System.Drawing.Point(4, 0);
-            txtScript.Margin = new Padding(4, 0, 4, 0);
-            txtScript.Size = new System.Drawing.Size(123, 15);
-            txtScript.TabIndex = 2;
-            txtScript.Text = string.Format(Localization.Strings.ScriptData);
-            #endregion
-
-            #region txtbxScript
-            txtbxScript.BorderStyle = BorderStyle.FixedSingle;
-            txtbxScript.AcceptsReturn = true;
-            txtbxScript.Location = new System.Drawing.Point(4, 18);
-            txtbxScript.Margin = new Padding(4, 3, 4, 3);
-            txtbxScript.Multiline = true;
-            txtbxScript.Text = scripts?.Scripts?.Count > 0 ? scripts?.Scripts[0].Action : "";
-            txtbxScript.ScrollBars = ScrollBars.Vertical;
-            txtbxScript.Size = new System.Drawing.Size(554, 191);
-            txtbxScript.TabIndex = 1;
-            #endregion
 
             #region bttnSave
             bttnSave.Anchor = AnchorStyles.None;
@@ -135,22 +101,17 @@ namespace DynamicDraw.Gui
             bttnCancel.Click += this.BttnCancel_Click;
             #endregion
 
-            #region brushImageControlsContainer
-            brushScriptContainer.Controls.Add(txtbxScript);
-            brushScriptContainer.Location = new System.Drawing.Point(4, 3);
-            brushScriptContainer.Margin = new Padding(4, 3, 4, 3);
-            brushScriptContainer.Size = new System.Drawing.Size(537, 207);
-            brushScriptContainer.TabIndex = 30;
-            #endregion
+            #region brushScriptsContainer
+            // Append each script's GUI controls
+            foreach (var gui in scriptsGui)
+            {
+                brushScriptsContainer.Controls.Add(gui);
+            }
 
-            #region outerContainer
-            outerContainer.Controls.Add(brushScriptContainer);
-            outerContainer.Controls.Add(cancelSaveContainer);
-            outerContainer.Dock = DockStyle.Fill;
-            outerContainer.Location = new System.Drawing.Point(0, 0);
-            outerContainer.Margin = new Padding(4, 3, 4, 3);
-            outerContainer.Size = new System.Drawing.Size(565, 324);
-            outerContainer.TabIndex = 31;
+            brushScriptsContainer.Location = new System.Drawing.Point(4, 3);
+            brushScriptsContainer.Margin = new Padding(4, 3, 4, 3);
+            brushScriptsContainer.Size = new System.Drawing.Size(537, 207);
+            brushScriptsContainer.TabIndex = 30;
             #endregion
 
             #region cancelSaveContainer
@@ -162,6 +123,16 @@ namespace DynamicDraw.Gui
             cancelSaveContainer.Margin = new Padding(4, 3, 4, 3);
             cancelSaveContainer.Size = new System.Drawing.Size(561, 55);
             cancelSaveContainer.TabIndex = 3;
+            #endregion
+
+            #region outerContainer
+            outerContainer.Controls.Add(brushScriptsContainer);
+            outerContainer.Controls.Add(cancelSaveContainer);
+            outerContainer.Dock = DockStyle.Fill;
+            outerContainer.Location = new System.Drawing.Point(0, 0);
+            outerContainer.Margin = new Padding(4, 3, 4, 3);
+            outerContainer.Size = new System.Drawing.Size(565, 324);
+            outerContainer.TabIndex = 31;
             #endregion
 
             #region EditScripts
@@ -183,56 +154,14 @@ namespace DynamicDraw.Gui
             SemanticTheme.ThemeChanged += HandleTheme;
             HandleTheme();
 
-            brushScriptContainer.ResumeLayout(false);
-            brushScriptContainer.PerformLayout();
+            brushScriptsContainer.ResumeLayout(false);
+            brushScriptsContainer.PerformLayout();
             outerContainer.ResumeLayout(false);
             cancelSaveContainer.ResumeLayout(false);
             ResumeLayout(false);
         }
-        #endregion
 
         #region Methods (event handlers)
-
-        /// <summary>
-        /// Allows the user to browse for a folder to add as a directory.
-        /// </summary>
-        private void BttnAddFolderBrushImages_Click(object sender, EventArgs e)
-        {
-            //Opens a folder browser.
-            FolderBrowserDialog dlg = new FolderBrowserDialog();
-            dlg.RootFolder = Environment.SpecialFolder.Desktop;
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                //Appends the chosen directory to the textbox of directories.
-                if (txtbxScript.Text != string.Empty && !txtbxScript.Text.EndsWith(Environment.NewLine))
-                {
-                    txtbxScript.AppendText(Environment.NewLine);
-                }
-
-                txtbxScript.AppendText(dlg.SelectedPath);
-            }
-        }
-
-        /// <summary>
-        /// Allows the user to browse for files to add.
-        /// </summary>
-        private void BttnAddFilesBrushImages_Click(object sender, EventArgs e)
-        {
-            //Opens a folder browser.
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Multiselect = true;
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                //Appends the chosen directory to the textbox of directories.
-                if (txtbxScript.Text != string.Empty)
-                {
-                    txtbxScript.AppendText(Environment.NewLine);
-                }
-
-                txtbxScript.AppendText(string.Join(Environment.NewLine, dlg.FileNames));
-            }
-        }
-
         /// <summary>
         /// Cancels and doesn't apply the preference changes.
         /// </summary>
@@ -250,11 +179,25 @@ namespace DynamicDraw.Gui
         /// </summary>
         private void BttnSave_Click(object sender, EventArgs e)
         {
-            //Disables the button so it can't accidentally be called twice.
-            //Ensures settings will be saved.
+            // Disables the button so it can't accidentally be called twice.
+            // Ensures settings will be saved.
             bttnSave.Enabled = false;
 
-            SaveSettings();
+            // Dissociate and remove any empty scripts before saving.
+            for (int i = 0; i < scriptsGui.Count; i++)
+            {
+                if (string.IsNullOrWhiteSpace(scriptsGui[i].script.Author) &&
+                    string.IsNullOrWhiteSpace(scriptsGui[i].script.Description) &&
+                    string.IsNullOrWhiteSpace(scriptsGui[i].script.Action) &&
+                    string.IsNullOrWhiteSpace(scriptsGui[i].script.Name) &&
+                    scriptsGui[i].script.Trigger == ScriptTrigger.Disabled)
+                {
+                    scripts.Scripts.Remove(scriptsGui[i].script);
+                    brushScriptsContainer.Controls.Remove(scriptsGui[i]);
+                    scriptsGui.RemoveAt(i);
+                    i--;
+                }
+            }
 
             DialogResult = DialogResult.OK;
             this.Close();
@@ -271,7 +214,7 @@ namespace DynamicDraw.Gui
                 Close();
             }
             else if (e.KeyCode == Keys.Enter &&
-                !txtbxScript.Focused)
+                !scriptsGui.Any(gui => gui.IsTextboxFocused()))
             {
                 DialogResult = DialogResult.OK;
                 Close();
@@ -284,9 +227,6 @@ namespace DynamicDraw.Gui
         /// </summary>
         private void HandleTheme()
         {
-            txtScript.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
-            txtbxScript.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
-            txtbxScript.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             Refresh();
         }

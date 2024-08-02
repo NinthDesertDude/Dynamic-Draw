@@ -8176,10 +8176,10 @@ namespace DynamicDraw
         /// </summary>
         private void BttnSetScript_Click(object sender, EventArgs e)
         {
-            var scriptsDialog = new EditScriptDialog(new (currentBrushScripts));
+            var scriptsDialog = new EditScriptDialog(currentBrushScripts);
             if (scriptsDialog.ShowDialog() == DialogResult.OK)
             {
-                UpdateBrushScripts(scriptsDialog.GetScriptAfterDialogOK());
+                UpdateBrushScripts(scriptsDialog.GetScriptsAfterDialogOK());
 
                 // If editing a saved brush, save changes immediately.
                 if (currentBrushPath != null && !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
