@@ -45,7 +45,7 @@ namespace DynamicDraw
                 { CommandTarget.JitterVerSpray, new CommandTargetInfo(Localization.Strings.ShortcutJitterVerSpray, 0, 100) },
                 { CommandTarget.DoLockAlpha, new CommandTargetInfo(Localization.Strings.LockAlpha, CommandActionDataType.Bool) },
                 { CommandTarget.MinDrawDistance, new CommandTargetInfo(Localization.Strings.ShortcutMinDrawDist, 0, 100) },
-                { CommandTarget.RedoAction, new CommandTargetInfo(Localization.Strings.Redo, CommandActionDataType.Action) },
+                { CommandTarget.RedoAction, new CommandTargetInfo(Localization.Strings.Redo) },
                 { CommandTarget.RotateWithMouse, new CommandTargetInfo(Localization.Strings.OrientToMouse, CommandActionDataType.Bool) },
                 { CommandTarget.Rotation, new CommandTargetInfo(Localization.Strings.ShortcutRotation, -180, 180) },
                 { CommandTarget.RotShift, new CommandTargetInfo(Localization.Strings.ShortcutRotShift, -180, 180) },
@@ -80,8 +80,8 @@ namespace DynamicDraw
                 { CommandTarget.TabPressureMinDrawDistance, new CommandTargetInfo(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.MinDrawDistance), -100, 100) },
                 { CommandTarget.TabPressureSize, new CommandTargetInfo(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutSize), -1000, 1000) },
                 { CommandTarget.TabPressureRotation, new CommandTargetInfo(string.Format(Localization.Strings.TabPressureSetting, Localization.Strings.TabPressure, Localization.Strings.ShortcutRotation), -180, 180) },
-                { CommandTarget.UndoAction, new CommandTargetInfo(Localization.Strings.Undo, CommandActionDataType.Action) },
-                { CommandTarget.ResetCanvasTransforms, new CommandTargetInfo(Localization.Strings.ShortcutResetCanvas, CommandActionDataType.Action) },
+                { CommandTarget.UndoAction, new CommandTargetInfo(Localization.Strings.Undo) },
+                { CommandTarget.ResetCanvasTransforms, new CommandTargetInfo(Localization.Strings.ShortcutResetCanvas) },
                 { CommandTarget.CanvasX, new CommandTargetInfo(Localization.Strings.ShortcutNudgeCanvasX, -2000, 2000) },
                 { CommandTarget.CanvasY, new CommandTargetInfo(Localization.Strings.ShortcutNudgeCanvasY, -2000, 2000) },
                 { CommandTarget.CanvasRotation, new CommandTargetInfo(Localization.Strings.ShortcutRotateCanvas, -180, 180) },
@@ -101,13 +101,26 @@ namespace DynamicDraw
                 { CommandTarget.BrushOpacity, new CommandTargetInfo(Localization.Strings.ShortcutBrushOpacity, 0, 255) },
                 { CommandTarget.CanvasZoomToMouse, new CommandTargetInfo(Localization.Strings.ShortcutCanvasZoom, 1, 6400) },
                 { CommandTarget.ChosenEffect, new CommandTargetInfo(Localization.Strings.ShortcutChosenEffect, 1, 1000) },
-                { CommandTarget.CanvasZoomFit, new CommandTargetInfo(Localization.Strings.ShortcutCanvasZoom, CommandActionDataType.Action) },
-                { CommandTarget.SwapPrimarySecondaryColors, new CommandTargetInfo(Localization.Strings.ShortcutSwapColors, CommandActionDataType.Action) },
-                { CommandTarget.OpenColorPickerDialog, new CommandTargetInfo(Localization.Strings.OpenColorPickerDialog, CommandActionDataType.Action) },
-                { CommandTarget.OpenQuickCommandDialog, new CommandTargetInfo(Localization.Strings.OpenQuickCommandDialog, CommandActionDataType.Action) },
+                { CommandTarget.CanvasZoomFit, new CommandTargetInfo(Localization.Strings.ShortcutCanvasZoom) },
+                { CommandTarget.SwapPrimarySecondaryColors, new CommandTargetInfo(Localization.Strings.ShortcutSwapColors) },
+                { CommandTarget.OpenColorPickerDialog, new CommandTargetInfo(Localization.Strings.OpenColorPickerDialog) },
+                { CommandTarget.OpenQuickCommandDialog, new CommandTargetInfo(Localization.Strings.OpenQuickCommandDialog) },
                 { CommandTarget.SwitchPalette, new CommandTargetInfo(Localization.Strings.ShortcutNameSwitchPalette, 0, 400) },
                 { CommandTarget.PickFromPalette, new CommandTargetInfo(Localization.Strings.ShortcutNamePickFromPalette, 0, ColorUtils.MaxPaletteSize - 1) },
-                { CommandTarget.ConfirmLine, new CommandTargetInfo(Localization.Strings.ShortcutNameConfirmLine, CommandActionDataType.Action) }
+                { CommandTarget.ConfirmLine, new CommandTargetInfo(Localization.Strings.ShortcutNameConfirmLine) },
+                { CommandTarget.OpenScriptEditorDialog, new CommandTargetInfo(Localization.Strings.OpenScriptEditorDialog) },
+                { CommandTarget.StampBrush, new CommandTargetInfo(Localization.Strings.ShortcutNameStampBrush, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
+                { CommandTarget.StampLineTo, new CommandTargetInfo(Localization.Strings.ShortcutNameStampLine, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
+                { CommandTarget.StampLineBetween, new CommandTargetInfo(Localization.Strings.ShortcutNameStampLine, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
+                { CommandTarget.PickColor, new CommandTargetInfo(Localization.Strings.ShortcutNamePickColor, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
+                { CommandTarget.InputPressure, Empty },
+                { CommandTarget.InputPressurePrev, Empty },
+                { CommandTarget.ReadMousePosX, Empty },
+                { CommandTarget.ReadMousePosY, Empty },
+                { CommandTarget.ReadMousePosXPrev, Empty },
+                { CommandTarget.ReadMousePosYPrev, Empty },
+                { CommandTarget.ReadStrokeStartPosX, Empty },
+                { CommandTarget.ReadStrokeStartPosY, Empty }
             };
         }
 
@@ -117,19 +130,24 @@ namespace DynamicDraw
         public string Name { get; set; }
 
         /// <summary>
-        /// The type of action data associated to the command.
+        /// The types of arguments to the command, if any. Order is important for shortcuts and scripts.
         /// </summary>
-        public CommandActionDataType ValueType { get; set; }
+        public List<CommandTargetArgument> Arguments { get; set; }
 
         /// <summary>
-        /// For <see cref="CommandActionDataType.Integer"/> data types, this is the min and max numeric range as ints.
+        /// Used by entries that're primarily script-oriented, useless to shortcuts, and are basically programmatic
+        /// access points, e.g. getting mouse position.
         /// </summary>
-        public Tuple<int, int> MinMaxRange { get; set; } = null;
+        public static CommandTargetInfo Empty = new CommandTargetInfo("");
 
         /// <summary>
-        /// For <see cref="CommandActionDataType.Float"/> data types, this is the min and max numeric range as floats.
+        /// Defines a command with no action data.
         /// </summary>
-        public Tuple<float, float> MinMaxRangeF { get; set; } = null;
+        public CommandTargetInfo(string name)
+        {
+            Name = name;
+            Arguments = new List<CommandTargetArgument>();
+        }
 
         /// <summary>
         /// Defines a command with an integer data type, including the min/max range allowed (both bounds inclusive).
@@ -137,8 +155,7 @@ namespace DynamicDraw
         public CommandTargetInfo(string name, int min, int max)
         {
             Name = name;
-            ValueType = CommandActionDataType.Integer;
-            MinMaxRange = new Tuple<int, int>(min, max);
+            Arguments = new List<CommandTargetArgument>() { new CommandTargetArgument(min, max) };
         }
 
         /// <summary>
@@ -147,8 +164,7 @@ namespace DynamicDraw
         public CommandTargetInfo(string name, float min, float max)
         {
             Name = name;
-            ValueType = CommandActionDataType.Float;
-            MinMaxRangeF = new Tuple<float, float>(min, max);
+            Arguments = new List<CommandTargetArgument>() { new CommandTargetArgument(min, max) };
         }
 
         /// <summary>
@@ -160,43 +176,23 @@ namespace DynamicDraw
 
             if (typeWithoutData != CommandActionDataType.Bool &&
                 typeWithoutData != CommandActionDataType.Color &&
-                typeWithoutData != CommandActionDataType.String &&
-                typeWithoutData != CommandActionDataType.Action)
+                typeWithoutData != CommandActionDataType.String)
             {
                 throw new ArgumentException("Only data types without data are allowed by this constructor.");
             }
 
-            ValueType = typeWithoutData;
+            Arguments = new List<CommandTargetArgument>() { new CommandTargetArgument(typeWithoutData) };
         }
 
-        /// <summary>
-        /// Returns true if the command doesn't make use of numeric min/max ranges, or if the given value falls within
-        /// the command's min and max ranges.
-        /// </summary>
-        /// <param name="input">A value that may or may not fit within the range allowed by the command.</param>
-        public bool ValidateNumberValue(int input)
+        public CommandTargetInfo(string name, List<CommandTargetArgument> arguments)
         {
-            if (ValueType == CommandActionDataType.Integer)
+            Name = name;
+            Arguments = new List<CommandTargetArgument>(arguments);
+
+            if (Arguments.Count == 0)
             {
-                return input >= MinMaxRange.Item1 && input <= MinMaxRange.Item2;
+                throw new ArgumentException("At least one argument type must be provided.");
             }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Returns true if the command doesn't make use of numeric min/max ranges, or if the given value falls within
-        /// the command's min and max ranges.
-        /// </summary>
-        /// <param name="input">A value that may or may not fit within the range allowed by the command.</param>
-        public bool ValidateNumberValue(float input)
-        {
-            if (ValueType == CommandActionDataType.Float)
-            {
-                return input >= MinMaxRangeF.Item1 && input <= MinMaxRangeF.Item2;
-            }
-
-            return true;
         }
 
         /// <summary>

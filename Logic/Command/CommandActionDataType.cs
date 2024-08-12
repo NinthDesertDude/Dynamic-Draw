@@ -1,7 +1,8 @@
 ﻿namespace DynamicDraw
 {
     /// <summary>
-    /// The possible types of values a shortcut's target action could be.
+    /// The possible types of values a shortcut's target action could be. These numeric values are serialized as part
+    /// of keyboard shortcuts, so treat them as part of a public API and do not change existing ones.
     /// </summary>
     public enum CommandActionDataType
     {

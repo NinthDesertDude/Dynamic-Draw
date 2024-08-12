@@ -7,14 +7,14 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Dynamic Draw")]
 [assembly: AssemblyDescription("Dynamic brush drawing in paint.net")]
 [assembly: AssemblyConfiguration("dynamic|draw|brush|factory")]
-[assembly: AssemblyCompany("NinthDesertDude")]
+[assembly: AssemblyCompany("NinthDesert")]
 [assembly: AssemblyProduct("Dynamic Draw")]
-[assembly: AssemblyCopyright("Copyright 2021 NinthDesertDude")]
+[assembly: AssemblyCopyright("Copyright 2024 NinthDesert")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("4.0.0.*")]
-[assembly: AssemblyFileVersion("4.0.0")]
+[assembly: AssemblyVersion("4.1.0.*")]
+[assembly: AssemblyFileVersion("4.1.0")]
 
 [assembly: Guid("22f1fdbd-cc99-41af-8d32-95e83c4807a0")]
 

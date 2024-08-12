@@ -19,7 +19,7 @@ namespace DynamicDraw
         [JsonConstructor]
         public ToolScripts()
         {
-            Scripts = null;
+            Scripts = new List<Script>();
         }
 
         /// <summary>

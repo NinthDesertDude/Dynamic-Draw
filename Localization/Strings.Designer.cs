@@ -574,24 +574,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered a scripting error in script {0}. To avoid instability, scripts will stop running for this brush until it&apos;s reselected. The error message from the script is: {1}..
-        /// </summary>
-        internal static string BrushScriptError {
-            get {
-                return ResourceManager.GetString("BrushScriptError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The scripted brush you&apos;re using encountered an unexpected error in script {0} that occured during script evaluation. To avoid instability, scripts will stop running for this brush until it&apos;s reselected..
-        /// </summary>
-        internal static string BrushScriptGenericError {
-            get {
-                return ResourceManager.GetString("BrushScriptGenericError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Lets you choose another brush to use. A brush is a collection of all the settings (size, jitter options, tablet behavior) that affects drawing, including which image is chosen..
         /// </summary>
         internal static string BrushSelectorTip {
@@ -1122,6 +1104,15 @@ namespace DynamicDraw.Localization {
         internal static string ConfirmDeleteBrush {
             get {
                 return ResourceManager.GetString("ConfirmDeleteBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete this script?.
+        /// </summary>
+        internal static string ConfirmDeleteScript {
+            get {
+                return ResourceManager.GetString("ConfirmDeleteScript", resourceCulture);
             }
         }
         
@@ -2017,6 +2008,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Script editor....
+        /// </summary>
+        internal static string MenuScriptEditor {
+            get {
+                return ResourceManager.GetString("MenuScriptEditor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to set canvas background.
         /// </summary>
         internal static string MenuSetCanvasBackground {
@@ -2166,6 +2166,15 @@ namespace DynamicDraw.Localization {
         internal static string OpenQuickCommandDialog {
             get {
                 return ResourceManager.GetString("OpenQuickCommandDialog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open script editor.
+        /// </summary>
+        internal static string OpenScriptEditorDialog {
+            get {
+                return ResourceManager.GetString("OpenScriptEditorDialog", resourceCulture);
             }
         }
         
@@ -2494,11 +2503,146 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add new script.
+        /// </summary>
+        internal static string ScriptAddNewScript {
+            get {
+                return ResourceManager.GetString("ScriptAddNewScript", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Author:.
+        /// </summary>
+        internal static string ScriptAuthor {
+            get {
+                return ResourceManager.GetString("ScriptAuthor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to LUA script data:.
         /// </summary>
         internal static string ScriptData {
             get {
                 return ResourceManager.GetString("ScriptData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description:.
+        /// </summary>
+        internal static string ScriptDescription {
+            get {
+                return ResourceManager.GetString("ScriptDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error in script {0} at line {1}, column {2}. To avoid instability, it&apos;s now disabled. {3}.
+        /// </summary>
+        internal static string ScriptError {
+            get {
+                return ResourceManager.GetString("ScriptError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error in script {0} at line {1}. To avoid instability, it&apos;s now disabled. {2}.
+        /// </summary>
+        internal static string ScriptErrorNoColumns {
+            get {
+                return ResourceManager.GetString("ScriptErrorNoColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to unknown.
+        /// </summary>
+        internal static string ScriptErrorUnknown {
+            get {
+                return ResourceManager.GetString("ScriptErrorUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error in script {0}. To avoid instability, it&apos;s now disabled. The error was likely not from the script; consider reporting to the plugin author..
+        /// </summary>
+        internal static string ScriptGenericError {
+            get {
+                return ResourceManager.GetString("ScriptGenericError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID: .
+        /// </summary>
+        internal static string ScriptID {
+            get {
+                return ResourceManager.GetString("ScriptID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Name:.
+        /// </summary>
+        internal static string ScriptName {
+            get {
+                return ResourceManager.GetString("ScriptName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brush stamp.
+        /// </summary>
+        internal static string ScriptsTriggerBrushStamp {
+            get {
+                return ResourceManager.GetString("ScriptsTriggerBrushStamp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disabled.
+        /// </summary>
+        internal static string ScriptsTriggerDisabled {
+            get {
+                return ResourceManager.GetString("ScriptsTriggerDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End brush stroke.
+        /// </summary>
+        internal static string ScriptsTriggerEndBrushStroke {
+            get {
+                return ResourceManager.GetString("ScriptsTriggerEndBrushStroke", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mouse moved.
+        /// </summary>
+        internal static string ScriptsTriggerMouseMoved {
+            get {
+                return ResourceManager.GetString("ScriptsTriggerMouseMoved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start brush stroke.
+        /// </summary>
+        internal static string ScriptsTriggerStartBrushStroke {
+            get {
+                return ResourceManager.GetString("ScriptsTriggerStartBrushStroke", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trigger: .
+        /// </summary>
+        internal static string ScriptTrigger {
+            get {
+                return ResourceManager.GetString("ScriptTrigger", resourceCulture);
             }
         }
         
@@ -2517,24 +2661,6 @@ namespace DynamicDraw.Localization {
         internal static string SeamlessDrawingTip {
             get {
                 return ResourceManager.GetString("SeamlessDrawingTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Set Script.
-        /// </summary>
-        internal static string SetScript {
-            get {
-                return ResourceManager.GetString("SetScript", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Scripts allow users to manipulate settings using Lua scripts, which allows for the creation of unique brushes with highly complex behavior..
-        /// </summary>
-        internal static string SetScriptTip {
-            get {
-                return ResourceManager.GetString("SetScriptTip", resourceCulture);
             }
         }
         
@@ -3349,6 +3475,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pick Color.
+        /// </summary>
+        internal static string ShortcutNamePickColor {
+            get {
+                return ResourceManager.GetString("ShortcutNamePickColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pick from Palette.
         /// </summary>
         internal static string ShortcutNamePickFromPalette {
@@ -3399,6 +3534,24 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutNameRotateCanvasCounter {
             get {
                 return ResourceManager.GetString("ShortcutNameRotateCanvasCounter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stamp Brush.
+        /// </summary>
+        internal static string ShortcutNameStampBrush {
+            get {
+                return ResourceManager.GetString("ShortcutNameStampBrush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stamp Line.
+        /// </summary>
+        internal static string ShortcutNameStampLine {
+            get {
+                return ResourceManager.GetString("ShortcutNameStampLine", resourceCulture);
             }
         }
         

@@ -14,24 +14,23 @@ namespace DynamicDraw
         Disabled = 0,
 
         /// <summary>
-        /// This fires when the user begins a brush stroke.
+        /// This fires when the user first begins a brush stroke.
         /// </summary>
-        [JsonPropertyName("OnBrushStroke")]
-        OnBrushStroke = 1,
+        [JsonPropertyName("StartBrushStroke")]
+        StartBrushStroke = 1,
+
+        /// <summary>
+        /// This fires when the user ends a brush stroke (no longer pressing).
+        /// </summary>
+        [JsonPropertyName("EndBrushStroke")]
+        EndBrushStroke = 2,
 
         /// <summary>
         /// This fires when the brush would normally be stamped to the canvas, before any dynamic brush effects such
-        /// as jitter are executed. It doesn't fire from any additional brush stamps that a scripted brush creates.
+        /// as jitter are executed.
         /// </summary>
-        [JsonPropertyName("OnStartBrushStamp")]
-        OnStartBrushStamp = 2,
-
-        /// <summary>
-        /// This fires when the brush would normally be stamped to the canvas, after any dynamic brush effects such
-        /// as jitter are executed. It doesn't fire from any additional brush stamps that a scripted brush creates.
-        /// </summary>
-        [JsonPropertyName("OnEndBrushStamp")]
-        OnEndBrushStamp = 3,
+        [JsonPropertyName("OnBrushStamp")]
+        OnBrushStamp = 3,
 
         /// <summary>
         /// This fires whenever the brush moves.

@@ -614,7 +614,17 @@ namespace DynamicDraw
                 Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.Enter },
                 Name = Strings.ShortcutNameConfirmLine,
                 Target = CommandTarget.ConfirmLine
-            }
+            },
+            new Command() // Ctrl + /: open script editor
+            {
+                ActionData = null,
+                BuiltInShortcutId = 57,
+                ContextsRequired = new HashSet<CommandContext>() { CommandContext.OnCanvas },
+                Keys = new HashSet<System.Windows.Forms.Keys>() { System.Windows.Forms.Keys.OemQuestion },
+                Name = Strings.OpenScriptEditorDialog,
+                Target = CommandTarget.OpenScriptEditorDialog,
+                RequireCtrl = true
+            },
         };
 
         /// <summary>

@@ -259,6 +259,9 @@ namespace DynamicDraw
         /// </summary>
         private void RefreshViewBasedOnShortcut(bool onlyUpdateAddEditButtons)
         {
+            Command tempCommand = new Command() { ActionData = currentShortcutActionData, Target = currentShortcutTarget };
+            bool isShortcutValid = currentShortcutTarget != CommandTarget.None && tempCommand.IsActionValid();
+
             // Updates the shortcut combobox.
             int shortcutTargetCmbxIndex = -1;
 
@@ -320,7 +323,7 @@ namespace DynamicDraw
 
                 // Handles the add, edit, delete button enabled status.
                 txtbxShortcutActionData.Enabled = (currentShortcutTarget != CommandTarget.None) &&
-                    CommandTargetInfo.All[currentShortcutTarget].ValueType != CommandActionDataType.Action;
+                    CommandTargetInfo.All[currentShortcutTarget].Arguments.Count != 0;
 
                 bool onlyBuiltInShortcutsSelected = true;
                 bool anyBuiltInShortcutsSelected = false;
@@ -343,11 +346,6 @@ namespace DynamicDraw
                     : Strings.Delete;
                 bttnDeleteOrToggle.Enabled = shortcutsListBox.SelectedItems.Count != 0;
             }
-
-            bool isShortcutValid =
-                currentShortcutTarget != CommandTarget.None &&
-                shortcutTargetCmbxIndex != -1 &&
-                Command.IsActionValid(currentShortcutTarget, currentShortcutActionData);
 
             bttnAddShortcut.Enabled = isShortcutValid;
             bttnEditShortcut.Enabled = currentShortcutBuiltInId == -1

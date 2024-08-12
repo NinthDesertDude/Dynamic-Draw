@@ -1,14 +1,18 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
-using DynamicDraw.Properties;
-using PaintDotNet;
+using DynamicDraw.Localization;
 
 namespace DynamicDraw.Gui
 {
     [System.ComponentModel.DesignerCategory("")]
-    public class EditScript : PdnBaseForm
+    public class EditScript : UserControl
     {
-        public Script script { get; private set; }
+        /// <summary>
+        /// The associated script. This object is directly mutated by this GUI.
+        /// </summary>
+        public Script Script { get; private set; }
 
         /// <summary>
         /// Fires when the script is supposed to move up in a list of scripts.
@@ -39,7 +43,8 @@ namespace DynamicDraw.Gui
         private Label txtScriptDescription = new Label();
         private TextBox txtbxScriptDescription = new TextBox();
         private Label txtScriptTrigger = new Label();
-        private TextBox cmbxScriptTrigger = new TextBox();
+        private BindingList<Tuple<string, ScriptTrigger>> triggerOptions;
+        private ThemedComboBox cmbxScriptTrigger = new ThemedComboBox();
         private Label txtScriptAction = new Label();
         private TextBox txtbxScriptAction = new TextBox();
         #endregion
@@ -50,9 +55,28 @@ namespace DynamicDraw.Gui
         /// <param name="script">A script that will be mutated directly as this data changes.</param>
         public EditScript(Script script)
         {
-            this.script = script ?? new Script();
+            this.Script = script ?? new Script();
+
             SetupGui();
-            CenterToScreen();
+
+            /// These need to match the assigned numeric order in <see cref="ScriptTrigger"/> enum, i.e. the enums in
+            /// this list must be 0, 1, ..., n in that order.
+            triggerOptions = new()
+            {
+                new (Strings.ScriptsTriggerDisabled, ScriptTrigger.Disabled),
+                new (Strings.ScriptsTriggerStartBrushStroke, ScriptTrigger.StartBrushStroke),
+                new (Strings.ScriptsTriggerEndBrushStroke, ScriptTrigger.EndBrushStroke),
+                new (Strings.ScriptsTriggerBrushStamp, ScriptTrigger.OnBrushStamp),
+                new (Strings.ScriptsTriggerMouseMoved, ScriptTrigger.OnMouseMoved)
+            };
+
+            cmbxScriptTrigger.DataSource = triggerOptions;
+            cmbxScriptTrigger.DisplayMember = "Item1";
+            cmbxScriptTrigger.ValueMember = "Item2";
+            cmbxScriptTrigger.SelectedIndex = (int)script.Trigger;
+
+            // Setting DataSource invokes this for no good reason, so we bind it afterwards instead
+            cmbxScriptTrigger.SelectedIndexChanged += CmbxScriptTrigger_SelectedIndexChanged;
         }
 
         #region Methods (not event handlers)
@@ -72,51 +96,132 @@ namespace DynamicDraw.Gui
         {
             SuspendLayout();
 
-            // TODO: Set up txtScriptName, txtbxScriptName, cmbxScriptTrigger here
-            // and behaviors for script name and trigger
+            #region txtScriptName
+            txtScriptName.AutoSize = true;
+            txtScriptName.Text = Strings.ScriptName;
+            txtScriptName.TextAlign = ContentAlignment.BottomCenter;
+            #endregion
+
+            #region txtbxScriptName
+            txtbxScriptName.BorderStyle = BorderStyle.FixedSingle;
+            txtbxScriptName.MinimumSize = new Size(64, 20);
+            txtbxScriptName.MaximumSize = new Size(200, 20);
+            txtbxScriptName.Text = Script.Description;
+            txtbxScriptName.TextChanged += (a, b) => { Script.Name = txtbxScriptName.Text; };
+            #endregion
+
+            #region txtScriptTrigger
+            txtScriptTrigger.AutoSize = true;
+            txtScriptTrigger.Text = Strings.ScriptTrigger;
+            txtScriptTrigger.TextAlign = ContentAlignment.BottomCenter;
+            #endregion
+
+            #region cmbxChosenEffect
+            cmbxScriptTrigger.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            cmbxScriptTrigger.FlatStyle = FlatStyle.Flat;
+            cmbxScriptTrigger.DropDownHeight = 140;
+            cmbxScriptTrigger.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbxScriptTrigger.DropDownWidth = 150;
+            cmbxScriptTrigger.FormattingEnabled = true;
+            cmbxScriptTrigger.IntegralHeight = false;
+            cmbxScriptTrigger.ItemHeight = 13;
+            cmbxScriptTrigger.Margin = new Padding(0, 3, 0, 3);
+            cmbxScriptTrigger.Size = new Size(121, 21);
+            cmbxScriptTrigger.TabIndex = 0;
+            #endregion
 
             #region bttnScriptMoveUp
             bttnScriptMoveUp.Anchor = AnchorStyles.None;
             bttnScriptMoveUp.Margin = new Padding(4, 3, 4, 3);
-            bttnScriptMoveUp.Size = new System.Drawing.Size(40, 40);
+            bttnScriptMoveUp.Size = new Size(32, 32);
             bttnScriptMoveUp.TabIndex = 28;
             bttnScriptMoveUp.Text = "▲";
+            bttnScriptMoveUp.TextAlign = ContentAlignment.MiddleCenter;
             bttnScriptMoveUp.Click += (a, b) => { OnMoveUp?.Invoke(); };
             #endregion
 
             #region bttnScriptMoveDown
             bttnScriptMoveDown.Anchor = AnchorStyles.None;
             bttnScriptMoveDown.Margin = new Padding(4, 3, 4, 3);
-            bttnScriptMoveDown.Size = new System.Drawing.Size(40, 40);
+            bttnScriptMoveDown.Size = new Size(32, 32);
             bttnScriptMoveDown.TabIndex = 27;
             bttnScriptMoveDown.Text = "▼";
+            bttnScriptMoveDown.TextAlign = ContentAlignment.MiddleCenter;
             bttnScriptMoveDown.Click += (a, b) => { OnMoveDown?.Invoke(); };
             #endregion
 
             #region bttnScriptDelete
             bttnScriptDelete.Anchor = AnchorStyles.None;
             bttnScriptDelete.Margin = new Padding(4, 3, 4, 3);
-            bttnScriptDelete.Size = new System.Drawing.Size(40, 40);
+            bttnScriptDelete.Size = new Size(52, 32);
             bttnScriptDelete.TabIndex = 27;
-            bttnScriptDelete.Text = Localization.Strings.Delete;
+            bttnScriptDelete.Text = Strings.Delete;
+            bttnScriptDelete.TextAlign = ContentAlignment.MiddleCenter;
             bttnScriptDelete.Click += (a, b) => { OnDelete?.Invoke(); };
             #endregion
 
             #region nameTriggerAndDeleteOrderButtonsContainer
+            nameTriggerAndDeleteOrderButtonsContainer.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            nameTriggerAndDeleteOrderButtonsContainer.AutoSize = true;
             nameTriggerAndDeleteOrderButtonsContainer.Controls.Add(txtScriptName);
             nameTriggerAndDeleteOrderButtonsContainer.Controls.Add(txtbxScriptName);
             nameTriggerAndDeleteOrderButtonsContainer.Controls.Add(txtScriptTrigger);
             nameTriggerAndDeleteOrderButtonsContainer.Controls.Add(cmbxScriptTrigger);
             nameTriggerAndDeleteOrderButtonsContainer.Controls.Add(bttnScriptMoveUp);
             nameTriggerAndDeleteOrderButtonsContainer.Controls.Add(bttnScriptMoveDown);
-            nameTriggerAndDeleteOrderButtonsContainer.Margin = new Padding(4, 3, 4, 3);
+            nameTriggerAndDeleteOrderButtonsContainer.Controls.Add(bttnScriptDelete);
             nameTriggerAndDeleteOrderButtonsContainer.TabIndex = 31;
             #endregion
 
-            // TODO: Set up author, description, action
-            // and behaviors for script action
+            #region txtScriptAuthor
+            txtScriptAuthor.AutoSize = true;
+            txtScriptAuthor.Text = Strings.ScriptAuthor;
+
+            #endregion
+
+            #region txtbxScriptAuthor
+            txtbxScriptAuthor.BorderStyle = BorderStyle.FixedSingle;
+            txtbxScriptAuthor.MinimumSize = new Size(64, 20);
+            txtbxScriptAuthor.MaximumSize = new Size(200, 20);
+            txtbxScriptAuthor.Margin = new Padding(0, 3, 0, 3);
+            txtbxScriptAuthor.Text = Script.Author;
+            txtbxScriptAuthor.TextChanged += (a, b) => { Script.Author = txtbxScriptAuthor.Text; };
+            #endregion
+
+            #region txtScriptDescription
+            txtScriptDescription.AutoSize = true;
+            txtScriptDescription.Text = Strings.ScriptDescription;
+            #endregion
+
+            #region txtbxScriptDescription
+            txtbxScriptDescription.AcceptsReturn = true;
+            txtbxScriptDescription.BorderStyle = BorderStyle.FixedSingle;
+            txtbxScriptDescription.Size = new Size(529, 50);
+            txtbxScriptDescription.Margin = new Padding(0, 3, 0, 3);
+            txtbxScriptDescription.Multiline = true;
+            txtbxScriptDescription.Text = Script.Description;
+            txtbxScriptDescription.TextChanged += (a, b) => { Script.Description = txtbxScriptDescription.Text; };
+            #endregion
+
+            #region txtScriptAction
+            txtScriptAction.AutoSize = true;
+            txtScriptAction.Text = Strings.ScriptData;
+            #endregion
+
+            #region txtbxScriptAction
+            txtbxScriptAction.AcceptsReturn = true;
+            txtbxScriptAction.BorderStyle = BorderStyle.FixedSingle;
+            txtbxScriptAction.Size = new Size(529, 80);
+            txtbxScriptAction.Margin = new Padding(0, 3, 0, 3);
+            txtbxScriptAction.Multiline = true;
+            txtbxScriptAction.ScrollBars = ScrollBars.Vertical;
+            txtbxScriptAction.Text = Script.Action;
+            txtbxScriptAction.TextChanged += (a, b) => { Script.Action = txtbxScriptAction.Text; };
+            #endregion
 
             #region authorDescriptionAndActionContainer
+            authorDescriptionAndActionContainer.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            authorDescriptionAndActionContainer.AutoSize = true;
             authorDescriptionAndActionContainer.Controls.Add(txtScriptAuthor);
             authorDescriptionAndActionContainer.Controls.Add(txtbxScriptAuthor);
             authorDescriptionAndActionContainer.Controls.Add(txtScriptDescription);
@@ -124,33 +229,27 @@ namespace DynamicDraw.Gui
             authorDescriptionAndActionContainer.Controls.Add(txtScriptAction);
             authorDescriptionAndActionContainer.Controls.Add(txtbxScriptAction);
             authorDescriptionAndActionContainer.FlowDirection = FlowDirection.TopDown;
-            authorDescriptionAndActionContainer.Margin = new Padding(4, 3, 4, 3);
             authorDescriptionAndActionContainer.TabIndex = 31;
             #endregion
 
             #region outerContainer
+            outerContainer.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            outerContainer.AutoSize = true;
             outerContainer.Controls.Add(nameTriggerAndDeleteOrderButtonsContainer);
             outerContainer.Controls.Add(authorDescriptionAndActionContainer);
-            outerContainer.Dock = DockStyle.Fill;
-            outerContainer.Location = new System.Drawing.Point(0, 0);
-            outerContainer.Margin = new Padding(4, 3, 4, 3);
-            outerContainer.Size = new System.Drawing.Size(565, 324);
+            outerContainer.FlowDirection = FlowDirection.TopDown;
+            outerContainer.Margin = new Padding(4);
             outerContainer.TabIndex = 31;
             #endregion
 
             #region EditScripts
-            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoSize = true;
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(565, 324);
             Controls.Add(outerContainer);
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            Icon = Resources.Icon;
-            KeyPreview = true;
             Margin = new Padding(4, 3, 4, 3);
-            MaximizeBox = false;
-            MinimizeBox = false;
-            ShowInTaskbar = false;
-            Text = Localization.Strings.DialogEditScriptsTitle;
+            Text = Strings.DialogEditScriptsTitle;
             #endregion
 
             SemanticTheme.ThemeChanged += HandleTheme;
@@ -158,9 +257,26 @@ namespace DynamicDraw.Gui
 
             ResumeLayout(false);
         }
+
+        /// <summary>
+        /// Handles whether move up/down are enabled.
+        /// </summary>
+        /// <param name="isFirst">Pass true if this is the first script among all scripts.</param>
+        /// <param name="isLast">Pass true if this is the last script among all scripts.</param>
+        /// <param name="isOnlyScript">Pass true if this is there is only one script in the scripts list.</param>
+        public void UpdateScriptControls(bool isFirst, bool isLast, bool isOnlyScript)
+        {
+            bttnScriptMoveUp.Enabled = !isOnlyScript && !isFirst;
+            bttnScriptMoveDown.Enabled = !isOnlyScript && !isLast;
+        }
         #endregion
 
         #region Methods (event handlers)
+        private void CmbxScriptTrigger_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Script.Trigger = triggerOptions[cmbxScriptTrigger.SelectedIndex].Item2;
+        }
+
         /// <summary>
         /// Any color logic that gets set only once, dependent on the current theme, needs to subscribe to the theme
         /// changed event so it can be recalculated when theme preference loads from asynchronous user settings.
@@ -183,6 +299,7 @@ namespace DynamicDraw.Gui
             txtbxScriptName.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
 
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
+            BorderStyle = BorderStyle.FixedSingle;
             Refresh();
         }
         #endregion

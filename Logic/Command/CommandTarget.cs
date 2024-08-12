@@ -378,6 +378,72 @@
         /// <summary>
         /// Confirms the line tool, creating a line and removing the drag handles.
         /// </summary>
-        ConfirmLine = 91
+        ConfirmLine = 91,
+
+        /// <summary>
+        /// Opens the script editor, defaulting to the scripts associated to the current brush, if applicable.
+        /// </summary>
+        OpenScriptEditorDialog = 92,
+
+        /// <summary>
+        /// Stamps the current brush at an x,y position relative to current position, at current input pressure
+        /// </summary>
+        StampBrush = 93,
+
+        /// <summary>
+        /// Stamps the current brush relative to the points between the prev to current mouse position,
+        /// interpolating between prev/current input pressure
+        /// </summary>
+        StampLineTo = 94,
+
+        /// <summary>
+        /// Stamps the current brush between two arbitrary points, interpolating between prev/current input pressure
+        /// </summary>
+        StampLineBetween = 95,
+
+        /// <summary>
+        /// Picks a color at an x,y position
+        /// </summary>
+        PickColor = 96,
+
+        /// <summary>
+        /// The pressure as read from the tablet, overwritten every frame.
+        /// </summary>
+        InputPressure = 97,
+
+        /// <summary>
+        /// The pressure from last frame as read from the tablet, overwritten every frame.
+        /// </summary>
+        InputPressurePrev = 98,
+
+        /// <summary>
+        /// The current mouse position (X).
+        /// </summary>
+        ReadMousePosX = 99,
+
+        /// <summary>
+        /// The current mouse position (Y).
+        /// </summary>
+        ReadMousePosY = 100,
+
+        /// <summary>
+        /// The mouse position last frame (X).
+        /// </summary>
+        ReadMousePosXPrev = 101,
+
+        /// <summary>
+        /// The mouse position last frame (Y).
+        /// </summary>
+        ReadMousePosYPrev = 102,
+
+        /// <summary>
+        /// This is used by scripts to record the starting position of the last brush stroke (X).
+        /// </summary>
+        ReadStrokeStartPosX = 103,
+
+        /// <summary>
+        /// This is used by scripts to record the starting position of the last brush stroke (Y).
+        /// </summary>
+        ReadStrokeStartPosY = 104,
     }
 }

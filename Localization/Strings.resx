@@ -1459,14 +1459,11 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
   <data name="BrushDensityMax" xml:space="preserve">
     <value>Max</value>
   </data>
-  <data name="BrushScriptError" xml:space="preserve">
-    <value>The scripted brush you're using encountered a scripting error in script {0}. To avoid instability, scripts will stop running for this brush until it's reselected. The error message from the script is: {1}.</value>
+  <data name="ScriptError" xml:space="preserve">
+    <value>Error in script {0} at line {1}, column {2}. To avoid instability, it's now disabled. {3}</value>
   </data>
-  <data name="BrushScriptGenericError" xml:space="preserve">
-    <value>The scripted brush you're using encountered an unexpected error in script {0} that occured during script evaluation. To avoid instability, scripts will stop running for this brush until it's reselected.</value>
-  </data>
-  <data name="SetScriptTip" xml:space="preserve">
-    <value>Scripts allow users to manipulate settings using Lua scripts, which allows for the creation of unique brushes with highly complex behavior.</value>
+  <data name="ScriptGenericError" xml:space="preserve">
+    <value>Error in script {0}. To avoid instability, it's now disabled. The error was likely not from the script; consider reporting to the plugin author.</value>
   </data>
   <data name="DialogEditScriptsTitle" xml:space="preserve">
     <value>Add Or Edit Scripts</value>
@@ -1474,10 +1471,64 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
   <data name="EditScript" xml:space="preserve">
     <value>Edit Script</value>
   </data>
-  <data name="SetScript" xml:space="preserve">
-    <value>Set Script</value>
+  <data name="MenuScriptEditor" xml:space="preserve">
+    <value>Script editor...</value>
   </data>
   <data name="ScriptData" xml:space="preserve">
     <value>LUA script data:</value>
+  </data>
+  <data name="ScriptAuthor" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="ScriptDescription" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="ScriptID" xml:space="preserve">
+    <value>ID: </value>
+  </data>
+  <data name="ScriptName" xml:space="preserve">
+    <value>Display Name:</value>
+  </data>
+  <data name="ScriptTrigger" xml:space="preserve">
+    <value>Trigger: </value>
+  </data>
+  <data name="ScriptsTriggerStartBrushStroke" xml:space="preserve">
+    <value>Start brush stroke</value>
+  </data>
+  <data name="ScriptsTriggerDisabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScriptsTriggerMouseMoved" xml:space="preserve">
+    <value>Mouse moved</value>
+  </data>
+  <data name="ScriptsTriggerBrushStamp" xml:space="preserve">
+    <value>Brush stamp</value>
+  </data>
+  <data name="OpenScriptEditorDialog" xml:space="preserve">
+    <value>Open script editor</value>
+  </data>
+  <data name="ScriptAddNewScript" xml:space="preserve">
+    <value>Add new script</value>
+  </data>
+  <data name="ConfirmDeleteScript" xml:space="preserve">
+    <value>Delete this script?</value>
+  </data>
+  <data name="ShortcutNameStampBrush" xml:space="preserve">
+    <value>Stamp Brush</value>
+  </data>
+  <data name="ShortcutNamePickColor" xml:space="preserve">
+    <value>Pick Color</value>
+  </data>
+  <data name="ShortcutNameStampLine" xml:space="preserve">
+    <value>Stamp Line</value>
+  </data>
+  <data name="ScriptsTriggerEndBrushStroke" xml:space="preserve">
+    <value>End brush stroke</value>
+  </data>
+  <data name="ScriptErrorNoColumns" xml:space="preserve">
+    <value>Error in script {0} at line {1}. To avoid instability, it's now disabled. {2}</value>
+  </data>
+  <data name="ScriptErrorUnknown" xml:space="preserve">
+    <value>unknown</value>
   </data>
 </root>

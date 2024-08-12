@@ -304,8 +304,10 @@ namespace DynamicDraw
         /// </summary>
         /// <param name="value">The current value of the slider.</param>
         public Slider(CommandTarget target, float value)
-            : this(CommandTargetInfo.All[target].MinMaxRangeF?.Item1 ?? CommandTargetInfo.All[target].MinMaxRange.Item1,
-                  CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item2,
+            : this(CommandTargetInfo.All[target].Arguments[0].MinMaxRangeF?.Item1
+                    ?? CommandTargetInfo.All[target].Arguments[0].MinMaxRange.Item1,
+                  CommandTargetInfo.All[target].Arguments[0].MinMaxRangeF?.Item2
+                    ?? CommandTargetInfo.All[target].Arguments[0].MinMaxRange.Item2,
                   value)
         { }
 

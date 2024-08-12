@@ -248,9 +248,7 @@ namespace DynamicDraw
         private readonly List<Color> paletteRecent = new List<Color>();
         #endregion
 
-        #region Settings
-        private Tool activeTool = Tool.Brush;
-
+        #region Scripts
         /// <summary>
         /// The loaded scripts for the current brush.
         /// </summary>
@@ -261,6 +259,21 @@ namespace DynamicDraw
         /// global variables persist until a different set of scripts is loaded.
         /// </summary>
         private MoonSharp.Interpreter.Script scriptEnv = null;
+
+        /// <summary>
+        /// This internal value is used to disable script execution solely to avoid callbacks that may lead to a stack
+        /// overflow or unexpected additional executions.
+        /// </summary>
+        private readonly HashSet<ScriptTrigger> tempDisabledScriptTriggers = new();
+
+        /// <summary>
+        /// Scripts may want access to the last brush stroke starting position.
+        /// </summary>
+        private PointF brushStrokeStartPosition = PointF.Empty;
+        #endregion
+
+        #region Settings
+        private Tool activeTool = Tool.Brush;
 
         /// <summary>
         /// Active brush in settings. The file path identifying the currently loaded brush, or name for built-in
@@ -468,6 +481,7 @@ namespace DynamicDraw
         private ThemedButton menuOptions;
         private ThemedButton menuRedo;
         private ThemedButton menuUndo;
+        private ToolStripMenuItem menuScriptEditor;
         private ToolStripMenuItem menuSetTheme, menuSetThemeDefault, menuSetThemeLight, menuSetThemeDark;
         private ToolStripMenuItem menuResetCanvas, menuSetCanvasBackground, menuDisplaySettings;
         private ToolStripMenuItem menuSetCanvasBgImage, menuSetCanvasBgImageFit, menuSetCanvasBgImageOnlyIfFits;
@@ -519,7 +533,6 @@ namespace DynamicDraw
         private ThemedCheckbox chkbxColorInfluenceHue;
         private ThemedCheckbox chkbxColorInfluenceSat;
         private ThemedCheckbox chkbxColorInfluenceVal;
-        private ThemedButton bttnSetScript;
         private Panel panelChosenEffect;
         private ThemedComboBox cmbxChosenEffect;
         private ThemedButton bttnChooseEffectSettings;
@@ -945,7 +958,6 @@ namespace DynamicDraw
             chkbxColorInfluenceHue.Text = Strings.HueAbbr;
             chkbxColorInfluenceSat.Text = Strings.SatAbbr;
             chkbxColorInfluenceVal.Text = Strings.ValAbbr;
-            bttnSetScript.Text = Strings.SetScript;
             chkbxLockAlpha.Text = Strings.LockAlpha;
             chkbxLockR.Text = Strings.ColorRedAbbr;
             chkbxLockG.Text = Strings.ColorGreenAbbr;
@@ -1541,7 +1553,8 @@ namespace DynamicDraw
         /// <param name="trigger">The trigger for which the scripts should execute.</param>
         private void BrushScriptsExecute(ScriptTrigger trigger)
         {
-            if (currentBrushScripts == null ||
+            if (tempDisabledScriptTriggers.Contains(trigger) ||
+                currentBrushScripts == null ||
                 currentBrushScripts.Scripts == null ||
                 currentBrushScripts.Scripts.Count == 0)
             {
@@ -1558,32 +1571,56 @@ namespace DynamicDraw
                         currentBrushScripts.Scripts[scriptNum].Action != "")
                     {
                         scriptEnv.DoString(
-                            currentBrushScripts.Scripts[scriptNum].Action);
+                            currentBrushScripts.Scripts[scriptNum].Action,
+                            null,
+                            currentBrushScripts.Scripts[scriptNum].Name);
                     }
                 }
             }
             catch (Exception e)
             {
                 var script = currentBrushScripts.Scripts[scriptNum];
+                var message = (e is MoonSharp.Interpreter.SyntaxErrorException e1)
+                    ? e1.DecoratedMessage : (e is MoonSharp.Interpreter.ScriptRuntimeException e2)
+                    ? e2.DecoratedMessage : (e is MoonSharp.Interpreter.DynamicExpressionException e3)
+                    ? e3.DecoratedMessage : (e is MoonSharp.Interpreter.InternalErrorException e4)
+                    ? e4.DecoratedMessage : "";
 
-                if (e is MoonSharp.Interpreter.SyntaxErrorException ||
-                    e is MoonSharp.Interpreter.ScriptRuntimeException ||
-                    e is MoonSharp.Interpreter.DynamicExpressionException ||
-                    e is MoonSharp.Interpreter.InternalErrorException)
+                if (message != "")
                 {
-                    ThemedMessageBox.Show(
-                        string.Format(
-                            Strings.BrushScriptError,
-                            string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\"",
-                            e.Message),
-                        Text, MessageBoxButtons.OK);
+                    var (messageNoPos, line, colStart, colEnd) = Script.GetScriptErrorPosition(message);
+
+                    bool isFullLineMentioned = false;
+                    string[] lines = script.Action.Split('\n');
+                    if (colStart.Trim() == "0" && int.TryParse(line.Trim(), out int lineNum))
+                    {
+                        isFullLineMentioned = lines[lineNum - 1].Length.ToString() == colEnd;
+                    }
+
+                    string textToDisplay = "";
+                    string nameStr = string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\"";
+                    string lineStr = (line != "") ? line : Strings.ScriptErrorUnknown;
+                    if (isFullLineMentioned)
+                    {
+                        textToDisplay = string.Format(Strings.ScriptErrorNoColumns, nameStr, lineStr, "\n\n" + messageNoPos);
+                    }
+                    else
+                    {
+                        string colStr = (colEnd != "" && colEnd != colStart)
+                            ? $"{colStart}-{colEnd}"
+                            : (colStart != "") ? colStart
+                            : Strings.ScriptErrorUnknown;
+                        textToDisplay = string.Format(Strings.ScriptError, nameStr, lineStr, colStr, "\n\n" + messageNoPos);
+                    }
+
+                    ThemedMessageBox.Show(textToDisplay, Text, MessageBoxButtons.OK);
                     currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
                 else
                 {
                     ThemedMessageBox.Show(
                         string.Format(
-                            Strings.BrushScriptGenericError,
+                            Strings.ScriptGenericError,
                             string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\""),
                         Text, MessageBoxButtons.OK);
                     currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
@@ -1592,7 +1629,7 @@ namespace DynamicDraw
                 // Temp-disables all scripts (until this is repopulated by e.g. reselecting the brush, restarting the
                 // plugin, etc.) because scripts may depend on each other and lead to dangerous unexpected behavior if
                 // partially disabled.
-                currentBrushScripts.Scripts.Clear();
+                script.Trigger = ScriptTrigger.Disabled;
             }
         }
 
@@ -1613,15 +1650,11 @@ namespace DynamicDraw
                 return;
             }
 
-            if (scriptEnv == null)
+            if (scriptEnv == null || clearCustomVariables)
             {
                 scriptEnv = new MoonSharp.Interpreter.Script(MoonSharp.Interpreter.CoreModules.Preset_SoftSandbox);
                 MoonSharp.Interpreter.Script.WarmUp();
-            }
 
-            if (clearCustomVariables)
-            {
-                scriptEnv.Globals.Clear();
                 scriptEnv.Globals["get"] = (Func<string, MoonSharp.Interpreter.DynValue>)BrushScriptsGetValue;
                 scriptEnv.Globals["set"] = (Action<string, MoonSharp.Interpreter.DynValue>)BrushScriptsSetValue;
             }
@@ -1630,32 +1663,67 @@ namespace DynamicDraw
         /// <summary>
         /// Takes 1 token, a reserved brush script API identifier for a variable name, and attempts to resolve it.
         /// Returns the resolved value as a literal token, or a variable token with a null value on failure.
+        /// 
+        /// Takes the name of a reserved brush script API identifier (see <see cref="Script"/>'s private static strings
+        /// which define these) and attempts to resolve it. Returns the resolved value(s) or nil if CommandTarget is
+        /// none.
         /// </summary>
         private MoonSharp.Interpreter.DynValue BrushScriptsGetValue(string specialVariableName)
         {
-            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName, true);
+            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName, includeReadOnly: true);
 
             // Returns the value of special variables from Dynamic Draw.
             if (resolvedTarget != CommandTarget.None)
             {
                 string resultStr = GetTargetValue(resolvedTarget);
-                switch (CommandTargetInfo.All[resolvedTarget].ValueType)
+                var returns = new MoonSharp.Interpreter.DynValue[CommandTargetInfo.All[resolvedTarget].Arguments.Count];
+
+                for (int i = 0; i < returns.Length; i++)
                 {
-                    case CommandActionDataType.Action:
-                        return null;
-                    case CommandActionDataType.Bool:
-                        return MoonSharp.Interpreter.DynValue.NewBoolean(bool.Parse(resultStr));
-                    case CommandActionDataType.Float:
-                        return MoonSharp.Interpreter.DynValue.NewNumber(float.Parse(resultStr));
-                    case CommandActionDataType.Integer:
-                        return MoonSharp.Interpreter.DynValue.NewNumber(int.Parse(resultStr));
-                    case CommandActionDataType.Color:
-                    case CommandActionDataType.String:
-                        return MoonSharp.Interpreter.DynValue.NewString(resultStr);
+                    switch (CommandTargetInfo.All[resolvedTarget].Arguments[i].ValueType)
+                    {
+                        case CommandActionDataType.Bool:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewBoolean(bool.Parse(resultStr));
+                            break;
+                        case CommandActionDataType.Float:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewNumber(float.Parse(resultStr));
+                            break;
+                        case CommandActionDataType.Integer:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewNumber(int.Parse(resultStr));
+                            break;
+                        case CommandActionDataType.Color:
+                        case CommandActionDataType.String:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewString(resultStr);
+                            break;
+                    }
                 }
+
+                // Interpret actions that return data based on whatever it resolves to.
+                if (returns.Length == 0)
+                {
+                    if (float.TryParse(resultStr, out float resultFloat))
+                    {
+                        return MoonSharp.Interpreter.DynValue.NewNumber(resultFloat);
+                    }
+                    if (bool.TryParse(resultStr, out bool resultBool))
+                    {
+                        return MoonSharp.Interpreter.DynValue.NewBoolean(resultBool);
+                    }
+                    if (resultStr != null)
+                    {
+                        return MoonSharp.Interpreter.DynValue.NewString(resultStr);
+                    }
+                    
+                    return MoonSharp.Interpreter.DynValue.Nil;
+                }
+
+                // Return as a tuple, or return as a single value.
+                if (returns.Length == 1) { return returns[0]; }
+
+                return MoonSharp.Interpreter.DynValue.NewTuple(returns);
             }
 
-            return MoonSharp.Interpreter.DynValue.NewNil();
+            return MoonSharp.Interpreter.DynValue.Nil;
         }
 
         /// <summary>
@@ -1665,16 +1733,19 @@ namespace DynamicDraw
         /// </summary>
         private void BrushScriptsSetValue(string specialVariableName, MoonSharp.Interpreter.DynValue result)
         {
-            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName);
+            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName, includeWriteOnly: true);
 
             // Allows setting arbitrary variables with primitive-type values.
             if (resolvedTarget != CommandTarget.None)
             {
+                ToolScripts temp = currentBrushScripts;
+                currentBrushScripts = null;
                 HandleShortcut(new Command()
                 {
                     Target = resolvedTarget,
                     ActionData = result.ToPrintString()
                 });
+                currentBrushScripts = temp;
             }
         }
 
@@ -1752,7 +1823,7 @@ namespace DynamicDraw
         /// Draws the brush in a line between two points using its current density settings. If the brush has a brush
         /// density of 0 (unbounded), it will draw as if it has a brush density of 1.
         /// </summary>
-        private void DrawBrushLine(PointF loc1, PointF loc2)
+        private (double, double, double, double) DrawBrushLine(PointF loc1, PointF loc2)
         {
             finalMinDrawDistance = GetPressureValue(CommandTarget.MinDrawDistance, sliderMinDrawDistance.ValueInt, tabletPressureRatio);
 
@@ -1770,6 +1841,9 @@ namespace DynamicDraw
             double numIntervals = distance / (double.IsNaN(brushWidthFrac) ? 1 : brushWidthFrac);
             float tabletPressure = tabletPressureRatio;
 
+            PointF oldMouseLoc = mouseLoc;
+            PointF oldMouseLocPrev = mouseLocPrev;
+
             for (int i = 1; i <= (int)numIntervals; i++)
             {
                 // lerp between the last and current tablet pressure for smoother lines
@@ -1781,11 +1855,22 @@ namespace DynamicDraw
                     finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressure);
                 }
 
-                DrawBrush(new PointF(
+                mouseLocPrev = mouseLoc;
+                mouseLoc = new PointF(
                     (float)(loc1.X + xDist * brushWidthFrac * i - halfPixelOffset),
-                    (float)(loc1.Y + yDist * brushWidthFrac * i - halfPixelOffset)),
-                    finalBrushSize, tabletPressure);
+                    (float)(loc1.Y + yDist * brushWidthFrac * i - halfPixelOffset));
+
+                // Makes sure the prev position is assigned like mouse location on first stamp.
+                if (i == 1) { mouseLocPrev = mouseLoc; }
+
+                // Setting mouse location instead of directly passing in the values is necessary because scripts can read mouse
+                // position values and those need to be up-to-date.
+                DrawBrush(mouseLoc, finalBrushSize, tabletPressure);
             }
+            mouseLoc = oldMouseLoc;
+            mouseLocPrev = oldMouseLocPrev;
+
+            return (brushWidthFrac, numIntervals, xDist, yDist);
         }
 
         /// <summary>
@@ -1825,11 +1910,18 @@ namespace DynamicDraw
                 redoHistory.Clear();
 
                 // Scripted brushes execute their pre-brush stamp logic now.
-                BrushScriptsExecute(ScriptTrigger.OnBrushStroke);
+                brushStrokeStartPosition = new PointF(loc.X, loc.Y);
+                BrushScriptsExecute(ScriptTrigger.StartBrushStroke);
             }
 
             // Scripted brushes execute their pre-brush stamp logic now.
-            BrushScriptsExecute(ScriptTrigger.OnStartBrushStamp);
+            BrushScriptsExecute(ScriptTrigger.OnBrushStamp);
+
+            // If a script was set to execute, don't stamp the current brush.
+            if (currentBrushScripts?.Scripts?.Any((script) => script.Trigger == ScriptTrigger.OnBrushStamp) ?? false)
+            {
+                return;
+            }
 
             #region apply size jitter
             // Change the brush size based on settings.
@@ -2210,9 +2302,6 @@ namespace DynamicDraw
                     g.RotateTransform(-sliderCanvasAngle.ValueInt);
                     g.TranslateTransform(-drawingOffsetX, -drawingOffsetY);
                 }
-
-                // Scripted brushes execute their post-brush stamp logic now.
-                BrushScriptsExecute(ScriptTrigger.OnEndBrushStamp);
 
                 #region Draw the brush with blend modes or without a recolor matrix, considering symmetry
                 if (recolorMatrix == null || useLockbitsDrawing)
@@ -2874,6 +2963,11 @@ namespace DynamicDraw
         /// </summary>
         private FlowLayoutPanel GeneratePressureControl(CommandTarget target, int min = 0)
         {
+            if (CommandTargetInfo.All[target].Arguments.Count > 1)
+            {
+                throw new ArgumentException("Pressure controls cannot be generated for targets with multiple target values.");
+            }
+
             FlowLayoutPanel panel = new FlowLayoutPanel();
             panel.FlowDirection = FlowDirection.TopDown;
             panel.AutoSize = true;
@@ -2910,8 +3004,10 @@ namespace DynamicDraw
                 if (cmbxValueType.SelectedIndex != -1)
                 {
                     var handlingMethod = ((CmbxTabletValueType.CmbxEntry)cmbxValueType.SelectedItem).ValueMember;
-                    var min = CommandTargetInfo.All[target].MinMaxRangeF?.Item1 ?? CommandTargetInfo.All[target].MinMaxRange.Item1;
-                    var max = CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item2;
+                    var min = CommandTargetInfo.All[target].Arguments[0].MinMaxRangeF?.Item1
+                        ?? CommandTargetInfo.All[target].Arguments[0].MinMaxRange.Item1;
+                    var max = CommandTargetInfo.All[target].Arguments[0].MinMaxRangeF?.Item2
+                        ?? CommandTargetInfo.All[target].Arguments[0].MinMaxRange.Item2;
 
                     valueSlider.Enabled = (handlingMethod != ConstraintValueHandlingMethod.DoNothing);
 
@@ -3023,10 +3119,17 @@ namespace DynamicDraw
         /// <param name="pressure">A value from 0 to 1 indicating the amount of pressure the user is applying.</param>
         private int GetPressureValue(CommandTarget target, int value, float pressure)
         {
+            if (CommandTargetInfo.All[target].Arguments.Count > 1)
+            {
+                throw new ArgumentException("Pressure controls cannot be generated for targets with multiple target values.");
+            }
+
             if (pressure != 0 && tabPressureConstraints.ContainsKey(target))
             {
-                int min = (int)(CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item1);
-                int max = (int)(CommandTargetInfo.All[target].MinMaxRangeF?.Item2 ?? CommandTargetInfo.All[target].MinMaxRange.Item2);
+                int min = (int)(CommandTargetInfo.All[target].Arguments[0].MinMaxRangeF?.Item2
+                        ?? CommandTargetInfo.All[target].Arguments[0].MinMaxRange.Item1);
+                int max = (int)(CommandTargetInfo.All[target].Arguments[0].MinMaxRangeF?.Item2
+                        ?? CommandTargetInfo.All[target].Arguments[0].MinMaxRange.Item2);
 
                 return Math.Clamp(
                     Constraint.GetStrengthMappedValue(
@@ -3210,6 +3313,18 @@ namespace DynamicDraw
                     return sliderBrushOpacity.Value.ToString();
                 case CommandTarget.ChosenEffect:
                     return cmbxChosenEffect.SelectedIndex.ToString();
+                case CommandTarget.ReadMousePosX:
+                    return mouseLoc.X.ToString();
+                case CommandTarget.ReadMousePosXPrev:
+                    return mouseLocPrev.X.ToString();
+                case CommandTarget.ReadMousePosY:
+                    return mouseLoc.Y.ToString();
+                case CommandTarget.ReadMousePosYPrev:
+                    return mouseLoc.Y.ToString();
+                case CommandTarget.ReadStrokeStartPosX:
+                    return brushStrokeStartPosition.X.ToString();
+                case CommandTarget.ReadStrokeStartPosY:
+                    return brushStrokeStartPosition.Y.ToString();
                 default:
                     return "";
             };
@@ -3222,11 +3337,19 @@ namespace DynamicDraw
         /// <param name="shortcut">Any shortcut invoked</param>
         private void HandleShortcut(Command shortcut)
         {
+            // Disabling scripts prevents scripts from triggering themselves and causing stack overflows. We also use
+            // a variable to turn off re-enabling the scripts, which we set to true when this function calls itself,
+            // effectively leaving it up to the sub-call to re-enable scripts. This avoid inconsistent behavior.
+            bool deferReEnablingScripts = false;
+            bool brushStrokeStartWasEnabled = tempDisabledScriptTriggers.Add(ScriptTrigger.StartBrushStroke);
+            bool brushStrokeEndWasEnabled = tempDisabledScriptTriggers.Add(ScriptTrigger.EndBrushStroke);
+            bool onBrushStampWasEnabled = tempDisabledScriptTriggers.Add(ScriptTrigger.OnBrushStamp);
+
             switch (shortcut.Target)
             {
                 case CommandTarget.Flow:
                     sliderBrushFlow.Value =
-                        shortcut.GetDataAsInt(sliderBrushFlow.ValueInt,
+                        CommandTargetInfo.All[shortcut.Target].Arguments[0].GetDataAsInt(shortcut.ActionData, sliderBrushFlow.ValueInt,
                         sliderBrushFlow.MinimumInt,
                         sliderBrushFlow.MaximumInt);
                     break;
@@ -3584,6 +3707,7 @@ namespace DynamicDraw
                     if (dlgCommand.ShowDialog() == DialogResult.OK)
                     {
                         HandleShortcut(dlgCommand.ShortcutToExecute);
+                        deferReEnablingScripts = true;
                     }
                     currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
                     break;
@@ -3607,7 +3731,82 @@ namespace DynamicDraw
                         contexts.Add(CommandContext.LineToolUnstartedStage);
                     }
                     break;
+                case CommandTarget.OpenScriptEditorDialog:
+                    var scriptsDialog = new EditScriptDialog(currentBrushScripts);
+                    if (scriptsDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        UpdateBrushScripts(scriptsDialog.GetScriptsAfterDialogOK());
+
+                        // If editing a saved brush, save changes immediately.
+                        if (currentBrushPath != null && !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
+                        {
+                            settings.CustomBrushes[currentBrushPath].BrushScripts = currentBrushScripts;
+                        }
+                    }
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
+                    break;
+                case CommandTarget.StampBrush:
+                    {
+                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
+                        string[] chunks = shortcut.ActionData.Split(';');
+                        int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+                        if (finalBrushSize > 0)
+                        {
+                            DrawBrush(new PointF(
+                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X - halfPixelOffset, 0, canvas.width),
+                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y - halfPixelOffset, 0, canvas.height)),
+                                finalBrushSize, tabletPressureRatio);
+                        }
+                        break;
+                    }
+                case CommandTarget.StampLineTo:
+                    {
+                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
+                        string[] chunks = shortcut.ActionData.Split(';');
+                        DrawBrushLine(
+                            new PointF(mouseLocPrev.X - halfPixelOffset, mouseLocPrev.Y - halfPixelOffset),
+                            new PointF(
+                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X - halfPixelOffset, 0, canvas.width),
+                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y - halfPixelOffset, 0, canvas.height)));
+                        break;
+                    }
+                case CommandTarget.StampLineBetween:
+                    {
+                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
+                        string[] chunks = shortcut.ActionData.Split(';');
+                        DrawBrushLine(
+                            new PointF(
+                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLocPrev.X - halfPixelOffset, 0, canvas.width),
+                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLocPrev.Y - halfPixelOffset, 0, canvas.height)),
+                            new PointF(
+                                target.Arguments[0].GetDataAsFloat(chunks[2], mouseLoc.X - halfPixelOffset, 0, canvas.width),
+                                target.Arguments[1].GetDataAsFloat(chunks[3], mouseLoc.Y - halfPixelOffset, 0, canvas.height)));
+                        break;
+                    }
+                case CommandTarget.PickColor:
+                    {
+                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
+                        string[] chunks = shortcut.ActionData.Split(';');
+                        GetColorFromCanvas(new PointF(
+                            target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X, 0, canvas.width),
+                            target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y, 0, canvas.height)));
+                        break;
+                    }
+                case CommandTarget.InputPressure:
+                    tabletPressureRatio = shortcut.GetDataAsFloat(tabletPressureRatio, 0, 1);
+                    break;
+                case CommandTarget.InputPressurePrev:
+                    tabletPressureRatioPrev = shortcut.GetDataAsFloat(tabletPressureRatioPrev, 0, 1);
+                    break;
+                // Omitted: ReadMousePosX, ReadMousePosXPrev, ReadMousePosY, ReadMousePosYPrev, ReadBrushStartPosX, ReadBrushStartPosY
             };
+
+            if (!deferReEnablingScripts)
+            {
+                if (brushStrokeStartWasEnabled) { tempDisabledScriptTriggers.Remove(ScriptTrigger.StartBrushStroke); }
+                if (brushStrokeEndWasEnabled) { tempDisabledScriptTriggers.Remove(ScriptTrigger.EndBrushStroke); }
+                if (onBrushStampWasEnabled) { tempDisabledScriptTriggers.Remove(ScriptTrigger.OnBrushStamp); }
+            }
         }
 
         /// <summary>
@@ -3837,7 +4036,6 @@ namespace DynamicDraw
             txtbxColorHexfield = new ColorTextbox(Color.Black, true);
             bttnSpecialSettings = new Accordion(true);
             panelSpecialSettings = new FlowLayoutPanel();
-            bttnSetScript = new ThemedButton();
             panelChosenEffect = new Panel();
             cmbxChosenEffect = new ThemedComboBox();
             bttnChooseEffectSettings = new ThemedButton();
@@ -3990,6 +4188,7 @@ namespace DynamicDraw
             menuBrushIndicatorPreview = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicatorPreview);
             menuShowSymmetryLinesInUse = new ToolStripMenuItem(Strings.MenuDisplayShowSymmetryLines);
             menuShowMinDistanceInUse = new ToolStripMenuItem(Strings.MenuDisplayShowMinDistCircle);
+            menuScriptEditor = new ToolStripMenuItem(Strings.MenuScriptEditor);
             menuSetTheme = new ToolStripMenuItem(Strings.MenuSetTheme);
             menuSetThemeDefault = new ToolStripMenuItem(Strings.MenuSetThemeDefault);
             menuSetThemeLight = new ToolStripMenuItem(Strings.MenuSetThemeLight);
@@ -4173,6 +4372,16 @@ namespace DynamicDraw
             // Separator
             preferencesContextMenu.Items.Add(new ToolStripSeparator());
 
+            // Options -> script editor...
+            menuScriptEditor.Click += (a, b) =>
+            {
+                HandleShortcut(new Command() { Target = CommandTarget.OpenScriptEditorDialog });
+            };
+            preferencesContextMenu.Items.Add(menuScriptEditor);
+
+            // Separator
+            preferencesContextMenu.Items.Add(new ToolStripSeparator());
+
             // Options -> color picker includes alpha
             menuColorPickerIncludesAlpha.Click += (a, b) =>
             {
@@ -4255,11 +4464,11 @@ namespace DynamicDraw
                             return " ";
                         }
 
-                        if (!CommandTargetInfo.All[CommandTarget.CanvasZoom].ValidateNumberValue(value))
+                        if (!CommandTargetInfo.All[CommandTarget.CanvasZoom].Arguments[0].ValidateNumberValue(value))
                         {
                             return string.Format(Strings.TextboxDialogRangeInvalid,
-                                CommandTargetInfo.All[CommandTarget.CanvasZoom].MinMaxRange.Item1,
-                                CommandTargetInfo.All[CommandTarget.CanvasZoom].MinMaxRange.Item2);
+                                CommandTargetInfo.All[CommandTarget.CanvasZoom].Arguments[0].MinMaxRange.Item1,
+                                CommandTargetInfo.All[CommandTarget.CanvasZoom].Arguments[0].MinMaxRange.Item2);
                         }
 
                         return null;
@@ -4919,7 +5128,6 @@ namespace DynamicDraw
             panelSpecialSettings.TabIndex = 19;
             panelSpecialSettings.AutoSize = true;
             panelSpecialSettings.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            panelSpecialSettings.Controls.Add(bttnSetScript);
             panelSpecialSettings.Controls.Add(panelChosenEffect);
             panelSpecialSettings.Controls.Add(sliderMinDrawDistance);
             panelSpecialSettings.Controls.Add(chkbxAutomaticBrushDensity);
@@ -4932,15 +5140,6 @@ namespace DynamicDraw
             panelSpecialSettings.Controls.Add(chkbxLockAlpha);
             panelSpecialSettings.Controls.Add(panelRGBLocks);
             panelSpecialSettings.Controls.Add(panelHSVLocks);
-            #endregion
-
-            #region bttnSetScript
-            bttnSetScript.Location = new Point(0, 3);
-            bttnSetScript.Margin = new Padding(3, 3, 3, 3);
-            bttnSetScript.Size = new Size(150, 23);
-            bttnSetScript.TabIndex = 137;
-            bttnSetScript.Click += BttnSetScript_Click;
-            bttnSetScript.MouseEnter += BttnSetScript_MouseEnter;
             #endregion
 
             #region panelChosenEffect
@@ -5932,7 +6131,6 @@ namespace DynamicDraw
                 if (currentBrushScripts == null || currentBrushScripts.Scripts == null || currentBrushScripts.Scripts.Count == 0 ||
                     (scripts.Scripts[0] != currentBrushScripts.Scripts[0]))
                 {
-                    bttnSetScript.Text = Strings.EditScript;
                     currentBrushScripts = new(scripts);
                     BrushScriptsPrepare(true);
                 }
@@ -5940,7 +6138,6 @@ namespace DynamicDraw
             else
             {
                 currentBrushScripts = null;
-                bttnSetScript.Text = Strings.SetScript;
             }
         }
 
@@ -6974,7 +7171,6 @@ namespace DynamicDraw
                     if (!chkbxOrientToMouse.Checked)
                     {
                         int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
-
                         DrawBrush(new PointF(
                             mouseLocPrev.X / canvasZoom - halfPixelOffset,
                             mouseLocPrev.Y / canvasZoom - halfPixelOffset),
@@ -7043,7 +7239,10 @@ namespace DynamicDraw
                     if (lineOrigins.points.Count >= 2 && lineOrigins.dragIndex == null)
                     {
                         DrawingUtils.ColorImage(bmpStaged, Color.Black, 0f);
+
+                        tempDisabledScriptTriggers.Add(ScriptTrigger.OnBrushStamp);
                         DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
+                        tempDisabledScriptTriggers.Remove(ScriptTrigger.OnBrushStamp);
 
                         MergeStaged();
                         lineOrigins.points.Clear();
@@ -7143,40 +7342,16 @@ namespace DynamicDraw
                     // tracking remainder by changing final mouse position.
                     else
                     {
-                        int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
-                        double deltaX = (mouseLoc.X - mouseLocPrev.X) / canvasZoom;
-                        double deltaY = (mouseLoc.Y - mouseLocPrev.Y) / canvasZoom;
-                        double brushWidthFrac = finalBrushSize / (double)finalBrushDensity;
-                        double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-                        double angle = Math.Atan2(deltaY, deltaX);
-                        double xDist = Math.Cos(angle);
-                        double yDist = Math.Sin(angle);
-                        double numIntervals = distance / (double.IsNaN(brushWidthFrac) ? 1 : brushWidthFrac);
-                        float tabletPressure = tabletPressureRatio;
+                        var result = DrawBrushLine(
+                            new PointF(mouseLocPrev.X / canvasZoom - halfPixelOffset, mouseLocPrev.Y / canvasZoom - halfPixelOffset),
+                            new PointF(mouseLoc.X / canvasZoom - halfPixelOffset, mouseLoc.Y / canvasZoom - halfPixelOffset));
 
-                        for (int i = 1; i <= (int)numIntervals; i++)
-                        {
-                            // lerp between the last and current tablet pressure for smoother lines
-                            if (tabletPressureRatioPrev != tabletPressureRatio &&
-                                tabPressureConstraints.ContainsKey(CommandTarget.Size) &&
-                                tabPressureConstraints[CommandTarget.Size].value != 0)
-                            {
-                                tabletPressure = (float)(tabletPressureRatioPrev + i / numIntervals * (tabletPressureRatio - tabletPressureRatioPrev));
-                                finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressure);
-                            }
-
-                            DrawBrush(new PointF(
-                                (float)(mouseLocPrev.X / canvasZoom + xDist * brushWidthFrac * i - halfPixelOffset),
-                                (float)(mouseLocPrev.Y / canvasZoom + yDist * brushWidthFrac * i - halfPixelOffset)),
-                                finalBrushSize, tabletPressure);
-                        }
-
-                        double extraDist = brushWidthFrac * (numIntervals - (int)numIntervals);
+                        double extraDist = result.Item1 * (result.Item2 - (int)result.Item2);
 
                         // Same as mouse position except for remainder.
                         mouseLoc = new PointF(
-                            (float)(e.Location.X - canvas.x - xDist * extraDist * canvasZoom),
-                            (float)(e.Location.Y - canvas.y - yDist * extraDist * canvasZoom));
+                            (float)(e.Location.X - canvas.x - result.Item3 * extraDist * canvasZoom),
+                            (float)(e.Location.Y - canvas.y - result.Item4 * extraDist * canvasZoom));
                         mouseLocPrev = mouseLoc;
 
                         tabletPressureRatioPrev = tabletPressureRatio;
@@ -7257,6 +7432,8 @@ namespace DynamicDraw
 
             if (isUserDrawing.canvasChanged)
             {
+                BrushScriptsExecute(ScriptTrigger.EndBrushStroke);
+
                 if (activeTool == Tool.CloneStamp)
                 {
                     DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
@@ -8170,31 +8347,6 @@ namespace DynamicDraw
         {
             UpdateTooltip(Strings.UpdateCurrentBrushTip);
         }
-
-        /// <summary>
-        /// Opens a dialog to edit brush scripts.
-        /// </summary>
-        private void BttnSetScript_Click(object sender, EventArgs e)
-        {
-            var scriptsDialog = new EditScriptDialog(currentBrushScripts);
-            if (scriptsDialog.ShowDialog() == DialogResult.OK)
-            {
-                UpdateBrushScripts(scriptsDialog.GetScriptsAfterDialogOK());
-
-                // If editing a saved brush, save changes immediately.
-                if (currentBrushPath != null && !PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
-                {
-                    settings.CustomBrushes[currentBrushPath].BrushScripts = currentBrushScripts;
-                }
-            }
-            currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
-        }
-
-        private void BttnSetScript_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(Strings.SetScriptTip);
-        }
-
 
         /// <summary>
         /// Reverts to a previously-undone drawing stored in a temporary file.
