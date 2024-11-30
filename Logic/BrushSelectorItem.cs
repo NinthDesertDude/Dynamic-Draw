@@ -46,6 +46,17 @@ namespace DynamicDraw
 
         #region Properties
         /// <summary>
+        /// The brush ID is its location, if set, else its name.
+        /// </summary>
+        public string ID
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(Location) ? Name : Location;
+            }
+        }
+
+        /// <summary>
         /// Returns the item's name.
         /// </summary>
         public string Name

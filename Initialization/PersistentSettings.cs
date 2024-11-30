@@ -636,7 +636,7 @@ namespace DynamicDraw
                 Strings.BuiltInBrushPencil,
                 new BrushSettings()
                 {
-                    BrushImagePath = Strings.DefaultBrushCircle,
+                    BrushImagePaths = new() { Strings.DefaultBrushCircle },
                     BrushDensity = 2,
                     TabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>()
                     {
@@ -648,7 +648,7 @@ namespace DynamicDraw
                 Strings.BuiltInBrushAirbrush,
                 new BrushSettings()
                 {
-                    BrushImagePath = Strings.DefaultBrushBigDots,
+                    BrushImagePaths = new() { Strings.DefaultBrushBigDots },
                     BrushSize = 9,
                     RandRotLeft = 180,
                     RandRotRight = 180,
@@ -660,7 +660,7 @@ namespace DynamicDraw
                 Strings.BuiltInBrushGrass,
                 new BrushSettings()
                 {
-                    BrushImagePath = Strings.DefaultBrushGrass,
+                    BrushImagePaths = new() { Strings.DefaultBrushGrass },
                     BrushColor = Color.FromArgb(255, 20, 192, 20).ToArgb(),
                     BrushSize = 50,
                     DoRotateWithMouse = true,
@@ -677,7 +677,7 @@ namespace DynamicDraw
                 Strings.BuiltInBrushRecolor,
                 new BrushSettings()
                 {
-                    BrushImagePath = Strings.DefaultBrushCircle,
+                    BrushImagePaths = new() { Strings.DefaultBrushCircle },
                     BrushColor = Color.Red.ToArgb(),
                     BrushSize = 30,
                     DoLockAlpha = true,

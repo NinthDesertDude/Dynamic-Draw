@@ -61,8 +61,8 @@ namespace DynamicDraw
         private static readonly string BuiltInBrushAngle = "brush angle";
         private static readonly string BuiltInBrushAngleShift = "brush angleshift";
         private static readonly string BuiltInBrushDoSeamlessDrawing = "brush seamlessdraw";
-        private static readonly string BuiltInBrushSettingsPath = "brush filepath brush";
-        private static readonly string BuiltInBrushImagePath = "brush filepath image";
+        private static readonly string BuiltInBrushSettingsPath = "brush";
+        private static readonly string BuiltInBrushImagePath = "brush image";
         private static readonly string BuiltInBrushSize = "brush size";
         private static readonly string BuiltInBrushSizeShift = "brush sizeshift";
         private static readonly string BuiltInBrushSmoothing = "brush smoothing";

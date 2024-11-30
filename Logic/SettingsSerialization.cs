@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,7 +10,6 @@ namespace DynamicDraw
     /// <summary>
     /// Implements the loading and saving of the settings.
     /// </summary>
-    [DataContract(Name = "DynamicDrawSettings", Namespace = "")] // for importing legacy xml, don't copy this pattern
     public class SettingsSerialization
     {
         private readonly string settingsPath;
@@ -64,7 +62,6 @@ namespace DynamicDraw
             }
         }
 
-        [DataMember(Name = "CustomBrushDirectories")] // for importing legacy xml, don't copy this pattern
         [JsonInclude]
         [JsonPropertyName("BrushImagePaths")]
         public HashSet<string> CustomBrushImageDirectories
@@ -87,7 +84,6 @@ namespace DynamicDraw
             }
         }
 
-        [DataMember(Name = "CustomBrushes")] // for importing legacy xml, don't copy this pattern
         [JsonInclude]
         [JsonPropertyName("CustomBrushes")]
         public Dictionary<string, BrushSettings> CustomBrushes
@@ -153,7 +149,6 @@ namespace DynamicDraw
         /// <value>
         ///   <c>true</c> if the default brushes should be used; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "UseDefaultBrushes")] // for importing legacy xml, don't copy this pattern
         [JsonInclude]
         [JsonPropertyName("UseDefaultBrushImages")]
         public bool UseDefaultBrushes
@@ -233,7 +228,7 @@ namespace DynamicDraw
         /// <summary>
         /// Loads the saved settings for this instance.
         /// </summary>
-        public void LoadSavedSettings(bool isLegacyXml = false)
+        public void LoadSavedSettings()
         {
             if (!loadedSettings)
             {
@@ -251,19 +246,24 @@ namespace DynamicDraw
                         string rootPath = Path.GetFileNameWithoutExtension(settingsPath);
                         SettingsSerialization savedSettings;
 
-                        if (isLegacyXml)
-                        {
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(SettingsSerialization), rootPath, "");
-                            savedSettings = (SettingsSerialization)serializer.ReadObject(stream);
-                        }
-                        else
-                        {
-                            savedSettings = (SettingsSerialization)JsonSerializer.Deserialize(stream, typeof(SettingsSerialization));
-                        }
+                        savedSettings = (SettingsSerialization)JsonSerializer.Deserialize(stream, typeof(SettingsSerialization));
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
                         paletteDirectories = new HashSet<string>(savedSettings.PaletteDirectories, StringComparer.OrdinalIgnoreCase);
-                        customBrushes = new Dictionary<string, BrushSettings>(savedSettings.CustomBrushes);
+                        customBrushes = new(savedSettings.customBrushes);
+
+                        // Version <= 4.0: BrushImagePath allowed only one string of its modern equivalent, BrushImagePaths.
+                        if (float.TryParse(savedSettings.Version, out float result) && result < 4.0)
+                        {
+                            foreach (var brush in savedSettings.customBrushes)
+                            {
+                                if (brush.Value.LegacySerializedInfo.ContainsKey(BrushSettings.Legacy_BrushImagePath))
+                                {
+                                    brush.Value.BrushImagePaths = new List<string>() { brush.Value.LegacySerializedInfo[BrushSettings.Legacy_BrushImagePath] as string };
+                                }
+                            }
+                        }
+
                         disabledShortcuts = savedSettings.DisabledShortcuts;
                         customShortcuts = PersistentSettings.InjectDefaultShortcuts(
                             savedSettings.CustomShortcuts ?? new HashSet<Command>(),
@@ -364,20 +364,6 @@ namespace DynamicDraw
                     deleteMigratedRegistrySettings = true;
                 }
             }
-        }
-
-        /// <summary>
-        /// Supports loading old settings files formatted as XML.
-        /// </summary>
-        [OnDeserializing]
-        private void LegacyXmlOnDeserializing(StreamingContext context)
-        {
-            // The DataContractSerializer does not call the constructor to initialize the class fields.
-            // https://blogs.msdn.microsoft.com/mohamedg/2014/02/05/warning-datacontractserializer-wont-call-your-constructor/
-            //
-            // This method initializes the fields to their default values when the class is deserializing.
-
-            InitializeDefaultSettings();
         }
     }
 }

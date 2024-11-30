@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace DynamicDraw
@@ -6,7 +5,6 @@ namespace DynamicDraw
     /// <summary>
     /// Preferences set by the user for various facets about how the program should behave.
     /// </summary>
-    [DataContract(Name = "UserSettings", Namespace = "")]
     public class UserSettings
     {
         #region Fields

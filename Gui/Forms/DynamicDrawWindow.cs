@@ -7,6 +7,7 @@ using DynamicDraw.Properties;
 using DynamicDraw.TabletSupport;
 using PaintDotNet;
 using PaintDotNet.AppModel;
+using PaintDotNet.Collections;
 using PaintDotNet.Effects;
 using System;
 using System.Collections.Generic;
@@ -39,24 +40,31 @@ namespace DynamicDraw
         private Bitmap bmpBackgroundClipboard;
 
         /// <summary>
-        /// Contains the current brush (without modifications like alpha via flow).
+        /// Unedited versions of the current brushes, sized to square dimensions, loaded in memory.
         /// </summary>
-        private Bitmap bmpBrush;
+        private readonly Dictionary<string, Bitmap> bmpsBrush = new();
 
         /// <summary>
-        /// Contains the current brush resized to be as small as the maximum possible brush size through randomization
-        /// and the current brush. If the max possible size is larger than the current brush image, this is the same as
-        /// bmpBrush.
+        /// Downsized versions of <see cref="bmpsBrush"/>, resized to be as small as the max possible brush size
+        /// accounting for size jitter. It's an optimization when available that reduces the amount of work required in
+        /// scaling the brush down. Never larger than the corresponding non-downsized version.
         /// </summary>
-        private Bitmap bmpBrushDownsized;
+        private readonly Dictionary<string, Bitmap> bmpsBrushDownsized = new();
 
         /// <summary>
-        /// Contains the current brush with all modifications applied. This is
-        /// overwritten by the original brush to apply new changes so changes
-        /// are not cumulative. For example, applying 25% alpha via flow repeatedly
-        /// would otherwise make the brush unusable.
+        /// Edited versions of <see cref="bmpsBrushDownsized"/> (when available, otherwise based on
+        /// <see cref="bmpsBrush"/>) with certain early modifications applied, as an optimization. Current prebaked
+        /// optimizations are the brush color/mix and flow settings. Prebaked settings that change in realtime are
+        /// very slow, so be careful with adding them.
+        /// 
+        /// Rotations are done as a later optimization.
         /// </summary>
-        private Bitmap bmpBrushEffects;
+        private readonly Dictionary<string, Bitmap> bmpsBrushEffects = new();
+
+        /// <summary>
+        /// This is the ID of the active brush, used to determine which brush to draw.
+        /// </summary>
+        private string bmpBrushActiveID = Strings.DefaultBrushCircle;
 
         /// <summary>
         /// Stores the current drawing in full.
@@ -103,9 +111,9 @@ namespace DynamicDraw
         private BrushSelectorItemCollection loadedBrushImages;
 
         /// <summary>
-        /// The selected brush image path from the effect token.
+        /// The selected brush image paths from the effect token.
         /// </summary>
-        private string tokenSelectedBrushImagePath;
+        private List<string> tokenSelectedBrushImagePaths;
         #endregion
 
         #region Combobox Sources
@@ -704,16 +712,16 @@ namespace DynamicDraw
             // Configures items for the available palettes.
             paletteOptions = new BindingList<Tuple<string, PaletteComboboxOptions>>()
             {
-                new Tuple<string, PaletteComboboxOptions>(Strings.Current, new PaletteComboboxOptions(PaletteSpecialType.Current)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeRecent, new PaletteComboboxOptions(PaletteSpecialType.Recent)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeGradient, new PaletteComboboxOptions(PaletteSpecialType.PrimaryToSecondary)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeMonochromatic, new PaletteComboboxOptions(PaletteSpecialType.LightToDark)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeAnalogous3, new PaletteComboboxOptions(PaletteSpecialType.Similar3)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeAnalogous4, new PaletteComboboxOptions(PaletteSpecialType.Similar4)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeComplementary, new PaletteComboboxOptions(PaletteSpecialType.Complement)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeSplitComplementary, new PaletteComboboxOptions(PaletteSpecialType.SplitComplement)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeTriadic, new PaletteComboboxOptions(PaletteSpecialType.Triadic)),
-                new Tuple<string, PaletteComboboxOptions>(Strings.ColorSchemeSquare, new PaletteComboboxOptions(PaletteSpecialType.Square))
+                new(Strings.Current, new PaletteComboboxOptions(PaletteSpecialType.Current)),
+                new(Strings.ColorSchemeRecent, new PaletteComboboxOptions(PaletteSpecialType.Recent)),
+                new(Strings.ColorSchemeGradient, new PaletteComboboxOptions(PaletteSpecialType.PrimaryToSecondary)),
+                new(Strings.ColorSchemeMonochromatic, new PaletteComboboxOptions(PaletteSpecialType.LightToDark)),
+                new(Strings.ColorSchemeAnalogous3, new PaletteComboboxOptions(PaletteSpecialType.Similar3)),
+                new(Strings.ColorSchemeAnalogous4, new PaletteComboboxOptions(PaletteSpecialType.Similar4)),
+                new(Strings.ColorSchemeComplementary, new PaletteComboboxOptions(PaletteSpecialType.Complement)),
+                new(Strings.ColorSchemeSplitComplementary, new PaletteComboboxOptions(PaletteSpecialType.SplitComplement)),
+                new(Strings.ColorSchemeTriadic, new PaletteComboboxOptions(PaletteSpecialType.Triadic)),
+                new(Strings.ColorSchemeSquare, new PaletteComboboxOptions(PaletteSpecialType.Square))
             };
 
             cmbxPaletteDropdown.DataSource = paletteOptions;
@@ -758,9 +766,9 @@ namespace DynamicDraw
                 timerRepositionUpdate?.Dispose();
                 timerClipboardDataCheck?.Dispose();
 
-                bmpBrush?.Dispose();
-                bmpBrushDownsized?.Dispose();
-                bmpBrushEffects?.Dispose();
+                bmpsBrush.ForEach((keyValuePair) => keyValuePair.Value?.Dispose());
+                bmpsBrushDownsized.ForEach((keyValuePair) => keyValuePair.Value?.Dispose());
+                bmpsBrushEffects.ForEach((keyValuePair) => keyValuePair.Value?.Dispose());
                 bmpCommitted?.Dispose();
                 bmpStaged?.Dispose();
                 bmpMerged?.Dispose();
@@ -1754,9 +1762,15 @@ namespace DynamicDraw
         /// </summary>
         private BrushSettings CreateSettingsObjectFromCurrentSettings(bool fallbackToCircleBrushPath = false)
         {
-            int index = listviewBrushImagePicker.SelectedIndices.Count > 0
-                ? listviewBrushImagePicker.SelectedIndices[0]
-                : -1;
+            List<string> brushPathsToSave = new();
+            for (int i = 0; i < listviewBrushImagePicker.SelectedIndices.Count; i++)
+            {
+                brushPathsToSave.Add(loadedBrushImages[listviewBrushImagePicker.SelectedIndices[i]].ID);
+            }
+            if (brushPathsToSave.Count == 0 && fallbackToCircleBrushPath)
+            {
+                brushPathsToSave.Add(Strings.DefaultBrushCircle);
+            }
 
             BrushSettings newSettings = new BrushSettings()
             {
@@ -1765,9 +1779,7 @@ namespace DynamicDraw
                 BrushColor = menuActiveColors.Swatches[0].ToArgb(),
                 BrushDensity = sliderBrushDensity.ValueInt,
                 BrushFlow = sliderBrushFlow.ValueInt,
-                BrushImagePath = index >= 0
-                    ? loadedBrushImages[index].Location ?? loadedBrushImages[index].Name
-                    : fallbackToCircleBrushPath ? Strings.DefaultBrushCircle : string.Empty,
+                BrushImagePaths = brushPathsToSave,
                 BrushOpacity = sliderBrushOpacity.ValueInt,
                 BrushRotation = sliderBrushRotation.ValueInt,
                 BrushSize = sliderBrushSize.ValueInt,
@@ -1881,7 +1893,24 @@ namespace DynamicDraw
         /// <param name="radius">The size to draw the brush at.</param>
         private void DrawBrush(PointF loc, int radius, float pressure)
         {
-            if (!pluginHasLoaded || bmpBrushEffects == null)
+            // TODO: THIS IS ONLY A TEST. THIS ROTATES ALL LOADED IMAGES.
+            if (bmpsBrushEffects.Count > 1)
+            {
+                int index = bmpsBrushEffects.Keys.IndexOf(bmpBrushActiveID);
+                if (index != -1)
+                {
+                    string nextID = (index == bmpsBrushEffects.Count - 1)
+                        ? bmpsBrushEffects.Keys.ElementAt(0)
+                        : bmpsBrushEffects.Keys.ElementAt(index + 1);
+
+                    if (bmpsBrushEffects.Get(nextID) != null)
+                    {
+                        bmpBrushActiveID = nextID;
+                    }
+                }
+            }
+
+            if (!pluginHasLoaded || bmpsBrushEffects.Get(bmpBrushActiveID) == null)
             {
                 return;
             }
@@ -2266,17 +2295,17 @@ namespace DynamicDraw
                     rotation -= sliderCanvasAngle.ValueInt;
                 }
 
-                Bitmap bmpBrushRot = bmpBrushEffects;
+                Bitmap bmpBrushRot = bmpsBrushEffects.Get(bmpBrushActiveID);
                 bool isJagged = cmbxBrushSmoothing.SelectedIndex == (int)CmbxSmoothing.Smoothing.Jagged;
                 if (rotation != 0 || (isJagged && adjustedColor.A != 255))
                 {
                     bmpBrushRot = isJagged
-                        ? DrawingUtils.RotateImage(bmpBrushEffects, rotation, adjustedColor.A)
-                        : DrawingUtils.RotateImage(bmpBrushEffects, rotation);
+                        ? DrawingUtils.RotateImage(bmpsBrushEffects.Get(bmpBrushActiveID), rotation, adjustedColor.A)
+                        : DrawingUtils.RotateImage(bmpsBrushEffects.Get(bmpBrushActiveID), rotation);
                 }
                 else if (isJagged)
                 {
-                    bmpBrushRot = DrawingUtils.AliasImageCopy(bmpBrushEffects, 255);
+                    bmpBrushRot = DrawingUtils.AliasImageCopy(bmpsBrushEffects.Get(bmpBrushActiveID), 255);
                 }
 
                 //Rotating the brush increases image bounds, so brush space
@@ -2865,7 +2894,7 @@ namespace DynamicDraw
                 }
                 #endregion
 
-                if (bmpBrushRot != bmpBrushEffects)
+                if (bmpBrushRot != bmpsBrushEffects.Get(bmpBrushActiveID))
                 {
                     bmpBrushRot?.Dispose();
                 }
@@ -3275,16 +3304,12 @@ namespace DynamicDraw
                 case CommandTarget.SelectedBrush:
                     return currentBrushPath;
                 case CommandTarget.SelectedBrushImage:
-                    string allImages = "";
+                    List<string> allImages = new();
                     for (int i = 0; i < listviewBrushImagePicker.SelectedIndices.Count; i++)
                     {
-                        allImages += loadedBrushImages[0].Name;
-                        if (i < listviewBrushImagePicker.SelectedIndices.Count - 1)
-                        {
-                            allImages += ",";
-                        }
+                        allImages.Add(loadedBrushImages[listviewBrushImagePicker.SelectedIndices[i]].ID);
                     }
-                    return allImages;
+                    return string.Join(',', allImages);
                 case CommandTarget.SelectedTool:
                     // TODO: this is not a protected value across API. If the combobox gets new items it'll change the depended behavior.
                     return ((int)activeTool).ToString();
@@ -3753,8 +3778,8 @@ namespace DynamicDraw
                         if (finalBrushSize > 0)
                         {
                             DrawBrush(new PointF(
-                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X - halfPixelOffset, 0, canvas.width),
-                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y - halfPixelOffset, 0, canvas.height)),
+                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X / canvasZoom - halfPixelOffset, 0, canvas.width),
+                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y / canvasZoom - halfPixelOffset, 0, canvas.height)),
                                 finalBrushSize, tabletPressureRatio);
                         }
                         break;
@@ -3915,10 +3940,14 @@ namespace DynamicDraw
                 return;
             }
 
-            bmpBrush?.Dispose();
-            bmpBrushDownsized?.Dispose();
-            bmpBrushDownsized = null;
-            bmpBrush = new Bitmap(Resources.BrCircle);
+            bmpsBrush.ForEach((keyValuePair) => keyValuePair.Value?.Dispose());
+            bmpsBrushDownsized.ForEach((keyValuePair) => keyValuePair.Value?.Dispose());
+            bmpsBrushDownsized.Clear();
+
+            // Adds the default brush.
+            bmpsBrush.Set(Strings.DefaultBrushCircle, new Bitmap(Resources.BrCircle));
+            bmpsBrushDownsized.Set(bmpBrushActiveID, null);
+            UpdateBrushImage();
 
             if (loadedBrushImages.Count > 0)
             {
@@ -4843,7 +4872,7 @@ namespace DynamicDraw
             listviewBrushImagePicker.Size = new Size(156, 175);
             listviewBrushImagePicker.TabIndex = 9;
             listviewBrushImagePicker.LargeImageList = dummyImageList;
-            listviewBrushImagePicker.MultiSelect = false;
+            listviewBrushImagePicker.MultiSelect = true;
             listviewBrushImagePicker.OwnerDraw = true;
             listviewBrushImagePicker.ShowItemToolTips = true;
             listviewBrushImagePicker.UseCompatibleStateImageBehavior = false;
@@ -5891,7 +5920,7 @@ namespace DynamicDraw
              * newer location under the paint.net folder became available, settings were moved there as version 3
              * of the plugin came around. Since then, there's been consistent issues with denial of access by UAC
              * for being stored in Program Files, so the settings have been moved back to documents (and modernized
-             * to JSON).
+             * to JSON). XML settings (version 3.3 and earlier) are no longer migrated as of version 4.1.
              */
 
             IUserFilesService userFilesService =
@@ -5902,30 +5931,12 @@ namespace DynamicDraw
 
             if (!File.Exists(newPath))
             {
+                settings.Save(true);
+
+                // Deletes any XML-based settings files. Migration is no longer supported for these.
                 string oldestPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files", "BrushFactorySettings.xml");
                 string oldPath = Path.Combine(userFilesService.UserFilesPath ?? "", "DynamicDrawSettings.xml");
 
-                // Migrates settings from the old settings filepath.
-                if (File.Exists(oldPath))
-                {
-                    // This goes up to version 3.3, inclusive.
-                    SettingsSerialization legacySettings = new SettingsSerialization(oldPath);
-                    legacySettings.LoadSavedSettings(true);
-                    settings.CustomBrushes = legacySettings.CustomBrushes;
-                    settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
-                    settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
-                }
-                else if (File.Exists(oldestPath))
-                {
-                    SettingsSerialization legacySettings = new SettingsSerialization(oldestPath);
-                    legacySettings.LoadSavedSettings(true);
-                    settings.CustomBrushImageDirectories = legacySettings.CustomBrushImageDirectories;
-                    settings.UseDefaultBrushes = legacySettings.UseDefaultBrushes;
-                }
-
-                settings.Save(true);
-
-                // Deletes any old settings files after migration.
                 if (File.Exists(oldestPath)) { File.Delete(oldestPath); }
                 if (File.Exists(oldPath)) { File.Delete(oldPath); }
             }
@@ -6155,7 +6166,7 @@ namespace DynamicDraw
 
             //Copies GUI values from the settings.
             sliderBrushSize.Value = settings.BrushSize;
-            tokenSelectedBrushImagePath = settings.BrushImagePath;
+            tokenSelectedBrushImagePaths = new(settings.BrushImagePaths);
 
             //Sets all other fields.
             sliderBrushOpacity.Value = settings.BrushOpacity;
@@ -6202,7 +6213,7 @@ namespace DynamicDraw
             sliderShiftSize.Value = settings.SizeChange;
             sliderShiftRotation.Value = settings.RotChange;
             cmbxChosenEffect.SelectedIndex = settings.CmbxChosenEffect;
-            tabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>(settings.TabPressureConstraints);
+            tabPressureConstraints = new(settings.TabPressureConstraints);
             cmbxBlendMode.SelectedIndex = (int)settings.BlendMode;
             cmbxBrushSmoothing.SelectedIndex = (int)settings.Smoothing;
             cmbxSymmetry.SelectedIndex = (int)settings.Symmetry;
@@ -6269,9 +6280,9 @@ namespace DynamicDraw
         /// <summary>
         /// Recreates the brush image with color and alpha effects (via brush flow) applied.
         /// </summary>
-        private void UpdateBrushImage(bool doRefresh = true)
+        private void UpdateBrushImage(bool doRefreshCanvas = true)
         {
-            if (bmpBrush == null)
+            if (bmpsBrush.Get(bmpBrushActiveID) == null)
             {
                 return;
             }
@@ -6299,40 +6310,43 @@ namespace DynamicDraw
                     GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, 1));
 
             // Creates a downsized intermediate bmp for faster transformations and blitting. Brush assumed square.
-            if (bmpBrushDownsized != null && maxPossibleSize > bmpBrushDownsized.Width)
+            if (bmpsBrushDownsized.Get(bmpBrushActiveID) != null && maxPossibleSize > bmpsBrushDownsized.Get(bmpBrushActiveID).Width)
             {
-                bmpBrushDownsized.Dispose();
-                bmpBrushDownsized = null;
+                bmpsBrushDownsized.Get(bmpBrushActiveID).Dispose();
+                bmpsBrushDownsized.Set(bmpBrushActiveID, null);
             }
-            if (maxPossibleSize < bmpBrush.Width && (bmpBrushDownsized == null || bmpBrushDownsized.Width != maxPossibleSize))
+            if (maxPossibleSize < bmpsBrush.Get(bmpBrushActiveID).Width &&
+                (bmpsBrushDownsized.Get(bmpBrushActiveID) == null || bmpsBrushDownsized.Get(bmpBrushActiveID).Width != maxPossibleSize))
             {
-                bmpBrushDownsized?.Dispose();
-                bmpBrushDownsized = DrawingUtils.ScaleImage(
-                    bmpBrush,
+                bmpsBrushDownsized.Get(bmpBrushActiveID)?.Dispose();
+                bmpsBrushDownsized.Set(bmpBrushActiveID, DrawingUtils.ScaleImage(
+                    bmpsBrush.Get(bmpBrushActiveID),
                     new Size(maxPossibleSize, maxPossibleSize),
                     false, false, null,
-                    (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex);
+                    (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex));
             }
 
-            if (bmpBrushDownsized != null || bmpBrush != null)
+            if (bmpsBrushDownsized.Get(bmpBrushActiveID) != null || bmpsBrush.Get(bmpBrushActiveID) != null)
             {
                 // Applies the color and alpha changes.
-                bmpBrushEffects?.Dispose();
-                bmpBrushEffects = DrawingUtils.FormatImage(bmpBrushDownsized ?? bmpBrush, PixelFormat.Format32bppPArgb);
+                bmpsBrushEffects.Get(bmpBrushActiveID)?.Dispose();
+                bmpsBrushEffects.Set(bmpBrushActiveID, DrawingUtils.FormatImage(
+                    bmpsBrushDownsized.Get(bmpBrushActiveID) ?? bmpsBrush.Get(bmpBrushActiveID),
+                    PixelFormat.Format32bppPArgb));
 
                 // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
                 if (chkbxColorizeBrush.Checked)
                 {
-                    DrawingUtils.ColorImage(bmpBrushEffects, setColor, multAlpha);
+                    DrawingUtils.ColorImage(bmpsBrushEffects.Get(bmpBrushActiveID), setColor, multAlpha);
                 }
                 else
                 {
-                    DrawingUtils.ColorImage(bmpBrushEffects, null, multAlpha);
+                    DrawingUtils.ColorImage(bmpsBrushEffects.Get(bmpBrushActiveID), null, multAlpha);
                 }
             }
 
             //Updates to show changes in the brush indicator.
-            if (doRefresh)
+            if (doRefreshCanvas)
             {
                 displayCanvas.Refresh();
             }
@@ -6939,7 +6953,7 @@ namespace DynamicDraw
                             }
 
                             // Brush images with the same location need unique names. Append spaces until unique.
-                            if (loadedBrushImages.Any(a => a.Location != null && a.Location.Equals(file) && a.Name != null && a.Name.Equals(brushName)))
+                            if (loadedBrushImages.Any(a => a.Location != null && a.Location == file && a.Name != null && a.Name == brushName))
                             {
                                 brushName += " ";
                             }
@@ -7019,25 +7033,29 @@ namespace DynamicDraw
 
                     if (loadedBrushImages.Count > 0)
                     {
-                        // Select the user's previous brush if it is present, otherwise select the last added brush.
+                        // Select the user's previous brush if it is present, otherwise selects the last added brush.
                         int selectedItemIndex = loadedBrushImages.Count - 1;
+                        listviewBrushImagePicker.SelectedIndices.Clear();
 
-                        if (!string.IsNullOrEmpty(tokenSelectedBrushImagePath))
+                        for (int i = 0; i < tokenSelectedBrushImagePaths.Count; i++)
                         {
-                            int index = loadedBrushImages.FindIndex(brush => brush.Location?.Equals(tokenSelectedBrushImagePath) ?? false);
+                            if (!string.IsNullOrEmpty(tokenSelectedBrushImagePaths[i]))
+                            {
+                                int index = loadedBrushImages.FindIndex(brush => brush.Location == tokenSelectedBrushImagePaths[i]);
 
-                            if (index == -1)
-                            {
-                                index = loadedBrushImages.FindIndex(brush => brush.Name?.Equals(tokenSelectedBrushImagePath) ?? false);
+                                if (index == -1)
+                                {
+                                    index = loadedBrushImages.FindIndex(brush => brush.Name == tokenSelectedBrushImagePaths[i]);
+                                }
+                                if (index >= 0)
+                                {
+                                    selectedItemIndex = index;
+                                }
                             }
-                            if (index >= 0)
-                            {
-                                selectedItemIndex = index;
-                            }
+
+                            listviewBrushImagePicker.SelectedIndices.Add(selectedItemIndex);
                         }
 
-                        listviewBrushImagePicker.SelectedIndices.Clear();
-                        listviewBrushImagePicker.SelectedIndices.Add(selectedItemIndex);
                         listviewBrushImagePicker.EnsureVisible(selectedItemIndex);
                     }
                 }
@@ -7696,15 +7714,15 @@ namespace DynamicDraw
                     e.Graphics.RotateTransform(sliderBrushRotation.Value);
                     e.Graphics.TranslateTransform(-radius / 2f, -radius / 2f);
 
-                    if (UserSettings.BrushCursorPreview == BrushCursorPreview.Preview && bmpBrushEffects != null)
+                    if (UserSettings.BrushCursorPreview == BrushCursorPreview.Preview && bmpsBrushEffects.Get(bmpBrushActiveID) != null)
                     {
                         e.Graphics.DrawImage(
-                            bmpBrushEffects, new Point[] {
+                            bmpsBrushEffects.Get(bmpBrushActiveID), new Point[] {
                                 Point.Empty,
                                 new Point(radius, 0),
                                 new Point(0, radius)
                             },
-                            bmpBrushEffects.GetBounds(),
+                            bmpsBrushEffects.Get(bmpBrushActiveID).GetBounds(),
                             GraphicsUnit.Pixel,
                             DrawingUtils.ColorImageAttr(0, 0, 0, 0.5f));
                     }
@@ -8944,41 +8962,72 @@ namespace DynamicDraw
         /// </summary>
         private void ListViewBrushImagePicker_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listviewBrushImagePicker.SelectedIndices.Count > 0)
+            // Winforms calls this twice per click. First, to deselect, then to select the new item. This messes with
+            // programs that rely on the full state, so we ignore the first callback. Ignoring it also means there will
+            // never be no brush loaded.
+            if (listviewBrushImagePicker.SelectedIndices.Count == 0)
             {
-                int index = listviewBrushImagePicker.SelectedIndices[0];
+                return;
+            }
 
-                if (index >= 0)
+            var selected = listviewBrushImagePicker.SelectedIndices.Cast<int>().ToList();
+            int indexToVisuallyScrollTo = 0;
+
+            for (int i = 0; i < loadedBrushImages.Count; i++)
+            {
+                // Loads item thumbnails that should be displayed.
+                if (selected.Contains(i))
                 {
-                    int previousItemIndex = listviewBrushImagePicker.PreviousItemIndex;
-
-                    // Unloads virtualized item thumbnails to save memory.
-                    if (previousItemIndex >= 0)
-                    {
-                        BrushSelectorItem previousItem = loadedBrushImages[previousItemIndex];
-                        if (previousItem.State == BrushSelectorItemState.Memory)
-                        {
-                            previousItem.ToDisk();
-                        }
-                    }
-
-                    // Loads item thumbnails that should be displayed.
-                    BrushSelectorItem currentItem = loadedBrushImages[index];
+                    BrushSelectorItem currentItem = loadedBrushImages[i];
                     if (currentItem.State == BrushSelectorItemState.Disk)
                     {
                         currentItem.ToMemory();
                     }
 
-                    bmpBrush?.Dispose();
-                    bmpBrush = DrawingUtils.FormatImage(
+                    bmpBrushActiveID = currentItem.ID;
+                    indexToVisuallyScrollTo = i;
+
+                    bmpsBrush.Get(bmpBrushActiveID)?.Dispose();
+                    bmpsBrush.Set(bmpBrushActiveID, DrawingUtils.FormatImage(
                         currentItem.Brush,
-                        PixelFormat.Format32bppPArgb);
-                    bmpBrushDownsized = null;
+                        PixelFormat.Format32bppPArgb));
+                    bmpsBrushDownsized.Set(bmpBrushActiveID, null);
 
                     UpdateBrushImage();
                 }
 
-                listviewBrushImagePicker.Items[index].EnsureVisible();
+                // Unloads virtualized item thumbnails to save memory.
+                else
+                {
+                    bmpsBrush.Get(loadedBrushImages[i].ID)?.Dispose();
+                    bmpsBrush.Remove(loadedBrushImages[i].ID);
+                    bmpsBrushDownsized.Remove(loadedBrushImages[i].ID);
+                    bmpsBrushEffects.Remove(loadedBrushImages[i].ID);
+
+                    if (loadedBrushImages[i].State == BrushSelectorItemState.Memory)
+                    {
+                        loadedBrushImages[i].ToDisk();
+                    }
+
+                    // Reassigns the active ID if it was just deselected.
+                    if (bmpBrushActiveID == loadedBrushImages[i].ID)
+                    {
+                        if (selected.Contains(listviewBrushImagePicker.PreviousItemIndex))
+                        {
+                            bmpBrushActiveID = loadedBrushImages[listviewBrushImagePicker.PreviousItemIndex].ID;
+                            indexToVisuallyScrollTo = listviewBrushImagePicker.PreviousItemIndex;
+                        }
+                        else
+                        {
+                            bmpBrushActiveID = loadedBrushImages[0].ID;
+                        }
+                    }
+                }
+            }
+
+            if (listviewBrushImagePicker.Items.Count > indexToVisuallyScrollTo)
+            {
+                listviewBrushImagePicker.Items[indexToVisuallyScrollTo].EnsureVisible();
             }
         }
 
@@ -9021,12 +9070,12 @@ namespace DynamicDraw
                         {
                             if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
                             {
-                                return entry.Location != null && entry.Location.Equals(PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePath);
+                                return entry.Location != null && PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Location);
                             }
 
                             if (settings.CustomBrushes.ContainsKey(currentBrushPath))
                             {
-                                return entry.Location != null && entry.Location.Equals(settings.CustomBrushes[currentBrushPath].BrushImagePath);
+                                return entry.Location != null && settings.CustomBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Location);
                             }
 
                             return false;
@@ -9038,12 +9087,12 @@ namespace DynamicDraw
                             {
                                 if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
                                 {
-                                    return entry.Name.Equals(PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePath);
+                                    return PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Name);
                                 }
 
                                 if (settings.CustomBrushes.ContainsKey(currentBrushPath))
                                 {
-                                    return entry.Name.Equals(settings.CustomBrushes[currentBrushPath].BrushImagePath);
+                                    return settings.CustomBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Name);
                                 }
 
                                 return false;
@@ -9055,7 +9104,7 @@ namespace DynamicDraw
                         index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(Strings.DefaultBrushCircle));
                     }
 
-                    if (index >= 0)
+                    if (index >= 0 && !listviewBrushImagePicker.Items[index].Selected)
                     {
                         listviewBrushImagePicker.Items[index].Selected = true;
                         ListViewBrushImagePicker_SelectedIndexChanged(null, null);
