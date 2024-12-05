@@ -131,7 +131,7 @@ namespace DynamicDraw
         /// The list of palettes, with the filename (no file extension) as the key, and the path to the file, including
         /// extension, as the value.
         /// </summary>
-        private readonly BindingList<Tuple<string, PaletteComboboxOptions>> paletteOptions;
+        private readonly BindingList<Tuple<string, PaletteEntry>> paletteOptions;
 
         /// <summary>
         /// Contains the list of all interpolation options for applying brush
@@ -495,7 +495,6 @@ namespace DynamicDraw
         private ToolStripMenuItem menuSetCanvasBgImage, menuSetCanvasBgImageFit, menuSetCanvasBgImageOnlyIfFits;
         private ToolStripMenuItem menuSetCanvasBgTransparent, menuSetCanvasBgGray, menuSetCanvasBgWhite, menuSetCanvasBgBlack;
         private ToolStripMenuItem menuBrushIndicator, menuBrushIndicatorSquare, menuBrushIndicatorPreview;
-        private ToolStripMenuItem menuPaletteImgSort, menuPaletteImgSortHVSA, menuPaletteImgSortAHVS, menuPaletteImgSortUsage, menuPaletteImgSortPrimary, menuPaletteImgSortVHSA;
         private ToolStripMenuItem menuShowSymmetryLinesInUse, menuShowMinDistanceInUse;
         private ToolStripMenuItem menuBrushImageDirectories, menuKeyboardShortcutsDialog;
         private ToolStripMenuItem menuColorPickerIncludesAlpha, menuColorPickerSwitchesToPrevTool;
@@ -711,19 +710,23 @@ namespace DynamicDraw
             cmbxBlendMode.ValueMember = "Item2";
 
             // Configures items for the available palettes.
-            paletteOptions = new BindingList<Tuple<string, PaletteComboboxOptions>>()
+            paletteOptions = new BindingList<Tuple<string, PaletteEntry>>()
             {
-                new(Strings.Current, new PaletteComboboxOptions(PaletteSpecialType.Current)),
-                new(Strings.ColorSchemeRecent, new PaletteComboboxOptions(PaletteSpecialType.Recent)),
-                new(Strings.ColorSchemeFromImage, new PaletteComboboxOptions(PaletteSpecialType.FromImage)),
-                new(Strings.ColorSchemeGradient, new PaletteComboboxOptions(PaletteSpecialType.PrimaryToSecondary)),
-                new(Strings.ColorSchemeMonochromatic, new PaletteComboboxOptions(PaletteSpecialType.LightToDark)),
-                new(Strings.ColorSchemeAnalogous3, new PaletteComboboxOptions(PaletteSpecialType.Similar3)),
-                new(Strings.ColorSchemeAnalogous4, new PaletteComboboxOptions(PaletteSpecialType.Similar4)),
-                new(Strings.ColorSchemeComplementary, new PaletteComboboxOptions(PaletteSpecialType.Complement)),
-                new(Strings.ColorSchemeSplitComplementary, new PaletteComboboxOptions(PaletteSpecialType.SplitComplement)),
-                new(Strings.ColorSchemeTriadic, new PaletteComboboxOptions(PaletteSpecialType.Triadic)),
-                new(Strings.ColorSchemeSquare, new PaletteComboboxOptions(PaletteSpecialType.Square))
+                new(Strings.Current, new PaletteEntry(PaletteSpecialType.Current)),
+                new(Strings.ColorSchemeRecent, new PaletteEntry(PaletteSpecialType.Recent)),
+                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortAHVS}", new PaletteEntry(PaletteSpecialType.FromImageAHVS)),
+                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortHVSA}", new PaletteEntry(PaletteSpecialType.FromImageHVSA)),
+                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortUsage}", new PaletteEntry(PaletteSpecialType.FromImageUsage)),
+                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortVHSA}", new PaletteEntry(PaletteSpecialType.FromImageVHSA)),
+                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortPrimary}", new PaletteEntry(PaletteSpecialType.FromImagePrimaryDistance)),
+                new(Strings.ColorSchemeGradient, new PaletteEntry(PaletteSpecialType.PrimaryToSecondary)),
+                new(Strings.ColorSchemeMonochromatic, new PaletteEntry(PaletteSpecialType.LightToDark)),
+                new(Strings.ColorSchemeAnalogous3, new PaletteEntry(PaletteSpecialType.Similar3)),
+                new(Strings.ColorSchemeAnalogous4, new PaletteEntry(PaletteSpecialType.Similar4)),
+                new(Strings.ColorSchemeComplementary, new PaletteEntry(PaletteSpecialType.Complement)),
+                new(Strings.ColorSchemeSplitComplementary, new PaletteEntry(PaletteSpecialType.SplitComplement)),
+                new(Strings.ColorSchemeTriadic, new PaletteEntry(PaletteSpecialType.Triadic)),
+                new(Strings.ColorSchemeSquare, new PaletteEntry(PaletteSpecialType.Square))
             };
 
             cmbxPaletteDropdown.DataSource = paletteOptions;
@@ -1116,8 +1119,8 @@ namespace DynamicDraw
                 {
                     if (File.Exists(entry))
                     {
-                        paletteOptions.Add(new Tuple<string, PaletteComboboxOptions>(
-                            Path.GetFileNameWithoutExtension(entry), new PaletteComboboxOptions(entry)));
+                        paletteOptions.Add(new Tuple<string, PaletteEntry>(
+                            Path.GetFileNameWithoutExtension(entry), new PaletteEntry(entry)));
                     }
                     else if (Directory.Exists(entry))
                     {
@@ -1126,8 +1129,8 @@ namespace DynamicDraw
                         {
                             if (Path.GetExtension(file).ToLower() == ".txt")
                             {
-                                paletteOptions.Add(new Tuple<string, PaletteComboboxOptions>(
-                                    Path.GetFileNameWithoutExtension(file), new PaletteComboboxOptions(file)));
+                                paletteOptions.Add(new Tuple<string, PaletteEntry>(
+                                    Path.GetFileNameWithoutExtension(file), new PaletteEntry(file)));
                             }
                         }
                     }
@@ -1138,7 +1141,35 @@ namespace DynamicDraw
                 }
             }
 
-            cmbxPaletteDropdown.SelectedIndex = 0; // defaults to Paint.NET's current palette.
+            // Attempts to restore the selected palette, defaulting to the first entry (PDN's current palette).
+            int index = paletteOptions.FirstIndexWhere((o) =>
+                o.Item2.Location == UserSettings.CurrentPalette.Location &&
+                o.Item2.SpecialType == UserSettings.CurrentPalette.SpecialType);
+
+            if (index != -1 && cmbxPaletteDropdown.Items.Count >= index)
+            {
+                if (UserSettings.CurrentPalette.RefreshTriggers.HasFlag(PaletteRefreshTriggerFlags.OnCanvasChange))
+                {
+                    // Anything that requires a canvas change reads from the image, which means it cannot happen on
+                    // immediate load because it *might* cause a race condition with other operations, so it gets set
+                    // on a delay.
+                    using Timer delay = new Timer() { Interval = 100, Enabled = true };
+                    delay.Tick += (a, b) =>
+                    {
+                        delay.Stop();
+                        cmbxPaletteDropdown.SelectedIndex = index;
+                    };
+                    delay.Start();
+                }
+                else
+                {
+                    cmbxPaletteDropdown.SelectedIndex = index;
+                }
+            }
+            else
+            {
+                cmbxPaletteDropdown.SelectedIndex = 0;
+            }
         }
 
         /// <summary>
@@ -1189,10 +1220,15 @@ namespace DynamicDraw
         /// Deals with palette generation, including reading the current palette from Paint.NET or switching to
         /// recent colors.
         /// </summary>
-        private void GeneratePalette(PaletteSpecialType type)
+        private void GeneratePalette(PaletteRefreshTriggerFlags trigger)
         {
+            if (trigger != PaletteRefreshTriggerFlags.RefreshNow && !UserSettings.CurrentPalette.RefreshTriggers.HasFlag(trigger))
+            {
+                return;
+            }
+
             // Loads the default palette for empty paths. It will fail silently if the plugin hasn't loaded.
-            if (type == PaletteSpecialType.Current)
+            if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Current)
             {
                 IPalettesService palettesService = (IPalettesService)Services?.GetService(typeof(IPalettesService));
 
@@ -1213,23 +1249,28 @@ namespace DynamicDraw
                     currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
             }
-            else if (type == PaletteSpecialType.Recent)
+            else if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Recent)
             {
                 paletteSelectedSwatchIndex = -1;
                 menuPalette.Swatches = new List<Color>(paletteRecent);
             }
             else
             {
-                paletteGeneratedMaxColors = type switch
+                paletteGeneratedMaxColors = UserSettings.CurrentPalette.SpecialType switch
                 {
                     PaletteSpecialType.Recent => paletteRecentMaxColors,
                     PaletteSpecialType.Similar3 or PaletteSpecialType.Triadic => 30,
                     _ => 20,
                 };
 
-                paletteSelectedSwatchIndex = type switch
+                paletteSelectedSwatchIndex = UserSettings.CurrentPalette.SpecialType switch
                 {
-                    PaletteSpecialType.FromImage or PaletteSpecialType.PrimaryToSecondary => 0,
+                    PaletteSpecialType.FromImageAHVS
+                        or PaletteSpecialType.FromImageHVSA
+                        or PaletteSpecialType.FromImagePrimaryDistance
+                        or PaletteSpecialType.FromImageUsage
+                        or PaletteSpecialType.FromImageVHSA
+                        or PaletteSpecialType.PrimaryToSecondary => 0,
                     PaletteSpecialType.LightToDark => 10,
                     PaletteSpecialType.Similar3 => 15,
                     PaletteSpecialType.Complement or PaletteSpecialType.Triadic => 5,
@@ -1237,16 +1278,12 @@ namespace DynamicDraw
                     _ => -1
                 };
 
-                menuPalette.Swatches = (type == PaletteSpecialType.FromImage)
-                    ? ColorUtils.GeneratePalette(
-                        bmpCommitted,
-                        UserSettings.PaletteFromImageSortMode,
-                        menuActiveColors.Swatches[0])
-                    : ColorUtils.GeneratePalette(
-                        type,
-                        paletteGeneratedMaxColors,
-                        menuActiveColors.Swatches[0],
-                        menuActiveColors.Swatches[1]);
+                menuPalette.Swatches = ColorUtils.GeneratePalette(
+                    bmpCommitted,
+                    UserSettings.CurrentPalette.SpecialType,
+                    paletteGeneratedMaxColors,
+                    menuActiveColors.Swatches[0],
+                    menuActiveColors.Swatches[1]);
             }
 
             UpdatePaletteSize();
@@ -4222,12 +4259,6 @@ namespace DynamicDraw
             menuBrushIndicator = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicator);
             menuBrushIndicatorSquare = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicatorSquare);
             menuBrushIndicatorPreview = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicatorPreview);
-            menuPaletteImgSort = new ToolStripMenuItem(Strings.MenuPaletteImgSort);
-            menuPaletteImgSortHVSA = new ToolStripMenuItem(Strings.MenuPaletteImgSortHVSA);
-            menuPaletteImgSortUsage = new ToolStripMenuItem(Strings.MenuPaletteImgSortUsage);
-            menuPaletteImgSortPrimary = new ToolStripMenuItem(Strings.MenuPaletteImgSortPrimary);
-            menuPaletteImgSortVHSA = new ToolStripMenuItem(Strings.MenuPaletteImgSortVHSA);
-            menuPaletteImgSortAHVS = new ToolStripMenuItem(Strings.MenuPaletteImgSortAHVS);
             menuShowSymmetryLinesInUse = new ToolStripMenuItem(Strings.MenuDisplayShowSymmetryLines);
             menuShowMinDistanceInUse = new ToolStripMenuItem(Strings.MenuDisplayShowMinDistCircle);
             menuScriptEditor = new ToolStripMenuItem(Strings.MenuScriptEditor);
@@ -4367,46 +4398,6 @@ namespace DynamicDraw
             menuBrushIndicator.DropDown.Items.Add(menuBrushIndicatorPreview);
 
             menuDisplaySettings.DropDown.Items.Add(menuBrushIndicator);
-
-            // Options -> display settings -> palette
-            menuPaletteImgSortAHVS.Click += (a, b) =>
-            {
-                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.AHVS;
-                UpdateTopMenuState();
-                GeneratePalette(PaletteSpecialType.FromImage);
-            };
-            menuPaletteImgSortHVSA.Click += (a, b) =>
-            {
-                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.HVSA;
-                UpdateTopMenuState();
-                GeneratePalette(PaletteSpecialType.FromImage);
-            };
-            menuPaletteImgSortUsage.Click += (a, b) =>
-            {
-                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.Usage;
-                UpdateTopMenuState();
-                GeneratePalette(PaletteSpecialType.FromImage);
-            };
-            menuPaletteImgSortVHSA.Click += (a, b) =>
-            {
-                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.VHSA;
-                UpdateTopMenuState();
-                GeneratePalette(PaletteSpecialType.FromImage);
-            };
-            menuPaletteImgSortPrimary.Click += (a, b) =>
-            {
-                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.PrimaryDistance;
-                UpdateTopMenuState();
-                GeneratePalette(PaletteSpecialType.FromImage);
-            };
-
-            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortAHVS);
-            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortHVSA);
-            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortUsage);
-            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortVHSA);
-            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortPrimary);
-
-            menuDisplaySettings.DropDown.Items.Add(menuPaletteImgSort);
 
             // Options -> display settings -> show symmetry lines when in use
             menuShowSymmetryLinesInUse.Click += (a, b) =>
@@ -6291,11 +6282,12 @@ namespace DynamicDraw
             txtbxColorHexfield.AssociatedColor = newColor;
 
             if (updatePalette &&
-                paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2.SpecialType != PaletteSpecialType.None &&
-                paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2.SpecialType != PaletteSpecialType.Current &&
-                paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2.SpecialType != PaletteSpecialType.Recent)
+                UserSettings.CurrentPalette.RefreshTriggers.HasFlag(PaletteRefreshTriggerFlags.OnColorChange) &&
+                UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.None &&
+                UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.Current &&
+                UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.Recent)
             {
-                GeneratePalette(paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2.SpecialType);
+                GeneratePalette(PaletteRefreshTriggerFlags.OnColorChange);
             }
 
             if (!fromOpacityChanging && updateOpacity && (byte)sliderBrushOpacity.ValueInt != newColor.A)
@@ -6532,37 +6524,40 @@ namespace DynamicDraw
             }
 
             const int minSwatchSize = 8; // 8x8 min size per swatch, anything less is hard to use
-            var entry = paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2;
 
             /// Generated palettes are displayed on a single row, except some dynamic ones.
-            if (entry.SpecialType != PaletteSpecialType.None
-                && entry.SpecialType != PaletteSpecialType.Current
-                && entry.SpecialType != PaletteSpecialType.FromImage)
+            if (UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.None
+                && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.Current
+                && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageAHVS
+                && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageHVSA
+                && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageUsage
+                && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImagePrimaryDistance
+                && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageVHSA)
             {
-                if (entry.SpecialType == PaletteSpecialType.Recent)
+                if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Recent)
                 {
                     menuPalette.NumRows = 1;
                     menuPalette.Width = minSwatchSize * 2 * menuPalette.Swatches.Count;
                 }
                 else if (
-                    entry.SpecialType == PaletteSpecialType.PrimaryToSecondary ||
-                    entry.SpecialType == PaletteSpecialType.LightToDark)
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.PrimaryToSecondary ||
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.LightToDark)
                 {
                     menuPalette.NumRows = 1;
                     menuPalette.Width = minSwatchSize * 2 * paletteGeneratedMaxColors;
                 }
                 else if (
-                    entry.SpecialType == PaletteSpecialType.Similar3 ||
-                    entry.SpecialType == PaletteSpecialType.Triadic)
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Similar3 ||
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Triadic)
                 {
                     menuPalette.NumRows = 3;
                     menuPalette.Width = minSwatchSize * paletteGeneratedMaxColors;
                 }
                 else if (
-                    entry.SpecialType == PaletteSpecialType.Similar4 ||
-                    entry.SpecialType == PaletteSpecialType.Complement ||
-                    entry.SpecialType == PaletteSpecialType.Square ||
-                    entry.SpecialType == PaletteSpecialType.SplitComplement)
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Similar4 ||
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Complement ||
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Square ||
+                    UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.SplitComplement)
                 {
                     menuPalette.NumRows = 2;
                     menuPalette.Width = minSwatchSize * paletteGeneratedMaxColors;
@@ -6732,11 +6727,6 @@ namespace DynamicDraw
             menuSetCanvasBgBlack.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Black;
             menuBrushIndicatorSquare.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Square;
             menuBrushIndicatorPreview.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Preview;
-            menuPaletteImgSortHVSA.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.HVSA;
-            menuPaletteImgSortPrimary.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.PrimaryDistance;
-            menuPaletteImgSortUsage.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.Usage;
-            menuPaletteImgSortVHSA.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.VHSA;
-            menuPaletteImgSortAHVS.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.AHVS;
             menuSetThemeDefault.Checked = UserSettings.PreferredTheme == ThemePreference.Inherited;
             menuSetThemeLight.Checked = UserSettings.PreferredTheme == ThemePreference.Light;
             menuSetThemeDark.Checked = UserSettings.PreferredTheme == ThemePreference.Dark;
@@ -7246,7 +7236,7 @@ namespace DynamicDraw
                         paletteRecent.Insert(0, menuActiveColors.Swatches[0]);
 
                         if (cmbxPaletteDropdown.SelectedIndex >= 0 && paletteOptions.Count > 0 &&
-                            paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2.SpecialType == PaletteSpecialType.Recent)
+                            UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Recent)
                         {
                             if (existingIndex != -1)
                             { menuPalette.Swatches.RemoveAt(existingIndex); }
@@ -7525,6 +7515,7 @@ namespace DynamicDraw
             if (isUserDrawing.canvasChanged)
             {
                 BrushScriptsExecute(ScriptTrigger.EndBrushStroke);
+                GeneratePalette(PaletteRefreshTriggerFlags.OnCanvasChange);
 
                 if (activeTool == Tool.CloneStamp)
                 {
@@ -8524,6 +8515,7 @@ namespace DynamicDraw
                     }
                 }
 
+                GeneratePalette(PaletteRefreshTriggerFlags.OnCanvasChange);
                 displayCanvas.Refresh();
             }
             else
@@ -8757,6 +8749,7 @@ namespace DynamicDraw
                     }
                 }
 
+                GeneratePalette(PaletteRefreshTriggerFlags.OnCanvasChange);
                 displayCanvas.Refresh();
             }
             else
@@ -8865,14 +8858,14 @@ namespace DynamicDraw
         {
             if (cmbxPaletteDropdown.SelectedIndex >= 0 && cmbxPaletteDropdown.SelectedIndex < paletteOptions.Count)
             {
-                var entry = paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2;
-                if (entry.SpecialType == PaletteSpecialType.None)
+                UserSettings.CurrentPalette = paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2;
+                if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.None)
                 {
-                    LoadPalette(entry.Location);
+                    LoadPalette(UserSettings.CurrentPalette.Location);
                 }
                 else
                 {
-                    GeneratePalette(entry.SpecialType);
+                    GeneratePalette(PaletteRefreshTriggerFlags.RefreshNow);
                 }
             }
 

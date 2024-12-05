@@ -64,8 +64,30 @@
         Square = 10,
 
         /// <summary>
-        /// A palette (up to the swatch limit) based on the unique pixels in the image
+        /// Sorts in channel order: AHVS, grouping alpha and hue into chunks. Alpha is opaque-first.
         /// </summary>
-        FromImage = 11
+        FromImageAHVS = 11,
+
+        /// <summary>
+        /// Sorts in channel order: HVSA, grouping hue into chunks. Alpha is opaque-first.
+        /// </summary>
+        FromImageHVSA = 12,
+
+        /// <summary>
+        /// Sorts pixels by how often they appear, then in channel order: HVSA, grouping hue into chunks. Alpha is
+        /// opaque-first. This is mainly used to spot unwanted pixel colors when developing a paletted image.
+        /// </summary>
+        FromImageUsage = 13,
+
+        /// <summary>
+        /// Sorts pixels by how close they resemble the active primary color, then in channel order: HVSA, grouping hue
+        /// into chunks. Secondary sorts will rarely be needed, but are included for deterministic order.
+        /// </summary>
+        FromImagePrimaryDistance = 14,
+
+        /// <summary>
+        /// Sorts in channel order: VHSA, grouping value and hue into chunks. Alpha is opaque-first.
+        /// </summary>
+        FromImageVHSA = 15
     }
 }

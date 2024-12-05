@@ -103,13 +103,18 @@ namespace DynamicDraw
 
         #region Palette methods
         /// <summary>
-        /// Generates a palette from an image using a pre-selected sort mode.
+        /// Generates a palette given a palette type.
         /// </summary>
-        public static List<Color> GeneratePalette(Bitmap refBmp, PaletteFromImageSortMode sortMode, Color primary)
+        public static List<Color> GeneratePalette(
+            Bitmap refBmp,
+            PaletteSpecialType type,
+            int amount,
+            Color primary,
+            Color secondary)
         {
             List<Color> paletteColors = new List<Color>();
 
-            if (sortMode == PaletteFromImageSortMode.PrimaryDistance)
+            if (type == PaletteSpecialType.FromImagePrimaryDistance)
             {
                 var rgbList = PalletizingUtils.GeneratePalette(
                     refBmp,
@@ -150,7 +155,8 @@ namespace DynamicDraw
             }
 
             // Takes the top colors from the given image sorted with most used first, up to max palette size
-            else
+            else if (type == PaletteSpecialType.FromImageAHVS || type == PaletteSpecialType.FromImageHVSA
+                || type == PaletteSpecialType.FromImageUsage || type == PaletteSpecialType.FromImageVHSA)
             {
                 var rgbList = PalletizingUtils.CountColors(refBmp);
 
@@ -173,49 +179,39 @@ namespace DynamicDraw
                 rgbList.ForEach((o) => hsvList.Add(o.Key, HsvColor.FromColor(o.Key)));
                 IEnumerable<KeyValuePair<ColorBgra, int>> rgbSortedList = null;
 
-                switch (sortMode)
+                rgbSortedList = type switch
                 {
-                    case PaletteFromImageSortMode.Usage:
-                        // Same as AHVS sort but sorts first by most-used pixels with full precision
-                        rgbSortedList = rgbList
-                            .OrderByDescending((o) => o.Value)
-                            .ThenByDescending((o) => o.Key.A / 64)
-                            .ThenByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
-                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
-                            .ThenByDescending((o) => hsvList[o.Key].Value)
-                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation);
-                        break;
-                    case PaletteFromImageSortMode.HVSA:
-                        // Sort by low S last to handle precision loss in hue, H, V, H or S, A
-                        rgbSortedList = rgbList
-                            .OrderByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
-                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
-                            .ThenByDescending((o) => hsvList[o.Key].Value)
-                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation)
-                            .ThenByDescending((o) => o.Key.A / 64);
-                        break;
-                    case PaletteFromImageSortMode.VHSA:
-                        // Sort by low S last to handle precision loss in hue, V, H, H or S, A
-                        rgbSortedList = rgbList
-                            .OrderByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
-                            .ThenByDescending((o) => hsvList[o.Key].Value / 10)
-                            .ThenBy((o) => hsvList[o.Key].Hue / 10)
-                            .ThenBy((o) => hsvList[o.Key].Saturation)
-                            .ThenByDescending((o) => o.Key.A / 64);
-                        break;
-                    case PaletteFromImageSortMode.AHVS:
-                        // Sort by A, low S last to handle precision loss in hue, H, V, H or S
-                        rgbSortedList = rgbList
-                            .OrderByDescending((o) => o.Key.A / 64)
-                            .ThenByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
-                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
-                            .ThenByDescending((o) => hsvList[o.Key].Value)
-                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation);
-                        break;
-                    default:
-                        throw new NotImplementedException("Unhandled and unexpected enum case in switch.");
-                }
-
+                    // Same as AHVS sort but sorts first by most-used pixels with full precision
+                    PaletteSpecialType.FromImageUsage => rgbList
+                        .OrderByDescending((o) => o.Value)
+                        .ThenByDescending((o) => o.Key.A / 64)
+                        .ThenByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                        .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
+                        .ThenByDescending((o) => hsvList[o.Key].Value)
+                        .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation),
+                    // Sort by low S last to handle precision loss in hue, H, V, H or S, A
+                    PaletteSpecialType.FromImageHVSA => rgbList
+                        .OrderByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                        .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
+                        .ThenByDescending((o) => hsvList[o.Key].Value)
+                        .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation)
+                        .ThenByDescending((o) => o.Key.A / 64),
+                    // Sort by low S last to handle precision loss in hue, V, H, H or S, A
+                    PaletteSpecialType.FromImageVHSA => rgbList
+                        .OrderByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                        .ThenByDescending((o) => hsvList[o.Key].Value / 10)
+                        .ThenBy((o) => hsvList[o.Key].Hue / 10)
+                        .ThenBy((o) => hsvList[o.Key].Saturation)
+                        .ThenByDescending((o) => o.Key.A / 64),
+                    // Sort by A, low S last to handle precision loss in hue, H, V, H or S
+                    PaletteSpecialType.FromImageAHVS => rgbList
+                        .OrderByDescending((o) => o.Key.A / 64)
+                        .ThenByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                        .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
+                        .ThenByDescending((o) => hsvList[o.Key].Value)
+                        .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation),
+                    _ => throw new NotImplementedException("Unhandled and unexpected enum case in switch."),
+                };
                 paletteColors = (rgbList.Count > MaxPaletteSize)
                     ? rgbSortedList
                         .Where((_, index) => indicesToUse.Contains(index))
@@ -223,23 +219,8 @@ namespace DynamicDraw
                         .ToList()
                     : rgbSortedList.Select((o) => o.Key.ToColor()).ToList();
             }
-
-            return paletteColors;
-        }
-
-        /// <summary>
-        /// Generates a palette given a palette type.
-        /// </summary>
-        public static List<Color> GeneratePalette(
-            PaletteSpecialType type,
-            int amount,
-            Color primary,
-            Color secondary)
-        {
-            List<Color> paletteColors = new List<Color>();
-
             // Creates a gradient in perception-corrected HSLuv color space.
-            if (type == PaletteSpecialType.PrimaryToSecondary)
+            else if (type == PaletteSpecialType.PrimaryToSecondary)
             {
                 for (int i = 0; i < amount; i++)
                 {
