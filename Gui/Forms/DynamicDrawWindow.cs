@@ -495,6 +495,7 @@ namespace DynamicDraw
         private ToolStripMenuItem menuSetCanvasBgImage, menuSetCanvasBgImageFit, menuSetCanvasBgImageOnlyIfFits;
         private ToolStripMenuItem menuSetCanvasBgTransparent, menuSetCanvasBgGray, menuSetCanvasBgWhite, menuSetCanvasBgBlack;
         private ToolStripMenuItem menuBrushIndicator, menuBrushIndicatorSquare, menuBrushIndicatorPreview;
+        private ToolStripMenuItem menuPaletteImgSort, menuPaletteImgSortHVSA, menuPaletteImgSortAHVS, menuPaletteImgSortUsage, menuPaletteImgSortPrimary, menuPaletteImgSortVHSA;
         private ToolStripMenuItem menuShowSymmetryLinesInUse, menuShowMinDistanceInUse;
         private ToolStripMenuItem menuBrushImageDirectories, menuKeyboardShortcutsDialog;
         private ToolStripMenuItem menuColorPickerIncludesAlpha, menuColorPickerSwitchesToPrevTool;
@@ -714,6 +715,7 @@ namespace DynamicDraw
             {
                 new(Strings.Current, new PaletteComboboxOptions(PaletteSpecialType.Current)),
                 new(Strings.ColorSchemeRecent, new PaletteComboboxOptions(PaletteSpecialType.Recent)),
+                new(Strings.ColorSchemeFromImage, new PaletteComboboxOptions(PaletteSpecialType.FromImage)),
                 new(Strings.ColorSchemeGradient, new PaletteComboboxOptions(PaletteSpecialType.PrimaryToSecondary)),
                 new(Strings.ColorSchemeMonochromatic, new PaletteComboboxOptions(PaletteSpecialType.LightToDark)),
                 new(Strings.ColorSchemeAnalogous3, new PaletteComboboxOptions(PaletteSpecialType.Similar3)),
@@ -1227,7 +1229,7 @@ namespace DynamicDraw
 
                 paletteSelectedSwatchIndex = type switch
                 {
-                    PaletteSpecialType.PrimaryToSecondary => 0,
+                    PaletteSpecialType.FromImage or PaletteSpecialType.PrimaryToSecondary => 0,
                     PaletteSpecialType.LightToDark => 10,
                     PaletteSpecialType.Similar3 => 15,
                     PaletteSpecialType.Complement or PaletteSpecialType.Triadic => 5,
@@ -1235,11 +1237,16 @@ namespace DynamicDraw
                     _ => -1
                 };
 
-                menuPalette.Swatches = ColorUtils.GeneratePalette(
-                    type,
-                    paletteGeneratedMaxColors,
-                    menuActiveColors.Swatches[0],
-                    menuActiveColors.Swatches[1]);
+                menuPalette.Swatches = (type == PaletteSpecialType.FromImage)
+                    ? ColorUtils.GeneratePalette(
+                        bmpCommitted,
+                        UserSettings.PaletteFromImageSortMode,
+                        menuActiveColors.Swatches[0])
+                    : ColorUtils.GeneratePalette(
+                        type,
+                        paletteGeneratedMaxColors,
+                        menuActiveColors.Swatches[0],
+                        menuActiveColors.Swatches[1]);
             }
 
             UpdatePaletteSize();
@@ -4215,6 +4222,12 @@ namespace DynamicDraw
             menuBrushIndicator = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicator);
             menuBrushIndicatorSquare = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicatorSquare);
             menuBrushIndicatorPreview = new ToolStripMenuItem(Strings.MenuDisplayBrushIndicatorPreview);
+            menuPaletteImgSort = new ToolStripMenuItem(Strings.MenuPaletteImgSort);
+            menuPaletteImgSortHVSA = new ToolStripMenuItem(Strings.MenuPaletteImgSortHVSA);
+            menuPaletteImgSortUsage = new ToolStripMenuItem(Strings.MenuPaletteImgSortUsage);
+            menuPaletteImgSortPrimary = new ToolStripMenuItem(Strings.MenuPaletteImgSortPrimary);
+            menuPaletteImgSortVHSA = new ToolStripMenuItem(Strings.MenuPaletteImgSortVHSA);
+            menuPaletteImgSortAHVS = new ToolStripMenuItem(Strings.MenuPaletteImgSortAHVS);
             menuShowSymmetryLinesInUse = new ToolStripMenuItem(Strings.MenuDisplayShowSymmetryLines);
             menuShowMinDistanceInUse = new ToolStripMenuItem(Strings.MenuDisplayShowMinDistCircle);
             menuScriptEditor = new ToolStripMenuItem(Strings.MenuScriptEditor);
@@ -4354,6 +4367,46 @@ namespace DynamicDraw
             menuBrushIndicator.DropDown.Items.Add(menuBrushIndicatorPreview);
 
             menuDisplaySettings.DropDown.Items.Add(menuBrushIndicator);
+
+            // Options -> display settings -> palette
+            menuPaletteImgSortAHVS.Click += (a, b) =>
+            {
+                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.AHVS;
+                UpdateTopMenuState();
+                GeneratePalette(PaletteSpecialType.FromImage);
+            };
+            menuPaletteImgSortHVSA.Click += (a, b) =>
+            {
+                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.HVSA;
+                UpdateTopMenuState();
+                GeneratePalette(PaletteSpecialType.FromImage);
+            };
+            menuPaletteImgSortUsage.Click += (a, b) =>
+            {
+                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.Usage;
+                UpdateTopMenuState();
+                GeneratePalette(PaletteSpecialType.FromImage);
+            };
+            menuPaletteImgSortVHSA.Click += (a, b) =>
+            {
+                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.VHSA;
+                UpdateTopMenuState();
+                GeneratePalette(PaletteSpecialType.FromImage);
+            };
+            menuPaletteImgSortPrimary.Click += (a, b) =>
+            {
+                UserSettings.PaletteFromImageSortMode = PaletteFromImageSortMode.PrimaryDistance;
+                UpdateTopMenuState();
+                GeneratePalette(PaletteSpecialType.FromImage);
+            };
+
+            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortAHVS);
+            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortHVSA);
+            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortUsage);
+            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortVHSA);
+            menuPaletteImgSort.DropDown.Items.Add(menuPaletteImgSortPrimary);
+
+            menuDisplaySettings.DropDown.Items.Add(menuPaletteImgSort);
 
             // Options -> display settings -> show symmetry lines when in use
             menuShowSymmetryLinesInUse.Click += (a, b) =>
@@ -6282,68 +6335,82 @@ namespace DynamicDraw
         /// </summary>
         private void UpdateBrushImage(bool doRefreshCanvas = true)
         {
-            if (bmpsBrush.Get(bmpBrushActiveID) == null)
+            string previousID = bmpBrushActiveID;
+
+            // Note: For clarity, these cannot be moved outside the loop since GetPressureValue uses mappings that
+            // do things like read bitmap size which depends on bmpBrushActiveID.
+            int finalBrushFlow;
+            int maxPossibleSize;
+            float multAlpha;
+
+            for (int i = 0; i < loadedBrushImages.Count; i++)
             {
-                return;
-            }
+                bmpBrushActiveID = loadedBrushImages[i].ID;
 
-            int finalBrushFlow = GetPressureValue(CommandTarget.Flow, sliderBrushFlow.ValueInt, tabletPressureRatio);
-
-            //Sets the color and alpha.
-            Color setColor = menuActiveColors.Swatches[0];
-            float multAlpha = (
-                activeTool == Tool.Eraser
-                || activeTool == Tool.CloneStamp
-                || effectToDraw.Effect != null
-                || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
-                ? finalBrushFlow / 255f
-                : 1;
-
-            int maxPossibleSize =
-                Math.Max(Math.Max(
-                    sliderRandMaxSize.ValueInt,
-                    GetPressureValue(CommandTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 0)),
-                    GetPressureValue(CommandTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 1)) +
-                Math.Max(Math.Max(
-                    sliderBrushSize.ValueInt,
-                    GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, 0)),
-                    GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, 1));
-
-            // Creates a downsized intermediate bmp for faster transformations and blitting. Brush assumed square.
-            if (bmpsBrushDownsized.Get(bmpBrushActiveID) != null && maxPossibleSize > bmpsBrushDownsized.Get(bmpBrushActiveID).Width)
-            {
-                bmpsBrushDownsized.Get(bmpBrushActiveID).Dispose();
-                bmpsBrushDownsized.Set(bmpBrushActiveID, null);
-            }
-            if (maxPossibleSize < bmpsBrush.Get(bmpBrushActiveID).Width &&
-                (bmpsBrushDownsized.Get(bmpBrushActiveID) == null || bmpsBrushDownsized.Get(bmpBrushActiveID).Width != maxPossibleSize))
-            {
-                bmpsBrushDownsized.Get(bmpBrushActiveID)?.Dispose();
-                bmpsBrushDownsized.Set(bmpBrushActiveID, DrawingUtils.ScaleImage(
-                    bmpsBrush.Get(bmpBrushActiveID),
-                    new Size(maxPossibleSize, maxPossibleSize),
-                    false, false, null,
-                    (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex));
-            }
-
-            if (bmpsBrushDownsized.Get(bmpBrushActiveID) != null || bmpsBrush.Get(bmpBrushActiveID) != null)
-            {
-                // Applies the color and alpha changes.
-                bmpsBrushEffects.Get(bmpBrushActiveID)?.Dispose();
-                bmpsBrushEffects.Set(bmpBrushActiveID, DrawingUtils.FormatImage(
-                    bmpsBrushDownsized.Get(bmpBrushActiveID) ?? bmpsBrush.Get(bmpBrushActiveID),
-                    PixelFormat.Format32bppPArgb));
-
-                // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
-                if (chkbxColorizeBrush.Checked)
+                if (bmpsBrush.Get(bmpBrushActiveID) == null)
                 {
-                    DrawingUtils.ColorImage(bmpsBrushEffects.Get(bmpBrushActiveID), setColor, multAlpha);
+                    continue;
                 }
-                else
+
+                finalBrushFlow = GetPressureValue(CommandTarget.Flow, sliderBrushFlow.ValueInt, tabletPressureRatio);
+
+                //Sets the alpha.
+                multAlpha = (
+                    activeTool == Tool.Eraser
+                    || activeTool == Tool.CloneStamp
+                    || effectToDraw.Effect != null
+                    || (BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
+                    ? finalBrushFlow / 255f
+                    : 1;
+
+                maxPossibleSize =
+                    Math.Max(Math.Max(
+                        sliderRandMaxSize.ValueInt,
+                        GetPressureValue(CommandTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 0)),
+                        GetPressureValue(CommandTarget.JitterMaxSize, sliderRandMaxSize.ValueInt, 1)) +
+                    Math.Max(Math.Max(
+                        sliderBrushSize.ValueInt,
+                        GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, 0)),
+                        GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, 1));
+
+                // Creates a downsized intermediate bmp for faster transformations and blitting. Brush assumed square.
+                if (bmpsBrushDownsized.Get(bmpBrushActiveID) != null && maxPossibleSize > bmpsBrushDownsized.Get(bmpBrushActiveID).Width)
                 {
-                    DrawingUtils.ColorImage(bmpsBrushEffects.Get(bmpBrushActiveID), null, multAlpha);
+                    bmpsBrushDownsized.Get(bmpBrushActiveID).Dispose();
+                    bmpsBrushDownsized.Set(bmpBrushActiveID, null);
+                }
+                if (maxPossibleSize < bmpsBrush.Get(bmpBrushActiveID).Width &&
+                    (bmpsBrushDownsized.Get(bmpBrushActiveID) == null || bmpsBrushDownsized.Get(bmpBrushActiveID).Width != maxPossibleSize))
+                {
+                    bmpsBrushDownsized.Get(bmpBrushActiveID)?.Dispose();
+                    bmpsBrushDownsized.Set(bmpBrushActiveID, DrawingUtils.ScaleImage(
+                        bmpsBrush.Get(bmpBrushActiveID),
+                        new Size(maxPossibleSize, maxPossibleSize),
+                        false, false, null,
+                        (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex));
+                }
+
+                if (bmpsBrushDownsized.Get(bmpBrushActiveID) != null || bmpsBrush.Get(bmpBrushActiveID) != null)
+                {
+                    // Applies the color and alpha changes.
+                    bmpsBrushEffects.Get(bmpBrushActiveID)?.Dispose();
+                    bmpsBrushEffects.Set(bmpBrushActiveID, DrawingUtils.FormatImage(
+                        bmpsBrushDownsized.Get(bmpBrushActiveID) ?? bmpsBrush.Get(bmpBrushActiveID),
+                        PixelFormat.Format32bppPArgb));
+
+                    // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
+                    if (chkbxColorizeBrush.Checked)
+                    {
+                        DrawingUtils.ColorImage(bmpsBrushEffects.Get(bmpBrushActiveID), menuActiveColors.Swatches[0], multAlpha);
+                    }
+                    else
+                    {
+                        DrawingUtils.ColorImage(bmpsBrushEffects.Get(bmpBrushActiveID), null, multAlpha);
+                    }
                 }
             }
+
+            bmpBrushActiveID = previousID;
 
             //Updates to show changes in the brush indicator.
             if (doRefreshCanvas)
@@ -6464,11 +6531,13 @@ namespace DynamicDraw
                 return;
             }
 
-            int minSwatchSize = 8; // 8x8 min size per swatch, anything less is hard to use
+            const int minSwatchSize = 8; // 8x8 min size per swatch, anything less is hard to use
             var entry = paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2;
 
-            /// Generated palettes are displayed on a single row, except <see cref="PaletteSpecialType.Current"/>.
-            if (entry.SpecialType != PaletteSpecialType.None && entry.SpecialType != PaletteSpecialType.Current)
+            /// Generated palettes are displayed on a single row, except some dynamic ones.
+            if (entry.SpecialType != PaletteSpecialType.None
+                && entry.SpecialType != PaletteSpecialType.Current
+                && entry.SpecialType != PaletteSpecialType.FromImage)
             {
                 if (entry.SpecialType == PaletteSpecialType.Recent)
                 {
@@ -6663,6 +6732,11 @@ namespace DynamicDraw
             menuSetCanvasBgBlack.Checked = UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.Black;
             menuBrushIndicatorSquare.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Square;
             menuBrushIndicatorPreview.Checked = UserSettings.BrushCursorPreview == BrushCursorPreview.Preview;
+            menuPaletteImgSortHVSA.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.HVSA;
+            menuPaletteImgSortPrimary.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.PrimaryDistance;
+            menuPaletteImgSortUsage.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.Usage;
+            menuPaletteImgSortVHSA.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.VHSA;
+            menuPaletteImgSortAHVS.Checked = UserSettings.PaletteFromImageSortMode == PaletteFromImageSortMode.AHVS;
             menuSetThemeDefault.Checked = UserSettings.PreferredTheme == ThemePreference.Inherited;
             menuSetThemeLight.Checked = UserSettings.PreferredTheme == ThemePreference.Light;
             menuSetThemeDark.Checked = UserSettings.PreferredTheme == ThemePreference.Dark;
@@ -7073,7 +7147,7 @@ namespace DynamicDraw
         {
             if ((UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardFit ||
                 UserSettings.BackgroundDisplayMode == BackgroundDisplayMode.ClipboardOnlyIfFits) &&
-                pluginHasLoaded && bmpBackgroundClipboard == null)
+                pluginHasLoaded && bmpBackgroundClipboard == null && !isUserDrawing.started)
             {
                 UpdateBackgroundFromClipboard(false);
             }
@@ -8282,6 +8356,40 @@ namespace DynamicDraw
         private void BttnClearSettings_Click(object sender, EventArgs e)
         {
             InitSettings();
+
+            bmpBrushActiveID = ""; // In case concurrent action would trigger usage of the bitmaps as they unload.
+
+            // Unloads all images except unmodified copies of the fallback brush image.
+            for (int i = 0; i < loadedBrushImages.Count; i++)
+            {
+                if (loadedBrushImages[i].ID != Strings.DefaultBrushCircle)
+                {
+                    bmpsBrush.Get(loadedBrushImages[i].ID)?.Dispose();
+                    bmpsBrushDownsized.Get(loadedBrushImages[i].ID)?.Dispose();
+                    bmpsBrushEffects.Get(loadedBrushImages[i].ID)?.Dispose();
+
+                    bmpsBrush.Remove(loadedBrushImages[i].ID);
+                }
+            }
+            bmpsBrushDownsized.Clear();
+            bmpsBrushEffects.Clear();
+
+            int index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(Strings.DefaultBrushCircle));
+            if (index != -1)
+            {
+                bmpBrushActiveID = Strings.DefaultBrushCircle;
+                bmpsBrush.Set(Strings.DefaultBrushCircle, new Bitmap(Resources.BrCircle));
+                bmpsBrushDownsized.Set(bmpBrushActiveID, null);
+                UpdateBrushImage();
+            }
+            
+            for (int i = 0; i < listviewBrushImagePicker.Items.Count; i++)
+            {
+                listviewBrushImagePicker.Items[i].Selected = (index == i);
+            }
+
+            listviewBrushImagePicker.Items[^1].EnsureVisible();
+            ListViewBrushImagePicker_SelectedIndexChanged(null, null);
         }
 
         private void BttnClearSettings_MouseEnter(object sender, EventArgs e)
@@ -9001,7 +9109,9 @@ namespace DynamicDraw
                 {
                     bmpsBrush.Get(loadedBrushImages[i].ID)?.Dispose();
                     bmpsBrush.Remove(loadedBrushImages[i].ID);
+                    bmpsBrushDownsized.Get(loadedBrushImages[i].ID)?.Dispose();
                     bmpsBrushDownsized.Remove(loadedBrushImages[i].ID);
+                    bmpsBrushEffects.Get(loadedBrushImages[i].ID)?.Dispose();
                     bmpsBrushEffects.Remove(loadedBrushImages[i].ID);
 
                     if (loadedBrushImages[i].State == BrushSelectorItemState.Memory)
@@ -9048,6 +9158,7 @@ namespace DynamicDraw
                 if (selection != null)
                 {
                     currentBrushPath = selection.Text;
+                    bmpBrushActiveID = "";
 
                     if (PersistentSettings.defaultBrushes.ContainsKey(selection.Text))
                     {
@@ -9059,56 +9170,63 @@ namespace DynamicDraw
                     }
                 }
 
-                // Updates which brush image is active for the newly-selected brush
+                // Updates the brush images for the newly-selected brush
                 if (listviewBrushImagePicker?.Items != null && selection?.Text != null)
                 {
-                    int index = -1;
+                    HashSet<int> indices = new();
 
                     if (!string.IsNullOrEmpty(currentBrushPath))
                     {
-                        index = loadedBrushImages.FindIndex((entry) =>
+                        for (int i = 0; i < loadedBrushImages.Count; i++)
                         {
-                            if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
+                            if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath) &&
+                                loadedBrushImages[i].Location != null &&
+                                PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePaths.Contains(loadedBrushImages[i].Location))
                             {
-                                return entry.Location != null && PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Location);
+                                indices.Add(i);
+                            }
+                            else if (settings.CustomBrushes.ContainsKey(currentBrushPath) &&
+                                loadedBrushImages[i].Location != null &&
+                                settings.CustomBrushes[currentBrushPath].BrushImagePaths.Contains(loadedBrushImages[i].Location))
+                            {
+                                indices.Add(i);
+                            }
+                            else if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath) &&
+                                PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePaths.Contains(loadedBrushImages[i].Name))
+                            {
+                                indices.Add(i);
+                            }
+                            else if (settings.CustomBrushes.ContainsKey(currentBrushPath) &&
+                                settings.CustomBrushes[currentBrushPath].BrushImagePaths.Contains(loadedBrushImages[i].Name))
+                            {
+                                indices.Add(i);
                             }
 
-                            if (settings.CustomBrushes.ContainsKey(currentBrushPath))
-                            {
-                                return entry.Location != null && settings.CustomBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Location);
-                            }
+                            // Update to active to the last detected image and update selected status.
+                            bmpBrushActiveID = loadedBrushImages[i].ID;
+                            listviewBrushImagePicker.Items[i].Selected = indices.Contains(i);
 
-                            return false;
-                        });
-
-                        if (index == -1)
-                        {
-                            index = loadedBrushImages.FindIndex((entry) =>
-                            {
-                                if (PersistentSettings.defaultBrushes.ContainsKey(currentBrushPath))
-                                {
-                                    return PersistentSettings.defaultBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Name);
-                                }
-
-                                if (settings.CustomBrushes.ContainsKey(currentBrushPath))
-                                {
-                                    return settings.CustomBrushes[currentBrushPath].BrushImagePaths.Contains(entry.Name);
-                                }
-
-                                return false;
-                            });
+                            bmpsBrush.Get(loadedBrushImages[i].ID)?.Dispose();
+                            bmpsBrush.Remove(loadedBrushImages[i].ID);
+                            bmpsBrushDownsized.Get(loadedBrushImages[i].ID)?.Dispose();
+                            bmpsBrushDownsized.Remove(loadedBrushImages[i].ID);
+                            bmpsBrushEffects.Get(loadedBrushImages[i].ID)?.Dispose();
+                            bmpsBrushEffects.Remove(loadedBrushImages[i].ID);
                         }
                     }
-                    else
+
+                    // Falls back to the circle brush if none associated to this brush was loaded/found.
+                    if (string.IsNullOrEmpty(currentBrushPath) || indices.Count == 0)
                     {
-                        index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(Strings.DefaultBrushCircle));
+                        int index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(Strings.DefaultBrushCircle));
+                        if (index != -1)
+                        {
+                            bmpBrushActiveID = Strings.DefaultBrushCircle;
+                            listviewBrushImagePicker.Items[index].Selected = true;
+                        }
                     }
 
-                    if (index >= 0 && !listviewBrushImagePicker.Items[index].Selected)
-                    {
-                        listviewBrushImagePicker.Items[index].Selected = true;
-                        ListViewBrushImagePicker_SelectedIndexChanged(null, null);
-                    }
+                    ListViewBrushImagePicker_SelectedIndexChanged(null, null);
                 }
 
                 selection.EnsureVisible();

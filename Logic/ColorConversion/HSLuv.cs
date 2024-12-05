@@ -76,6 +76,11 @@ namespace DynamicDraw
 			Set(h, s, l);
 		}
 
+		public HSLuv(Rgb rgb)
+		{
+			SetFromRgb(rgb);
+		}
+
 		public void Set(HSLuv hsl)
 		{
 			h = hsl.h;

@@ -61,6 +61,11 @@
         /// A color scheme that starts with 4 colors evenly distributed around the color wheel, then creates
         /// monochromatic variations on them.
         /// </summary>
-        Square = 10
+        Square = 10,
+
+        /// <summary>
+        /// A palette (up to the swatch limit) based on the unique pixels in the image
+        /// </summary>
+        FromImage = 11
     }
 }

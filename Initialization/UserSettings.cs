@@ -45,6 +45,13 @@ namespace DynamicDraw
         public bool DisableConfirmationOnCloseOrSave { get; set; }
 
         /// <summary>
+        /// How to sort detected pixels when using palette from image.
+        /// </summary>
+        [JsonInclude]
+        [JsonPropertyName("PaletteFromImageSortMode")]
+        public PaletteFromImageSortMode PaletteFromImageSortMode { get; set; }
+
+        /// <summary>
         /// If true, custom brush paths (both directories and files) that are not found will result in those paths
         /// being removed from the list of custom image paths to load.
         /// </summary>
@@ -85,6 +92,7 @@ namespace DynamicDraw
             ColorPickerIncludesAlpha = false;
             ColorPickerSwitchesToLastTool = true;
             DisableConfirmationOnCloseOrSave = false;
+            PaletteFromImageSortMode = PaletteFromImageSortMode.HVSA;
             RemoveBrushImagePathsWhenNotFound = false;
             ShowCircleRadiusWhenUsingMinDistance = true;
             ShowSymmetryLinesWhenUsingSymmetry = true;
@@ -98,6 +106,7 @@ namespace DynamicDraw
             ColorPickerIncludesAlpha = other.ColorPickerIncludesAlpha;
             ColorPickerSwitchesToLastTool = other.ColorPickerSwitchesToLastTool;
             DisableConfirmationOnCloseOrSave = other.DisableConfirmationOnCloseOrSave;
+            PaletteFromImageSortMode = other.PaletteFromImageSortMode;
             RemoveBrushImagePathsWhenNotFound = other.RemoveBrushImagePathsWhenNotFound;
             ShowCircleRadiusWhenUsingMinDistance = other.ShowCircleRadiusWhenUsingMinDistance;
             ShowSymmetryLinesWhenUsingSymmetry = other.ShowSymmetryLinesWhenUsingSymmetry;
@@ -161,5 +170,35 @@ namespace DynamicDraw
         /// Displays a half-transparent copy of the current brush that moves with the cursor.
         /// </summary>
         Preview = 1
+    }
+
+    public enum PaletteFromImageSortMode
+    {
+        /// <summary>
+        /// Sorts in channel order: AHVS, grouping alpha and hue into chunks. Alpha is opaque-first.
+        /// </summary>
+        AHVS = 0,
+
+        /// <summary>
+        /// Sorts in channel order: HVSA, grouping hue into chunks. Alpha is opaque-first.
+        /// </summary>
+        HVSA = 1,
+
+        /// <summary>
+        /// Sorts pixels by how often they appear, then in channel order: HVSA, grouping hue into chunks. Alpha is
+        /// opaque-first. This is mainly used to spot unwanted pixel colors when developing a paletted image.
+        /// </summary>
+        Usage = 2,
+
+        /// <summary>
+        /// Sorts pixels by how close they resemble the active primary color, then in channel order: HVSA, grouping hue
+        /// into chunks. Secondary sorts will rarely be needed, but are included for deterministic order.
+        /// </summary>
+        PrimaryDistance = 3,
+
+        /// <summary>
+        /// Sorts in channel order: VHSA, grouping value and hue into chunks. Alpha is opaque-first.
+        /// </summary>
+        VHSA = 4
     }
 }

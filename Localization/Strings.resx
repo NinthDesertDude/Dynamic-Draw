@@ -1531,4 +1531,25 @@ Square: gradients of 4 hues that are equidistant on the color wheel.</value>
   <data name="ScriptErrorUnknown" xml:space="preserve">
     <value>unknown</value>
   </data>
+  <data name="ColorSchemeFromImage" xml:space="preserve">
+    <value>From Image</value>
+  </data>
+  <data name="MenuPaletteImgSort" xml:space="preserve">
+    <value>Palette "From Image" sort method</value>
+  </data>
+  <data name="MenuPaletteImgSortAHVS" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="MenuPaletteImgSortHVSA" xml:space="preserve">
+    <value>Colors without transparency</value>
+  </data>
+  <data name="MenuPaletteImgSortPrimary" xml:space="preserve">
+    <value>Near to selected color</value>
+  </data>
+  <data name="MenuPaletteImgSortUsage" xml:space="preserve">
+    <value>Most-used pixels first</value>
+  </data>
+  <data name="MenuPaletteImgSortVHSA" xml:space="preserve">
+    <value>Brightness first</value>
+  </data>
 </root>

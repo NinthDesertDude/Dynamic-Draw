@@ -982,6 +982,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to From Image.
+        /// </summary>
+        internal static string ColorSchemeFromImage {
+            get {
+                return ResourceManager.GetString("ColorSchemeFromImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Color Blend.
         /// </summary>
         internal static string ColorSchemeGradient {
@@ -1941,6 +1950,60 @@ namespace DynamicDraw.Localization {
         internal static string MenuOptions {
             get {
                 return ResourceManager.GetString("MenuOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Palette &quot;From Image&quot; sort method.
+        /// </summary>
+        internal static string MenuPaletteImgSort {
+            get {
+                return ResourceManager.GetString("MenuPaletteImgSort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Standard.
+        /// </summary>
+        internal static string MenuPaletteImgSortAHVS {
+            get {
+                return ResourceManager.GetString("MenuPaletteImgSortAHVS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Colors without transparency.
+        /// </summary>
+        internal static string MenuPaletteImgSortHVSA {
+            get {
+                return ResourceManager.GetString("MenuPaletteImgSortHVSA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Near to selected color.
+        /// </summary>
+        internal static string MenuPaletteImgSortPrimary {
+            get {
+                return ResourceManager.GetString("MenuPaletteImgSortPrimary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Most-used pixels first.
+        /// </summary>
+        internal static string MenuPaletteImgSortUsage {
+            get {
+                return ResourceManager.GetString("MenuPaletteImgSortUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brightness first.
+        /// </summary>
+        internal static string MenuPaletteImgSortVHSA {
+            get {
+                return ResourceManager.GetString("MenuPaletteImgSortVHSA", resourceCulture);
             }
         }
         

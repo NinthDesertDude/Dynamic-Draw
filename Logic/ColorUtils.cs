@@ -1,7 +1,9 @@
 using PaintDotNet;
+using PaintDotNet.Collections;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace DynamicDraw
@@ -99,10 +101,140 @@ namespace DynamicDraw
             return ((ColorBgra)col).ToHexString();
         }
 
+        #region Palette methods
+        /// <summary>
+        /// Generates a palette from an image using a pre-selected sort mode.
+        /// </summary>
+        public static List<Color> GeneratePalette(Bitmap refBmp, PaletteFromImageSortMode sortMode, Color primary)
+        {
+            List<Color> paletteColors = new List<Color>();
+
+            if (sortMode == PaletteFromImageSortMode.PrimaryDistance)
+            {
+                var rgbList = PalletizingUtils.GeneratePalette(
+                    refBmp,
+                    new HashSet<(Color, float mult)> { new(primary, 1) },
+                    (1, 1, 1, 4, 0, 0, 0),
+                    1, 0, 0.5f, MaxPaletteSize / 4); // Arbitrarily limiting to a quarter of palette size.
+
+                // Lists larger than the palette size often have many colors with very slight differences. Rather than
+                // taking the top chunk of that list, pick elements evenly distributed across it until the palette size
+                // is reached. This creates a lookup that takes an index from 0 to palette size, and gives a new index
+                // following a linear spread.
+                HashSet<int> indicesToUse = new() { 0 };
+                if (rgbList.Count > MaxPaletteSize)
+                {
+                    float skipRatio = rgbList.Count / MaxPaletteSize;
+                    for (int i = 1; i < MaxPaletteSize; i++)
+                    {
+                        indicesToUse.Add((int)(skipRatio * i));
+                    }
+                }
+
+                // Captures the HSV of each color.
+                Dictionary<ColorBgra, HsvColor> hsvList = new();
+                rgbList.ForEach((o) => hsvList.Add(o.Key, HsvColor.FromColor(o.Key)));
+
+                var rgbSortedList = rgbList
+                    .OrderBy((o) => o.Value)
+                    .ThenByDescending((o) => o.Key.A / 64)
+                    .ThenByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                    .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
+                    .ThenByDescending((o) => hsvList[o.Key].Value)
+                    .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation)
+                    .Select((o) => o.Key.ToColor());
+
+                paletteColors = (paletteColors.Count > MaxPaletteSize)
+                    ? rgbSortedList.Where((_, index) => indicesToUse.Contains(index)).ToList()
+                    : rgbSortedList.ToList();
+            }
+
+            // Takes the top colors from the given image sorted with most used first, up to max palette size
+            else
+            {
+                var rgbList = PalletizingUtils.CountColors(refBmp);
+
+                // Lists larger than the palette size often have many colors with very slight differences. Rather than
+                // taking the top chunk of that list, pick elements evenly distributed across it until the palette size
+                // is reached. This creates a lookup that takes an index from 0 to palette size, and gives a new index
+                // following a linear spread.
+                HashSet<int> indicesToUse = new() { 0 };
+                if (rgbList.Count > MaxPaletteSize)
+                {
+                    float skipRatio = rgbList.Count / MaxPaletteSize;
+                    for (int i = 1; i < MaxPaletteSize; i++)
+                    {
+                        indicesToUse.Add((int)(skipRatio * i));
+                    }
+                }
+
+                // Captures the HSV of each color.
+                Dictionary<ColorBgra, HsvColor> hsvList = new();
+                rgbList.ForEach((o) => hsvList.Add(o.Key, HsvColor.FromColor(o.Key)));
+                IEnumerable<KeyValuePair<ColorBgra, int>> rgbSortedList = null;
+
+                switch (sortMode)
+                {
+                    case PaletteFromImageSortMode.Usage:
+                        // Same as AHVS sort but sorts first by most-used pixels with full precision
+                        rgbSortedList = rgbList
+                            .OrderByDescending((o) => o.Value)
+                            .ThenByDescending((o) => o.Key.A / 64)
+                            .ThenByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
+                            .ThenByDescending((o) => hsvList[o.Key].Value)
+                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation);
+                        break;
+                    case PaletteFromImageSortMode.HVSA:
+                        // Sort by low S last to handle precision loss in hue, H, V, H or S, A
+                        rgbSortedList = rgbList
+                            .OrderByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
+                            .ThenByDescending((o) => hsvList[o.Key].Value)
+                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation)
+                            .ThenByDescending((o) => o.Key.A / 64);
+                        break;
+                    case PaletteFromImageSortMode.VHSA:
+                        // Sort by low S last to handle precision loss in hue, V, H, H or S, A
+                        rgbSortedList = rgbList
+                            .OrderByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                            .ThenByDescending((o) => hsvList[o.Key].Value / 10)
+                            .ThenBy((o) => hsvList[o.Key].Hue / 10)
+                            .ThenBy((o) => hsvList[o.Key].Saturation)
+                            .ThenByDescending((o) => o.Key.A / 64);
+                        break;
+                    case PaletteFromImageSortMode.AHVS:
+                        // Sort by A, low S last to handle precision loss in hue, H, V, H or S
+                        rgbSortedList = rgbList
+                            .OrderByDescending((o) => o.Key.A / 64)
+                            .ThenByDescending((o) => hsvList[o.Key].Saturation < 20 ? 0 : 1)
+                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? 0 : hsvList[o.Key].Hue / 10)
+                            .ThenByDescending((o) => hsvList[o.Key].Value)
+                            .ThenBy((o) => hsvList[o.Key].Saturation < 20 ? hsvList[o.Key].Hue / 10 : hsvList[o.Key].Saturation);
+                        break;
+                    default:
+                        throw new NotImplementedException("Unhandled and unexpected enum case in switch.");
+                }
+
+                paletteColors = (rgbList.Count > MaxPaletteSize)
+                    ? rgbSortedList
+                        .Where((_, index) => indicesToUse.Contains(index))
+                        .Select((o) => o.Key.ToColor())
+                        .ToList()
+                    : rgbSortedList.Select((o) => o.Key.ToColor()).ToList();
+            }
+
+            return paletteColors;
+        }
+
         /// <summary>
         /// Generates a palette given a palette type.
         /// </summary>
-        public static List<Color> GeneratePalette(PaletteSpecialType type, int amount, Color primary, Color secondary)
+        public static List<Color> GeneratePalette(
+            PaletteSpecialType type,
+            int amount,
+            Color primary,
+            Color secondary)
         {
             List<Color> paletteColors = new List<Color>();
 
@@ -284,5 +416,6 @@ namespace DynamicDraw
 
             return paletteColors;
         }
+        #endregion
     }
 }
