@@ -1,5 +1,6 @@
 ﻿using PaintDotNet;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -187,6 +188,43 @@ namespace DynamicDraw
             });
 
             img.UnlockBits(bmpData);
+        }
+
+        /// <summary>
+        /// Returns a new dictionary keyed by each unique color in the image, with a count of occurrences.
+        /// </summary>
+        public static unsafe ConcurrentDictionary<ColorBgra, int> CountColors(Bitmap img)
+        {
+            ConcurrentDictionary<ColorBgra, int> palette = new();
+
+            BitmapData bmpData = img.LockBits(
+                img.GetBounds(),
+                ImageLockMode.ReadOnly,
+                img.PixelFormat);
+
+            byte* row = (byte*)bmpData.Scan0;
+
+            Rectangle[] rois = DrawingUtils.GetRois(img.Width, img.Height);
+            Parallel.For(0, rois.Length, (i, loopState) =>
+            {
+                Rectangle roi = rois[i];
+                for (int y = roi.Y; y < roi.Y + roi.Height; y++)
+                {
+                    ColorBgra* dstPtr = (ColorBgra*)(row + (y * bmpData.Stride) + (roi.X * 4));
+                    for (int x = roi.X; x < roi.X + roi.Width; x++)
+                    {
+                        palette.AddOrUpdate(
+                            (*dstPtr).ConvertFromPremultipliedAlpha(),
+                            (color) => 1,
+                            (color, count) => count + 1);
+
+                        dstPtr++;
+                    }
+                }
+            });
+
+            img.UnlockBits(bmpData);
+            return palette;
         }
 
         /// <summary>

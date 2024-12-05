@@ -80,14 +80,8 @@
         FromImageUsage = 13,
 
         /// <summary>
-        /// Sorts pixels by how close they resemble the active primary color, then in channel order: HVSA, grouping hue
-        /// into chunks. Secondary sorts will rarely be needed, but are included for deterministic order.
-        /// </summary>
-        FromImagePrimaryDistance = 14,
-
-        /// <summary>
         /// Sorts in channel order: VHSA, grouping value and hue into chunks. Alpha is opaque-first.
         /// </summary>
-        FromImageVHSA = 15
+        FromImageVHSA = 14
     }
 }

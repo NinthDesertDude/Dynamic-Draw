@@ -718,7 +718,6 @@ namespace DynamicDraw
                 new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortHVSA}", new PaletteEntry(PaletteSpecialType.FromImageHVSA)),
                 new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortUsage}", new PaletteEntry(PaletteSpecialType.FromImageUsage)),
                 new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortVHSA}", new PaletteEntry(PaletteSpecialType.FromImageVHSA)),
-                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortPrimary}", new PaletteEntry(PaletteSpecialType.FromImagePrimaryDistance)),
                 new(Strings.ColorSchemeGradient, new PaletteEntry(PaletteSpecialType.PrimaryToSecondary)),
                 new(Strings.ColorSchemeMonochromatic, new PaletteEntry(PaletteSpecialType.LightToDark)),
                 new(Strings.ColorSchemeAnalogous3, new PaletteEntry(PaletteSpecialType.Similar3)),
@@ -1267,7 +1266,6 @@ namespace DynamicDraw
                 {
                     PaletteSpecialType.FromImageAHVS
                         or PaletteSpecialType.FromImageHVSA
-                        or PaletteSpecialType.FromImagePrimaryDistance
                         or PaletteSpecialType.FromImageUsage
                         or PaletteSpecialType.FromImageVHSA
                         or PaletteSpecialType.PrimaryToSecondary => 0,
@@ -6531,7 +6529,6 @@ namespace DynamicDraw
                 && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageAHVS
                 && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageHVSA
                 && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageUsage
-                && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImagePrimaryDistance
                 && UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.FromImageVHSA)
             {
                 if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Recent)

@@ -69,9 +69,6 @@ namespace DynamicDraw
                 case PaletteSpecialType.FromImageVHSA:
                     RefreshTriggers = PaletteRefreshTriggerFlags.OnCanvasChange;
                     break;
-                case PaletteSpecialType.FromImagePrimaryDistance:
-                    RefreshTriggers = PaletteRefreshTriggerFlags.OnColorChange & PaletteRefreshTriggerFlags.OnCanvasChange;
-                    break;
                 default:
                     RefreshTriggers = PaletteRefreshTriggerFlags.OnColorChange;
                     break;

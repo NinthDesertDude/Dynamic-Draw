@@ -1963,7 +1963,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Standard.
+        ///   Looks up a localized string similar to Standard (AHVS).
         /// </summary>
         internal static string MenuPaletteImgSortAHVS {
             get {
@@ -1972,7 +1972,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Colors without transparency.
+        ///   Looks up a localized string similar to Color (HVSA).
         /// </summary>
         internal static string MenuPaletteImgSortHVSA {
             get {
@@ -1981,16 +1981,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Near to selected color.
-        /// </summary>
-        internal static string MenuPaletteImgSortPrimary {
-            get {
-                return ResourceManager.GetString("MenuPaletteImgSortPrimary", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Most-used pixels first.
+        ///   Looks up a localized string similar to Most-used pixels.
         /// </summary>
         internal static string MenuPaletteImgSortUsage {
             get {
@@ -1999,7 +1990,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brightness first.
+        ///   Looks up a localized string similar to Brightness (VHSA).
         /// </summary>
         internal static string MenuPaletteImgSortVHSA {
             get {
