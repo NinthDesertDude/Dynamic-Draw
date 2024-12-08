@@ -236,7 +236,7 @@ namespace DynamicDraw
 
         #region Palette
         /// <summary>
-        /// Generated palettes occupy one row only. This is how many are allowed.
+        /// Built-in generated palettes occupy one row only. This is how many are allowed.
         /// </summary>
         private int paletteGeneratedMaxColors = 20;
 
@@ -254,6 +254,12 @@ namespace DynamicDraw
         /// A list of all recently-used colors, up to the value 
         /// </summary>
         private readonly List<Color> paletteRecent = new List<Color>();
+
+        /// <summary>
+        /// For palettes loaded from file, this stores the associated path and file contents. This is used to refresh
+        /// the palette without re-reading from file, which can be important since palettes may refresh dynamically.
+        /// </summary>
+        private (string path, string[] lines) paletteLoadedText = default;
         #endregion
 
         #region Scripts
@@ -1182,23 +1188,42 @@ namespace DynamicDraw
             {
                 try
                 {
-                    if (File.Exists(path))
+                    if (paletteLoadedText.path == path || File.Exists(path))
                     {
                         List<Color> paletteColors = new List<Color>();
-                        string[] lines = File.ReadAllLines(path);
-
-                        for (int i = 0; i < lines.Length; i++)
+                        if (paletteLoadedText.path != path)
                         {
-                            string line = lines[i].Trim().ToLower();
-                            Color? result = ColorUtils.GetColorFromText(line, true);
-                            if (result != null)
-                            {
-                                paletteColors.Add(result.Value);
+                            paletteLoadedText = new(path, File.ReadAllLines(path));
+                        }
 
-                                if (paletteColors.Count == ColorUtils.MaxPaletteSize)
+                        for (int i = 0; i < paletteLoadedText.lines.Length; i++)
+                        {
+                            string line = paletteLoadedText.lines[i].Trim().ToLower();
+
+                            if (line.StartsWith(PaletteScripts.PaletteFileGradientCommand))
+                            {
+                                List<Color> result = PaletteScripts.GetGradientFromText(
+                                    line.Substring(PaletteScripts.PaletteFileGradientCommand.Length),
+                                    menuActiveColors.Swatches[0],
+                                    menuActiveColors.Swatches[1]);
+
+                                if (result.Count > 0)
                                 {
-                                    break;
+                                    paletteColors.AddRange(result.Take(ColorUtils.MaxPaletteSize - paletteColors.Count));
                                 }
+                            }
+                            else
+                            {
+                                Color? result = ColorUtils.GetColorFromText(line, true);
+                                if (result != null)
+                                {
+                                    paletteColors.Add(result.Value);
+                                }
+                            }
+
+                            if (paletteColors.Count == ColorUtils.MaxPaletteSize)
+                            {
+                                break;
                             }
                         }
 
@@ -1226,8 +1251,17 @@ namespace DynamicDraw
                 return;
             }
 
+            if (UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.None)
+            {
+                paletteLoadedText = default;
+            }
+
             // Loads the default palette for empty paths. It will fail silently if the plugin hasn't loaded.
-            if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Current)
+            if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.None)
+            {
+                LoadPalette(UserSettings.CurrentPalette.Location);
+            }
+            else if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.Current)
             {
                 IPalettesService palettesService = (IPalettesService)Services?.GetService(typeof(IPalettesService));
 
@@ -6281,7 +6315,6 @@ namespace DynamicDraw
 
             if (updatePalette &&
                 UserSettings.CurrentPalette.RefreshTriggers.HasFlag(PaletteRefreshTriggerFlags.OnColorChange) &&
-                UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.None &&
                 UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.Current &&
                 UserSettings.CurrentPalette.SpecialType != PaletteSpecialType.Recent)
             {
@@ -8856,14 +8889,7 @@ namespace DynamicDraw
             if (cmbxPaletteDropdown.SelectedIndex >= 0 && cmbxPaletteDropdown.SelectedIndex < paletteOptions.Count)
             {
                 UserSettings.CurrentPalette = paletteOptions[cmbxPaletteDropdown.SelectedIndex].Item2;
-                if (UserSettings.CurrentPalette.SpecialType == PaletteSpecialType.None)
-                {
-                    LoadPalette(UserSettings.CurrentPalette.Location);
-                }
-                else
-                {
-                    GeneratePalette(PaletteRefreshTriggerFlags.RefreshNow);
-                }
+                GeneratePalette(PaletteRefreshTriggerFlags.RefreshNow);
             }
 
             cmbxPaletteDropdown.Width = TextRenderer.MeasureText(
