@@ -30,6 +30,19 @@ namespace DynamicDraw
     [System.ComponentModel.DesignerCategory("")] // disable winforms designer, it will corrupt this.
     public class WinDynamicDraw : EffectConfigDialog
     {
+        #region Static
+        private static readonly (string id, Bitmap bmp) defaultBrushImage = new(Strings.DefaultBrushCircle, Resources.BrCircle);
+
+        /// <summary>
+        /// The hardcoded palette options that can never be removed.
+        /// </summary>
+        private static readonly List<Tuple<string, PaletteEntry>> baseEntriesForPalettes = new()
+        {
+            new(Strings.Current, new PaletteEntry(PaletteSpecialType.Current)),
+            new(Strings.ColorSchemeRecent, new PaletteEntry(PaletteSpecialType.Recent))
+        };
+        #endregion
+
         #region Fields (Non Gui)
         #region Bitmaps
         /// <summary>
@@ -64,7 +77,7 @@ namespace DynamicDraw
         /// <summary>
         /// This is the ID of the active brush, used to determine which brush to draw.
         /// </summary>
-        private string bmpBrushActiveID = Strings.DefaultBrushCircle;
+        private string bmpBrushActiveID = defaultBrushImage.id;
 
         /// <summary>
         /// Stores the current drawing in full.
@@ -715,25 +728,12 @@ namespace DynamicDraw
             cmbxBlendMode.DisplayMember = "Item1";
             cmbxBlendMode.ValueMember = "Item2";
 
-            // Configures items for the available palettes.
-            paletteOptions = new BindingList<Tuple<string, PaletteEntry>>()
+            // Default palettes are loaded when settings are available.
+            paletteOptions = new();
+            for (int i = 0; i < baseEntriesForPalettes.Count; i++)
             {
-                new(Strings.Current, new PaletteEntry(PaletteSpecialType.Current)),
-                new(Strings.ColorSchemeRecent, new PaletteEntry(PaletteSpecialType.Recent)),
-                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortAHVS}", new PaletteEntry(PaletteSpecialType.FromImageAHVS)),
-                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortHVSA}", new PaletteEntry(PaletteSpecialType.FromImageHVSA)),
-                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortUsage}", new PaletteEntry(PaletteSpecialType.FromImageUsage)),
-                new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortVHSA}", new PaletteEntry(PaletteSpecialType.FromImageVHSA)),
-                new(Strings.ColorSchemeGradient, new PaletteEntry(PaletteSpecialType.PrimaryToSecondary)),
-                new(Strings.ColorSchemeMonochromatic, new PaletteEntry(PaletteSpecialType.LightToDark)),
-                new(Strings.ColorSchemeAnalogous3, new PaletteEntry(PaletteSpecialType.Similar3)),
-                new(Strings.ColorSchemeAnalogous4, new PaletteEntry(PaletteSpecialType.Similar4)),
-                new(Strings.ColorSchemeComplementary, new PaletteEntry(PaletteSpecialType.Complement)),
-                new(Strings.ColorSchemeSplitComplementary, new PaletteEntry(PaletteSpecialType.SplitComplement)),
-                new(Strings.ColorSchemeTriadic, new PaletteEntry(PaletteSpecialType.Triadic)),
-                new(Strings.ColorSchemeSquare, new PaletteEntry(PaletteSpecialType.Square))
-            };
-
+                paletteOptions.Add(new(baseEntriesForPalettes[i].Item1, new(baseEntriesForPalettes[i].Item2)));
+            }
             cmbxPaletteDropdown.DataSource = paletteOptions;
             cmbxPaletteDropdown.DisplayMember = "Item1";
             cmbxPaletteDropdown.ValueMember = "Item2";
@@ -1110,11 +1110,30 @@ namespace DynamicDraw
         /// </summary>
         private void LoadPaletteOptions()
         {
-            // Removes all but the special palettes, assuming they're listed first. -1 to account for type None.
-            int defaultPaletteCount = Enum.GetNames(typeof(PaletteSpecialType)).Length - 1;
-            while (paletteOptions.Count > defaultPaletteCount)
+            // Removes all but the palettes which shouldn't be.
+
+            PaletteEntry prevEntry = new(UserSettings.CurrentPalette);
+            cmbxPaletteDropdown.SelectedIndex = 0; // prevents visual cycling as entries are removed and added.
+
+            while (paletteOptions.Count > baseEntriesForPalettes.Count)
             {
                 paletteOptions.RemoveAt(paletteOptions.Count - 1);
+            }
+
+            if (settings?.UseDefaultPalettes ?? true)
+            {
+                paletteOptions.Add(new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortAHVS}", new PaletteEntry(PaletteSpecialType.FromImageAHVS)));
+                paletteOptions.Add(new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortHVSA}", new PaletteEntry(PaletteSpecialType.FromImageHVSA)));
+                paletteOptions.Add(new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortUsage}", new PaletteEntry(PaletteSpecialType.FromImageUsage)));
+                paletteOptions.Add(new($"{Strings.ColorSchemeFromImage} {Strings.MenuPaletteImgSortVHSA}", new PaletteEntry(PaletteSpecialType.FromImageVHSA)));
+                paletteOptions.Add(new(Strings.ColorSchemeGradient, new PaletteEntry(PaletteSpecialType.PrimaryToSecondary)));
+                paletteOptions.Add(new(Strings.ColorSchemeMonochromatic, new PaletteEntry(PaletteSpecialType.LightToDark)));
+                paletteOptions.Add(new(Strings.ColorSchemeAnalogous3, new PaletteEntry(PaletteSpecialType.Similar3)));
+                paletteOptions.Add(new(Strings.ColorSchemeAnalogous4, new PaletteEntry(PaletteSpecialType.Similar4)));
+                paletteOptions.Add(new(Strings.ColorSchemeComplementary, new PaletteEntry(PaletteSpecialType.Complement)));
+                paletteOptions.Add(new(Strings.ColorSchemeSplitComplementary, new PaletteEntry(PaletteSpecialType.SplitComplement)));
+                paletteOptions.Add(new(Strings.ColorSchemeTriadic, new PaletteEntry(PaletteSpecialType.Triadic)));
+                paletteOptions.Add(new(Strings.ColorSchemeSquare, new PaletteEntry(PaletteSpecialType.Square)));
             }
 
             // Loads every registered directory for palettes.
@@ -1148,12 +1167,12 @@ namespace DynamicDraw
 
             // Attempts to restore the selected palette, defaulting to the first entry (PDN's current palette).
             int index = paletteOptions.FirstIndexWhere((o) =>
-                o.Item2.Location == UserSettings.CurrentPalette.Location &&
-                o.Item2.SpecialType == UserSettings.CurrentPalette.SpecialType);
+                o.Item2.Location == prevEntry.Location &&
+                o.Item2.SpecialType == prevEntry.SpecialType);
 
             if (index != -1 && cmbxPaletteDropdown.Items.Count >= index)
             {
-                if (UserSettings.CurrentPalette.RefreshTriggers.HasFlag(PaletteRefreshTriggerFlags.OnCanvasChange))
+                if (prevEntry.RefreshTriggers.HasFlag(PaletteRefreshTriggerFlags.OnCanvasChange))
                 {
                     // Anything that requires a canvas change reads from the image, which means it cannot happen on
                     // immediate load because it *might* cause a race condition with other operations, so it gets set
@@ -1845,7 +1864,7 @@ namespace DynamicDraw
             }
             if (brushPathsToSave.Count == 0 && fallbackToCircleBrushPath)
             {
-                brushPathsToSave.Add(Strings.DefaultBrushCircle);
+                brushPathsToSave.Add(defaultBrushImage.id);
             }
 
             BrushSettings newSettings = new BrushSettings()
@@ -3197,7 +3216,7 @@ namespace DynamicDraw
                 listviewBrushImagePicker.BeginUpdate();
 
                 // Add and remove a dummy item to get the ListView item height.
-                loadedBrushImages.Add(new BrushSelectorItem("Dummy", Resources.BrCircle));
+                loadedBrushImages.Add(new BrushSelectorItem(defaultBrushImage.id, defaultBrushImage.bmp));
                 listviewBrushImagePicker.VirtualListSize = 1;
 
                 int itemHeight = listviewBrushImagePicker.GetItemRect(0, ItemBoundsPortion.Entire).Height;
@@ -4021,7 +4040,7 @@ namespace DynamicDraw
             bmpsBrushDownsized.Clear();
 
             // Adds the default brush.
-            bmpsBrush.Set(Strings.DefaultBrushCircle, new Bitmap(Resources.BrCircle));
+            bmpsBrush.Set(defaultBrushImage.id, new Bitmap(defaultBrushImage.bmp));
             bmpsBrushDownsized.Set(bmpBrushActiveID, null);
             UpdateBrushImage();
 
@@ -8383,7 +8402,7 @@ namespace DynamicDraw
             // Unloads all images except unmodified copies of the fallback brush image.
             for (int i = 0; i < loadedBrushImages.Count; i++)
             {
-                if (loadedBrushImages[i].ID != Strings.DefaultBrushCircle)
+                if (loadedBrushImages[i].ID != defaultBrushImage.id)
                 {
                     bmpsBrush.Get(loadedBrushImages[i].ID)?.Dispose();
                     bmpsBrushDownsized.Get(loadedBrushImages[i].ID)?.Dispose();
@@ -8395,11 +8414,11 @@ namespace DynamicDraw
             bmpsBrushDownsized.Clear();
             bmpsBrushEffects.Clear();
 
-            int index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(Strings.DefaultBrushCircle));
+            int index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(defaultBrushImage.id));
             if (index != -1)
             {
-                bmpBrushActiveID = Strings.DefaultBrushCircle;
-                bmpsBrush.Set(Strings.DefaultBrushCircle, new Bitmap(Resources.BrCircle));
+                bmpBrushActiveID = defaultBrushImage.id;
+                bmpsBrush.Set(defaultBrushImage.id, new Bitmap(defaultBrushImage.bmp));
                 bmpsBrushDownsized.Set(bmpBrushActiveID, null);
                 UpdateBrushImage();
             }
@@ -9234,10 +9253,10 @@ namespace DynamicDraw
                     // Falls back to the circle brush if none associated to this brush was loaded/found.
                     if (string.IsNullOrEmpty(currentBrushPath) || indices.Count == 0)
                     {
-                        int index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(Strings.DefaultBrushCircle));
+                        int index = loadedBrushImages.FindIndex((entry) => entry.Name.Equals(defaultBrushImage.id));
                         if (index != -1)
                         {
-                            bmpBrushActiveID = Strings.DefaultBrushCircle;
+                            bmpBrushActiveID = defaultBrushImage.id;
                             listviewBrushImagePicker.Items[index].Selected = true;
                         }
                     }

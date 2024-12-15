@@ -267,6 +267,12 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="LoadDefaultBrushesTip" xml:space="preserve">
     <value>If turned off, only the circle brush image and custom brush images will be loaded.</value>
   </data>
+  <data name="LoadGeneratedPalettes" xml:space="preserve">
+    <value>Load Generated Palettes?</value>
+  </data>
+  <data name="LoadGeneratedPalettesTip" xml:space="preserve">
+    <value>If turned off, only Current and Recent palettes will be added to the user list.</value>
+  </data>
   <data name="LockAlpha" xml:space="preserve">
     <value>Lock Alpha</value>
   </data>

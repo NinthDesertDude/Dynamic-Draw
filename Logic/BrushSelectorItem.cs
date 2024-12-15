@@ -156,8 +156,8 @@ namespace DynamicDraw
             this.brush = brush;
             thumbnail = null;
             State = BrushSelectorItemState.Memory;
-            BrushWidth = brush.Width;
-            BrushHeight = brush.Height;
+            BrushWidth = brush?.Width ?? 1;
+            BrushHeight = brush?.Height ?? 1;
             this.backingFile = backingFile;
             disposed = false;
 

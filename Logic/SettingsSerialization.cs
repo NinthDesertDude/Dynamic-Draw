@@ -24,6 +24,7 @@ namespace DynamicDraw
         private HashSet<int> disabledShortcuts;
         private UserSettings preferences;
         private bool useDefaultBrushes;
+        private bool useDefaultPalettes;
 
         [JsonConstructor]
         public SettingsSerialization()
@@ -50,6 +51,7 @@ namespace DynamicDraw
 
         [JsonInclude]
         [JsonPropertyName("Version")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
         /// <summary>
         /// Version is included to make it easier to handle migration going forward.
         /// </summary>
@@ -144,11 +146,9 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use the default brushes.
+        /// There are several brush images that a user might find useful, which load by default. When this is off,
+        /// those brush images will not be loaded except the default circle. Default true.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the default brushes should be used; otherwise, <c>false</c>.
-        /// </value>
         [JsonInclude]
         [JsonPropertyName("UseDefaultBrushImages")]
         public bool UseDefaultBrushes
@@ -162,6 +162,27 @@ namespace DynamicDraw
                 if (useDefaultBrushes != value)
                 {
                     useDefaultBrushes = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// There are several generated palettes based on the user's primary/secondary color. When this is off, only
+        /// certain palettes such as Current and Recent will be added to the list. Default true.
+        /// </summary>
+        [JsonInclude]
+        [JsonPropertyName("UseDefaultPalettes")]
+        public bool UseDefaultPalettes
+        {
+            get
+            {
+                return useDefaultPalettes;
+            }
+            set
+            {
+                if (UseDefaultPalettes != value)
+                {
+                    useDefaultPalettes = value;
                 }
             }
         }
@@ -223,6 +244,7 @@ namespace DynamicDraw
             disabledShortcuts = new HashSet<int>();
             preferences = new UserSettings();
             useDefaultBrushes = true;
+            useDefaultPalettes = true;
         }
 
         /// <summary>
@@ -270,6 +292,7 @@ namespace DynamicDraw
                             disabledShortcuts);
                         preferences = new UserSettings(savedSettings.Preferences);
                         useDefaultBrushes = savedSettings.UseDefaultBrushes;
+                        useDefaultPalettes = savedSettings.UseDefaultPalettes;
                     }
                 }
                 catch (DirectoryNotFoundException)

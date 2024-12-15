@@ -19,6 +19,7 @@ namespace DynamicDraw.Gui
         private ThemedButton bttnAddFolderBrushImages, bttnAddFolderPalettes;
         private ThemedButton bttnAddFilesBrushImages, bttnAddFilesPalettes;
         private ThemedCheckbox chkbxLoadDefaultBrushes;
+        private ThemedCheckbox chkbxLoadDefaultPalettes;
         private ThemedButton bttnResetPaletteLocations;
         private ThemedButton bttnSave, bttnCancel;
         private FlowLayoutPanel outerContainer;
@@ -66,6 +67,7 @@ namespace DynamicDraw.Gui
                 txtbxBrushImageLocations.AppendText(item + Environment.NewLine);
             }
 
+            chkbxLoadDefaultPalettes.Checked = settings.UseDefaultPalettes;
             foreach (string item in settings.PaletteDirectories)
             {
                 txtbxPaletteLocations.AppendText(item + Environment.NewLine);
@@ -77,7 +79,7 @@ namespace DynamicDraw.Gui
         /// <summary>
         /// Saves values to the preferences file.
         /// </summary>
-        public void SaveSettings()
+        private void SaveSettings()
         {
             string[] imagePaths = txtbxBrushImageLocations.Text.Split(
                 new[] { "\r\n", "\r", "\n" },
@@ -90,6 +92,7 @@ namespace DynamicDraw.Gui
             settings.CustomBrushImageDirectories = new HashSet<string>(imagePaths, StringComparer.OrdinalIgnoreCase);
             settings.PaletteDirectories = new HashSet<string>(palettePaths, StringComparer.OrdinalIgnoreCase);
             settings.UseDefaultBrushes = chkbxLoadDefaultBrushes.Checked;
+            settings.UseDefaultPalettes = chkbxLoadDefaultPalettes.Checked;
         }
 
         private void SetupGui()
@@ -98,6 +101,7 @@ namespace DynamicDraw.Gui
             txtBrushImageLocations = new Label();
             txtPaletteLocations = new Label();
             chkbxLoadDefaultBrushes = new ThemedCheckbox();
+            chkbxLoadDefaultPalettes = new ThemedCheckbox();
             bttnResetPaletteLocations = new ThemedButton();
             txtbxBrushImageLocations = new TextBox();
             txtbxPaletteLocations = new TextBox();
@@ -161,6 +165,19 @@ namespace DynamicDraw.Gui
             bttnResetPaletteLocations.Text = Localization.Strings.RestoreDefaults;
             tooltip.SetToolTip(bttnResetPaletteLocations, Localization.Strings.RestoreDefaultsPaletteLocationsTip);
             bttnResetPaletteLocations.Click += BttnResetPaletteLocations_Click;
+            #endregion
+
+            #region chkbxLoadDefaultPalettes
+            chkbxLoadDefaultPalettes.AutoSize = true;
+            chkbxLoadDefaultPalettes.Checked = true;
+            chkbxLoadDefaultPalettes.CheckState = CheckState.Checked;
+            chkbxLoadDefaultPalettes.Location = new System.Drawing.Point(4, 3);
+            chkbxLoadDefaultPalettes.Margin = new Padding(4, 3, 4, 3);
+            chkbxLoadDefaultPalettes.Padding = new Padding(0, 5, 0, 0);
+            chkbxLoadDefaultPalettes.Size = new System.Drawing.Size(172, 24);
+            chkbxLoadDefaultPalettes.TabIndex = 3;
+            chkbxLoadDefaultPalettes.Text = Localization.Strings.LoadGeneratedPalettes;
+            tooltip.SetToolTip(chkbxLoadDefaultPalettes, Localization.Strings.LoadGeneratedPalettesTip);
             #endregion
 
             #region txtbxBrushLocations
@@ -279,6 +296,7 @@ namespace DynamicDraw.Gui
             addFileFolderPaletteContainer.Controls.Add(bttnAddFolderPalettes);
             addFileFolderPaletteContainer.Controls.Add(bttnAddFilesPalettes);
             addFileFolderPaletteContainer.Controls.Add(bttnResetPaletteLocations);
+            addFileFolderPaletteContainer.Controls.Add(chkbxLoadDefaultPalettes);
             addFileFolderPaletteContainer.Location = new System.Drawing.Point(4, 216);
             addFileFolderPaletteContainer.Margin = new Padding(4, 3, 4, 3);
             addFileFolderPaletteContainer.Size = new System.Drawing.Size(561, 37);

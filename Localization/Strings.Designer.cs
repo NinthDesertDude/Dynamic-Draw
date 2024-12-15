@@ -1729,6 +1729,24 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Load Generated Palettes?.
+        /// </summary>
+        internal static string LoadGeneratedPalettes {
+            get {
+                return ResourceManager.GetString("LoadGeneratedPalettes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If turned off, only Current and Recent palettes will be added to the user list..
+        /// </summary>
+        internal static string LoadGeneratedPalettesTip {
+            get {
+                return ResourceManager.GetString("LoadGeneratedPalettesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The palette couldn&apos;t be loaded..
         /// </summary>
         internal static string LoadPaletteError {
