@@ -23,7 +23,8 @@ namespace DynamicDraw
         Darken = 11,
         Screen = 12,
         Xor = 13,
-        Overwrite = 14
+        Overwrite = 14,
+        Custom = 15
     }
 
     /// <summary>

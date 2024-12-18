@@ -30,6 +30,22 @@ namespace DynamicDraw
     [System.ComponentModel.DesignerCategory("")] // disable winforms designer, it will corrupt this.
     public class WinDynamicDraw : EffectConfigDialog
     {
+        private static readonly Func<ColorBgra, ColorBgra, ColorBgra> DUMMY_custom = (col1, col2) =>
+        {
+            // For reference, the line below replicates BlendMode.Normal:
+            //return ColorBgra.Lerp(col1, col2.NewAlpha((byte)Math.Clamp(col2.A + col1.A, 0, 255)), col2.A);
+
+            // Test which uses HSV operations on the active color.
+            byte col2NewAlpha = (byte)Math.Clamp(col2.A + col1.A, 0, 255);
+            var col2Hsv = ColorUtils.HSVFFromBgra(col2);
+            col2Hsv.Saturation = 0;
+
+            return ColorBgra.Lerp(
+                col1,
+                ColorUtils.HSVFToBgra(col2Hsv, col2NewAlpha),
+                col2.A);
+        };
+
         #region Static
         private static readonly (string id, Bitmap bmp) defaultBrushImage = new(Strings.DefaultBrushCircle, Resources.BrCircle);
 
@@ -515,7 +531,7 @@ namespace DynamicDraw
         private ToolStripMenuItem menuSetCanvasBgTransparent, menuSetCanvasBgGray, menuSetCanvasBgWhite, menuSetCanvasBgBlack;
         private ToolStripMenuItem menuBrushIndicator, menuBrushIndicatorSquare, menuBrushIndicatorPreview;
         private ToolStripMenuItem menuShowSymmetryLinesInUse, menuShowMinDistanceInUse;
-        private ToolStripMenuItem menuBrushImageDirectories, menuKeyboardShortcutsDialog;
+        private ToolStripMenuItem menuAssetDirectories, menuKeyboardShortcutsDialog;
         private ToolStripMenuItem menuColorPickerIncludesAlpha, menuColorPickerSwitchesToPrevTool;
         private ToolStripMenuItem menuRemoveUnfoundImagePaths, menuConfirmCloseSave;
         private ThemedButton menuCanvasZoomBttn, menuCanvasAngleBttn;
@@ -722,7 +738,8 @@ namespace DynamicDraw
                 new Tuple<string, BlendMode>(Strings.BlendModeDarken, BlendMode.Darken),
                 new Tuple<string, BlendMode>(Strings.BlendModeScreen, BlendMode.Screen),
                 new Tuple<string, BlendMode>(Strings.BlendModeXor, BlendMode.Xor),
-                new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite)
+                new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite),
+                new Tuple<string, BlendMode>(Strings.BlendModeCustom, BlendMode.Custom)
             };
             cmbxBlendMode.DataSource = blendModeOptions;
             cmbxBlendMode.DisplayMember = "Item1";
@@ -1111,10 +1128,8 @@ namespace DynamicDraw
         private void LoadPaletteOptions()
         {
             // Removes all but the palettes which shouldn't be.
-
             PaletteEntry prevEntry = new(UserSettings.CurrentPalette);
             cmbxPaletteDropdown.SelectedIndex = 0; // prevents visual cycling as entries are removed and added.
-
             while (paletteOptions.Count > baseEntriesForPalettes.Count)
             {
                 paletteOptions.RemoveAt(paletteOptions.Count - 1);
@@ -1255,6 +1270,43 @@ namespace DynamicDraw
                 {
                     ThemedMessageBox.Show(Strings.LoadPaletteError);
                     currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
+                }
+            }
+        }
+
+        /// <summary>
+        /// Attempts to load all available scripts from known paths.
+        /// </summary>
+        private void LoadScripts()
+        {
+            // Loads every registered directory for scripts.
+            foreach (string entry in settings.ScriptDirectories)
+            {
+                try
+                {
+                    if (File.Exists(entry))
+                    {
+                        // TODO: implement
+                        //paletteOptions.Add(new Tuple<string, PaletteEntry>(
+                            //Path.GetFileNameWithoutExtension(entry), new PaletteEntry(entry)));
+                    }
+                    else if (Directory.Exists(entry))
+                    {
+                        string[] files = Directory.GetFiles(entry);
+                        foreach (string file in files)
+                        {
+                            if (Path.GetExtension(file).ToLower() == ".txt")
+                            {
+                                // TODO: implement
+                                //paletteOptions.Add(new Tuple<string, PaletteEntry>(
+                                    //Path.GetFileNameWithoutExtension(file), new PaletteEntry(file)));
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // Swallow the exception and do nothing, skipping this entry.
                 }
             }
         }
@@ -2324,6 +2376,7 @@ namespace DynamicDraw
                 && effectToDraw.Effect == null
                 && ((BlendMode)cmbxBlendMode.SelectedIndex != BlendMode.Overwrite)
                 && (isUserDrawing.stagedChanged
+                    || (BlendMode)cmbxBlendMode.SelectedIndex == BlendMode.Custom
                     || BlendModeUtils.BlendModeToUserBlendOp((BlendMode)cmbxBlendMode.SelectedIndex) != null
                     || finalOpacity != sliderBrushOpacity.Maximum));
 
@@ -4295,7 +4348,7 @@ namespace DynamicDraw
                 Padding = Padding.Empty
             };
             ContextMenuStrip preferencesContextMenu = new ContextMenuStrip();
-            menuBrushImageDirectories = new ToolStripMenuItem(Strings.MenuCustomBrushImages);
+            menuAssetDirectories = new ToolStripMenuItem(Strings.MenuCustomAssetPaths);
             menuKeyboardShortcutsDialog = new ToolStripMenuItem(Strings.MenuKeyboardShortcuts);
             menuResetCanvas = new ToolStripMenuItem(Strings.MenuRecenterTheCanvas);
             menuSetCanvasBackground = new ToolStripMenuItem(Strings.MenuSetCanvasBackground);
@@ -4342,14 +4395,15 @@ namespace DynamicDraw
 
             preferencesContextMenu.Renderer = new ThemedMenuRenderer();
 
-            // Options -> custom brush images...
-            menuBrushImageDirectories.Click += (a, b) =>
+            // Options -> resource paths...
+            menuAssetDirectories.Click += (a, b) =>
             {
                 if (settings != null)
                 {
                     if (new EditCustomAssetDirectories(settings).ShowDialog() == DialogResult.OK)
                     {
                         LoadPaletteOptions();
+                        LoadScripts();
                         InitBrushes();
                     }
                 }
@@ -4359,7 +4413,7 @@ namespace DynamicDraw
                     currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 }
             };
-            preferencesContextMenu.Items.Add(menuBrushImageDirectories);
+            preferencesContextMenu.Items.Add(menuAssetDirectories);
 
             // Options -> keyboard shortcuts...
             menuKeyboardShortcutsDialog.Click += (a, b) =>
@@ -5993,6 +6047,7 @@ namespace DynamicDraw
             DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
                     bmpCommitted.GetBounds(),
                     (BlendMode)cmbxBlendMode.SelectedIndex,
+                    DUMMY_custom,
                     (chkbxLockAlpha.Checked,
                     chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                     chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
@@ -7714,6 +7769,7 @@ namespace DynamicDraw
                         DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
                             rect,
                             (BlendMode)cmbxBlendMode.SelectedIndex,
+                            DUMMY_custom,
                             (chkbxLockAlpha.Checked,
                             chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));

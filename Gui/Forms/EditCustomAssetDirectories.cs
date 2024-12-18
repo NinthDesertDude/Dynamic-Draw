@@ -14,17 +14,17 @@ namespace DynamicDraw.Gui
         #region Gui Members
         private System.ComponentModel.IContainer components = null;
         private ToolTip tooltip;
-        private Label txtBrushImageLocations, txtPaletteLocations;
-        private TextBox txtbxBrushImageLocations, txtbxPaletteLocations;
-        private ThemedButton bttnAddFolderBrushImages, bttnAddFolderPalettes;
-        private ThemedButton bttnAddFilesBrushImages, bttnAddFilesPalettes;
+        private Label txtBrushImageLocations, txtPaletteLocations, txtScriptLocations;
+        private TextBox txtbxBrushImageLocations, txtbxPaletteLocations, txtbxScriptLocations;
+        private ThemedButton bttnAddFolderBrushImages, bttnAddFolderPalettes, bttnAddFolderScripts;
+        private ThemedButton bttnAddFilesBrushImages, bttnAddFilesPalettes, bttnAddFilesScripts;
         private ThemedCheckbox chkbxLoadDefaultBrushes;
         private ThemedCheckbox chkbxLoadDefaultPalettes;
-        private ThemedButton bttnResetPaletteLocations;
+        private ThemedButton bttnResetPaletteLocations, bttnResetScriptLocations;
         private ThemedButton bttnSave, bttnCancel;
         private FlowLayoutPanel outerContainer;
-        private FlowLayoutPanel brushImageControlsContainer, paletteControlsContainer;
-        private FlowLayoutPanel addFileFolderBrushImageContainer, addFileFolderPaletteContainer;
+        private FlowLayoutPanel brushImageControlsContainer, paletteControlsContainer, scriptControlsContainer;
+        private FlowLayoutPanel addFileFolderBrushImageContainer, addFileFolderPaletteContainer, addFileFolderScriptContainer;
         private FlowLayoutPanel cancelSaveContainer;
         #endregion
 
@@ -72,6 +72,11 @@ namespace DynamicDraw.Gui
             {
                 txtbxPaletteLocations.AppendText(item + Environment.NewLine);
             }
+
+            foreach (string item in settings.ScriptDirectories)
+            {
+                txtbxScriptLocations.AppendText(item + Environment.NewLine);
+            }
         }
         #endregion
 
@@ -89,8 +94,13 @@ namespace DynamicDraw.Gui
                 new[] { "\r\n", "\r", "\n" },
                 StringSplitOptions.RemoveEmptyEntries);
 
+            string[] scriptPaths = txtbxScriptLocations.Text.Split(
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.RemoveEmptyEntries);
+
             settings.CustomBrushImageDirectories = new HashSet<string>(imagePaths, StringComparer.OrdinalIgnoreCase);
             settings.PaletteDirectories = new HashSet<string>(palettePaths, StringComparer.OrdinalIgnoreCase);
+            settings.ScriptDirectories = new HashSet<string>(scriptPaths, StringComparer.OrdinalIgnoreCase);
             settings.UseDefaultBrushes = chkbxLoadDefaultBrushes.Checked;
             settings.UseDefaultPalettes = chkbxLoadDefaultPalettes.Checked;
         }
@@ -100,39 +110,48 @@ namespace DynamicDraw.Gui
             components = new System.ComponentModel.Container();
             txtBrushImageLocations = new Label();
             txtPaletteLocations = new Label();
+            txtScriptLocations = new Label();
             chkbxLoadDefaultBrushes = new ThemedCheckbox();
             chkbxLoadDefaultPalettes = new ThemedCheckbox();
             bttnResetPaletteLocations = new ThemedButton();
+            bttnResetScriptLocations = new ThemedButton();
             txtbxBrushImageLocations = new TextBox();
             txtbxPaletteLocations = new TextBox();
+            txtbxScriptLocations = new TextBox();
             bttnSave = new ThemedButton();
             bttnCancel = new ThemedButton();
             bttnAddFolderBrushImages = new ThemedButton();
             bttnAddFolderPalettes = new ThemedButton();
+            bttnAddFolderScripts = new ThemedButton();
             tooltip = new ToolTip(components);
             brushImageControlsContainer = new FlowLayoutPanel();
             paletteControlsContainer = new FlowLayoutPanel();
+            scriptControlsContainer = new FlowLayoutPanel();
             outerContainer = new FlowLayoutPanel();
             addFileFolderBrushImageContainer = new FlowLayoutPanel();
             addFileFolderPaletteContainer = new FlowLayoutPanel();
+            addFileFolderScriptContainer = new FlowLayoutPanel();
             bttnAddFilesBrushImages = new ThemedButton();
             bttnAddFilesPalettes = new ThemedButton();
+            bttnAddFilesScripts = new ThemedButton();
             cancelSaveContainer = new FlowLayoutPanel();
             brushImageControlsContainer.SuspendLayout();
             paletteControlsContainer.SuspendLayout();
+            scriptControlsContainer.SuspendLayout();
             outerContainer.SuspendLayout();
             addFileFolderBrushImageContainer.SuspendLayout();
             addFileFolderPaletteContainer.SuspendLayout();
+            addFileFolderScriptContainer.SuspendLayout();
             cancelSaveContainer.SuspendLayout();
             SuspendLayout();
 
-            #region txtBrushLocations
+            #region txtBrushImageLocations
             txtBrushImageLocations.AutoSize = true;
             txtBrushImageLocations.Location = new System.Drawing.Point(4, 0);
             txtBrushImageLocations.Margin = new Padding(4, 0, 4, 0);
             txtBrushImageLocations.Size = new System.Drawing.Size(123, 15);
             txtBrushImageLocations.TabIndex = 2;
-            txtBrushImageLocations.Text = string.Format(Localization.Strings.BrushLocations, Localization.Strings.Title);
+            txtBrushImageLocations.Text = string.Format(Localization.Strings.BrushImageLocations, Localization.Strings.Title);
             #endregion
 
             #region txtPaletteLocations
@@ -142,6 +161,15 @@ namespace DynamicDraw.Gui
             txtPaletteLocations.Size = new System.Drawing.Size(123, 15);
             txtPaletteLocations.TabIndex = 2;
             txtPaletteLocations.Text = string.Format(Localization.Strings.PaletteLocations, Localization.Strings.Title);
+            #endregion
+
+            #region txtScriptLocations
+            txtScriptLocations.AutoSize = true;
+            txtScriptLocations.Location = new System.Drawing.Point(4, 0);
+            txtScriptLocations.Margin = new Padding(4, 0, 4, 0);
+            txtScriptLocations.Size = new System.Drawing.Size(123, 15);
+            txtScriptLocations.TabIndex = 2;
+            txtScriptLocations.Text = string.Format(Localization.Strings.ScriptLocations, Localization.Strings.Title);
             #endregion
 
             #region chkbxLoadDefaultBrushes
@@ -163,8 +191,18 @@ namespace DynamicDraw.Gui
             bttnResetPaletteLocations.Size = new System.Drawing.Size(110, 27);
             bttnResetPaletteLocations.TabIndex = 28;
             bttnResetPaletteLocations.Text = Localization.Strings.RestoreDefaults;
-            tooltip.SetToolTip(bttnResetPaletteLocations, Localization.Strings.RestoreDefaultsPaletteLocationsTip);
+            tooltip.SetToolTip(bttnResetPaletteLocations, Localization.Strings.RestoreDefaultsLocationsTip);
             bttnResetPaletteLocations.Click += BttnResetPaletteLocations_Click;
+            #endregion
+
+            #region bttnResetScriptLocations
+            bttnResetScriptLocations.Location = new System.Drawing.Point(4, 3);
+            bttnResetScriptLocations.Margin = new Padding(4, 3, 4, 3);
+            bttnResetScriptLocations.Size = new System.Drawing.Size(110, 27);
+            bttnResetScriptLocations.TabIndex = 28;
+            bttnResetScriptLocations.Text = Localization.Strings.RestoreDefaults;
+            tooltip.SetToolTip(bttnResetScriptLocations, Localization.Strings.RestoreDefaultsLocationsTip);
+            bttnResetScriptLocations.Click += BttnResetScriptLocations_Click;
             #endregion
 
             #region chkbxLoadDefaultPalettes
@@ -190,7 +228,7 @@ namespace DynamicDraw.Gui
             txtbxBrushImageLocations.Size = new System.Drawing.Size(554, 191);
             txtbxBrushImageLocations.TabIndex = 1;
             tooltip.SetToolTip(txtbxBrushImageLocations,
-                string.Format(Localization.Strings.BrushLocationsTextboxTip, Localization.Strings.Title));
+                string.Format(Localization.Strings.BrushImageLocationsTextboxTip, Localization.Strings.Title));
             #endregion
 
             #region txtbxPaletteLocations
@@ -204,6 +242,19 @@ namespace DynamicDraw.Gui
             txtbxPaletteLocations.TabIndex = 1;
             tooltip.SetToolTip(txtbxPaletteLocations,
                 string.Format(Localization.Strings.PalettesTextboxTip, Localization.Strings.Title));
+            #endregion
+
+            #region txtbxScriptLocations
+            txtbxScriptLocations.BorderStyle = BorderStyle.FixedSingle;
+            txtbxScriptLocations.AcceptsReturn = true;
+            txtbxScriptLocations.Location = new System.Drawing.Point(4, 18);
+            txtbxScriptLocations.Margin = new Padding(4, 3, 4, 3);
+            txtbxScriptLocations.Multiline = true;
+            txtbxScriptLocations.ScrollBars = ScrollBars.Vertical;
+            txtbxScriptLocations.Size = new System.Drawing.Size(554, 191);
+            txtbxScriptLocations.TabIndex = 1;
+            tooltip.SetToolTip(txtbxScriptLocations,
+                string.Format(Localization.Strings.ScriptsTextboxTip, Localization.Strings.Title));
             #endregion
 
             #region bttnSave
@@ -251,6 +302,17 @@ namespace DynamicDraw.Gui
             bttnAddFolderPalettes.Click += BttnAddFolderPalettes_Click;
             #endregion
 
+            #region bttnAddFolderScripts
+            bttnAddFolderScripts.Location = new System.Drawing.Point(4, 3);
+            bttnAddFolderScripts.Margin = new Padding(4, 3, 4, 3);
+            bttnAddFolderScripts.Size = new System.Drawing.Size(90, 27);
+            bttnAddFolderScripts.TabIndex = 29;
+            bttnAddFolderScripts.Text = Localization.Strings.AddFolder;
+            tooltip.SetToolTip(bttnAddFolderScripts,
+                string.Format(Localization.Strings.AddFoldersTip, Localization.Strings.Title));
+            bttnAddFolderScripts.Click += BttnAddFolderScripts_Click;
+            #endregion
+
             #region brushImageControlsContainer
             brushImageControlsContainer.Controls.Add(txtBrushImageLocations);
             brushImageControlsContainer.Controls.Add(txtbxBrushImageLocations);
@@ -267,6 +329,15 @@ namespace DynamicDraw.Gui
             paletteControlsContainer.Margin = new Padding(4, 3, 4, 3);
             paletteControlsContainer.Size = new System.Drawing.Size(537, 207);
             paletteControlsContainer.TabIndex = 30;
+            #endregion
+
+            #region scriptControlsContainer
+            scriptControlsContainer.Controls.Add(txtScriptLocations);
+            scriptControlsContainer.Controls.Add(txtbxScriptLocations);
+            scriptControlsContainer.Location = new System.Drawing.Point(4, 3);
+            scriptControlsContainer.Margin = new Padding(4, 3, 4, 3);
+            scriptControlsContainer.Size = new System.Drawing.Size(537, 207);
+            scriptControlsContainer.TabIndex = 30;
             #endregion
 
             #region outerContainer
@@ -303,6 +374,16 @@ namespace DynamicDraw.Gui
             addFileFolderPaletteContainer.TabIndex = 32;
             #endregion
 
+            #region addFileFolderScriptContainer
+            addFileFolderScriptContainer.Controls.Add(bttnAddFolderScripts);
+            addFileFolderScriptContainer.Controls.Add(bttnAddFilesScripts);
+            addFileFolderScriptContainer.Controls.Add(bttnResetScriptLocations);
+            addFileFolderScriptContainer.Location = new System.Drawing.Point(4, 216);
+            addFileFolderScriptContainer.Margin = new Padding(4, 3, 4, 3);
+            addFileFolderScriptContainer.Size = new System.Drawing.Size(561, 37);
+            addFileFolderScriptContainer.TabIndex = 32;
+            #endregion
+
             #region bttnAddFilesBrushImages
             bttnAddFilesBrushImages.Location = new System.Drawing.Point(102, 3);
             bttnAddFilesBrushImages.Margin = new Padding(4, 3, 4, 3);
@@ -321,6 +402,16 @@ namespace DynamicDraw.Gui
             bttnAddFilesPalettes.Text = Localization.Strings.AddFiles;
             tooltip.SetToolTip(bttnAddFilesPalettes, string.Format(Localization.Strings.AddFilesTip, Localization.Strings.Title));
             bttnAddFilesPalettes.Click += BttnAddFilesPalettes_Click;
+            #endregion
+
+            #region bttnAddFilesScripts
+            bttnAddFilesScripts.Location = new System.Drawing.Point(102, 3);
+            bttnAddFilesScripts.Margin = new Padding(4, 3, 4, 3);
+            bttnAddFilesScripts.Size = new System.Drawing.Size(90, 27);
+            bttnAddFilesScripts.TabIndex = 30;
+            bttnAddFilesScripts.Text = Localization.Strings.AddFiles;
+            tooltip.SetToolTip(bttnAddFilesScripts, string.Format(Localization.Strings.AddFilesTip, Localization.Strings.Title));
+            bttnAddFilesScripts.Click += BttnAddFilesScripts_Click;
             #endregion
 
             #region cancelSaveContainer
@@ -357,11 +448,15 @@ namespace DynamicDraw.Gui
             brushImageControlsContainer.PerformLayout();
             paletteControlsContainer.ResumeLayout(false);
             paletteControlsContainer.PerformLayout();
+            scriptControlsContainer.ResumeLayout(false);
+            scriptControlsContainer.PerformLayout();
             outerContainer.ResumeLayout(false);
             addFileFolderBrushImageContainer.ResumeLayout(false);
             addFileFolderBrushImageContainer.PerformLayout();
             addFileFolderPaletteContainer.ResumeLayout(false);
             addFileFolderPaletteContainer.PerformLayout();
+            addFileFolderScriptContainer.ResumeLayout(false);
+            addFileFolderScriptContainer.PerformLayout();
             cancelSaveContainer.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -410,6 +505,26 @@ namespace DynamicDraw.Gui
         }
 
         /// <summary>
+        /// Allows the user to browse for a folder to add as a directory.
+        /// </summary>
+        private void BttnAddFolderScripts_Click(object sender, EventArgs e)
+        {
+            //Opens a folder browser.
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.RootFolder = Environment.SpecialFolder.Desktop;
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                //Appends the chosen directory to the textbox of directories.
+                if (txtbxScriptLocations.Text != string.Empty && !txtbxScriptLocations.Text.EndsWith(Environment.NewLine))
+                {
+                    txtbxScriptLocations.AppendText(Environment.NewLine);
+                }
+
+                txtbxScriptLocations.AppendText(dlg.SelectedPath);
+            }
+        }
+
+        /// <summary>
         /// Allows the user to browse for files to add.
         /// </summary>
         private void BttnAddFilesBrushImages_Click(object sender, EventArgs e)
@@ -450,6 +565,26 @@ namespace DynamicDraw.Gui
         }
 
         /// <summary>
+        /// Allows the user to browse for files to add.
+        /// </summary>
+        private void BttnAddFilesScripts_Click(object sender, EventArgs e)
+        {
+            //Opens a folder browser.
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Multiselect = true;
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                //Appends the chosen directory to the textbox of directories.
+                if (txtbxScriptLocations.Text != string.Empty)
+                {
+                    txtbxScriptLocations.AppendText(Environment.NewLine);
+                }
+
+                txtbxScriptLocations.AppendText(string.Join(Environment.NewLine, dlg.FileNames));
+            }
+        }
+
+        /// <summary>
         /// Prepends any of the default palette locations that are missing from the entries.
         /// </summary>
         private void BttnResetPaletteLocations_Click(object sender, EventArgs e)
@@ -464,6 +599,20 @@ namespace DynamicDraw.Gui
             }
 
             txtbxPaletteLocations.Text = newText.TrimEnd();
+        }
+
+        /// <summary>
+        /// Prepends any of the default script locations that are missing from the entries.
+        /// </summary>
+        private void BttnResetScriptLocations_Click(object sender, EventArgs e)
+        {
+            string newText = txtbxScriptLocations.Text.TrimEnd();
+            if (!newText.Contains(PersistentSettings.defaultScriptPath))
+            {
+                newText = PersistentSettings.defaultScriptPath + Environment.NewLine + newText;
+            }
+
+            txtbxScriptLocations.Text = newText.TrimEnd();
         }
 
         /// <summary>
@@ -505,7 +654,8 @@ namespace DynamicDraw.Gui
             }
             else if (e.KeyCode == Keys.Enter &&
                 !txtbxBrushImageLocations.Focused &&
-                !txtbxPaletteLocations.Focused)
+                !txtbxPaletteLocations.Focused &&
+                !txtbxScriptLocations.Focused)
             {
                 DialogResult = DialogResult.OK;
                 Close();
@@ -520,10 +670,13 @@ namespace DynamicDraw.Gui
         {
             txtBrushImageLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             txtPaletteLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtScriptLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             txtbxBrushImageLocations.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
             txtbxBrushImageLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             txtbxPaletteLocations.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
             txtbxPaletteLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
+            txtbxScriptLocations.BackColor = SemanticTheme.GetColor(ThemeSlot.ControlBg);
+            txtbxScriptLocations.ForeColor = SemanticTheme.GetColor(ThemeSlot.Text);
             BackColor = SemanticTheme.GetColor(ThemeSlot.MenuBg);
             Refresh();
         }

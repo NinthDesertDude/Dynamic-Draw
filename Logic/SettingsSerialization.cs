@@ -19,6 +19,7 @@ namespace DynamicDraw
 
         private HashSet<string> customBrushDirectories;
         private HashSet<string> paletteDirectories;
+        private HashSet<string> scriptDirectories;
         private Dictionary<string, BrushSettings> customBrushes;
         private HashSet<Command> customShortcuts;
         private HashSet<int> disabledShortcuts;
@@ -145,6 +146,50 @@ namespace DynamicDraw
             }
         }
 
+        [JsonInclude]
+        [JsonPropertyName("PalettePaths")]
+        public HashSet<string> PaletteDirectories
+        {
+            get
+            {
+                return paletteDirectories;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (!paletteDirectories.SetEquals(value))
+                {
+                    paletteDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
+                }
+            }
+        }
+
+        [JsonInclude]
+        [JsonPropertyName("ScriptPaths")]
+        public HashSet<string> ScriptDirectories
+        {
+            get
+            {
+                return scriptDirectories;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (!scriptDirectories.SetEquals(value))
+                {
+                    scriptDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
+                }
+            }
+        }
+
         /// <summary>
         /// There are several brush images that a user might find useful, which load by default. When this is off,
         /// those brush images will not be loaded except the default circle. Default true.
@@ -187,28 +232,6 @@ namespace DynamicDraw
             }
         }
 
-        [JsonInclude]
-        [JsonPropertyName("PalettePaths")]
-        public HashSet<string> PaletteDirectories
-        {
-            get
-            {
-                return paletteDirectories;
-            }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                if (!paletteDirectories.SetEquals(value))
-                {
-                    paletteDirectories = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
-                }
-            }
-        }
-
         /// <summary>
         /// Gets or sets the program preferences of the user.
         /// </summary>
@@ -238,6 +261,9 @@ namespace DynamicDraw
             {
                 paletteDirectories.Add(path);
             }
+
+            scriptDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            scriptDirectories.Add(PersistentSettings.defaultScriptPath);
 
             customBrushes = new Dictionary<string, BrushSettings>();
             customShortcuts = PersistentSettings.GetShallowShortcutsList();
@@ -272,6 +298,7 @@ namespace DynamicDraw
 
                         customBrushDirectories = new HashSet<string>(savedSettings.CustomBrushImageDirectories, StringComparer.OrdinalIgnoreCase);
                         paletteDirectories = new HashSet<string>(savedSettings.PaletteDirectories, StringComparer.OrdinalIgnoreCase);
+                        scriptDirectories = new HashSet<string>(savedSettings.ScriptDirectories, StringComparer.OrdinalIgnoreCase);
                         customBrushes = new(savedSettings.customBrushes);
 
                         // Version <= 4.0: BrushImagePath allowed only one string of its modern equivalent, BrushImagePaths.

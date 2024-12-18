@@ -696,6 +696,11 @@ namespace DynamicDraw
         /// </summary>
         public static readonly HashSet<string> defaultPalettePaths;
 
+        /// <summary>
+        /// The default list of script paths to search for scripts in.
+        /// </summary>
+        public static readonly string defaultScriptPath;
+
         #region Fields
         /// <summary>
         /// A chosen effect the user can render and draw on the canvas, and the combobox index for it.
@@ -738,6 +743,8 @@ namespace DynamicDraw
                 Path.Combine(documentsDir, "paint.net User Files\\Palettes"),
                 Path.Combine(mainDir, "UserFiles\\Palettes")
             };
+
+            defaultScriptPath = Path.Combine(documentsDir, "paint.net User Files\\Dynamic Draw\\Scripts");
         }
 
         /// <summary>

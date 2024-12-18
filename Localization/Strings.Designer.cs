@@ -322,6 +322,15 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blending: Custom.
+        /// </summary>
+        internal static string BlendModeCustom {
+            get {
+                return ResourceManager.GetString("BlendModeCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Blending: Darken.
         /// </summary>
         internal static string BlendModeDarken {
@@ -511,29 +520,29 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lets you choose another brush image to use..
-        /// </summary>
-        internal static string BrushImageSelectorTip {
-            get {
-                return ResourceManager.GetString("BrushImageSelectorTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Images and folders with images to add to your brush images when {0} starts.
         /// </summary>
-        internal static string BrushLocations {
+        internal static string BrushImageLocations {
             get {
-                return ResourceManager.GetString("BrushLocations", resourceCulture);
+                return ResourceManager.GetString("BrushImageLocations", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to When {0} starts, it will load all the images from these locations on your computer and make them available as brush images. You can add locations using the add file/folder buttons or by pasting them here..
         /// </summary>
-        internal static string BrushLocationsTextboxTip {
+        internal static string BrushImageLocationsTextboxTip {
             get {
-                return ResourceManager.GetString("BrushLocationsTextboxTip", resourceCulture);
+                return ResourceManager.GetString("BrushImageLocationsTextboxTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lets you choose another brush image to use..
+        /// </summary>
+        internal static string BrushImageSelectorTip {
+            get {
+                return ResourceManager.GetString("BrushImageSelectorTip", resourceCulture);
             }
         }
         
@@ -1884,9 +1893,9 @@ namespace DynamicDraw.Localization {
         /// <summary>
         ///   Looks up a localized string similar to brush images and palettes....
         /// </summary>
-        internal static string MenuCustomBrushImages {
+        internal static string MenuCustomAssetPaths {
             get {
-                return ResourceManager.GetString("MenuCustomBrushImages", resourceCulture);
+                return ResourceManager.GetString("MenuCustomAssetPaths", resourceCulture);
             }
         }
         
@@ -2278,7 +2287,7 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to When {0} starts, it will load all the palettes from these locations on your computer, up to 128 colors (Paint.NET stops at 96). You can add locations using the add file/folder buttons or by pasting them here..
+        ///   Looks up a localized string similar to When {0} starts, it will load all the palettes from these locations on your computer, up to 256 colors (Paint.NET stops at 96). You can add locations using the add file/folder buttons or by pasting them here..
         /// </summary>
         internal static string PalettesTextboxTip {
             get {
@@ -2476,11 +2485,11 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Restores the default palette locations if they&apos;re missing. Does not remove any custom locations..
+        ///   Looks up a localized string similar to Restores the default locations if they&apos;re missing. Does not remove any custom locations..
         /// </summary>
-        internal static string RestoreDefaultsPaletteLocationsTip {
+        internal static string RestoreDefaultsLocationsTip {
             get {
-                return ResourceManager.GetString("RestoreDefaultsPaletteLocationsTip", resourceCulture);
+                return ResourceManager.GetString("RestoreDefaultsLocationsTip", resourceCulture);
             }
         }
         
@@ -2656,11 +2665,29 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Scripts and folders with scripts to add to your available scripts when {0} starts.
+        /// </summary>
+        internal static string ScriptLocations {
+            get {
+                return ResourceManager.GetString("ScriptLocations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Display Name:.
         /// </summary>
         internal static string ScriptName {
             get {
                 return ResourceManager.GetString("ScriptName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When {0} starts, it will load all the scripts from these locations on your computer. You can add locations using the add file/folder buttons or by pasting them here..
+        /// </summary>
+        internal static string ScriptsTextboxTip {
+            get {
+                return ResourceManager.GetString("ScriptsTextboxTip", resourceCulture);
             }
         }
         

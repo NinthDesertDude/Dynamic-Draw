@@ -156,10 +156,10 @@
   <data name="BrushDensityTip" xml:space="preserve">
     <value>Controls how often the brush is applied while drawing. Set to 0 to turn off. When minimum draw distance is set high, this draws lines.</value>
   </data>
-  <data name="BrushLocations" xml:space="preserve">
+  <data name="BrushImageLocations" xml:space="preserve">
     <value>Images and folders with images to add to your brush images when {0} starts</value>
   </data>
-  <data name="BrushLocationsTextboxTip" xml:space="preserve">
+  <data name="BrushImageLocationsTextboxTip" xml:space="preserve">
     <value>When {0} starts, it will load all the images from these locations on your computer and make them available as brush images. You can add locations using the add file/folder buttons or by pasting them here.</value>
   </data>
   <data name="BrushRotationTip" xml:space="preserve">
@@ -942,6 +942,9 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="BlendModeXor" xml:space="preserve">
     <value>Blending: Xor</value>
   </data>
+  <data name="BlendModeCustom" xml:space="preserve">
+    <value>Blending: Custom</value>
+  </data>
   <data name="BrushOpacity" xml:space="preserve">
     <value>Brush Opacity:</value>
   </data>
@@ -1110,7 +1113,7 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="MenuColorPickerSwitches" xml:space="preserve">
     <value>color picker switches to last tool when used</value>
   </data>
-  <data name="MenuCustomBrushImages" xml:space="preserve">
+  <data name="MenuCustomAssetPaths" xml:space="preserve">
     <value>brush images and palettes...</value>
   </data>
   <data name="MenuDisplayBrushIndicator" xml:space="preserve">
@@ -1242,14 +1245,20 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="PaletteLocations" xml:space="preserve">
     <value>Palettes and folders with palettes to add to your available palettes when {0} starts</value>
   </data>
+  <data name="ScriptLocations" xml:space="preserve">
+    <value>Scripts and folders with scripts to add to your available scripts when {0} starts</value>
+  </data>
   <data name="PalettesTextboxTip" xml:space="preserve">
-    <value>When {0} starts, it will load all the palettes from these locations on your computer, up to 128 colors (Paint.NET stops at 96). You can add locations using the add file/folder buttons or by pasting them here.</value>
+    <value>When {0} starts, it will load all the palettes from these locations on your computer, up to 256 colors (Paint.NET stops at 96). You can add locations using the add file/folder buttons or by pasting them here.</value>
+  </data>
+  <data name="ScriptsTextboxTip" xml:space="preserve">
+    <value>When {0} starts, it will load all the scripts from these locations on your computer. You can add locations using the add file/folder buttons or by pasting them here.</value>
   </data>
   <data name="LoadPaletteError" xml:space="preserve">
     <value>The palette couldn't be loaded.</value>
   </data>
-  <data name="RestoreDefaultsPaletteLocationsTip" xml:space="preserve">
-    <value>Restores the default palette locations if they're missing. Does not remove any custom locations.</value>
+  <data name="RestoreDefaultsLocationsTip" xml:space="preserve">
+    <value>Restores the default locations if they're missing. Does not remove any custom locations.</value>
   </data>
   <data name="ShortcutSwapColors" xml:space="preserve">
     <value>Swap Colors</value>

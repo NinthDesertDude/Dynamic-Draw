@@ -1105,17 +1105,25 @@ namespace DynamicDraw
         /// The bitmap to make the new changes on, which can be separate or match the staged/committed one.
         /// </param>
         /// <param name="regionToAffect">A smaller region to merge.</param>
-        /// <param name="maxOpacityAllowed">
-        /// Limits the final opacity on the staged layer before merging. This effect is similar to opacity in Krita.
-        /// </param>
-        /// <param name="blendModeType">
+        /// <param name="blendMode">
         /// The current blend mode. If it corresponds to a paint.net user blend op type, merge is done using that blend
         /// mode.
+        /// </param>
+        /// <param name="customBlendOp">
+        /// Assumed null and ignored unless the blend mode is Custom, this is an open-ended function that takes two
+        /// colors and returns a new color. It should be *very* fast because it will bottleneck the entire process
+        /// otherwise. It will run across multiple threads, so be thread-safe. If this is null and blend mode is
+        /// Custom, it will default to the behavior of Normal.
+        /// </param>
+        /// <param name="channelLocks">
+        /// The values of the provided channels, if any, will be preserved by overwriting with the original after
+        /// performing the blend op. Locking HSV takes slightly longer to convert colorspaces to/from HSV.
         /// </param>
         public static unsafe void MergeImage(
             Bitmap staged, Bitmap committed, Bitmap dest,
             Rectangle regionToAffect,
             BlendMode blendMode,
+            Func<ColorBgra, ColorBgra, ColorBgra> customBlendOp,
             (bool A, bool R, bool G, bool B, bool H, bool S, bool V) channelLocks)
         {
             if (((channelLocks.H && channelLocks.S && channelLocks.V) ||
@@ -1167,10 +1175,20 @@ namespace DynamicDraw
                     {
                         if (userBlendOp == null)
                         {
-                            final = ColorBgra.Blend(
-                                committedPtr->ConvertFromPremultipliedAlpha(),
-                                stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha((byte)Math.Clamp(stagedPtr->A + committedPtr->A, 0, 255)),
-                                stagedPtr->A);
+                            if (customBlendOp == null)
+                            {
+                                final = ColorBgra.Blend(
+                                    committedPtr->ConvertFromPremultipliedAlpha(),
+                                    stagedPtr->ConvertFromPremultipliedAlpha().NewAlpha(
+                                        (byte)Math.Clamp(stagedPtr->A + committedPtr->A, 0, 255)),
+                                    stagedPtr->A);
+                            }
+                            else
+                            {
+                                final = customBlendOp(
+                                    committedPtr->ConvertFromPremultipliedAlpha(),
+                                    stagedPtr->ConvertFromPremultipliedAlpha());
+                            }
                         }
                         else
                         {

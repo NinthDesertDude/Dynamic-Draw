@@ -152,11 +152,10 @@ namespace DynamicDraw
         [JsonPropertyName("Trigger")]
         public ScriptTrigger Trigger { get; set; }
 
-
         /// <summary>
-        /// This identifies the version of the script. Newer versions of the plugin may update this version and change
-        /// the way it works, in which case it's useful to track versions to support old scripts effectively. The
-        /// version will only be updated when a breaking change is introduced.
+        /// This identifies the version of the plugin when the script was made. Newer versions of the plugin may update
+        /// this version and change the way it works, in which case it's useful to track versions to support old
+        /// scripts effectively. The version will only be updated when a breaking change is introduced.
         /// </summary>
         [JsonPropertyName("Version")]
         public string Version { get; set; }

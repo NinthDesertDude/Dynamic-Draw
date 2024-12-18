@@ -2,3 +2,9 @@
 
 # CA1416: Validate platform compatibility
 dotnet_diagnostic.CA1416.severity = none
+
+# IDE0017: Simplify object initialization
+dotnet_style_object_initializer = false
+
+# IDE0028: Simplify collection initialization
+dotnet_style_collection_initializer = false
