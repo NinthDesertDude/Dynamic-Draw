@@ -322,15 +322,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Blending: Custom.
-        /// </summary>
-        internal static string BlendModeCustom {
-            get {
-                return ResourceManager.GetString("BlendModeCustom", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Blending: Darken.
         /// </summary>
         internal static string BlendModeDarken {

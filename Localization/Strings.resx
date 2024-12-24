@@ -942,9 +942,6 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="BlendModeXor" xml:space="preserve">
     <value>Blending: Xor</value>
   </data>
-  <data name="BlendModeCustom" xml:space="preserve">
-    <value>Blending: Custom</value>
-  </data>
   <data name="BrushOpacity" xml:space="preserve">
     <value>Brush Opacity:</value>
   </data>

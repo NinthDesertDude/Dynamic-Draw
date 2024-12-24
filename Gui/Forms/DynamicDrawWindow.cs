@@ -30,22 +30,6 @@ namespace DynamicDraw
     [System.ComponentModel.DesignerCategory("")] // disable winforms designer, it will corrupt this.
     public class WinDynamicDraw : EffectConfigDialog
     {
-        private static readonly Func<ColorBgra, ColorBgra, ColorBgra> DUMMY_custom = (col1, col2) =>
-        {
-            // For reference, the line below replicates BlendMode.Normal:
-            //return ColorBgra.Lerp(col1, col2.NewAlpha((byte)Math.Clamp(col2.A + col1.A, 0, 255)), col2.A);
-
-            // Test which uses HSV operations on the active color.
-            byte col2NewAlpha = (byte)Math.Clamp(col2.A + col1.A, 0, 255);
-            var col2Hsv = ColorUtils.HSVFFromBgra(col2);
-            col2Hsv.Saturation = 0;
-
-            return ColorBgra.Lerp(
-                col1,
-                ColorUtils.HSVFToBgra(col2Hsv, col2NewAlpha),
-                col2.A);
-        };
-
         #region Static
         private static readonly (string id, Bitmap bmp) defaultBrushImage = new(Strings.DefaultBrushCircle, Resources.BrCircle);
 
@@ -738,8 +722,7 @@ namespace DynamicDraw
                 new Tuple<string, BlendMode>(Strings.BlendModeDarken, BlendMode.Darken),
                 new Tuple<string, BlendMode>(Strings.BlendModeScreen, BlendMode.Screen),
                 new Tuple<string, BlendMode>(Strings.BlendModeXor, BlendMode.Xor),
-                new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite),
-                new Tuple<string, BlendMode>(Strings.BlendModeCustom, BlendMode.Custom)
+                new Tuple<string, BlendMode>(Strings.BlendModeOverwrite, BlendMode.Overwrite)
             };
             cmbxBlendMode.DataSource = blendModeOptions;
             cmbxBlendMode.DisplayMember = "Item1";
@@ -6047,7 +6030,7 @@ namespace DynamicDraw
             DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
                     bmpCommitted.GetBounds(),
                     (BlendMode)cmbxBlendMode.SelectedIndex,
-                    DUMMY_custom,
+                    null,
                     (chkbxLockAlpha.Checked,
                     chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                     chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
@@ -7769,7 +7752,7 @@ namespace DynamicDraw
                         DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
                             rect,
                             (BlendMode)cmbxBlendMode.SelectedIndex,
-                            DUMMY_custom,
+                            null,
                             (chkbxLockAlpha.Checked,
                             chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
                             chkbxLockHue.Checked, chkbxLockSat.Checked, chkbxLockVal.Checked));
