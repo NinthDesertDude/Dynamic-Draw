@@ -124,15 +124,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Shift - Basics.
-        /// </summary>
-        internal static string AccordionShiftBasics {
-            get {
-                return ResourceManager.GetString("AccordionShiftBasics", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Special Settings.
         /// </summary>
         internal static string AccordionSpecialSettings {
@@ -2773,60 +2764,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Flow Shift:.
-        /// </summary>
-        internal static string ShiftFlow {
-            get {
-                return ResourceManager.GetString("ShiftFlow", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Every time a brush stroke is applied, the brush will change transparency by this much..
-        /// </summary>
-        internal static string ShiftFlowTip {
-            get {
-                return ResourceManager.GetString("ShiftFlowTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Rotation Shift:.
-        /// </summary>
-        internal static string ShiftRotation {
-            get {
-                return ResourceManager.GetString("ShiftRotation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Every time a brush stroke is applied, the brush will tilt by this much..
-        /// </summary>
-        internal static string ShiftRotationTip {
-            get {
-                return ResourceManager.GetString("ShiftRotationTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Size Shift:.
-        /// </summary>
-        internal static string ShiftSize {
-            get {
-                return ResourceManager.GetString("ShiftSize", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Every time a brush stroke is applied, the brush size will change by this much..
-        /// </summary>
-        internal static string ShiftSizeTip {
-            get {
-                return ResourceManager.GetString("ShiftSizeTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Blend Mode.
         /// </summary>
         internal static string ShortcutBlendMode {
@@ -2922,15 +2859,6 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutFlow {
             get {
                 return ResourceManager.GetString("ShortcutFlow", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Flow Shift.
-        /// </summary>
-        internal static string ShortcutFlowShift {
-            get {
-                return ResourceManager.GetString("ShortcutFlowShift", resourceCulture);
             }
         }
         
@@ -3781,15 +3709,6 @@ namespace DynamicDraw.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Rotation Shift.
-        /// </summary>
-        internal static string ShortcutRotShift {
-            get {
-                return ResourceManager.GetString("ShortcutRotShift", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Select a command....
         /// </summary>
         internal static string ShortcutSelectACommand {
@@ -3840,15 +3759,6 @@ namespace DynamicDraw.Localization {
         internal static string ShortcutSize {
             get {
                 return ResourceManager.GetString("ShortcutSize", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Size Shift.
-        /// </summary>
-        internal static string ShortcutSizeShift {
-            get {
-                return ResourceManager.GetString("ShortcutSizeShift", resourceCulture);
             }
         }
         

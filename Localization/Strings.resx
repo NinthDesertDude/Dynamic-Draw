@@ -354,24 +354,6 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="SaveTip" xml:space="preserve">
     <value>Saves all changes in the preferences.</value>
   </data>
-  <data name="ShiftFlow" xml:space="preserve">
-    <value>Flow Shift:</value>
-  </data>
-  <data name="ShiftFlowTip" xml:space="preserve">
-    <value>Every time a brush stroke is applied, the brush will change transparency by this much.</value>
-  </data>
-  <data name="ShiftRotation" xml:space="preserve">
-    <value>Rotation Shift:</value>
-  </data>
-  <data name="ShiftRotationTip" xml:space="preserve">
-    <value>Every time a brush stroke is applied, the brush will tilt by this much.</value>
-  </data>
-  <data name="ShiftSize" xml:space="preserve">
-    <value>Size Shift:</value>
-  </data>
-  <data name="ShiftSizeTip" xml:space="preserve">
-    <value>Every time a brush stroke is applied, the brush size will change by this much.</value>
-  </data>
   <data name="Size" xml:space="preserve">
     <value>Brush Size:</value>
   </data>
@@ -398,9 +380,6 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="AccordionJitterColor" xml:space="preserve">
     <value>Jitter - Color</value>
-  </data>
-  <data name="AccordionShiftBasics" xml:space="preserve">
-    <value>Shift - Basics</value>
   </data>
   <data name="AccordionSpecialSettings" xml:space="preserve">
     <value>Special Settings</value>
@@ -627,9 +606,6 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="ShortcutFlow" xml:space="preserve">
     <value>Flow</value>
   </data>
-  <data name="ShortcutFlowShift" xml:space="preserve">
-    <value>Flow Shift</value>
-  </data>
   <data name="ShortcutBrushSmoothing" xml:space="preserve">
     <value>Brush Smoothing</value>
   </data>
@@ -702,9 +678,6 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   <data name="ShortcutRotation" xml:space="preserve">
     <value>Rotation</value>
   </data>
-  <data name="ShortcutRotShift" xml:space="preserve">
-    <value>Rotation Shift</value>
-  </data>
   <data name="ShortcutSelectedBrush" xml:space="preserve">
     <value>Selected Brush</value>
   </data>
@@ -716,9 +689,6 @@ Jagged: Fastest, no antialiasing. Automatically forces all brush images to be pe
   </data>
   <data name="ShortcutSize" xml:space="preserve">
     <value>Size</value>
-  </data>
-  <data name="ShortcutSizeShift" xml:space="preserve">
-    <value>Size Shift</value>
   </data>
   <data name="ShortcutSymmetryMode" xml:space="preserve">
     <value>Symmetry Mode</value>

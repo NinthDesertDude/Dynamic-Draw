@@ -322,18 +322,6 @@ namespace DynamicDraw
         private CustomEffect effectToDraw = new CustomEffect();
 
         /// <summary>
-        /// Flow shift in settings. Determines the direction of flow shifting, which can be growing (true) or shrinking
-        /// (false). Used by the flow shift slider.
-        /// </summary>
-        private bool isGrowingFlow = true;
-
-        /// <summary>
-        /// Size shift in settings. Determines the direction of size shifting, which can be growing (true) or shrinking
-        /// (false). Used by the size shift slider.
-        /// </summary>
-        private bool isGrowingSize = true;
-
-        /// <summary>
         /// Shortcuts deserialize asynchronously (and can fail sometimes). This returns that object if it exists, else
         /// it returns a copy of the shortcut defaults (so any changes are discarded).
         /// </summary>
@@ -618,11 +606,6 @@ namespace DynamicDraw
         private Slider sliderJitterMaxSat;
         private Slider sliderJitterMinVal;
         private Slider sliderJitterMaxVal;
-        private Accordion bttnShiftBasicsControls;
-        private FlowLayoutPanel panelShiftBasics;
-        private Slider sliderShiftSize;
-        private Slider sliderShiftRotation;
-        private Slider sliderShiftFlow;
         private Accordion bttnTabAssignPressureControls;
         private FlowLayoutPanel panelTabletAssignPressure;
         private Accordion bttnSettings;
@@ -1926,7 +1909,6 @@ namespace DynamicDraw
                 DoLockHue = chkbxLockHue.Checked,
                 DoLockSat = chkbxLockSat.Checked,
                 DoLockVal = chkbxLockVal.Checked,
-                FlowChange = sliderShiftFlow.ValueInt,
                 SeamlessDrawing = chkbxSeamlessDrawing.Checked,
                 DoRotateWithMouse = chkbxOrientToMouse.Checked,
                 MinDrawDistance = sliderMinDrawDistance.ValueInt,
@@ -1949,9 +1931,7 @@ namespace DynamicDraw
                 RandRotLeft = sliderRandRotLeft.ValueInt,
                 RandRotRight = sliderRandRotRight.ValueInt,
                 RandVertShift = sliderRandVertShift.ValueInt,
-                RotChange = sliderShiftRotation.ValueInt,
                 BrushScripts = new(currentBrushScripts),
-                SizeChange = sliderShiftSize.ValueInt,
                 Smoothing = (CmbxSmoothing.Smoothing)cmbxBrushSmoothing.SelectedIndex,
                 Symmetry = (SymmetryMode)cmbxSymmetry.SelectedIndex,
                 CmbxChosenEffect = cmbxChosenEffect.SelectedIndex,
@@ -2101,84 +2081,14 @@ namespace DynamicDraw
             mouseLocBrush = mouseLoc;
 
             #region apply size/flow/rotation shift
-            // Updates the brush size slider (doesn't affect this brush stroke).
-            if (sliderShiftSize.Value != 0)
-            {
-                int tempSize = sliderBrushSize.ValueInt;
-                if (isGrowingSize)
-                {
-                    tempSize += sliderShiftSize.ValueInt;
-                }
-                else
-                {
-                    tempSize -= sliderShiftSize.ValueInt;
-                }
-                if (tempSize > sliderBrushSize.Maximum)
-                {
-                    tempSize = sliderBrushSize.MaximumInt;
-                    isGrowingSize = !isGrowingSize; //handles values < 0.
-                }
-                else if (tempSize < sliderBrushSize.Minimum)
-                {
-                    tempSize = sliderBrushSize.MinimumInt;
-                    isGrowingSize = !isGrowingSize;
-                }
-
-                sliderBrushSize.Value = Math.Clamp(tempSize,
-                    sliderBrushSize.Minimum, sliderBrushSize.Maximum);
-            }
-
-            // Updates the brush flow (doesn't affect this brush stroke).
-            if (sliderShiftFlow.Value != 0)
-            {
-                int tempFlow = sliderBrushFlow.ValueInt;
-                if (isGrowingFlow)
-                {
-                    tempFlow += sliderShiftFlow.ValueInt;
-                }
-                else
-                {
-                    tempFlow -= sliderShiftFlow.ValueInt;
-                }
-                if (tempFlow > sliderBrushFlow.Maximum)
-                {
-                    tempFlow = sliderBrushFlow.MaximumInt;
-                    isGrowingFlow = !isGrowingFlow; //handles values < 0.
-                }
-                else if (tempFlow < sliderBrushFlow.Minimum)
-                {
-                    tempFlow = sliderBrushFlow.MinimumInt;
-                    isGrowingFlow = !isGrowingFlow;
-                }
-
-                sliderBrushFlow.Value = Math.Clamp(tempFlow,
-                    sliderBrushFlow.Minimum, sliderBrushFlow.Maximum);
-            }
-            else if (pressure > 0 &&
+            if (pressure > 0 &&
                 tabPressureConstraints.ContainsKey(CommandTarget.Flow) &&
                 tabPressureConstraints[CommandTarget.Flow].handleMethod != ConstraintValueHandlingMethod.DoNothing)
             {
-                // If not changing sliderBrushFlow already by shifting it in the if-statement above, the brush has to
-                // be manually redrawn when modifying brush flow. This is done to avoid editing sliderBrushFlow and
-                // having to use an extra variable to mitigate the cumulative effect it would cause.
+                // If not changing sliderBrushFlow already, the brush has to be manually redrawn when modifying brush
+                // flow. This is done to avoid editing sliderBrushFlow and having to use an extra variable to mitigate
+                // the cumulative effect it would cause.
                 UpdateBrushImage(false);
-            }
-
-            if (sliderShiftRotation.Value != 0)
-            {
-                int tempRot = sliderBrushRotation.ValueInt + sliderShiftRotation.ValueInt;
-                if (tempRot > sliderBrushRotation.Maximum)
-                {
-                    //The range goes negative, and is a total of 2 * max.
-                    tempRot -= (2 * sliderBrushRotation.MaximumInt);
-                }
-                else if (tempRot < sliderBrushRotation.Minimum)
-                {
-                    tempRot += (2 * sliderBrushRotation.MaximumInt) - Math.Abs(tempRot);
-                }
-
-                sliderBrushRotation.Value = Math.Clamp(tempRot,
-                    sliderBrushRotation.Minimum, sliderBrushRotation.Maximum);
             }
             #endregion
 
@@ -3350,8 +3260,6 @@ namespace DynamicDraw
             {
                 case CommandTarget.Flow:
                     return sliderBrushFlow.Value.ToString();
-                case CommandTarget.FlowShift:
-                    return sliderBrushFlow.Value.ToString();
                 case CommandTarget.AutomaticBrushDensity:
                     return chkbxAutomaticBrushDensity.Checked.ToString();
                 case CommandTarget.BrushStrokeDensity:
@@ -3430,8 +3338,6 @@ namespace DynamicDraw
                     return chkbxOrientToMouse.Checked.ToString();
                 case CommandTarget.Rotation:
                     return sliderBrushRotation.Value.ToString();
-                case CommandTarget.RotShift:
-                    return sliderShiftRotation.Value.ToString();
                 case CommandTarget.SelectedBrush:
                     return currentBrushPath;
                 case CommandTarget.SelectedBrushImage:
@@ -3446,8 +3352,6 @@ namespace DynamicDraw
                     return ((int)activeTool).ToString();
                 case CommandTarget.Size:
                     return sliderBrushSize.Value.ToString();
-                case CommandTarget.SizeShift:
-                    return sliderShiftSize.Value.ToString();
                 case CommandTarget.SmoothingMode:
                     // TODO: this is not a protected value across API. If the combobox gets new items it'll change the depended behavior.
                     return cmbxBrushSmoothing.SelectedIndex.ToString();
@@ -3506,12 +3410,6 @@ namespace DynamicDraw
                 case CommandTarget.Flow:
                     sliderBrushFlow.Value =
                         CommandTargetInfo.All[shortcut.Target].Arguments[0].GetDataAsInt(shortcut.ActionData, sliderBrushFlow.ValueInt,
-                        sliderBrushFlow.MinimumInt,
-                        sliderBrushFlow.MaximumInt);
-                    break;
-                case CommandTarget.FlowShift:
-                    sliderBrushFlow.Value =
-                        shortcut.GetDataAsInt(sliderBrushFlow.ValueInt,
                         sliderBrushFlow.MinimumInt,
                         sliderBrushFlow.MaximumInt);
                     break;
@@ -3682,11 +3580,6 @@ namespace DynamicDraw
                         shortcut.GetDataAsInt(sliderBrushRotation.ValueInt,
                         sliderBrushRotation.MinimumInt, sliderBrushRotation.MaximumInt);
                     break;
-                case CommandTarget.RotShift:
-                    sliderShiftRotation.Value =
-                        shortcut.GetDataAsInt(sliderShiftRotation.ValueInt,
-                        sliderShiftRotation.MinimumInt, sliderShiftRotation.MaximumInt);
-                    break;
                 case CommandTarget.SelectedBrush:
                     int indexToSelect = -1;
                     for (int i = 0; i < listviewBrushPicker.Items.Count; i++)
@@ -3759,11 +3652,6 @@ namespace DynamicDraw
                     sliderBrushSize.Value =
                         shortcut.GetDataAsInt(sliderBrushSize.ValueInt,
                         sliderBrushSize.MinimumInt, sliderBrushSize.MaximumInt);
-                    break;
-                case CommandTarget.SizeShift:
-                    sliderShiftSize.Value =
-                        shortcut.GetDataAsInt(sliderShiftSize.ValueInt,
-                        sliderShiftSize.MinimumInt, sliderShiftSize.MaximumInt);
                     break;
                 case CommandTarget.SmoothingMode:
                     cmbxBrushSmoothing.SelectedIndex =
@@ -4238,11 +4126,6 @@ namespace DynamicDraw
             sliderJitterMaxSat = new Slider(CommandTarget.JitterSatMax, 0f);
             sliderJitterMinVal = new Slider(CommandTarget.JitterValMin, 0f);
             sliderJitterMaxVal = new Slider(CommandTarget.JitterValMax, 0f);
-            bttnShiftBasicsControls = new Accordion(true);
-            panelShiftBasics = new FlowLayoutPanel();
-            sliderShiftSize = new Slider(CommandTarget.SizeShift, 0f);
-            sliderShiftRotation = new Slider(CommandTarget.RotShift, 0f);
-            sliderShiftFlow = new Slider(CommandTarget.FlowShift, 0f);
             bttnTabAssignPressureControls = new Accordion(true);
             panelTabletAssignPressure = new FlowLayoutPanel();
             bttnSettings = new Accordion(true);
@@ -4274,7 +4157,6 @@ namespace DynamicDraw
             panelHSVLocks.SuspendLayout();
             panelJitterBasics.SuspendLayout();
             panelJitterColor.SuspendLayout();
-            panelShiftBasics.SuspendLayout();
             panelTabletAssignPressure.SuspendLayout();
             panelSettings.SuspendLayout();
             SuspendLayout();
@@ -4956,8 +4838,6 @@ namespace DynamicDraw
             panelSettingsContainer.Controls.Add(panelJitterBasics);
             panelSettingsContainer.Controls.Add(bttnJitterColorControls);
             panelSettingsContainer.Controls.Add(panelJitterColor);
-            panelSettingsContainer.Controls.Add(bttnShiftBasicsControls);
-            panelSettingsContainer.Controls.Add(panelShiftBasics);
             panelSettingsContainer.Controls.Add(bttnTabAssignPressureControls);
             panelSettingsContainer.Controls.Add(panelTabletAssignPressure);
             panelSettingsContainer.Controls.Add(bttnSettings);
@@ -5758,58 +5638,6 @@ namespace DynamicDraw
             sliderJitterMaxVal.MouseEnter += SliderJitterMaxVal_MouseEnter;
             #endregion
 
-            #region bttnShiftBasicsControls
-            bttnShiftBasicsControls.Location = new Point(0, 1695);
-            bttnShiftBasicsControls.Margin = new Padding(0, 3, 0, 3);
-            bttnShiftBasicsControls.Size = new Size(155, 23);
-            bttnShiftBasicsControls.TabIndex = 50;
-            bttnShiftBasicsControls.TextAlign = ContentAlignment.MiddleLeft;
-            bttnShiftBasicsControls.UpdateAccordion(Strings.AccordionShiftBasics, true, new Control[] { panelShiftBasics });
-            #endregion
-
-            #region panelShiftBasics
-            panelShiftBasics.AutoSize = true;
-            panelShiftBasics.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            panelShiftBasics.FlowDirection = FlowDirection.TopDown;
-            panelShiftBasics.Location = new Point(0, 1724);
-            panelShiftBasics.Margin = new Padding(0, 3, 0, 3);
-            panelShiftBasics.Size = new Size(156, 144);
-            panelShiftBasics.TabIndex = 51;
-            panelShiftBasics.Controls.Add(sliderShiftSize);
-            panelShiftBasics.Controls.Add(sliderShiftRotation);
-            panelShiftBasics.Controls.Add(sliderShiftFlow);
-            #endregion
-
-            #region sliderShiftSize
-            sliderShiftSize.AutoSize = false;
-            sliderShiftSize.IntegerOnly = true;
-            sliderShiftSize.Location = new Point(3, 20);
-            sliderShiftSize.Size = new Size(150, 25);
-            sliderShiftSize.TabIndex = 52;
-            sliderShiftSize.ComputeText = (val) => string.Format("{0} {1}", Strings.ShiftSize, val);
-            sliderShiftSize.MouseEnter += SliderShiftSize_MouseEnter;
-            #endregion
-
-            #region sliderShiftRotation
-            sliderShiftRotation.AutoSize = false;
-            sliderShiftRotation.IntegerOnly = true;
-            sliderShiftRotation.Location = new Point(3, 68);
-            sliderShiftRotation.Size = new Size(150, 25);
-            sliderShiftRotation.TabIndex = 53;
-            sliderShiftRotation.ComputeText = (val) => string.Format("{0} {1}°", Strings.ShiftRotation, val);
-            sliderShiftRotation.MouseEnter += SliderShiftRotation_MouseEnter;
-            #endregion
-
-            #region sliderShiftFlow
-            sliderShiftFlow.AutoSize = false;
-            sliderShiftFlow.IntegerOnly = true;
-            sliderShiftFlow.Location = new Point(3, 116);
-            sliderShiftFlow.Size = new Size(150, 25);
-            sliderShiftFlow.TabIndex = 54;
-            sliderShiftFlow.ComputeText = (val) => string.Format("{0} {1}", Strings.ShiftFlow, val);
-            sliderShiftFlow.MouseEnter += SliderShiftFlow_MouseEnter;
-            #endregion
-
             #region bttnTabAssignPressureControls
             bttnTabAssignPressureControls.Location = new Point(0, 1874);
             bttnTabAssignPressureControls.Margin = new Padding(0, 3, 0, 3);
@@ -5958,7 +5786,6 @@ namespace DynamicDraw
             panelHSVLocks.PerformLayout();
             panelJitterBasics.ResumeLayout(false);
             panelJitterColor.ResumeLayout(false);
-            panelShiftBasics.ResumeLayout(false);
             panelTabletAssignPressure.ResumeLayout(false);
             panelTabletAssignPressure.PerformLayout();
             panelSettings.ResumeLayout(false);
@@ -6342,9 +6169,6 @@ namespace DynamicDraw
             sliderJitterMinHue.Value = settings.RandMinH;
             sliderJitterMinSat.Value = settings.RandMinS;
             sliderJitterMinVal.Value = settings.RandMinV;
-            sliderShiftFlow.Value = settings.FlowChange;
-            sliderShiftSize.Value = settings.SizeChange;
-            sliderShiftRotation.Value = settings.RotChange;
             cmbxChosenEffect.SelectedIndex = settings.CmbxChosenEffect;
             tabPressureConstraints = new(settings.TabPressureConstraints);
             cmbxBlendMode.SelectedIndex = (int)settings.BlendMode;
@@ -9512,21 +9336,6 @@ namespace DynamicDraw
         private void SliderRandVertShift_MouseEnter(object sender, EventArgs e)
         {
             UpdateTooltip(CommandTarget.JitterVerSpray, Strings.RandVertShiftTip);
-        }
-
-        private void SliderShiftFlow_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(CommandTarget.FlowShift, Strings.ShiftFlowTip);
-        }
-
-        private void SliderShiftRotation_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(CommandTarget.RotShift, Strings.ShiftRotationTip);
-        }
-
-        private void SliderShiftSize_MouseEnter(object sender, EventArgs e)
-        {
-            UpdateTooltip(CommandTarget.SizeShift, Strings.ShiftSizeTip);
         }
 
         private void SliderTabPressureBrushSize_LostFocus(object sender, EventArgs e)

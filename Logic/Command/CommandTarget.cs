@@ -191,23 +191,7 @@
         /// </summary>
         JitterValMin = 35,
 
-        /// <summary>
-        /// How much the size of the brush permanently increases on each application. Brush size reflects at the
-        /// range bounds.
-        /// </summary>
-        SizeShift = 36,
-
-        /// <summary>
-        /// How much the tilt of the brush permanently increases on each application. Tilt wraps around at the range
-        /// bounds.
-        /// </summary>
-        RotShift = 37,
-
-        /// <summary>
-        /// How much the transparency of the brush permanently increases on each application. Transparency reflects
-        /// at the range bounds.
-        /// </summary>
-        FlowShift = 38,
+        // Size (36) Rotation (37) and Flow (38) shift targets were removed in version 4.1+
 
         TabPressureFlow = 39,
         TabPressureSize = 40,

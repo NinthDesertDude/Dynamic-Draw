@@ -521,28 +521,6 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Increments/decrements the size by an amount after each stroke.
-        /// </summary>
-        [JsonInclude]
-        [JsonPropertyName("SizeChange")]
-        public int SizeChange
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Increments/decrements the rotation by an amount after each stroke.
-        /// </summary>
-        [JsonInclude]
-        [JsonPropertyName("RotChange")]
-        public int RotChange
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// These are optional scripts that fire when an event occurs, and perform actions in order. They follow a
         /// versioned API of allowed script actions, and brushes that use brush scripting do not stamp the brush as
         /// it's used by default.
@@ -643,8 +621,6 @@ namespace DynamicDraw
             RandMinV = 0;
             BrushScripts = new ToolScripts();
             SeamlessDrawing = false;
-            SizeChange = 0;
-            RotChange = 0;
             Smoothing = CmbxSmoothing.Smoothing.Normal;
             Symmetry = SymmetryMode.None;
             CmbxChosenEffect = 0;
@@ -706,8 +682,6 @@ namespace DynamicDraw
             TabPressureConstraints = new Dictionary<CommandTarget, BrushSettingConstraint>(other.TabPressureConstraints);
             BrushScripts = other.BrushScripts;
             SeamlessDrawing = other.SeamlessDrawing;
-            SizeChange = other.SizeChange;
-            RotChange = other.RotChange;
             Smoothing = other.Smoothing;
             Symmetry = other.Symmetry;
         }

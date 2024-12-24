@@ -36,7 +36,6 @@ namespace DynamicDraw
         private static readonly string BuiltInBrushDoLockS = "brush channellock sat";
         private static readonly string BuiltInBrushDoLockV = "brush channellock val";
         private static readonly string BuiltInBrushFlow = "brush flow";
-        private static readonly string BuiltInBrushFlowShift = "brush flowshift";
         private static readonly string BuiltInBrushJitterBlueMax = "brush jitter blue max";
         private static readonly string BuiltInBrushJitterBlueMin = "brush jitter blue min";
         private static readonly string BuiltInBrushJitterFlowLoss = "brush jitter flow loss";
@@ -59,16 +58,13 @@ namespace DynamicDraw
         private static readonly string BuiltInBrushMinDrawDist = "brush distance";
         private static readonly string BuiltInBrushDoRotateWithMouse = "brush rotatewithmouse";
         private static readonly string BuiltInBrushAngle = "brush angle";
-        private static readonly string BuiltInBrushAngleShift = "brush angleshift";
         private static readonly string BuiltInBrushDoSeamlessDrawing = "brush seamlessdraw";
         private static readonly string BuiltInBrushSettingsPath = "brush";
         private static readonly string BuiltInBrushImagePath = "brush image";
         private static readonly string BuiltInBrushSize = "brush size";
-        private static readonly string BuiltInBrushSizeShift = "brush sizeshift";
         private static readonly string BuiltInBrushSmoothing = "brush smoothing";
         private static readonly string BuiltInBrushSymmetry = "brush symmetry";
         private static readonly string BuiltInBrushStrokeDensityPressure = $"{BuiltInInputPressure}{BuiltInBrushStrokeDensity}";
-        private static readonly string BuiltInBrushFlowShiftPressure = $"{BuiltInInputPressure}{BuiltInBrushFlowShift}";
         private static readonly string BuiltInBrushJitterBlueMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterBlueMax}";
         private static readonly string BuiltInBrushJitterBlueMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterBlueMin}";
         private static readonly string BuiltInBrushJitterFlowLossPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterFlowLoss}";
@@ -226,7 +222,6 @@ namespace DynamicDraw
             if (lowercased == BuiltInBrushDoLockS) { return CommandTarget.DoLockSat; }
             if (lowercased == BuiltInBrushDoLockV) { return CommandTarget.DoLockVal; }
             if (lowercased == BuiltInBrushFlow) { return CommandTarget.Flow; }
-            if (lowercased == BuiltInBrushFlowShift) { return CommandTarget.FlowShift; }
             if (lowercased == BuiltInBrushJitterBlueMax) { return CommandTarget.JitterBlueMax; }
             if (lowercased == BuiltInBrushJitterBlueMin) { return CommandTarget.JitterBlueMin; }
             if (lowercased == BuiltInBrushJitterFlowLoss) { return CommandTarget.JitterFlowLoss; }
@@ -252,17 +247,14 @@ namespace DynamicDraw
             // RedoAction and ResetCanvasTransforms are omitted
             if (lowercased == BuiltInBrushDoRotateWithMouse) { return CommandTarget.RotateWithMouse; }
             if (lowercased == BuiltInBrushAngle) { return CommandTarget.Rotation; }
-            if (lowercased == BuiltInBrushAngleShift) { return CommandTarget.RotShift; }
             if (lowercased == BuiltInBrushDoSeamlessDrawing) { return CommandTarget.SeamlessDrawing; }
             if (lowercased == BuiltInBrushSettingsPath) { return CommandTarget.SelectedBrush; }
             if (lowercased == BuiltInBrushImagePath) { return CommandTarget.SelectedBrushImage; }
             if (lowercased == BuiltInSelectedTool) { return CommandTarget.SelectedTool; }
             if (lowercased == BuiltInBrushSize) { return CommandTarget.Size; }
-            if (lowercased == BuiltInBrushSizeShift) { return CommandTarget.SizeShift; }
             if (lowercased == BuiltInBrushSmoothing) { return CommandTarget.SmoothingMode; }
             if (lowercased == BuiltInBrushSymmetry) { return CommandTarget.SymmetryMode; }
             if (lowercased == BuiltInBrushStrokeDensityPressure) { return CommandTarget.TabPressureBrushDensity; }
-            if (lowercased == BuiltInBrushFlowShiftPressure) { return CommandTarget.TabPressureFlow; }
             if (lowercased == BuiltInBrushJitterBlueMaxPressure) { return CommandTarget.TabPressureJitterBlueMax; }
             if (lowercased == BuiltInBrushJitterBlueMinPressure) { return CommandTarget.TabPressureJitterBlueMin; }
             if (lowercased == BuiltInBrushJitterFlowLossPressure) { return CommandTarget.TabPressureJitterFlowLoss; }
