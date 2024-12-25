@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace DynamicDraw
 {
@@ -15,106 +13,142 @@ namespace DynamicDraw
         /// </summary>
         private static readonly string ScriptVersion = "1";
 
-        #region Read-write script targets
-        private static readonly string BuiltInBrushDoAutoDensity = "brush density automatic";
-        private static readonly string BuiltInBrushBlendMode = "brush blending";
-        private static readonly string BuiltInBrushOpacity = "brush opacity";
-        private static readonly string BuiltInBrushStrokeDensity = "brush density";
-        private static readonly string BuiltInBrushEffect = "brush effect";
-        private static readonly string BuiltInBrushColor = "brush color";
-        private static readonly string BuiltInBrushColorInfluence = "brush color solid mix";
-        private static readonly string BuiltInBrushColorInfluenceH = "brush color solid mix hue";
-        private static readonly string BuiltInBrushColorInfluenceS = "brush color solid mix sat";
-        private static readonly string BuiltInBrushColorInfluenceV = "brush color solid mix val";
-        private static readonly string BuiltInBrushDoColorizeBrush = "brush color solid";
-        private static readonly string BuiltInBrushDoDitherDraw = "brush checkered";
-        private static readonly string BuiltInBrushDoLockAlpha = "brush channellock alpha";
-        private static readonly string BuiltInBrushDoLockB = "brush channellock blue";
-        private static readonly string BuiltInBrushDoLockG = "brush channellock green";
-        private static readonly string BuiltInBrushDoLockH = "brush channellock hue";
-        private static readonly string BuiltInBrushDoLockR = "brush channellock red";
-        private static readonly string BuiltInBrushDoLockS = "brush channellock sat";
-        private static readonly string BuiltInBrushDoLockV = "brush channellock val";
-        private static readonly string BuiltInBrushFlow = "brush flow";
-        private static readonly string BuiltInBrushJitterBlueMax = "brush jitter blue max";
-        private static readonly string BuiltInBrushJitterBlueMin = "brush jitter blue min";
-        private static readonly string BuiltInBrushJitterFlowLoss = "brush jitter flow loss";
-        private static readonly string BuiltInBrushJitterGreenMax = "brush jitter green max";
-        private static readonly string BuiltInBrushJitterGreenMin = "brush jitter green min";
-        private static readonly string BuiltInBrushJitterHorSpray = "brush jitter spray horizontal";
-        private static readonly string BuiltInBrushJitterHueMax = "brush jitter hue max";
-        private static readonly string BuiltInBrushJitterHueMin = "brush jitter hue min";
-        private static readonly string BuiltInBrushJitterSizeMax = "brush jitter size max";
-        private static readonly string BuiltInBrushJitterSizeMin = "brush jitter size min";
-        private static readonly string BuiltInBrushJitterRedMax = "brush jitter red max";
-        private static readonly string BuiltInBrushJitterRedMin = "brush jitter red min";
-        private static readonly string BuiltInBrushJitterLeftAngle = "brush jitter angle left";
-        private static readonly string BuiltInBrushJitterRightAngle = "brush jitter angle right";
-        private static readonly string BuiltInBrushJitterSatMax = "brush jitter sat max";
-        private static readonly string BuiltInBrushJitterSatMin = "brush jitter sat min";
-        private static readonly string BuiltInBrushJitterValMax = "brush jitter val max";
-        private static readonly string BuiltInBrushJitterValMin = "brush jitter val min";
-        private static readonly string BuiltInBrushJitterVerSpray = "brush jitter spray vertical";
-        private static readonly string BuiltInBrushMinDrawDist = "brush distance";
-        private static readonly string BuiltInBrushDoRotateWithMouse = "brush rotatewithmouse";
-        private static readonly string BuiltInBrushAngle = "brush angle";
-        private static readonly string BuiltInBrushDoSeamlessDrawing = "brush seamlessdraw";
-        private static readonly string BuiltInBrushSettingsPath = "brush";
-        private static readonly string BuiltInBrushImagePath = "brush image";
-        private static readonly string BuiltInBrushSize = "brush size";
-        private static readonly string BuiltInBrushSmoothing = "brush smoothing";
-        private static readonly string BuiltInBrushSymmetry = "brush symmetry";
-        private static readonly string BuiltInBrushStrokeDensityPressure = $"{BuiltInInputPressure}{BuiltInBrushStrokeDensity}";
-        private static readonly string BuiltInBrushJitterBlueMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterBlueMax}";
-        private static readonly string BuiltInBrushJitterBlueMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterBlueMin}";
-        private static readonly string BuiltInBrushJitterFlowLossPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterFlowLoss}";
-        private static readonly string BuiltInBrushJitterGreenMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterGreenMax}";
-        private static readonly string BuiltInBrushJitterGreenMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterGreenMin}";
-        private static readonly string BuiltInBrushJitterHorSprayPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterHorSpray}";
-        private static readonly string BuiltInBrushJitterHueMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterHueMax}";
-        private static readonly string BuiltInBrushJitterHueMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterHueMin}";
-        private static readonly string BuiltInBrushJitterSizeMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterSizeMax}";
-        private static readonly string BuiltInBrushJitterSizeMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterSizeMin}";
-        private static readonly string BuiltInBrushJitterRedMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterRedMax}";
-        private static readonly string BuiltInBrushJitterRedMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterRedMin}";
-        private static readonly string BuiltInBrushJitterLeftAnglePressure = $"{BuiltInInputPressure}{BuiltInBrushJitterLeftAngle}";
-        private static readonly string BuiltInBrushJitterRightAnglePressure = $"{BuiltInInputPressure}{BuiltInBrushJitterRightAngle}";
-        private static readonly string BuiltInBrushJitterSatMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterSatMax}";
-        private static readonly string BuiltInBrushJitterSatMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterSatMin}";
-        private static readonly string BuiltInBrushJitterValMaxPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterValMax}";
-        private static readonly string BuiltInBrushJitterValMinPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterValMin}";
-        private static readonly string BuiltInBrushJitterVerSprayPressure = $"{BuiltInInputPressure}{BuiltInBrushJitterVerSpray}";
-        private static readonly string BuiltInBrushMinDrawDistPressure = $"{BuiltInInputPressure}{BuiltInBrushMinDrawDist}";
-        private static readonly string BuiltInBrushAnglePressure = $"{BuiltInInputPressure}{BuiltInBrushAngle}";
-        private static readonly string BuiltInBrushSizePressure = $"{BuiltInInputPressure}{BuiltInBrushSize}";
-        private static readonly string BuiltInInputPressure = "input pressure";
-        private static readonly string BuiltInInputPressurePrev = "last input pressure";
-        private static readonly string BuiltInPalettePick = "palette pick";
-        private static readonly string BuiltInPaletteSwapColors = "palette swapcolors";
-        private static readonly string BuiltInPaletteSwitch = "palette switch";
-        private static readonly string BuiltInSelectedTool = "tool active";
+        #region Shortcuts -> Read-write shortcut targets
+        public static readonly string BuiltInBrushDoAutoDensity = "brush density automatic";
+        public static readonly string BuiltInBrushBlendMode = "brush blending";
+        public static readonly string BuiltInBrushOpacity = "brush opacity";
+        public static readonly string BuiltInBrushStrokeDensity = "brush density";
+        public static readonly string BuiltInBrushEffect = "brush effect";
+        public static readonly string BuiltInBrushColor = "brush color";
+        public static readonly string BuiltInBrushColorInfluence = "brush color solid mix";
+        public static readonly string BuiltInBrushColorInfluenceH = "brush color solid mix hue";
+        public static readonly string BuiltInBrushColorInfluenceS = "brush color solid mix sat";
+        public static readonly string BuiltInBrushColorInfluenceV = "brush color solid mix val";
+        public static readonly string BuiltInBrushDoColorizeBrush = "brush color solid";
+        public static readonly string BuiltInBrushDoDitherDraw = "brush checkered";
+        public static readonly string BuiltInBrushDoLockAlpha = "brush channellock alpha";
+        public static readonly string BuiltInBrushDoLockB = "brush channellock blue";
+        public static readonly string BuiltInBrushDoLockG = "brush channellock green";
+        public static readonly string BuiltInBrushDoLockH = "brush channellock hue";
+        public static readonly string BuiltInBrushDoLockR = "brush channellock red";
+        public static readonly string BuiltInBrushDoLockS = "brush channellock sat";
+        public static readonly string BuiltInBrushDoLockV = "brush channellock val";
+        public static readonly string BuiltInBrushFlow = "brush flow";
+        public static readonly string BuiltInBrushJitterBlueMax = "brush jitter blue max";
+        public static readonly string BuiltInBrushJitterBlueMin = "brush jitter blue min";
+        public static readonly string BuiltInBrushJitterFlowLoss = "brush jitter flow loss";
+        public static readonly string BuiltInBrushJitterGreenMax = "brush jitter green max";
+        public static readonly string BuiltInBrushJitterGreenMin = "brush jitter green min";
+        public static readonly string BuiltInBrushJitterHorSpray = "brush jitter spray horizontal";
+        public static readonly string BuiltInBrushJitterHueMax = "brush jitter hue max";
+        public static readonly string BuiltInBrushJitterHueMin = "brush jitter hue min";
+        public static readonly string BuiltInBrushJitterSizeMax = "brush jitter size max";
+        public static readonly string BuiltInBrushJitterSizeMin = "brush jitter size min";
+        public static readonly string BuiltInBrushJitterRedMax = "brush jitter red max";
+        public static readonly string BuiltInBrushJitterRedMin = "brush jitter red min";
+        public static readonly string BuiltInBrushJitterLeftAngle = "brush jitter angle left";
+        public static readonly string BuiltInBrushJitterRightAngle = "brush jitter angle right";
+        public static readonly string BuiltInBrushJitterSatMax = "brush jitter sat max";
+        public static readonly string BuiltInBrushJitterSatMin = "brush jitter sat min";
+        public static readonly string BuiltInBrushJitterValMax = "brush jitter val max";
+        public static readonly string BuiltInBrushJitterValMin = "brush jitter val min";
+        public static readonly string BuiltInBrushJitterVerSpray = "brush jitter spray vertical";
+        public static readonly string BuiltInBrushMinDrawDist = "brush distance";
+        public static readonly string BuiltInBrushDoRotateWithMouse = "brush rotatewithmouse";
+        public static readonly string BuiltInBrushAngle = "brush angle";
+        public static readonly string BuiltInBrushDoSeamlessDrawing = "brush seamlessdraw";
+        public static readonly string BuiltInBrushSettingsPath = "brush";
+        public static readonly string BuiltInBrushImagePath = "brush image";
+        public static readonly string BuiltInBrushSize = "brush size";
+        public static readonly string BuiltInBrushSmoothing = "brush smoothing";
+        public static readonly string BuiltInBrushSymmetry = "brush symmetry";
+        public static readonly string BuiltInBrushStrokeDensityPressure = $"{BuiltInInputPressure} {BuiltInBrushStrokeDensity}";
+        public static readonly string BuiltInBrushJitterBlueMaxPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterBlueMax}";
+        public static readonly string BuiltInBrushJitterBlueMinPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterBlueMin}";
+        public static readonly string BuiltInBrushJitterFlowLossPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterFlowLoss}";
+        public static readonly string BuiltInBrushJitterGreenMaxPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterGreenMax}";
+        public static readonly string BuiltInBrushJitterGreenMinPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterGreenMin}";
+        public static readonly string BuiltInBrushJitterHorSprayPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterHorSpray}";
+        public static readonly string BuiltInBrushJitterHueMaxPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterHueMax}";
+        public static readonly string BuiltInBrushJitterHueMinPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterHueMin}";
+        public static readonly string BuiltInBrushJitterSizeMaxPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterSizeMax}";
+        public static readonly string BuiltInBrushJitterSizeMinPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterSizeMin}";
+        public static readonly string BuiltInBrushJitterRedMaxPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterRedMax}";
+        public static readonly string BuiltInBrushJitterRedMinPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterRedMin}";
+        public static readonly string BuiltInBrushJitterLeftAnglePressure = $"{BuiltInInputPressure} {BuiltInBrushJitterLeftAngle}";
+        public static readonly string BuiltInBrushJitterRightAnglePressure = $"{BuiltInInputPressure} {BuiltInBrushJitterRightAngle}";
+        public static readonly string BuiltInBrushJitterSatMaxPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterSatMax}";
+        public static readonly string BuiltInBrushJitterSatMinPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterSatMin}";
+        public static readonly string BuiltInBrushJitterValMaxPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterValMax}";
+        public static readonly string BuiltInBrushJitterValMinPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterValMin}";
+        public static readonly string BuiltInBrushJitterVerSprayPressure = $"{BuiltInInputPressure} {BuiltInBrushJitterVerSpray}";
+        public static readonly string BuiltInBrushMinDrawDistPressure = $"{BuiltInInputPressure} {BuiltInBrushMinDrawDist}";
+        public static readonly string BuiltInBrushAnglePressure = $"{BuiltInInputPressure} {BuiltInBrushAngle}";
+        public static readonly string BuiltInBrushSizePressure = $"{BuiltInInputPressure} {BuiltInBrushSize}";
+        public static readonly string BuiltInPalettePick = "palette pick";
+        public static readonly string BuiltInPaletteSwapColors = "palette swapcolors";
+        public static readonly string BuiltInPaletteSwitch = "palette switch";
+        public static readonly string BuiltInSelectedTool = "tool active";
         #endregion
 
-        #region Read-only script targets
-        private static readonly string BuiltInCanvasAngle = "canvas angle";
-        private static readonly string BuiltInCanvasX = "canvas x";
-        private static readonly string BuiltInCanvasY = "canvas y";
-        private static readonly string BuiltInCanvasZoom = "canvas zoom";
-        private static readonly string BuiltInPosX = "position x";
-        private static readonly string BuiltInPosY = "position y";
-        private static readonly string BuiltInPosXPrev = "last position x";
-        private static readonly string BuiltInPosYPrev = "last position y";
-        private static readonly string BuiltInPosStampXPrev = "stroke start position x";
-        private static readonly string BuiltInPosStampYPrev = "stroke start position y";
+        #region Shortcuts -> Read-only shortcut targets
+        public static readonly string BuiltInCanvasAngle = "canvas angle";
+        public static readonly string BuiltInCanvasX = "canvas x";
+        public static readonly string BuiltInCanvasY = "canvas y";
+        public static readonly string BuiltInCanvasZoom = "canvas zoom";
+        public static readonly string BuiltInPosX = "position x";
+        public static readonly string BuiltInPosY = "position y";
+        public static readonly string BuiltInPosXPrev = "last position x";
+        public static readonly string BuiltInPosYPrev = "last position y";
+        public static readonly string BuiltInPosStampXPrev = "stroke start position x";
+        public static readonly string BuiltInPosStampYPrev = "stroke start position y";
+        public static readonly string BuiltInInputPressure = $"input pressure";
+        public static readonly string BuiltInInputPressurePrev = "last input pressure";
         #endregion
 
-        #region Write-only script targets (aka actions)
-        private static readonly string BuiltInStampBrush = "stamp at";
-        private static readonly string BuiltInStampLineTo = "stamp to";
-        private static readonly string BuiltInStampLineBetween = "stamp between";
-        private static readonly string BuiltInPickColor = "pick color at";
-        #endregion
+        #region General API
+        /// <summary>
+        /// Syntax: (string shortcutScriptTarget): string.
+        /// Takes any shortcut target and returns its value in whatever type it is (number, bool, etc.).
+        /// Implementation: <see cref="WinDynamicDraw.ScriptAPIGet(string)"/>.
+        /// </summary>
+        public static readonly string APIGet = "get";
 
+        /// <summary>
+        /// Syntax: (string writeableShortcutScriptTarget, dynamic value): void.
+        /// Sets any writeable shortcut target to the given value, if possible.
+        /// Implementation: <see cref="WinDynamicDraw.ScriptAPISet(string, MoonSharp.Interpreter.DynValue)"/>.
+        /// </summary>
+        public static readonly string APISet = "set";
+
+        /// <summary>
+        /// Syntax: (float x, float y): void.
+        /// Stamps the brush at the given position using all its settings.
+        /// Implementation: <see cref="WinDynamicDraw.ScriptAPIStampBrush(float, float)"/>.
+        /// </summary>
+        public static readonly string APIStampBrush = "stampAt";
+
+        /// <summary>
+        /// Syntax: (float x, float y): void.
+        /// Stamps the brush in a line from the mouse to the given position using all its settings.
+        /// Implementation: <see cref="WinDynamicDraw.ScriptAPIStampLineTo(float, float)"/>.
+        /// </summary>
+        public static readonly string APIStampLineTo = "stampTo";
+
+        /// <summary>
+        /// Syntax: (float x1, float y1, float x2, float y2): void.
+        /// Stamps the brush in a line between two given coordinates using all its settings.
+        /// Implementation: <see cref="WinDynamicDraw.ScriptAPIStampLine(float, float, float, float)"/>.
+        /// </summary>
+        public static readonly string APIStampLine = "stampBetween";
+
+        /// <summary>
+        /// Syntax: Color? (float x, float y): void.
+        /// Returns the color at the given position including its alpha, or null if the position is outside the canvas.
+        /// Implementation: <see cref="WinDynamicDraw.ScriptAPIPickColor(float, float)"/>.
+        /// </summary>
+        public static readonly string APIPickColor = "getColor";
+        #endregion
         #endregion
 
         #region Properties
@@ -194,9 +228,7 @@ namespace DynamicDraw
         /// creating a jarring user experience.
         /// </param>
         public static CommandTarget ResolveBuiltInToCommandTarget(
-            string targetName,
-            bool includeReadOnly = false,
-            bool includeWriteOnly = false)
+            string targetName, bool includeReadOnly = false)
         {
             string lowercased = targetName.ToLower();
 
@@ -204,7 +236,7 @@ namespace DynamicDraw
             if (lowercased == BuiltInBrushBlendMode) { return CommandTarget.BlendMode; }
             if (lowercased == BuiltInBrushOpacity) { return CommandTarget.BrushOpacity; }
             if (lowercased == BuiltInBrushStrokeDensity) { return CommandTarget.BrushStrokeDensity; }
-            // CanvasZoomFit and CanvasZoomToMouse are omitted
+            // CanvasZoomFit and CanvasZoomToMouse are omitted. These should not be allowed targets for scripts.
             if (lowercased == BuiltInBrushEffect) { return CommandTarget.ChosenEffect; }
             if (lowercased == BuiltInBrushColor) { return CommandTarget.Color; }
             if (lowercased == BuiltInBrushColorInfluence) { return CommandTarget.ColorInfluence; }
@@ -212,7 +244,7 @@ namespace DynamicDraw
             if (lowercased == BuiltInBrushColorInfluenceS) { return CommandTarget.ColorInfluenceSat; }
             if (lowercased == BuiltInBrushColorInfluenceV) { return CommandTarget.ColorInfluenceVal; }
             if (lowercased == BuiltInBrushDoColorizeBrush) { return CommandTarget.ColorizeBrush; }
-            // ConfirmLine is omitted
+            // ConfirmLine is omitted. These should not be allowed targets for scripts.
             if (lowercased == BuiltInBrushDoDitherDraw) { return CommandTarget.DitherDraw; }
             if (lowercased == BuiltInBrushDoLockAlpha) { return CommandTarget.DoLockAlpha; }
             if (lowercased == BuiltInBrushDoLockB) { return CommandTarget.DoLockB; }
@@ -242,9 +274,9 @@ namespace DynamicDraw
             if (lowercased == BuiltInBrushJitterValMin) { return CommandTarget.JitterValMin; }
             if (lowercased == BuiltInBrushJitterVerSpray) { return CommandTarget.JitterVerSpray; }
             if (lowercased == BuiltInBrushMinDrawDist) { return CommandTarget.MinDrawDistance; }
-            // None, OpenColorPickerDialog, and OpenQuickCommandDialog are omitted
+            // None, OpenColorPickerDialog, and OpenQuickCommandDialog are omitted. These should not be allowed targets for scripts.
             if (lowercased == BuiltInPalettePick) { return CommandTarget.PickFromPalette; }
-            // RedoAction and ResetCanvasTransforms are omitted
+            // RedoAction and ResetCanvasTransforms are omitted. These should not be allowed targets for scripts.
             if (lowercased == BuiltInBrushDoRotateWithMouse) { return CommandTarget.RotateWithMouse; }
             if (lowercased == BuiltInBrushAngle) { return CommandTarget.Rotation; }
             if (lowercased == BuiltInBrushDoSeamlessDrawing) { return CommandTarget.SeamlessDrawing; }
@@ -277,30 +309,15 @@ namespace DynamicDraw
             if (lowercased == BuiltInBrushMinDrawDistPressure) { return CommandTarget.TabPressureMinDrawDistance; }
             if (lowercased == BuiltInBrushAnglePressure) { return CommandTarget.TabPressureRotation; }
             if (lowercased == BuiltInBrushSizePressure) { return CommandTarget.TabPressureSize; }
-            if (lowercased == BuiltInInputPressure) { return CommandTarget.InputPressure; }
-            if (lowercased == BuiltInInputPressurePrev) { return CommandTarget.InputPressurePrev; }
             if (lowercased == BuiltInPaletteSwapColors) { return CommandTarget.SwapPrimarySecondaryColors; }
             if (lowercased == BuiltInPaletteSwitch) { return CommandTarget.SwitchPalette; }
-            // UndoAction, OpenScriptEditorDialog are omitted
+            // UndoAction, OpenScriptEditorDialog are omitted. These should not be allowed targets for scripts.
             if (includeReadOnly)
             {
                 if (lowercased == BuiltInCanvasAngle) { return CommandTarget.CanvasRotation; }
                 if (lowercased == BuiltInCanvasX) { return CommandTarget.CanvasX; }
                 if (lowercased == BuiltInCanvasY) { return CommandTarget.CanvasY; }
                 if (lowercased == BuiltInCanvasZoom) { return CommandTarget.CanvasZoom; }
-                if (lowercased == BuiltInPosX) { return CommandTarget.ReadMousePosX; }
-                if (lowercased == BuiltInPosXPrev) { return CommandTarget.ReadMousePosXPrev; }
-                if (lowercased == BuiltInPosY) { return CommandTarget.ReadMousePosY; }
-                if (lowercased == BuiltInPosYPrev) { return CommandTarget.ReadMousePosYPrev; }
-                if (lowercased == BuiltInPosStampXPrev) { return CommandTarget.ReadStrokeStartPosX; }
-                if (lowercased == BuiltInPosStampYPrev) { return CommandTarget.ReadStrokeStartPosY; }
-            }
-            if (includeWriteOnly)
-            {
-                if (lowercased == BuiltInStampBrush) { return CommandTarget.StampBrush; }
-                if (lowercased == BuiltInStampLineTo) { return CommandTarget.StampLineTo; }
-                if (lowercased == BuiltInStampLineBetween) { return CommandTarget.StampLineBetween; }
-                if (lowercased == BuiltInPickColor) { return CommandTarget.PickColor; }
             }
 
             return CommandTarget.None;

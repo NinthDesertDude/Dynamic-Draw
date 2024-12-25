@@ -105,19 +105,7 @@ namespace DynamicDraw
                 { CommandTarget.SwitchPalette, new CommandTargetInfo(Localization.Strings.ShortcutNameSwitchPalette, 0, 400) },
                 { CommandTarget.PickFromPalette, new CommandTargetInfo(Localization.Strings.ShortcutNamePickFromPalette, 0, ColorUtils.MaxPaletteSize - 1) },
                 { CommandTarget.ConfirmLine, new CommandTargetInfo(Localization.Strings.ShortcutNameConfirmLine) },
-                { CommandTarget.OpenScriptEditorDialog, new CommandTargetInfo(Localization.Strings.OpenScriptEditorDialog) },
-                { CommandTarget.StampBrush, new CommandTargetInfo(Localization.Strings.ShortcutNameStampBrush, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
-                { CommandTarget.StampLineTo, new CommandTargetInfo(Localization.Strings.ShortcutNameStampLine, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
-                { CommandTarget.StampLineBetween, new CommandTargetInfo(Localization.Strings.ShortcutNameStampLine, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
-                { CommandTarget.PickColor, new CommandTargetInfo(Localization.Strings.ShortcutNamePickColor, new List<CommandTargetArgument>() { new(float.MinValue, float.MaxValue), new(float.MinValue, float.MaxValue) }) },
-                { CommandTarget.InputPressure, Empty },
-                { CommandTarget.InputPressurePrev, Empty },
-                { CommandTarget.ReadMousePosX, Empty },
-                { CommandTarget.ReadMousePosY, Empty },
-                { CommandTarget.ReadMousePosXPrev, Empty },
-                { CommandTarget.ReadMousePosYPrev, Empty },
-                { CommandTarget.ReadStrokeStartPosX, Empty },
-                { CommandTarget.ReadStrokeStartPosY, Empty }
+                { CommandTarget.OpenScriptEditorDialog, new CommandTargetInfo(Localization.Strings.OpenScriptEditorDialog) }
             };
         }
 
@@ -130,12 +118,6 @@ namespace DynamicDraw
         /// The types of arguments to the command, if any. Order is important for shortcuts and scripts.
         /// </summary>
         public List<CommandTargetArgument> Arguments { get; set; }
-
-        /// <summary>
-        /// Used by entries that're primarily script-oriented, useless to shortcuts, and are basically programmatic
-        /// access points, e.g. getting mouse position.
-        /// </summary>
-        public static CommandTargetInfo Empty = new CommandTargetInfo("");
 
         /// <summary>
         /// Defines a command with no action data.

@@ -1261,7 +1261,7 @@ namespace DynamicDraw
                         string[] files = Directory.GetFiles(entry);
                         foreach (string file in files)
                         {
-                            if (Path.GetExtension(file).ToLower() == ".txt")
+                            if (Path.GetExtension(file).ToLower() == ".lua")
                             {
                                 // TODO: implement
                                 //paletteOptions.Add(new Tuple<string, PaletteEntry>(
@@ -1669,208 +1669,6 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Executes all scripts of the current brush, if any, that are triggered by the given trigger.
-        /// </summary>
-        /// <param name="trigger">The trigger for which the scripts should execute.</param>
-        private void BrushScriptsExecute(ScriptTrigger trigger)
-        {
-            if (tempDisabledScriptTriggers.Contains(trigger) ||
-                currentBrushScripts == null ||
-                currentBrushScripts.Scripts == null ||
-                currentBrushScripts.Scripts.Count == 0)
-            {
-                return;
-            }
-
-            int scriptNum = 0;
-
-            try
-            {
-                for (; scriptNum < currentBrushScripts.Scripts.Count; scriptNum++)
-                {
-                    if (currentBrushScripts.Scripts[scriptNum].Trigger == trigger &&
-                        currentBrushScripts.Scripts[scriptNum].Action != "")
-                    {
-                        scriptEnv.DoString(
-                            currentBrushScripts.Scripts[scriptNum].Action,
-                            null,
-                            currentBrushScripts.Scripts[scriptNum].Name);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                var script = currentBrushScripts.Scripts[scriptNum];
-                var message = (e is MoonSharp.Interpreter.SyntaxErrorException e1)
-                    ? e1.DecoratedMessage : (e is MoonSharp.Interpreter.ScriptRuntimeException e2)
-                    ? e2.DecoratedMessage : (e is MoonSharp.Interpreter.DynamicExpressionException e3)
-                    ? e3.DecoratedMessage : (e is MoonSharp.Interpreter.InternalErrorException e4)
-                    ? e4.DecoratedMessage : "";
-
-                if (message != "")
-                {
-                    var (messageNoPos, line, colStart, colEnd) = Script.GetScriptErrorPosition(message);
-
-                    bool isFullLineMentioned = false;
-                    string[] lines = script.Action.Split('\n');
-                    if (colStart.Trim() == "0" && int.TryParse(line.Trim(), out int lineNum))
-                    {
-                        isFullLineMentioned = lines[lineNum - 1].Length.ToString() == colEnd;
-                    }
-
-                    string textToDisplay = "";
-                    string nameStr = string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\"";
-                    string lineStr = (line != "") ? line : Strings.ScriptErrorUnknown;
-                    if (isFullLineMentioned)
-                    {
-                        textToDisplay = string.Format(Strings.ScriptErrorNoColumns, nameStr, lineStr, "\n\n" + messageNoPos);
-                    }
-                    else
-                    {
-                        string colStr = (colEnd != "" && colEnd != colStart)
-                            ? $"{colStart}-{colEnd}"
-                            : (colStart != "") ? colStart
-                            : Strings.ScriptErrorUnknown;
-                        textToDisplay = string.Format(Strings.ScriptError, nameStr, lineStr, colStr, "\n\n" + messageNoPos);
-                    }
-
-                    ThemedMessageBox.Show(textToDisplay, Text, MessageBoxButtons.OK);
-                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
-                }
-                else
-                {
-                    ThemedMessageBox.Show(
-                        string.Format(
-                            Strings.ScriptGenericError,
-                            string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\""),
-                        Text, MessageBoxButtons.OK);
-                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
-                }
-
-                // Temp-disables all scripts (until this is repopulated by e.g. reselecting the brush, restarting the
-                // plugin, etc.) because scripts may depend on each other and lead to dangerous unexpected behavior if
-                // partially disabled.
-                script.Trigger = ScriptTrigger.Disabled;
-            }
-        }
-
-        /// <summary>
-        /// If the current brush supports scripting, this sets the values of many special variables for its scripts.
-        /// If <paramref name="clearCustomVariables"/> is true, all user-defined variables are also wiped, which
-        /// should be done only when a different scripted brush is selected because it's valuable to allow users to
-        /// create persisting variables in their scripts (but it's bad to allow variables set by other brushes to affect
-        /// each other).
-        /// </summary>
-        /// <param name="clearCustomVariables">If true, removes all user-set variables.</param>
-        private void BrushScriptsPrepare(bool clearCustomVariables)
-        {
-            if (currentBrushScripts == null ||
-                currentBrushScripts.Scripts == null ||
-                currentBrushScripts.Scripts.Count == 0)
-            {
-                return;
-            }
-
-            if (scriptEnv == null || clearCustomVariables)
-            {
-                scriptEnv = new MoonSharp.Interpreter.Script(MoonSharp.Interpreter.CoreModules.Preset_SoftSandbox);
-                MoonSharp.Interpreter.Script.WarmUp();
-
-                scriptEnv.Globals["get"] = (Func<string, MoonSharp.Interpreter.DynValue>)BrushScriptsGetValue;
-                scriptEnv.Globals["set"] = (Action<string, MoonSharp.Interpreter.DynValue>)BrushScriptsSetValue;
-            }
-        }
-
-        /// <summary>
-        /// Takes 1 token, a reserved brush script API identifier for a variable name, and attempts to resolve it.
-        /// Returns the resolved value as a literal token, or a variable token with a null value on failure.
-        /// 
-        /// Takes the name of a reserved brush script API identifier (see <see cref="Script"/>'s private static strings
-        /// which define these) and attempts to resolve it. Returns the resolved value(s) or nil if CommandTarget is
-        /// none.
-        /// </summary>
-        private MoonSharp.Interpreter.DynValue BrushScriptsGetValue(string specialVariableName)
-        {
-            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName, includeReadOnly: true);
-
-            // Returns the value of special variables from Dynamic Draw.
-            if (resolvedTarget != CommandTarget.None)
-            {
-                string resultStr = GetTargetValue(resolvedTarget);
-                var returns = new MoonSharp.Interpreter.DynValue[CommandTargetInfo.All[resolvedTarget].Arguments.Count];
-
-                for (int i = 0; i < returns.Length; i++)
-                {
-                    switch (CommandTargetInfo.All[resolvedTarget].Arguments[i].ValueType)
-                    {
-                        case CommandActionDataType.Bool:
-                            returns[i] = MoonSharp.Interpreter.DynValue.NewBoolean(bool.Parse(resultStr));
-                            break;
-                        case CommandActionDataType.Float:
-                            returns[i] = MoonSharp.Interpreter.DynValue.NewNumber(float.Parse(resultStr));
-                            break;
-                        case CommandActionDataType.Integer:
-                            returns[i] = MoonSharp.Interpreter.DynValue.NewNumber(int.Parse(resultStr));
-                            break;
-                        case CommandActionDataType.Color:
-                        case CommandActionDataType.String:
-                            returns[i] = MoonSharp.Interpreter.DynValue.NewString(resultStr);
-                            break;
-                    }
-                }
-
-                // Interpret actions that return data based on whatever it resolves to.
-                if (returns.Length == 0)
-                {
-                    if (float.TryParse(resultStr, out float resultFloat))
-                    {
-                        return MoonSharp.Interpreter.DynValue.NewNumber(resultFloat);
-                    }
-                    if (bool.TryParse(resultStr, out bool resultBool))
-                    {
-                        return MoonSharp.Interpreter.DynValue.NewBoolean(resultBool);
-                    }
-                    if (resultStr != null)
-                    {
-                        return MoonSharp.Interpreter.DynValue.NewString(resultStr);
-                    }
-                    
-                    return MoonSharp.Interpreter.DynValue.Nil;
-                }
-
-                // Return as a tuple, or return as a single value.
-                if (returns.Length == 1) { return returns[0]; }
-
-                return MoonSharp.Interpreter.DynValue.NewTuple(returns);
-            }
-
-            return MoonSharp.Interpreter.DynValue.Nil;
-        }
-
-        /// <summary>
-        /// Takes 1 or 2 tokens and attempts to create a command with a valid target, defaulting to
-        /// <see cref="CommandTarget.None"/>. Token 1 should be a reserved brush script API identifier for the target,
-        /// and token 2 should be an optional string of action data for it. Returns a token equal to 0.
-        /// </summary>
-        private void BrushScriptsSetValue(string specialVariableName, MoonSharp.Interpreter.DynValue result)
-        {
-            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName, includeWriteOnly: true);
-
-            // Allows setting arbitrary variables with primitive-type values.
-            if (resolvedTarget != CommandTarget.None)
-            {
-                ToolScripts temp = currentBrushScripts;
-                currentBrushScripts = null;
-                HandleShortcut(new Command()
-                {
-                    Target = resolvedTarget,
-                    ActionData = result.ToPrintString()
-                });
-                currentBrushScripts = temp;
-            }
-        }
-
-        /// <summary>
         /// Returns a new brush settings object using all current settings values.
         /// </summary>
         private BrushSettings CreateSettingsObjectFromCurrentSettings(bool fallbackToCircleBrushPath = false)
@@ -1996,14 +1794,13 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Applies the brush to the drawing region at the given location
-        /// with the given radius. The brush is assumed square.
+        /// For multi-image drawing, cycles through loaded images with wrap-around.
+        /// TODO: replace this with a more robust animator that has at least 4 modes: none, cycle wrap, cycle reverse,
+        /// random and 3 trigger modes: none, on brush stroke, on brush stamp. Using none for animation is useful for
+        /// scripts that want to animate in their own way.
         /// </summary>
-        /// <param name="loc">The location to apply the brush.</param>
-        /// <param name="radius">The size to draw the brush at.</param>
-        private void DrawBrush(PointF loc, int radius, float pressure)
+        private void AnimateSimple()
         {
-            // TODO: THIS IS ONLY A TEST. THIS ROTATES ALL LOADED IMAGES.
             if (bmpsBrushEffects.Count > 1)
             {
                 int index = bmpsBrushEffects.Keys.IndexOf(bmpBrushActiveID);
@@ -2019,6 +1816,17 @@ namespace DynamicDraw
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Applies the brush to the drawing region at the given location
+        /// with the given radius. The brush is assumed square.
+        /// </summary>
+        /// <param name="loc">The location to apply the brush.</param>
+        /// <param name="radius">The size to draw the brush at.</param>
+        private void DrawBrush(PointF loc, int radius, float pressure)
+        {
+            AnimateSimple();
 
             if (!pluginHasLoaded || bmpsBrushEffects.Get(bmpBrushActiveID) == null)
             {
@@ -2050,11 +1858,11 @@ namespace DynamicDraw
 
                 // Scripted brushes execute their pre-brush stamp logic now.
                 brushStrokeStartPosition = new PointF(loc.X, loc.Y);
-                BrushScriptsExecute(ScriptTrigger.StartBrushStroke);
+                ScriptExecute(ScriptTrigger.StartBrushStroke);
             }
 
             // Scripted brushes execute their pre-brush stamp logic now.
-            BrushScriptsExecute(ScriptTrigger.OnBrushStamp);
+            ScriptExecute(ScriptTrigger.OnBrushStamp);
 
             // If a script was set to execute, don't stamp the current brush.
             if (currentBrushScripts?.Scripts?.Any((script) => script.Trigger == ScriptTrigger.OnBrushStamp) ?? false)
@@ -3125,10 +2933,12 @@ namespace DynamicDraw
         }
 
         /// <summary>
-        /// Sets the active color based on the color from the canvas at the given point.
+        /// Gets the color from the canvas at the given point.
         /// </summary>
-        /// <param name="loc">The point to get the color from.</param>
-        private void GetColorFromCanvas(PointF loc)
+        /// <param name="loc"></param>
+        /// <param name="copyAlphaOverride"></param>
+        /// <returns></returns>
+        private Color? GetColorFromCanvas(PointF loc, bool copyAlphaOverride = false)
         {
             PointF rotatedLoc = TransformPoint(new PointF(loc.X - halfPixelOffset, loc.Y - 1), true);
 
@@ -3141,12 +2951,29 @@ namespace DynamicDraw
             {
                 Color pixel = bmpCommitted.GetPixel(finalX, finalY);
 
-                if (!UserSettings.ColorPickerIncludesAlpha)
+                if (!UserSettings.ColorPickerIncludesAlpha && !copyAlphaOverride)
                 {
                     pixel = Color.FromArgb(sliderBrushOpacity.ValueInt, pixel);
                 }
 
-                UpdateBrushColor(pixel, true);
+                return pixel;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Sets the active color based on the color from the canvas at the given point.
+        /// </summary>
+        /// <param name="loc">The point to get the color from.</param>
+        /// <param name="copyAlphaOverride">If true, *always* copies the alpha. Used by script API.</param>
+        private void SetColorFromCanvas(PointF loc, bool copyAlphaOverride = false)
+        {
+            Color? pixel = GetColorFromCanvas(loc, copyAlphaOverride);
+
+            if (pixel.HasValue)
+            {
+                UpdateBrushColor(pixel.Value, true);
             }
         }
 
@@ -3373,18 +3200,6 @@ namespace DynamicDraw
                     return sliderBrushOpacity.Value.ToString();
                 case CommandTarget.ChosenEffect:
                     return cmbxChosenEffect.SelectedIndex.ToString();
-                case CommandTarget.ReadMousePosX:
-                    return mouseLoc.X.ToString();
-                case CommandTarget.ReadMousePosXPrev:
-                    return mouseLocPrev.X.ToString();
-                case CommandTarget.ReadMousePosY:
-                    return mouseLoc.Y.ToString();
-                case CommandTarget.ReadMousePosYPrev:
-                    return mouseLoc.Y.ToString();
-                case CommandTarget.ReadStrokeStartPosX:
-                    return brushStrokeStartPosition.X.ToString();
-                case CommandTarget.ReadStrokeStartPosY:
-                    return brushStrokeStartPosition.Y.ToString();
                 default:
                     return "";
             };
@@ -3399,7 +3214,7 @@ namespace DynamicDraw
         {
             // Disabling scripts prevents scripts from triggering themselves and causing stack overflows. We also use
             // a variable to turn off re-enabling the scripts, which we set to true when this function calls itself,
-            // effectively leaving it up to the sub-call to re-enable scripts. This avoid inconsistent behavior.
+            // effectively leaving it up to the sub-call to re-enable scripts. This avoids inconsistent behavior.
             bool deferReEnablingScripts = false;
             bool brushStrokeStartWasEnabled = tempDisabledScriptTriggers.Add(ScriptTrigger.StartBrushStroke);
             bool brushStrokeEndWasEnabled = tempDisabledScriptTriggers.Add(ScriptTrigger.EndBrushStroke);
@@ -3789,60 +3604,6 @@ namespace DynamicDraw
                     }
                     currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                     break;
-                case CommandTarget.StampBrush:
-                    {
-                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
-                        string[] chunks = shortcut.ActionData.Split(';');
-                        int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
-                        if (finalBrushSize > 0)
-                        {
-                            DrawBrush(new PointF(
-                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X / canvasZoom - halfPixelOffset, 0, canvas.width),
-                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y / canvasZoom - halfPixelOffset, 0, canvas.height)),
-                                finalBrushSize, tabletPressureRatio);
-                        }
-                        break;
-                    }
-                case CommandTarget.StampLineTo:
-                    {
-                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
-                        string[] chunks = shortcut.ActionData.Split(';');
-                        DrawBrushLine(
-                            new PointF(mouseLocPrev.X - halfPixelOffset, mouseLocPrev.Y - halfPixelOffset),
-                            new PointF(
-                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X - halfPixelOffset, 0, canvas.width),
-                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y - halfPixelOffset, 0, canvas.height)));
-                        break;
-                    }
-                case CommandTarget.StampLineBetween:
-                    {
-                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
-                        string[] chunks = shortcut.ActionData.Split(';');
-                        DrawBrushLine(
-                            new PointF(
-                                target.Arguments[0].GetDataAsFloat(chunks[0], mouseLocPrev.X - halfPixelOffset, 0, canvas.width),
-                                target.Arguments[1].GetDataAsFloat(chunks[1], mouseLocPrev.Y - halfPixelOffset, 0, canvas.height)),
-                            new PointF(
-                                target.Arguments[0].GetDataAsFloat(chunks[2], mouseLoc.X - halfPixelOffset, 0, canvas.width),
-                                target.Arguments[1].GetDataAsFloat(chunks[3], mouseLoc.Y - halfPixelOffset, 0, canvas.height)));
-                        break;
-                    }
-                case CommandTarget.PickColor:
-                    {
-                        CommandTargetInfo target = CommandTargetInfo.All[shortcut.Target];
-                        string[] chunks = shortcut.ActionData.Split(';');
-                        GetColorFromCanvas(new PointF(
-                            target.Arguments[0].GetDataAsFloat(chunks[0], mouseLoc.X, 0, canvas.width),
-                            target.Arguments[1].GetDataAsFloat(chunks[1], mouseLoc.Y, 0, canvas.height)));
-                        break;
-                    }
-                case CommandTarget.InputPressure:
-                    tabletPressureRatio = shortcut.GetDataAsFloat(tabletPressureRatio, 0, 1);
-                    break;
-                case CommandTarget.InputPressurePrev:
-                    tabletPressureRatioPrev = shortcut.GetDataAsFloat(tabletPressureRatioPrev, 0, 1);
-                    break;
-                // Omitted: ReadMousePosX, ReadMousePosXPrev, ReadMousePosY, ReadMousePosYPrev, ReadBrushStartPosX, ReadBrushStartPosY
             };
 
             if (!deferReEnablingScripts)
@@ -6103,7 +5864,7 @@ namespace DynamicDraw
                     (scripts.Scripts[0] != currentBrushScripts.Scripts[0]))
                 {
                     currentBrushScripts = new(scripts);
-                    BrushScriptsPrepare(true);
+                    ScriptEnvPrepare(true);
                 }
             }
             else
@@ -6766,6 +6527,286 @@ namespace DynamicDraw
         }
         #endregion
 
+        #region Methods (Scripting API)
+        /// <summary>
+        /// Executes all scripts of the current brush, if any, that are triggered by the given trigger.
+        /// </summary>
+        /// <param name="trigger">The trigger for which the scripts should execute.</param>
+        private void ScriptExecute(ScriptTrigger trigger)
+        {
+            if (tempDisabledScriptTriggers.Contains(trigger) ||
+                currentBrushScripts == null ||
+                currentBrushScripts.Scripts == null ||
+                currentBrushScripts.Scripts.Count == 0)
+            {
+                return;
+            }
+
+            int scriptNum = 0;
+
+            try
+            {
+                for (; scriptNum < currentBrushScripts.Scripts.Count; scriptNum++)
+                {
+                    if (currentBrushScripts.Scripts[scriptNum].Trigger == trigger &&
+                        currentBrushScripts.Scripts[scriptNum].Action != "")
+                    {
+                        scriptEnv.DoString(
+                            currentBrushScripts.Scripts[scriptNum].Action,
+                            null,
+                            currentBrushScripts.Scripts[scriptNum].Name);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                var script = currentBrushScripts.Scripts[scriptNum];
+                var message = (e is MoonSharp.Interpreter.SyntaxErrorException e1)
+                    ? e1.DecoratedMessage : (e is MoonSharp.Interpreter.ScriptRuntimeException e2)
+                    ? e2.DecoratedMessage : (e is MoonSharp.Interpreter.DynamicExpressionException e3)
+                    ? e3.DecoratedMessage : (e is MoonSharp.Interpreter.InternalErrorException e4)
+                    ? e4.DecoratedMessage : "";
+
+                if (message != "")
+                {
+                    var (messageNoPos, line, colStart, colEnd) = Script.GetScriptErrorPosition(message);
+
+                    bool isFullLineMentioned = false;
+                    string[] lines = script.Action.Split('\n');
+                    if (colStart.Trim() == "0" && int.TryParse(line.Trim(), out int lineNum))
+                    {
+                        isFullLineMentioned = lines[lineNum - 1].Length.ToString() == colEnd;
+                    }
+
+                    string textToDisplay = "";
+                    string nameStr = string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\"";
+                    string lineStr = (line != "") ? line : Strings.ScriptErrorUnknown;
+                    if (isFullLineMentioned)
+                    {
+                        textToDisplay = string.Format(Strings.ScriptErrorNoColumns, nameStr, lineStr, "\n\n" + messageNoPos);
+                    }
+                    else
+                    {
+                        string colStr = (colEnd != "" && colEnd != colStart)
+                            ? $"{colStart}-{colEnd}"
+                            : (colStart != "") ? colStart
+                            : Strings.ScriptErrorUnknown;
+                        textToDisplay = string.Format(Strings.ScriptError, nameStr, lineStr, colStr, "\n\n" + messageNoPos);
+                    }
+
+                    ThemedMessageBox.Show(textToDisplay, Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
+                }
+                else
+                {
+                    ThemedMessageBox.Show(
+                        string.Format(
+                            Strings.ScriptGenericError,
+                            string.IsNullOrWhiteSpace(script.Name) ? $"#{scriptNum + 1}" : $"\"{script.Name}\""),
+                        Text, MessageBoxButtons.OK);
+                    currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
+                }
+
+                // Temp-disables all scripts (until this is repopulated by e.g. reselecting the brush, restarting the
+                // plugin, etc.) because scripts may depend on each other and lead to dangerous unexpected behavior if
+                // partially disabled.
+                script.Trigger = ScriptTrigger.Disabled;
+            }
+        }
+
+        /// <summary>
+        /// If the current brush supports scripting, this sets the values of many special variables for its scripts.
+        /// If <paramref name="clearCustomVariables"/> is true, all user-defined variables are also wiped, which
+        /// should be done only when a different scripted brush is selected because it's valuable to allow users to
+        /// create persisting variables in their scripts (but it's bad to allow variables set by other brushes to affect
+        /// each other).
+        /// </summary>
+        /// <param name="clearCustomVariables">If true, removes all user-set variables.</param>
+        private void ScriptEnvPrepare(bool clearCustomVariables)
+        {
+            if (currentBrushScripts == null ||
+                currentBrushScripts.Scripts == null ||
+                currentBrushScripts.Scripts.Count == 0)
+            {
+                return;
+            }
+
+            if (scriptEnv == null || clearCustomVariables)
+            {
+                scriptEnv = new MoonSharp.Interpreter.Script(MoonSharp.Interpreter.CoreModules.Preset_SoftSandbox);
+                MoonSharp.Interpreter.Script.WarmUp();
+
+                scriptEnv.Globals[Script.APIGet] = (Func<string, MoonSharp.Interpreter.DynValue>)ScriptAPIGet;
+                scriptEnv.Globals[Script.APISet] = (Action<string, MoonSharp.Interpreter.DynValue>)ScriptAPISet;
+                scriptEnv.Globals[Script.APIStampBrush] = (Action<float, float>)ScriptAPIStampBrush;
+                scriptEnv.Globals[Script.APIStampLine] = (Action<float, float, float, float>)ScriptAPIStampLine;
+                scriptEnv.Globals[Script.APIStampLineTo] = (Action<float, float>)ScriptAPIStampLineTo;
+                scriptEnv.Globals[Script.APIPickColor] = (Func<float, float, Color?>)ScriptAPIPickColor;
+            }
+        }
+
+        /// <summary>
+        /// Takes 1 token, a reserved brush script API identifier for a variable name, and attempts to resolve it.
+        /// Returns the resolved value as a literal token, or a variable token with a null value on failure.
+        /// 
+        /// Takes the name of a reserved brush script API identifier (see <see cref="Script"/>'s private static strings
+        /// which define these) and attempts to resolve it. Returns the resolved value(s) or nil if CommandTarget is
+        /// none.
+        /// </summary>
+        private MoonSharp.Interpreter.DynValue ScriptAPIGet(string specialVariableName)
+        {
+            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName, includeReadOnly: true);
+
+            // Uses the shortcut system to read variable values if applicable.
+            if (resolvedTarget != CommandTarget.None)
+            {
+                string resultStr = GetTargetValue(resolvedTarget);
+                var returns = new MoonSharp.Interpreter.DynValue[CommandTargetInfo.All[resolvedTarget].Arguments.Count];
+
+                for (int i = 0; i < returns.Length; i++)
+                {
+                    switch (CommandTargetInfo.All[resolvedTarget].Arguments[i].ValueType)
+                    {
+                        case CommandActionDataType.Bool:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewBoolean(bool.Parse(resultStr));
+                            break;
+                        case CommandActionDataType.Float:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewNumber(float.Parse(resultStr));
+                            break;
+                        case CommandActionDataType.Integer:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewNumber(int.Parse(resultStr));
+                            break;
+                        case CommandActionDataType.Color:
+                        case CommandActionDataType.String:
+                            returns[i] = MoonSharp.Interpreter.DynValue.NewString(resultStr);
+                            break;
+                    }
+                }
+
+                // Interpret actions that return data based on whatever it resolves to.
+                if (returns.Length == 0)
+                {
+                    if (float.TryParse(resultStr, out float resultFloat))
+                    {
+                        return MoonSharp.Interpreter.DynValue.NewNumber(resultFloat);
+                    }
+                    if (bool.TryParse(resultStr, out bool resultBool))
+                    {
+                        return MoonSharp.Interpreter.DynValue.NewBoolean(resultBool);
+                    }
+                    if (resultStr != null)
+                    {
+                        return MoonSharp.Interpreter.DynValue.NewString(resultStr);
+                    }
+
+                    return MoonSharp.Interpreter.DynValue.Nil;
+                }
+
+                // Return as a tuple, or return as a single value.
+                if (returns.Length == 1) { return returns[0]; }
+
+                return MoonSharp.Interpreter.DynValue.NewTuple(returns);
+            }
+
+            // Returns the value of targets supported by the scripting API which aren't command targets.
+            else
+            {
+                if (specialVariableName == Script.BuiltInPosX)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(mouseLoc.X); }
+                if (specialVariableName == Script.BuiltInPosXPrev)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(mouseLocPrev.X); }
+                if (specialVariableName == Script.BuiltInPosY)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(mouseLoc.Y); }
+                if (specialVariableName == Script.BuiltInPosYPrev)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(mouseLoc.Y); }
+                if (specialVariableName == Script.BuiltInPosStampXPrev)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(brushStrokeStartPosition.X); }
+                if (specialVariableName == Script.BuiltInPosStampYPrev)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(brushStrokeStartPosition.Y); }
+                if (specialVariableName == Script.BuiltInInputPressure)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(tabletPressureRatio); }
+                if (specialVariableName == Script.BuiltInInputPressurePrev)
+                    { return MoonSharp.Interpreter.DynValue.NewNumber(tabletPressureRatioPrev); }
+            }
+
+            return MoonSharp.Interpreter.DynValue.Nil;
+        }
+
+        /// <summary>
+        /// Internal values are exposed through the shortcut system to the Script API layer, so any access to those
+        /// is done with the get and set functions. This takes 1 or 2 tokens and attempts to create a command with a
+        /// valid target, doing nothing if the string is unrecognized. Token 1 should be a reserved brush script API
+        /// identifier for the target, and token 2 should be an optional string of action data for it.
+        /// </summary>
+        private void ScriptAPISet(string specialVariableName, MoonSharp.Interpreter.DynValue result)
+        {
+            CommandTarget resolvedTarget = Script.ResolveBuiltInToCommandTarget(specialVariableName);
+
+            // Allows setting arbitrary variables with primitive-type values.
+            if (resolvedTarget != CommandTarget.None)
+            {
+                ToolScripts temp = currentBrushScripts;
+                currentBrushScripts = null;
+                HandleShortcut(new Command()
+                {
+                    Target = resolvedTarget,
+                    ActionData = result.ToPrintString()
+                });
+                currentBrushScripts = temp;
+            }
+        }
+
+        /// <summary>
+        /// Stamps the brush with all its current settings at the given position.
+        /// </summary>
+        private void ScriptAPIStampBrush(float x, float y)
+        {
+            int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+            if (finalBrushSize > 0)
+            {
+                DrawBrush(new PointF(Math.Clamp(x, 0, canvas.width), Math.Clamp(y, 0, canvas.height)),
+                    finalBrushSize,
+                    tabletPressureRatio);
+            }
+        }
+
+        /// <summary>
+        /// Stamps the brush with all its current settings in a linear line
+        /// from a given position to another.
+        /// </summary>
+        private void ScriptAPIStampLine(float x1, float y1, float x2, float y2)
+        {
+            int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+            if (finalBrushSize > 0)
+            {
+                DrawBrushLine(new PointF(x1, y1), new PointF(x2, y2));
+            }
+        }
+
+        /// <summary>
+        /// Stamps the brush with all its current settings in a linear line
+        /// from the mouse position to the given coords.
+        /// </summary>
+        private void ScriptAPIStampLineTo(float x, float y)
+        {
+            int finalBrushSize = GetPressureValue(CommandTarget.Size, sliderBrushSize.ValueInt, tabletPressureRatio);
+            if (finalBrushSize > 0)
+            {
+                DrawBrushLine(
+                    new PointF(mouseLocPrev.X - halfPixelOffset, mouseLocPrev.Y - halfPixelOffset),
+                    new PointF(x, y));
+            }
+        }
+
+        /// <summary>
+        /// Returns the color at the given position including alpha.
+        /// </summary>
+        private Color? ScriptAPIPickColor(float x, float y)
+        {
+            return GetColorFromCanvas(new PointF(Math.Clamp(x, 0, canvas.width), Math.Clamp(y, 0, canvas.height)), true);
+        }
+        #endregion
+
         #region Methods (event handlers)
         private void BrushImageLoadingWorker_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -7174,7 +7215,7 @@ namespace DynamicDraw
                 // Samples the color under the mouse.
                 else if (activeTool == Tool.ColorPicker)
                 {
-                    GetColorFromCanvas(new PointF(
+                    SetColorFromCanvas(new PointF(
                         mouseLocPrev.X,
                         mouseLocPrev.Y));
                 }
@@ -7356,7 +7397,7 @@ namespace DynamicDraw
                 // Samples the color under the mouse.
                 if (activeTool == Tool.ColorPicker)
                 {
-                    GetColorFromCanvas(new PointF(mouseLoc.X, mouseLoc.Y));
+                    SetColorFromCanvas(new PointF(mouseLoc.X, mouseLoc.Y));
                 }
 
                 // Sets the symmetry origin.
@@ -7425,7 +7466,7 @@ namespace DynamicDraw
 
             if (isUserDrawing.canvasChanged)
             {
-                BrushScriptsExecute(ScriptTrigger.EndBrushStroke);
+                ScriptExecute(ScriptTrigger.EndBrushStroke);
                 GeneratePalette(PaletteRefreshTriggerFlags.OnCanvasChange);
 
                 if (activeTool == Tool.CloneStamp)
