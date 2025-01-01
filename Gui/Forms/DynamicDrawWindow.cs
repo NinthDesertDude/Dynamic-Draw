@@ -1402,7 +1402,7 @@ namespace DynamicDraw
 
             // Instantiates the effect and prepares all metadata for it.
             var effectInfo = effectOptions[cmbxChosenEffect.SelectedIndex].Item2;
-            effectToDraw.Effect = effectInfo.CreateInstance();
+            effectToDraw.Effect = effectInfo.CreateInstance(this.Services, this.EnvironmentParameters);
             effectToDraw.SrcArgs = null;
             effectToDraw.DstArgs = null;
 

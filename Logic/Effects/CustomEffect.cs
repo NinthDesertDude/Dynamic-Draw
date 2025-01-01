@@ -10,7 +10,7 @@ namespace DynamicDraw
     /// </summary>
     public class CustomEffect : IDisposable
     {
-        private Effect effect;
+        private IEffect effect;
         private EffectConfigToken settings;
         private PropertyCollection propertySettings;
         private RenderArgs srcArgs;
@@ -19,7 +19,7 @@ namespace DynamicDraw
         /// <summary>
         /// Get or set the effect to use. Disposing is automatic.
         /// </summary>
-        public Effect Effect
+        public IEffect Effect
         {
             get { return effect; }
             set
