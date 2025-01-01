@@ -1915,34 +1915,30 @@ namespace DynamicDraw
                     // Sets HSV color jitter.
                     if (jitterHsv)
                     {
-                        HsvColor colorHsv = new RgbColor((int)(newRed * 255f), (int)(newGreen * 255f), (int)(newBlue * 255f))
+                        ColorHsv96Float colorHsv = new ColorRgb96Float(newRed, newGreen, newBlue * 255f)
                             .ToHsv();
 
-                        int newHue = Math.Clamp(colorHsv.Hue
+                        float newHue = Math.Clamp(colorHsv.Hue
                             - random.Next((int)(finalJitterMinHue * 3.6f))
                             + random.Next((int)(finalJitterMaxHue * 3.6f)), 0, 360);
 
-                        int newSat = Math.Clamp(colorHsv.Saturation
+                        float newSat = Math.Clamp(colorHsv.Saturation
                             - random.Next(finalJitterMinSat)
                             + random.Next(finalJitterMaxSat), 0, 100);
 
-                        int newVal = Math.Clamp(colorHsv.Value
+                        float newVal = Math.Clamp(colorHsv.Value
                             - random.Next(finalJitterMinVal)
                             + random.Next(finalJitterMaxVal), 0, 100);
 
-                        Color finalColor = new HsvColor(newHue, newSat, newVal).ToColor();
+                        ColorRgb96Float finalColor = new ColorHsv96Float(newHue, newSat, newVal).ToRgb();
 
-                        newRed = finalColor.R / 255f;
-                        newGreen = finalColor.G / 255f;
-                        newBlue = finalColor.B / 255f;
+                        newRed = finalColor.R;
+                        newGreen = finalColor.G;
+                        newBlue = finalColor.B;
                     }
 
                     recolorMatrix = DrawingUtils.ColorImageAttr(newRed, newGreen, newBlue, newAlpha);
-                    adjustedColor = ColorBgra.FromBgra(
-                        (byte)Math.Round(newBlue * 255),
-                        (byte)Math.Round(newGreen * 255),
-                        (byte)Math.Round(newRed * 255),
-                        (byte)Math.Round(newAlpha * 255));
+                    adjustedColor = ColorBgra32.Round(new ColorRgba128Float(newRed, newGreen, newBlue, newAlpha));
                 }
             }
             #endregion
