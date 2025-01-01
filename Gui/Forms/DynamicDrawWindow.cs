@@ -1441,15 +1441,6 @@ namespace DynamicDraw
             bttnChooseEffectSettings.Enabled = isEffectConfigurable;
             UpdateEnabledControls();
 
-            // TODO: Cannot set IEffect.Services. Must recreate via IEffectInfo2.CreateInstance(IServiceProvider, IEffectEnvironment).
-            effectToDraw.Effect.EnvironmentParameters = new EffectEnvironmentParameters(
-                menuActiveColors.Swatches[0],
-                menuActiveColors.Swatches[1],
-                sliderBrushSize.Value,
-                EnvironmentParameters.DocumentResolution,
-                new PdnRegion(EnvironmentParameters.GetSelectionAsPdnRegion().GetRegionData()),
-                Surface.CopyFromBitmap(bmpCommitted));
-
             // Applies the restored effect immediately under current settings without previewing.
             if (restoreEffect != null && !previewRestoredEffect)
             {
