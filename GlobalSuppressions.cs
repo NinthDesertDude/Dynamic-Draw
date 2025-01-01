@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0017:Simplify object initialization", Justification = "Not always easier to read", Scope = "member", Target = "~M:DynamicDraw.WinDynamicDraw.GeneratePressureControl(DynamicDraw.CommandTarget,System.Int32)~System.Windows.Forms.FlowLayoutPanel")]
+[assembly: SuppressMessage("WinForms Security", "WFO1000:Missing code serialization configuration for property content", Justification = "Neither useful nor important")]
