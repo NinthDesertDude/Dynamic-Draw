@@ -119,7 +119,7 @@ namespace DynamicDraw
         /// <summary>
         /// Contains the list of all available effects to use while drawing.
         /// </summary>
-        private readonly BindingList<Tuple<string, IEffectInfo>> effectOptions;
+        private readonly BindingList<Tuple<string, IEffectInfo2>> effectOptions;
 
         /// <summary>
         /// The list of palettes, with the filename (no file extension) as the key, and the path to the file, including
@@ -646,9 +646,9 @@ namespace DynamicDraw
             cmbxSymmetry.ValueMember = "Item2";
 
             // Fetches and populates the available effects for the effect chooser combobox.
-            effectOptions = new BindingList<Tuple<string, IEffectInfo>>()
+            effectOptions = new BindingList<Tuple<string, IEffectInfo2>>()
             {
-                new Tuple<string, IEffectInfo>(Strings.EffectDefaultNone, null)
+                new Tuple<string, IEffectInfo2>(Strings.EffectDefaultNone, null)
             };
 
             cmbxChosenEffect.DisplayMember = "Item1";
@@ -791,7 +791,7 @@ namespace DynamicDraw
             // Fetches and populates the available effects for the effect chooser combobox.
             if (effectOptions.Count == 1)
             {
-                IEffectsService effectsService = Services?.GetService<IEffectsService>();
+                IEffectsService2 effectsService = Services?.GetService<IEffectsService2>();
 
                 if (effectsService != null)
                 {
@@ -800,7 +800,7 @@ namespace DynamicDraw
                         .OrderByDescending((effect) => effect.IsBuiltIn)
                         .ThenBy((effect) => effect.Name);
 
-                    foreach (IEffectInfo effectInfo in effectInfos)
+                    foreach (IEffectInfo2 effectInfo in effectInfos)
                     {
                         // No reason to use this plugin inside itself and reusing shared state causes it to crash.
                         if (effectInfo.Name == EffectPlugin.StaticName)
@@ -817,7 +817,7 @@ namespace DynamicDraw
 
                         if (effectInfo.Category != EffectCategory.DoNotDisplay)
                         {
-                            effectOptions.Add(new Tuple<string, IEffectInfo>(effectInfo.Name, effectInfo));
+                            effectOptions.Add(new Tuple<string, IEffectInfo2>(effectInfo.Name, effectInfo));
                         }
                     }
                 }
@@ -7652,9 +7652,13 @@ namespace DynamicDraw
                 new Rectangle(2, e.Bounds.Top, e.Bounds.Width, e.Bounds.Height));
 
             //Draws the image of the current item to be repainted.
-            if (effect.Item2 != null && effect.Item2.Image != null)
+            if (effect.Item2 != null)
             {
-                e.Graphics.DrawImage(effect.Item2.Image, pictureLocation);
+                Image effectImage = effect.Item2.GetImageAsImage();
+                if (effectImage != null)
+                {
+                    e.Graphics.DrawImage(effectImage, pictureLocation);
+                }
             }
 
             int textPosition = (effect.Item2 == null)
