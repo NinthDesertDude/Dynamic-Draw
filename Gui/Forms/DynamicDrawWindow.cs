@@ -1328,6 +1328,7 @@ namespace DynamicDraw
                 effectToDraw.SrcArgs.Surface.CopyFromGdipBitmap(bmpCommitted);
             }
 
+            // TODO: Cannot re-set IEffect.Environment. Must recreate via IEffectInfo2.CreateInstance(IServiceProvider, IEffectEnvironment)
             var envParams = effectToDraw.Effect.EnvironmentParameters;
             effectToDraw.Effect.EnvironmentParameters = effectToDraw.Effect.EnvironmentParameters
                 .CloneWithDifferentSourceSurface(effectToDraw.SrcArgs.Surface);
@@ -1400,9 +1401,23 @@ namespace DynamicDraw
                 return;
             }
 
+            // Create new environment
+            IEffectEnvironment2 effectEnvironment = this.EnvironmentParameters
+                .CloneWithNewUserColors(
+                    ManagedColor.Create((SrgbColorA)menuActiveColors.Swatches[0]),
+                    ManagedColor.Create((SrgbColorA)menuActiveColors.Swatches[1]))
+                .CloneWithNewBrushSize(sliderBrushSize.Value)
+                // TODO: There are lifetime management issues with System.Drawing.Bitmap -> PaintDotNet.Imaging.IBitmap[Source] wrapping.
+                // In particular, S.D.Bitmap provides no "ref counting", so it's very easy to end up with an IBitmap[Source] that wraps
+                // an S.D.Bitmap that has been disposed. This very easily leads to crashing. Ways around this include never calling
+                // dispose on the S.D.Bitmap and writing an IBitmap wrapper for it, or converting over to use IBitmap in the first place.
+                // Surface does implement IBitmap, so that's an option too, although use of Surface outside of classic Effects (which are
+                // deprecated) is highly discouraged and will eventually be fully depracated via [Obsolete].
+                .CloneWithNewSource(bmpCommitted); 
+
             // Instantiates the effect and prepares all metadata for it.
             var effectInfo = effectOptions[cmbxChosenEffect.SelectedIndex].Item2;
-            effectToDraw.Effect = effectInfo.CreateInstance(this.Services, this.EnvironmentParameters);
+            effectToDraw.Effect = effectInfo.CreateInstance(this.Services, effectEnvironment);
             effectToDraw.SrcArgs = null;
             effectToDraw.DstArgs = null;
 
@@ -1421,12 +1436,12 @@ namespace DynamicDraw
             }
 
             bool isEffectPropertyBased = effectToDraw.Effect is PropertyBasedEffect;
-            bool isEffectConfigurable = effectToDraw.Effect.Options.Flags.HasFlag(EffectFlags.Configurable);
+            bool isEffectConfigurable = effectToDraw.Effect.Options.IsConfigurable;
 
             bttnChooseEffectSettings.Enabled = isEffectConfigurable;
             UpdateEnabledControls();
 
-            effectToDraw.Effect.Services = Services;
+            // TODO: Cannot set IEffect.Services. Must recreate via IEffectInfo2.CreateInstance(IServiceProvider, IEffectEnvironment).
             effectToDraw.Effect.EnvironmentParameters = new EffectEnvironmentParameters(
                 menuActiveColors.Swatches[0],
                 menuActiveColors.Swatches[1],
@@ -1463,7 +1478,7 @@ namespace DynamicDraw
             try
             {
                 using Timer repaintTimer = new Timer() { Interval = 150, Enabled = false };
-                using EffectConfigDialog dialog = effectToDraw.Effect.CreateConfigDialog();
+                using IEffectConfigForm dialog = effectToDraw.Effect.CreateConfigForm();
 
                 if (dialog == null)
                 {
@@ -1476,14 +1491,14 @@ namespace DynamicDraw
 
                 if (isEffectPropertyBased)
                 {
-                    dialog.EffectToken = new PropertyBasedEffectConfigToken(effectToDraw.PropertySettings);
+                    dialog.Token = new PropertyBasedEffectConfigToken(effectToDraw.PropertySettings);
                 }
 
-                effectToDraw.Settings = dialog.EffectToken;
+                effectToDraw.Settings = dialog.Token;
 
                 // Reset/start a short delay before refreshing the effect preview.
                 // Delays until a short duration passes without changing the UI.
-                dialog.EffectTokenChanged += (a, b) =>
+                dialog.TokenChanged += (a, b) =>
                 {
                     repaintTimer.Stop();
                     repaintTimer.Start();
@@ -1494,7 +1509,7 @@ namespace DynamicDraw
                 {
                     repaintTimer.Stop();
 
-                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
+                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.Token);
                     if (!effectSuccessfullyExecuted)
                     {
                         ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
@@ -1514,7 +1529,7 @@ namespace DynamicDraw
                 if (repaintTimer.Enabled)
                 {
                     repaintTimer.Stop();
-                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.EffectToken);
+                    bool effectSuccessfullyExecuted = ActiveEffectRender(dialog.Token);
                     if (!effectSuccessfullyExecuted)
                     {
                         ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
@@ -1525,10 +1540,10 @@ namespace DynamicDraw
 
                 if (isEffectPropertyBased)
                 {
-                    effectToDraw.PropertySettings = (dialog.EffectToken as PropertyBasedEffectConfigToken)?.Properties;
+                    effectToDraw.PropertySettings = (dialog.Token as PropertyBasedEffectConfigToken)?.Properties;
                 }
 
-                effectToDraw.Settings = dialog.EffectToken;
+                effectToDraw.Settings = dialog.Token;
 
                 isPreviewingEffect = (false, false);
                 displayCanvas.Refresh();
