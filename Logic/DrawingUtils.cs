@@ -853,7 +853,7 @@ namespace DynamicDraw
             byte* brushRow = (byte*)brushData.Scan0;
 
             ColorBgra userColorAdj = userColor.Color.ConvertFromPremultipliedAlpha();
-            HsvColorF userColorAdjHSV = ColorUtils.HSVFFromBgra(userColorAdj);
+            ColorHsv96Float userColorAdjHSV = ColorUtils.HSVFFromBgra(userColorAdj);
 
             float minAlphaFactor = (255 - userColor.MinAlpha) / 255f;
             float userColorBlendFactor = colorInfluence != null ? colorInfluence.Value.Amount / 100f : 0;
@@ -874,8 +874,8 @@ namespace DynamicDraw
                     ColorBgra newColor = default;
                     ColorBgra destCol;
                     ColorBgra intermediateBGRA = default;
-                    HsvColorF intermediateHSV;
-                    HsvColorF intermediateHSV2;
+                    ColorHsv96Float intermediateHSV;
+                    ColorHsv96Float intermediateHSV2;
 
                     for (int y = roi.Y; y < roiY2; y++)
                     {
@@ -1126,7 +1126,7 @@ namespace DynamicDraw
 
                     ColorBgra final;
                     float finalAlpha;
-                    HsvColorF mergedHSV, dstHSV;
+                    ColorHsv96Float mergedHSV, dstHSV;
                     
                     for (int x = roi.X; x < roi.X + roi.Width; x++)
                     {
