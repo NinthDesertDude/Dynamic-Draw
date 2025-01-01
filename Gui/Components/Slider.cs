@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PaintDotNet.Imaging;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -505,7 +506,7 @@ namespace DynamicDraw
                 if (specialMode.Value.type != SliderSpecialType.HueGraph)
                 {
                     Color computedColor1, computedColor2;
-                    PaintDotNet.HsvColorF colHsv, hsvCol1, hsvCol2;
+                    ColorHsv96Float colHsv, hsvCol1, hsvCol2;
                     Color col = specialMode.Value.color;
 
                     switch (specialMode.Value.type)
@@ -528,8 +529,8 @@ namespace DynamicDraw
                             break;
                         case SliderSpecialType.SatGraph:
                             colHsv = ColorUtils.HSVFFromBgra(col);
-                            hsvCol1 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
-                            hsvCol2 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol1 = new ColorHsv96Float(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol2 = new ColorHsv96Float(colHsv.Hue, colHsv.Saturation, colHsv.Value);
                             hsvCol1.Saturation = 0;
                             hsvCol2.Saturation = 100;
                             computedColor1 = ColorUtils.HSVFToBgra(hsvCol1);
@@ -537,8 +538,8 @@ namespace DynamicDraw
                             break;
                         case SliderSpecialType.ValGraph:
                             colHsv = ColorUtils.HSVFFromBgra(col);
-                            hsvCol1 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
-                            hsvCol2 = new PaintDotNet.HsvColorF(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol1 = new ColorHsv96Float(colHsv.Hue, colHsv.Saturation, colHsv.Value);
+                            hsvCol2 = new ColorHsv96Float(colHsv.Hue, colHsv.Saturation, colHsv.Value);
                             hsvCol1.Value = 0;
                             hsvCol2.Value = 100;
                             computedColor1 = ColorUtils.HSVFToBgra(hsvCol1);
@@ -568,12 +569,12 @@ namespace DynamicDraw
                 // Draws the hue slider.
                 else
                 {
-                    PaintDotNet.HsvColorF hsvCol = ColorUtils.HSVFFromBgra(specialMode.Value.color);
-                    PaintDotNet.HsvColorF hsvColStaging;
+                    ColorHsv96Float hsvCol = ColorUtils.HSVFFromBgra(specialMode.Value.color);
+                    ColorHsv96Float hsvColStaging;
                     for (int i = 0; i < mainDimension; i++)
                     {
-                        hsvColStaging = new PaintDotNet.HsvColorF(hsvCol.Hue, hsvCol.Saturation, hsvCol.Value);
-                        hsvColStaging.Hue = (double)i / mainDimension * MaximumInt;
+                        hsvColStaging = new ColorHsv96Float(hsvCol.Hue, hsvCol.Saturation, hsvCol.Value);
+                        hsvColStaging.Hue = (float)((double)i / mainDimension * MaximumInt);
 
                         using (Pen pen = new Pen(ColorUtils.HSVFToBgra(hsvColStaging)))
                         {
@@ -1041,7 +1042,7 @@ namespace DynamicDraw
         {
             if (specialMode == null) { throw new ArgumentException("Only special sliders can get color from value."); }
             Color col = specialMode.Value.color;
-            PaintDotNet.HsvColorF hsvCol;
+            ColorHsv96Float hsvCol;
 
             switch (specialMode.Value.type)
             {
@@ -1055,15 +1056,15 @@ namespace DynamicDraw
                     return Color.FromArgb((int)value, col.R, col.G, col.B);
                 case SliderSpecialType.HueGraph:
                     hsvCol = ColorUtils.HSVFFromBgra(col);
-                    hsvCol.Hue = Math.Round(value);
+                    hsvCol.Hue = value;
                     return ColorUtils.HSVFToBgra(hsvCol, col.A);
                 case SliderSpecialType.SatGraph:
                     hsvCol = ColorUtils.HSVFFromBgra(col);
-                    hsvCol.Saturation = Math.Round(value);
+                    hsvCol.Saturation = value;
                     return ColorUtils.HSVFToBgra(hsvCol, col.A);
                 case SliderSpecialType.ValGraph:
                     hsvCol = ColorUtils.HSVFFromBgra(col);
-                    hsvCol.Value = Math.Round(value);
+                    hsvCol.Value = value;
                     return ColorUtils.HSVFToBgra(hsvCol, col.A);
             }
 
@@ -1078,7 +1079,7 @@ namespace DynamicDraw
         {
             if (specialMode == null) { throw new ArgumentException("Only special sliders can set value from color."); }
             specialMode = new(specialMode.Value.type, col);
-            PaintDotNet.HsvColorF hsvCol;
+            ColorHsv96Float hsvCol;
 
             switch (specialMode.Value.type)
             {
@@ -1096,15 +1097,15 @@ namespace DynamicDraw
                     break;
                 case SliderSpecialType.HueGraph:
                     hsvCol = ColorUtils.HSVFFromBgra(col);
-                    value = (float)hsvCol.Hue;
+                    value = hsvCol.Hue;
                     break;
                 case SliderSpecialType.SatGraph:
                     hsvCol = ColorUtils.HSVFFromBgra(col);
-                    value = (float)hsvCol.Saturation;
+                    value = hsvCol.Saturation;
                     break;
                 case SliderSpecialType.ValGraph:
                     hsvCol = ColorUtils.HSVFFromBgra(col);
-                    value = (float)hsvCol.Value;
+                    value = hsvCol.Value;
                     break;
             }
 

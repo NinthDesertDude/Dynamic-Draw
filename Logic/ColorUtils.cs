@@ -1,4 +1,5 @@
 using PaintDotNet;
+using PaintDotNet.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -19,42 +20,33 @@ namespace DynamicDraw
         /// <summary>
         /// Lossless conversion from BGRA to HSV. Regular, non-float HSV conversion is lossy across the colorspace.
         /// </summary>
-        public static HsvColorF HSVFFromBgra(ColorBgra color)
+        public static ColorHsv96Float HSVFFromBgra(ColorBgra color)
         {
-            return new RgbColorF(color.R / 255f, color.G / 255f, color.B / 255f).ToHsvColorF();
+            return ColorHsv96Float.FromRgb(color.Bgr);
         }
 
         /// <summary>
         /// Lossless conversion from BGRA to HSV. Regular, non-float HSV conversion is lossy across the colorspace.
         /// </summary>
-        public static HsvColorF HSVFFromBgra(Color color)
+        public static ColorHsv96Float HSVFFromBgra(Color color)
         {
-            return new RgbColorF(color.R / 255f, color.G / 255f, color.B / 255f).ToHsvColorF();
+            return ColorHsv96Float.FromRgb(((ColorBgra32)color).Bgr);
         }
 
         /// <summary>
         /// Lossless conversion from HSV to BGRA. Regular, non-float RGB conversion is lossy across the colorspace.
         /// </summary>
-        public static ColorBgra HSVFToBgra(HsvColorF color)
+        public static ColorBgra HSVFToBgra(ColorHsv96Float color)
         {
-            RgbColorF col = color.ToRgbColorF();
-            return ColorBgra.FromBgr(
-                (byte)Math.Round(col.Blue * 255),
-                (byte)Math.Round(col.Green * 255),
-                (byte)Math.Round(col.Red * 255));
+            return ColorBgr24.Round(color.ToRgb());
         }
 
         /// <summary>
         /// Lossless conversion from HSV to BGRA. Regular, non-float RGB conversion is lossy across the colorspace.
         /// </summary>
-        public static ColorBgra HSVFToBgra(HsvColorF color, byte alpha)
+        public static ColorBgra HSVFToBgra(ColorHsv96Float color, byte alpha)
         {
-            RgbColorF col = color.ToRgbColorF();
-            return ColorBgra.FromBgra(
-                (byte)Math.Round(col.Blue * 255),
-                (byte)Math.Round(col.Green * 255),
-                (byte)Math.Round(col.Red * 255),
-                alpha);
+            return ColorBgra32.Round(color.ToRgb()) with { A = alpha };
         }
 
         /// <summary>
@@ -140,7 +132,7 @@ namespace DynamicDraw
                 type == PaletteSpecialType.Similar3 ||
                 type == PaletteSpecialType.Similar4)
             {
-                HsvColor colorAsHsv = HsvColor.FromColor(primary);
+                ColorHsv96Float colorAsHsv = ColorHsv96Float.FromRgb(((ColorBgra32)primary).Bgr);
 
                 int chunks = type == PaletteSpecialType.Similar3 ? 3 : 4;
                 int hueVariance = chunks == 3 ? 60 : 40; // the difference in hue between each color
@@ -161,23 +153,23 @@ namespace DynamicDraw
                         hue += hueVariance;
                     }
 
-                    HsvColor accentInHsv = new HsvColor(colorAsHsv.Hue, colorAsHsv.Saturation, colorAsHsv.Value);
-                    int newHue = (accentInHsv.Hue + hue) % 360;
+                    ColorHsv96Float accentInHsv = colorAsHsv;
+                    float newHue = (accentInHsv.Hue + hue) % 360.0f; // TODO: not sure if this is the correct operator, or if MathF.IEEERemainder() is the one to use
                     if (newHue < 0) { newHue = 360 + newHue; }
                     accentInHsv.Hue = newHue;
 
-                    Color accent = Color.FromArgb(primary.A, accentInHsv.ToColor());
+                    Color accent = Color.FromArgb(primary.A, ColorBgr24.Round(accentInHsv.ToRgb()));
 
-                    Color dark = new HsvColor(
-                    accentInHsv.Hue,
-                    Math.Clamp(colorAsHsv.Saturation + 50, 0, 100),
-                    Math.Clamp(colorAsHsv.Value - 50, 0, 100)).ToColor();
+                    Color dark = ColorBgr24.Round(new ColorHsv96Float(
+                        accentInHsv.Hue,
+                        Math.Clamp(colorAsHsv.Saturation + 50, 0, 100),
+                        Math.Clamp(colorAsHsv.Value - 50, 0, 100)).ToRgb());
                     dark = Color.FromArgb(primary.A, dark);
 
-                    Color bright = new HsvColor(
+                    Color bright = ColorBgr24.Round(new ColorHsv96Float(
                         accentInHsv.Hue,
                         Math.Clamp(colorAsHsv.Saturation - 50, 0, 100),
-                        Math.Clamp(colorAsHsv.Value + 50, 0, 100)).ToColor();
+                        Math.Clamp(colorAsHsv.Value + 50, 0, 100)).ToRgb());
                     bright = Color.FromArgb(primary.A, bright);
 
                     int halfChunk = thisChunk / 2;
@@ -211,7 +203,7 @@ namespace DynamicDraw
                 type == PaletteSpecialType.Square ||
                 type == PaletteSpecialType.SplitComplement)
             {
-                HsvColor colorAsHsv = HsvColor.FromColor(primary);
+                ColorHsv96Float colorAsHsv = ColorHsv96Float.FromRgb(((ColorBgra32)primary).Bgr);
 
                 int chunks =
                     type == PaletteSpecialType.Complement ? 2 :
@@ -236,24 +228,24 @@ namespace DynamicDraw
                         ? hueVariance * i + ((i >= 2) ? 100 : 0)
                         : hueRange + (hueVariance * i);
 
-                    HsvColor accentInHsv = new HsvColor(colorAsHsv.Hue, colorAsHsv.Saturation, colorAsHsv.Value);
-                    int newHue = (accentInHsv.Hue + hue) % 360;
+                    ColorHsv96Float accentInHsv = colorAsHsv;
+                    float newHue = (accentInHsv.Hue + hue) % 360; // TODO: same note as above, should use % or MathF.IEEERemainder() ?
                     if (newHue < 0) { newHue += 360; }
                     if (newHue > 360) { newHue -= 360; }
                     accentInHsv.Hue = newHue;
 
-                    Color accent = Color.FromArgb(primary.A, accentInHsv.ToColor());
+                    Color accent = Color.FromArgb(primary.A, ColorBgr24.Round(accentInHsv.ToRgb()));
 
-                    Color dark = new HsvColor(
-                    accentInHsv.Hue,
-                    Math.Clamp(colorAsHsv.Saturation + 50, 0, 100),
-                    Math.Clamp(colorAsHsv.Value - 50, 0, 100)).ToColor();
+                    Color dark = ColorBgr24.Round(new ColorHsv96Float(
+                        accentInHsv.Hue,
+                        Math.Clamp(colorAsHsv.Saturation + 50, 0, 100),
+                        Math.Clamp(colorAsHsv.Value - 50, 0, 100)).ToRgb());
                     dark = Color.FromArgb(primary.A, dark);
 
-                    Color bright = new HsvColor(
+                    Color bright = ColorBgr24.Round(new ColorHsv96Float(
                         accentInHsv.Hue,
                         Math.Clamp(colorAsHsv.Saturation - 50, 0, 100),
-                        Math.Clamp(colorAsHsv.Value + 50, 0, 100)).ToColor();
+                        Math.Clamp(colorAsHsv.Value + 50, 0, 100)).ToRgb());
                     bright = Color.FromArgb(primary.A, bright);
 
                     int halfChunk = thisChunk / 2;

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using DynamicDraw.Properties;
 using DynamicDraw.Localization;
 using PaintDotNet;
+using PaintDotNet.Imaging;
 
 namespace DynamicDraw
 {
@@ -132,7 +133,7 @@ namespace DynamicDraw
             #region colorWheel
             colorWheel.Width = 120;
             colorWheel.Height = 120;
-            colorWheel.HsvColor = HsvColor.FromColor(associatedColor);
+            colorWheel.HsvColor = ColorHsv96Float.FromRgb(((ColorBgra32)associatedColor).Bgr);
             colorWheel.ColorChanged += (a, b) => { UpdateOnColorChange(null, true); };
             #endregion
 
@@ -375,7 +376,7 @@ namespace DynamicDraw
             // Overwrite the hue and saturation of the new color from the wheel, if picking color from it.
             if (fromWheel)
             {
-                HsvColorF hsvCol = ColorUtils.HSVFFromBgra(newColor);
+                ColorHsv96Float hsvCol = ColorUtils.HSVFFromBgra(newColor);
                 hsvCol.Hue = colorWheel.HsvColor.Hue;
                 hsvCol.Saturation = colorWheel.HsvColor.Saturation;
 
@@ -391,10 +392,10 @@ namespace DynamicDraw
             }
             else
             {
-                HsvColorF hsvCol = ColorUtils.HSVFFromBgra(newColor);
-                colorWheel.HsvColor = new HsvColor(
-                    (int)Math.Round(hsvCol.Hue),
-                    (int)Math.Round(hsvCol.Saturation),
+                ColorHsv96Float hsvCol = ColorUtils.HSVFFromBgra(newColor);
+                colorWheel.HsvColor = new ColorHsv96Float(
+                    hsvCol.Hue,
+                    hsvCol.Saturation,
                     100);
             }
 

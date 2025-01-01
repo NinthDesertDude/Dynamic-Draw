@@ -1,10 +1,13 @@
 ﻿using PaintDotNet;
+using PaintDotNet.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
+
+using GdipPixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace DynamicDraw
 {
@@ -196,7 +199,7 @@ namespace DynamicDraw
         /// <returns>The created bitmap.</returns>
         public static unsafe Bitmap CreateBitmapFromSurface(Surface surface)
         {
-            Bitmap image = new Bitmap(surface.Width, surface.Height, PixelFormat.Format32bppPArgb);
+            Bitmap image = new Bitmap(surface.Width, surface.Height, GdipPixelFormat.Format32bppPArgb);
 
             BitmapData bitmapData = image.LockBits(
                 image.GetBounds(),
@@ -230,7 +233,7 @@ namespace DynamicDraw
         /// <summary>
         /// Returns a new bitmap that resembles the original, but in the given format.
         /// </summary>
-        public static Bitmap FormatImage(Bitmap img, PixelFormat format)
+        public static Bitmap FormatImage(Bitmap img, GdipPixelFormat format)
         {
             Bitmap clone = new Bitmap(img.Width, img.Height, format);
             using (Graphics gr = Graphics.FromImage(clone))
@@ -259,7 +262,7 @@ namespace DynamicDraw
 
             //Creates a new bitmap with the minimum square size.
             int size = Math.Max(img.Height, img.Width);
-            Bitmap newImg = new Bitmap(size, size, PixelFormat.Format32bppPArgb);
+            Bitmap newImg = new Bitmap(size, size, GdipPixelFormat.Format32bppPArgb);
 
             using (Graphics graphics = Graphics.FromImage(newImg))
             {
@@ -285,7 +288,7 @@ namespace DynamicDraw
         /// <param name="alpha">A value from 0 to 1 to multiply with.</param>
         public static unsafe Bitmap MakeTransparent(Bitmap img)
         {
-            Bitmap image = FormatImage(img, PixelFormat.Format32bppPArgb);
+            Bitmap image = FormatImage(img, GdipPixelFormat.Format32bppPArgb);
 
             BitmapData bmpData = image.LockBits(
                 image.GetBounds(),
@@ -394,7 +397,7 @@ namespace DynamicDraw
             int newHeight = (int)Math.Ceiling(origBmp.Width * sin + origBmp.Height * cos);
 
             //Creates the new image and a graphic canvas to draw the rotation.
-            Bitmap newBmp = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppPArgb);
+            Bitmap newBmp = new Bitmap(newWidth, newHeight, GdipPixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
                 g.PixelOffsetMode = PixelOffsetMode.Half;
@@ -447,7 +450,7 @@ namespace DynamicDraw
             CmbxSmoothing.Smoothing smoothing = CmbxSmoothing.Smoothing.Normal)
         {
             //Creates the new image and a graphic canvas to draw the rotation.
-            Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
+            Bitmap newBmp = new Bitmap(newSize.Width, newSize.Height, GdipPixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(newBmp))
             {
                 g.InterpolationMode = CmbxSmoothing.SmoothingToInterpolationMode[smoothing];
@@ -498,8 +501,8 @@ namespace DynamicDraw
             }
 
             //Formats and size must be the same.
-            if (srcImg.PixelFormat != PixelFormat.Format32bppPArgb && srcImg.PixelFormat != PixelFormat.Format32bppArgb ||
-                dstImg.PixelFormat != PixelFormat.Format32bppPArgb ||
+            if (srcImg.PixelFormat != GdipPixelFormat.Format32bppPArgb && srcImg.PixelFormat != GdipPixelFormat.Format32bppArgb ||
+                dstImg.PixelFormat != GdipPixelFormat.Format32bppPArgb ||
                 srcImg.Width != dstImg.Width ||
                 srcImg.Height != dstImg.Height)
             {
@@ -516,7 +519,7 @@ namespace DynamicDraw
                 ImageLockMode.WriteOnly,
                 dstImg.PixelFormat);
 
-            bool premultiplySrc = srcImg.PixelFormat == PixelFormat.Format32bppArgb;
+            bool premultiplySrc = srcImg.PixelFormat == GdipPixelFormat.Format32bppArgb;
 
             //Copies each pixel.
             byte* srcRow = (byte*)srcData.Scan0;
@@ -680,8 +683,8 @@ namespace DynamicDraw
                     ColorBgra srcCol;
                     ColorBgra destCol;
                     ColorBgra newColor = default;
-                    HsvColorF srcColorHSV;
-                    HsvColorF dstColorHSV;
+                    ColorHsv96Float srcColorHSV;
+                    ColorHsv96Float dstColorHSV;
 
                     for (int y = roi.Y; y < roi.Y + roi.Height; y++)
                     {
@@ -702,7 +705,7 @@ namespace DynamicDraw
                         for (; x < roi.X + roi.Width; x++)
                         {
                             destCol = destPtr->ConvertFromPremultipliedAlpha();
-                            srcCol = (src.bmp?.PixelFormat == PixelFormat.Format32bppPArgb)
+                            srcCol = (src.bmp?.PixelFormat == GdipPixelFormat.Format32bppPArgb)
                                 ? srcPtr->ConvertFromPremultipliedAlpha()
                                 : *srcPtr;
 

@@ -8,6 +8,7 @@ using DynamicDraw.TabletSupport;
 using PaintDotNet;
 using PaintDotNet.AppModel;
 using PaintDotNet.Effects;
+using PaintDotNet.Imaging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,6 +21,8 @@ using System.Reflection;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+
+using GdipPixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace DynamicDraw
 {
@@ -60,7 +63,7 @@ namespace DynamicDraw
         /// <summary>
         /// Stores the current drawing in full.
         /// </summary>
-        private Bitmap bmpCommitted = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+        private Bitmap bmpCommitted = new Bitmap(1, 1, GdipPixelFormat.Format32bppPArgb);
 
         /// <summary>
         /// Stores the current brush stroke. This bitmap is drawn to for all brush strokes, then
@@ -68,13 +71,13 @@ namespace DynamicDraw
         /// a staging layer enables layer-like opacity and all the blend modes that aren't normal
         /// or overwrite mode. These effects are performed during draw & when committing.
         /// </summary>
-        private Bitmap bmpStaged = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+        private Bitmap bmpStaged = new Bitmap(1, 1, GdipPixelFormat.Format32bppPArgb);
 
         /// <summary>
         /// Stores the merged image of the staged + committed bitmaps. This is used only when drawing the canvas
         /// visually for the user, because freeing & allocating this memory repeatedly would be extremely slow.
         /// </summary>
-        private Bitmap bmpMerged = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+        private Bitmap bmpMerged = new Bitmap(1, 1, GdipPixelFormat.Format32bppPArgb);
         #endregion
 
         #region Brush Image Loading
@@ -5820,7 +5823,7 @@ namespace DynamicDraw
             // Overwrite the hue and saturation of the new color from the wheel, if picking color from it.
             if (fromWheel)
             {
-                HsvColorF hsvCol = ColorUtils.HSVFFromBgra(newColor);
+                ColorHsv96Float hsvCol = ColorUtils.HSVFFromBgra(newColor);
                 hsvCol.Hue = wheelColor.HsvColor.Hue;
                 hsvCol.Saturation = wheelColor.HsvColor.Saturation;
 
@@ -5836,10 +5839,10 @@ namespace DynamicDraw
             }
             else
             {
-                HsvColorF hsvCol = ColorUtils.HSVFFromBgra(newColor);
-                wheelColor.HsvColor = new HsvColor(
-                    (int)Math.Round(hsvCol.Hue),
-                    (int)Math.Round(hsvCol.Saturation),
+                ColorHsv96Float hsvCol = ColorUtils.HSVFFromBgra(newColor);
+                wheelColor.HsvColor = new ColorHsv96Float(
+                    hsvCol.Hue,
+                    hsvCol.Saturation,
                     100);
             }
 

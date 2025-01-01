@@ -11,12 +11,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using PaintDotNet;
+using PaintDotNet.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+
+using GdipPixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace DynamicDraw
 {
@@ -43,9 +46,9 @@ namespace DynamicDraw
         bool isShiftHeld = false;
 
         private PictureBox wheelPictureBox;
-        private HsvColor hsvColor;
+        private ColorHsv96Float hsvColor;
 
-        public HsvColor HsvColor
+        public ColorHsv96Float HsvColor
         {
             get
             {
@@ -67,7 +70,7 @@ namespace DynamicDraw
         public ColorWheel()
         {
             SetupGui();
-            hsvColor = new HsvColor(0, 0, 0);
+            hsvColor = new ColorHsv96Float(0, 0, 0);
             VisibleChanged += ColorWheel_VisibleChanged;
             SemanticTheme.ThemeChanged += HandleTheme;
             HandleTheme();
@@ -106,7 +109,7 @@ namespace DynamicDraw
             for (int i = 0; i < colorTesselation; i++)
             {
                 int hue = (i * 360) / colorTesselation;
-                colors[i] = new HsvColor(hue, 100, 100).ToColor();
+                colors[i] = ColorBgr24.Round(new ColorHsv96Float(hue, 100, 100).ToRgb());
             }
 
             return colors;
@@ -132,7 +135,7 @@ namespace DynamicDraw
             if (renderBitmap == null)
             {
                 renderBitmap?.Dispose();
-                renderBitmap = new Bitmap(Width, Width, PixelFormat.Format24bppRgb);
+                renderBitmap = new Bitmap(Width, Width, GdipPixelFormat.Format24bppRgb);
 
                 using (Graphics g = Graphics.FromImage(renderBitmap))
                 {
@@ -153,7 +156,7 @@ namespace DynamicDraw
 
             using (PathGradientBrush pgb = new PathGradientBrush(points))
             {
-                pgb.CenterColor = new HsvColor(0, 0, 100).ToColor();
+                pgb.CenterColor = ColorBgr24.Round(new ColorHsv96Float(0, 0, 100).ToRgb());
                 pgb.CenterPoint = new PointF(radius, radius);
                 pgb.SurroundColors = GetColors();
 
@@ -207,14 +210,14 @@ namespace DynamicDraw
             }
 
             double alpha = Math.Sqrt((cx * cx) + (cy * cy));
-            int h = (int)(angle / (Math.PI * 2) * 360d);
-            int s = isCtrlHeld
+            double h = angle / (Math.PI * 2) * 360d;
+            double s = isCtrlHeld
                 ? hsvColor.Saturation
-                : (int)Math.Min(100.0, alpha / (Width / 2d) * 100);
+                : Math.Min(100.0, alpha / (Width / 2d) * 100);
             
             int v = 100;
 
-            hsvColor = new HsvColor(h, s, v);
+            hsvColor = new ColorHsv96Float((float)h, (float)s, v);
             ColorChanged?.Invoke(this, EventArgs.Empty);
             Invalidate(true);
         }
@@ -438,7 +441,8 @@ namespace DynamicDraw
             }
 
             // Draw the cursor for the picture box.
-            using Brush brush = new SolidBrush(hsvColor.ToColor());
+            ColorBgr24 rgbColor = ColorBgr24.Round(hsvColor.ToRgb());
+            using Brush brush = new SolidBrush(rgbColor);
             e.Graphics.FillEllipse(brush, ix - 3, iy - 3, 6, 6);
             e.Graphics.DrawEllipse(Pens.White, ix - 3.5f, iy - 3.5f, 7, 7);
             e.Graphics.DrawEllipse(Pens.Black, ix - 4, iy - 4, 8, 8);
