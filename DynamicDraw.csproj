@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <StartupObject></StartupObject>
     <PublishUrl>publish\</PublishUrl>
@@ -28,6 +28,9 @@
     <Reference Include="PaintDotNet.Base">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
     </Reference>
+    <Reference Include="PaintDotNet.ComponentModel">
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.ComponentModel.dll</HintPath>
+    </Reference>
     <Reference Include="PaintDotNet.Core">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Core.dll</HintPath>
     </Reference>
@@ -37,8 +40,14 @@
     <Reference Include="PaintDotNet.Effects">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Effects.dll</HintPath>
     </Reference>
+    <Reference Include="PaintDotNet.Effects.Core">
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Effects.Core.dll</HintPath>
+    </Reference>
     <Reference Include="PaintDotNet.Framework">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="PaintDotNet.PropertySystem">
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.PropertySystem.dll</HintPath>
     </Reference>
     <Reference Include="PaintDotNet.Resources">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Resources.dll</HintPath>
