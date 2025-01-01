@@ -904,8 +904,8 @@ namespace DynamicDraw
             canvas.height = EnvironmentParameters.SourceSurface.Size.Height;
 
             bmpCommitted = DrawingUtils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
-            bmpStaged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
-            bmpMerged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+            bmpStaged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, GdipPixelFormat.Format32bppPArgb);
+            bmpMerged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, GdipPixelFormat.Format32bppPArgb);
 
             // Applies the effect chosen to be used if the user set one the last time they used the plugin.
             if (effectToDraw?.Effect != null)
@@ -5588,7 +5588,7 @@ namespace DynamicDraw
                                 clipboardImage.Height == bmpCommitted.Height))
                             {
                                 bmpBackgroundClipboard?.Dispose();
-                                bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, PixelFormat.Format32bppPArgb);
+                                bmpBackgroundClipboard = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, GdipPixelFormat.Format32bppPArgb);
                                 using (Graphics graphics = Graphics.FromImage(bmpBackgroundClipboard))
                                 {
                                     graphics.CompositingMode = CompositingMode.SourceCopy;
@@ -5792,7 +5792,7 @@ namespace DynamicDraw
             {
                 // Applies the color and alpha changes.
                 bmpBrushEffects?.Dispose();
-                bmpBrushEffects = DrawingUtils.FormatImage(bmpBrushDownsized ?? bmpBrush, PixelFormat.Format32bppPArgb);
+                bmpBrushEffects = DrawingUtils.FormatImage(bmpBrushDownsized ?? bmpBrush, GdipPixelFormat.Format32bppPArgb);
 
                 // Replaces RGB entirely with the active color preemptive to drawing when possible, for performance.
                 if (chkbxColorizeBrush.Checked)
@@ -8439,7 +8439,7 @@ namespace DynamicDraw
                     bmpBrush?.Dispose();
                     bmpBrush = DrawingUtils.FormatImage(
                         currentItem.Brush,
-                        PixelFormat.Format32bppPArgb);
+                        GdipPixelFormat.Format32bppPArgb);
                     bmpBrushDownsized = null;
 
                     UpdateBrushImage();
