@@ -1173,14 +1173,18 @@ namespace DynamicDraw
             // Loads the default palette for empty paths. It will fail silently if the plugin hasn't loaded.
             if (type == PaletteSpecialType.Current)
             {
-                IPalettesService palettesService = (IPalettesService)Services?.GetService(typeof(IPalettesService));
+                IUserPalettesService palettesService = Services?.GetService<IUserPalettesService>();
 
                 if (palettesService != null)
                 {
+                    IManagedColorList currentPalette = palettesService.Current;
+
                     List<Color> paletteColors = new List<Color>();
-                    for (int i = 0; i < palettesService.CurrentPalette.Count && i < ColorUtils.MaxPaletteSize; i++)
+                    for (int i = 0; i < currentPalette.Count && i < ColorUtils.MaxPaletteSize; i++)
                     {
-                        paletteColors.Add((Color)palettesService.CurrentPalette[i]);
+                        ManagedColor currentColorM = currentPalette[i];
+                        SrgbColorA currentColor = currentColorM.GetSrgb();
+                        paletteColors.Add(currentColor);
                     }
 
                     paletteSelectedSwatchIndex = -1;
