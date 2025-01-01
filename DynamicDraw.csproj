@@ -48,6 +48,9 @@
     <Reference Include="PaintDotNet.Framework">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="PaintDotNet.Fundamentals">
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Fundamentals.dll</HintPath>
+    </Reference>
     <Reference Include="PaintDotNet.ObjectModel">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.ObjectModel.dll</HintPath>
     </Reference>
