@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Text.Json.Serialization;
 using DynamicDraw.Localization;
 using PaintDotNet;
+using PaintDotNet.Imaging;
 
 namespace DynamicDraw
 {
@@ -274,43 +275,43 @@ namespace DynamicDraw
             if (chunks[1].Equals("add-hsv"))
             {
                 // Note channels like col.R in the hsv arithemtic are just used as relative numbers, not real colors.
-                HsvColor origHsv = HsvColor.FromColor(origColor);
+                ColorHsv96Float origHsv = ColorHsv96Float.FromRgb(((ColorBgra32)origColor).Bgr);
                 int newAlpha = Math.Clamp(origColor.A + col.A, 0, 255);
 
                 // Hue is cyclic by nature, it should always wrap
-                int newH = origHsv.Hue + col.R;
+                float newH = origHsv.Hue + col.R;
                 while (newH < 0) { newH += 360; }
                 while (newH > 360) { newH -= 360; }
 
-                return Color.FromArgb(newAlpha, new HsvColor(
+                return Color.FromArgb(newAlpha, ColorBgr24.Round(new ColorHsv96Float(
                     newH,
                     Math.Clamp(origHsv.Saturation + col.G, 0, 100),
                     Math.Clamp(origHsv.Value + col.B, 0, 100))
-                    .ToColor()
+                    .ToRgb())
                 );
             }
             if (chunks[1].Equals("sub-hsv"))
             {
                 // Note channels like col.R in the hsv arithemtic are just used as relative numbers, not real colors.
-                HsvColor origHsv = HsvColor.FromColor(origColor);
+                ColorHsv96Float origHsv = ColorHsv96Float.FromRgb(((ColorBgra32)origColor).Bgr);
                 int newAlpha = Math.Clamp(origColor.A - col.A, 0, 255);
 
                 // Hue is cyclic by nature, it should always wrap
-                int newH = origHsv.Hue - col.R;
+                float newH = origHsv.Hue - col.R;
                 while (newH < 0) { newH += 360; }
                 while (newH > 360) { newH -= 360; }
 
-                return Color.FromArgb(newAlpha, new HsvColor(
+                return Color.FromArgb(newAlpha, ColorBgr24.Round(new ColorHsv96Float(
                     newH,
                     Math.Clamp(origHsv.Saturation - col.G, 0, 100),
                     Math.Clamp(origHsv.Value - col.B, 0, 100))
-                    .ToColor()
+                    .ToRgb())
                 );
             }
             if (chunks[1].Equals("mul-hsv"))
             {
                 // Using RGBA as relative numbers w/o semantic meaning here. They're converted to ratios from 0 - 1.
-                HsvColor origHsv = HsvColor.FromColor(origColor);
+                ColorHsv96Float origHsv = ColorHsv96Float.FromRgb(((ColorBgra32)origColor).Bgr);
                 float r = col.R / 255f;
                 float g = col.G / 255f;
                 float b = col.B / 255f;
@@ -318,17 +319,17 @@ namespace DynamicDraw
                 int newAlpha = Math.Clamp((int)Math.Round(origColor.A * a), 0, 255);
 
                 // There's no cyclic handling of hue because multiplying by floats from [0, 1] can't go out of domain.
-                return Color.FromArgb(newAlpha, new HsvColor(
+                return Color.FromArgb(newAlpha, ColorBgr24.Round(new ColorHsv96Float(
                     Math.Clamp((int)Math.Round(origHsv.Hue * r), 0, 360),
                     Math.Clamp((int)Math.Round(origHsv.Saturation * g), 0, 100),
                     Math.Clamp((int)Math.Round(origHsv.Value * b), 0, 100))
-                    .ToColor()
+                    .ToRgb())
                 );
             }
             if (chunks[1].Equals("div-hsv"))
             {
                 // Using RGBA as relative numbers w/o semantic meaning here. They're converted to ratios from 0 - 1.
-                HsvColor origHsv = HsvColor.FromColor(origColor);
+                ColorHsv96Float origHsv = ColorHsv96Float.FromRgb(((ColorBgra32)origColor).Bgr);
                 float r = col.R / 255f;
                 float g = col.G / 255f;
                 float b = col.B / 255f;
@@ -339,11 +340,11 @@ namespace DynamicDraw
                 while (newH > 360) { newH -= 360; }
                 while (newH < 0) { newH += 360; }
 
-                return Color.FromArgb(newAlpha, new HsvColor(
+                return Color.FromArgb(newAlpha, ColorBgr24.Round(new ColorHsv96Float(
                     (int)Math.Round(newH),
                     Math.Clamp((int)Math.Round(origHsv.Saturation / (g == 0 ? 1 : g)), 0, 100),
                     Math.Clamp((int)Math.Round(origHsv.Value / (b == 0 ? 1 : b)), 0, 100))
-                    .ToColor()
+                    .ToRgb())
                 );
             }
 
