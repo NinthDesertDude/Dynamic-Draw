@@ -69,6 +69,12 @@
     <Reference Include="PaintDotNet.Windows">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="PaintDotNet.Windows.Core">
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Windows.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="PaintDotNet.Windows.Framework">
+      <HintPath>C:\Program Files\paint.net\PaintDotNet.Windows.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="WintabDN">
       <HintPath>TabletSupport\WintabDN.dll</HintPath>
     </Reference>
