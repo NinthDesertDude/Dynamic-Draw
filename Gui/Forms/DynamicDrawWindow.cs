@@ -1,5 +1,6 @@
 ﻿using DynamicDraw.Abr;
 using DynamicDraw.Gui;
+using DynamicDraw.Imaging;
 using DynamicDraw.Interop;
 using DynamicDraw.Localization;
 using DynamicDraw.Logic;
@@ -23,6 +24,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 using GdipPixelFormat = System.Drawing.Imaging.PixelFormat;
+using InteropBitmap = DynamicDraw.Imaging.InteropBitmap;
 
 namespace DynamicDraw
 {
@@ -63,7 +65,7 @@ namespace DynamicDraw
         /// <summary>
         /// Stores the current drawing in full.
         /// </summary>
-        private Bitmap bmpCommitted = new Bitmap(1, 1, GdipPixelFormat.Format32bppPArgb);
+        private InteropBitmap<ColorBgra32> bmpCommitted = new InteropBitmap<ColorBgra32>(1, 1);
 
         /// <summary>
         /// Stores the current brush stroke. This bitmap is drawn to for all brush strokes, then
@@ -903,7 +905,7 @@ namespace DynamicDraw
             canvas.width = EnvironmentParameters.SourceSurface.Size.Width;
             canvas.height = EnvironmentParameters.SourceSurface.Size.Height;
 
-            bmpCommitted = DrawingUtils.CreateBitmapFromSurface(EnvironmentParameters.SourceSurface);
+            bmpCommitted = InteropBitmap.CopyFrom(EnvironmentParameters.SourceSurface);
             bmpStaged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, GdipPixelFormat.Format32bppPArgb);
             bmpMerged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, GdipPixelFormat.Format32bppPArgb);
 
@@ -1315,8 +1317,8 @@ namespace DynamicDraw
             // Sets some surfaces & ensures the source surface is exact.
             if (effectToDraw.SrcArgs == null)
             {
-                Surface fromStagedSurf = Surface.CopyFromBitmap(bmpCommitted);
-                Surface fromCommittedSurf = Surface.CopyFromBitmap(bmpCommitted);
+                Surface fromStagedSurf = Surface.CopyFromBitmap(bmpCommitted.AsGdipBitmap());
+                Surface fromCommittedSurf = Surface.CopyFromBitmap(bmpCommitted.AsGdipBitmap());
                 RenderArgs fromStaged = new RenderArgs(fromStagedSurf);
                 RenderArgs fromCommitted = new RenderArgs(fromCommittedSurf);
                 effectToDraw.SrcArgs = fromCommitted;
@@ -1324,8 +1326,8 @@ namespace DynamicDraw
             }
             else
             {
-                effectToDraw.DstArgs.Surface.CopyFromGdipBitmap(bmpCommitted);
-                effectToDraw.SrcArgs.Surface.CopyFromGdipBitmap(bmpCommitted);
+                effectToDraw.DstArgs.Surface.CopyFromGdipBitmap(bmpCommitted.AsGdipBitmap());
+                effectToDraw.SrcArgs.Surface.CopyFromGdipBitmap(bmpCommitted.AsGdipBitmap());
             }
 
             // TODO: Cannot re-set IEffect.Environment. Must recreate via IEffectInfo2.CreateInstance(IServiceProvider, IEffectEnvironment)
@@ -1346,6 +1348,7 @@ namespace DynamicDraw
             }
             catch
             {
+                // TODO: catch the exception and use IExceptionDialogService
                 ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                 currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
                 cmbxChosenEffect.SelectedIndex = 0; // corresponds to no effect chosen.
@@ -1471,6 +1474,7 @@ namespace DynamicDraw
                 using Timer repaintTimer = new Timer() { Interval = 150, Enabled = false };
                 using IEffectConfigForm dialog = effectToDraw.Effect.CreateConfigForm();
 
+                // TODO: it won't be null, we'll get an exception instead, which we can show with IExceptionDialogService
                 if (dialog == null)
                 {
                     ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
@@ -1478,7 +1482,7 @@ namespace DynamicDraw
                     return;
                 }
 
-                dialog.Effect = effectToDraw.Effect;
+                dialog.SetEffect(effectToDraw.Effect);
 
                 if (isEffectPropertyBased)
                 {
@@ -1513,8 +1517,7 @@ namespace DynamicDraw
 
                 isPreviewingEffect.settingsOpen = true;
 
-                dialog.Owner = this;
-                var dlgResult = dialog.ShowDialog();
+                var dlgResult = dialog.ShowDialog(this);
                 currentKeysPressed.Clear(); // avoids issues with key interception from the dialog.
 
                 if (repaintTimer.Enabled)
@@ -1525,7 +1528,7 @@ namespace DynamicDraw
                     {
                         ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                         currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
-                        dialog.Close();
+                        dialog.Close(); // TODO: need to add access to this method in PDN
                     }
                 }
 
@@ -1677,7 +1680,7 @@ namespace DynamicDraw
                 string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
 
                 //Saves the drawing to the file and saves the file path.
-                bmpCommitted.Save(path);
+                bmpCommitted.AsGdipBitmap().Save(path);
                 undoHistory.Push(path);
                 if (!menuUndo.Enabled)
                 {
@@ -1971,10 +1974,10 @@ namespace DynamicDraw
             if (drawToStagedBitmap && !isUserDrawing.stagedChanged)
             {
                 isUserDrawing.stagedChanged = true;
-                DrawingUtils.OverwriteBits(bmpCommitted, bmpMerged);
+                DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpMerged);
             }
 
-            Bitmap bmpToDrawOn = drawToStagedBitmap ? bmpStaged : bmpCommitted;
+            Bitmap bmpToDrawOn = drawToStagedBitmap ? bmpStaged : bmpCommitted.AsGdipBitmap();
 
             // Sets the source bitmap/surface for masked drawing based on the tool.
             (Surface surface, Bitmap bmp) maskedDrawSource = (null, null);
@@ -2105,7 +2108,7 @@ namespace DynamicDraw
 
                                     DrawingUtils.OverwriteMasked(
                                         maskedDrawSource,
-                                        bmpCommitted,
+                                        bmpCommitted.AsGdipBitmap(),
                                         bmpBrushRotScaled,
                                         originPt,
                                         destPt,
@@ -2218,7 +2221,7 @@ namespace DynamicDraw
 
                                     DrawingUtils.OverwriteMasked(
                                         maskedDrawSource,
-                                        bmpCommitted,
+                                        bmpCommitted.AsGdipBitmap(),
                                         bmpBrushRotScaled,
                                         originPt,
                                         destPt,
@@ -2306,7 +2309,7 @@ namespace DynamicDraw
 
                                         DrawingUtils.OverwriteMasked(
                                             maskedDrawSource,
-                                            bmpCommitted,
+                                            bmpCommitted.AsGdipBitmap(),
                                             bmpBrushRotScaled,
                                             originPt,
                                             destPt,
@@ -2415,7 +2418,7 @@ namespace DynamicDraw
 
                                         DrawingUtils.OverwriteMasked(
                                             maskedDrawSource,
-                                            bmpCommitted,
+                                            bmpCommitted.AsGdipBitmap(),
                                             bmpBrushRotScaled,
                                             originPt,
                                             destPt,
@@ -2823,11 +2826,12 @@ namespace DynamicDraw
             int finalX = (int)Math.Round(rotatedLoc.X);
             int finalY = (int)Math.Round(rotatedLoc.Y);
 
+            RegionPtr<ColorBgra32> regionCommitted = bmpCommitted.AsRegionPtr();
             if (finalX >= 0 && finalY >= 0 &&
                 finalX <= bmpCommitted.Width - 1 &&
                 finalY <= bmpCommitted.Height - 1)
             {
-                Color pixel = bmpCommitted.GetPixel(finalX, finalY);
+                Color pixel = regionCommitted[finalX, finalY];
 
                 if (!UserSettings.ColorPickerIncludesAlpha)
                 {
@@ -5372,8 +5376,8 @@ namespace DynamicDraw
         /// </summary>
         private void MergeStaged()
         {
-            DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpCommitted,
-                    bmpCommitted.GetBounds(),
+            DrawingUtils.MergeImage(bmpStaged, bmpCommitted.AsGdipBitmap(), bmpCommitted.AsGdipBitmap(),
+                    bmpCommitted.Bounds,
                     (BlendMode)cmbxBlendMode.SelectedIndex,
                     (chkbxLockAlpha.Checked,
                     chkbxLockR.Checked, chkbxLockG.Checked, chkbxLockB.Checked,
@@ -5497,7 +5501,7 @@ namespace DynamicDraw
                         contexts.Add(CommandContext.CloneStampOriginUnsetStage);
                     }
 
-                    DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                    DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpStaged);
                     break;
                 case Tool.Line:
                     contexts.Add(CommandContext.ToolLineToolActive);
@@ -6719,7 +6723,7 @@ namespace DynamicDraw
                     // If start and end are set, clears staged and draws the line.
                     if (lineOrigins.points.Count >= 2)
                     {
-                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpStaged);
                         DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
                     }
                 }
@@ -6891,7 +6895,7 @@ namespace DynamicDraw
                         else if (pt != ptNew)
                         {
                             lineOrigins.points[lineOrigins.dragIndex.Value] = ptNew;
-                            DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                            DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpStaged);
                             DrawBrushLine(lineOrigins.points[0], lineOrigins.points[1]);
                         }
                     }
@@ -6899,7 +6903,7 @@ namespace DynamicDraw
                     // Updates the preview while drawing.
                     else if (lineOrigins.points.Count == 1)
                     {
-                        DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                        DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpStaged);
                         DrawBrushLine(lineOrigins.points[0], new PointF(mouseLoc.X / canvasZoom, mouseLoc.Y / canvasZoom));
                     }
                 }
@@ -6931,7 +6935,7 @@ namespace DynamicDraw
             {
                 if (activeTool == Tool.CloneStamp)
                 {
-                    DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                    DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpStaged);
                 }
                 if (effectToDraw.Effect != null)
                 {
@@ -7069,12 +7073,12 @@ namespace DynamicDraw
             {
                 for (int i = mergeRegions.Count - 1; i >= 0; i--)
                 {
-                    Rectangle rect = Rectangle.Intersect(bmpCommitted.GetBounds(), mergeRegions[i]);
+                    Rectangle rect = Rectangle.Intersect(bmpCommitted.Bounds, mergeRegions[i]);
                     mergeRegions.RemoveAt(i);
 
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        DrawingUtils.MergeImage(bmpStaged, bmpCommitted, bmpMerged,
+                        DrawingUtils.MergeImage(bmpStaged, bmpCommitted.AsGdipBitmap(), bmpMerged,
                             rect,
                             (BlendMode)cmbxBlendMode.SelectedIndex,
                             (chkbxLockAlpha.Checked,
@@ -7088,7 +7092,7 @@ namespace DynamicDraw
             Bitmap bmpToDraw =
                 isPreviewingEffect.settingsOpen || isPreviewingEffect.hoverPreview ||
                 (activeTool == Tool.Line && lineOrigins.points.Count >= 1) ? bmpStaged :
-                isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted;
+                isUserDrawing.stagedChanged ? bmpMerged : bmpCommitted.AsGdipBitmap();
 
             if (sliderCanvasAngle.ValueInt == 0)
             {
@@ -7797,7 +7801,7 @@ namespace DynamicDraw
             //Sets the bitmap to draw. Locks to prevent concurrency.
             lock (RenderSettings.SurfaceToRender)
             {
-                RenderSettings.SurfaceToRender = Surface.CopyFromBitmap(bmpCommitted);
+                RenderSettings.SurfaceToRender = Surface.CopyFromBitmap(bmpCommitted.AsGdipBitmap());
             }
 
             //Updates the saved effect settings and OKs the effect.
@@ -7849,14 +7853,14 @@ namespace DynamicDraw
             {
                 //Saves the drawing to the file for undo.
                 string path = tempDir.GetTempPathName("HistoryBmp" + undoHistory.Count + ".undo");
-                bmpCommitted.Save(path);
+                bmpCommitted.AsGdipBitmap().Save(path);
                 undoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
                 using (Bitmap redoBmp = new Bitmap(fileAndPath))
                 {
-                    DrawingUtils.OverwriteBits(redoBmp, bmpCommitted);
+                    DrawingUtils.OverwriteBits(redoBmp, bmpCommitted.AsGdipBitmap());
 
                     if (effectToDraw.Effect == null && activeTool != Tool.CloneStamp)
                     {
@@ -7866,7 +7870,7 @@ namespace DynamicDraw
                     {
                         if (activeTool == Tool.CloneStamp)
                         {
-                            DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                            DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpStaged);
                         }
                         if (effectToDraw.Effect != null)
                         {
@@ -8082,14 +8086,14 @@ namespace DynamicDraw
             {
                 //Saves the drawing to the file for redo.
                 string path = tempDir.GetTempPathName("HistoryBmp" + redoHistory.Count + ".redo");
-                bmpCommitted.Save(path);
+                bmpCommitted.AsGdipBitmap().Save(path);
                 redoHistory.Push(path);
 
                 //Clears the current drawing (in case parts are transparent),
                 //and draws the saved version.
                 using (Bitmap undoBmp = new Bitmap(fileAndPath))
                 {
-                    DrawingUtils.OverwriteBits(undoBmp, bmpCommitted);
+                    DrawingUtils.OverwriteBits(undoBmp, bmpCommitted.AsGdipBitmap());
 
                     if (effectToDraw.Effect == null && activeTool != Tool.CloneStamp)
                     {
@@ -8099,7 +8103,7 @@ namespace DynamicDraw
                     {
                         if (activeTool == Tool.CloneStamp)
                         {
-                            DrawingUtils.OverwriteBits(bmpCommitted, bmpStaged);
+                            DrawingUtils.OverwriteBits(bmpCommitted.AsGdipBitmap(), bmpStaged);
                         }
                         if (effectToDraw.Effect != null)
                         {
