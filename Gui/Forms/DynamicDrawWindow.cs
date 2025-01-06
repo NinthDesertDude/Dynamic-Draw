@@ -1528,7 +1528,7 @@ namespace DynamicDraw
                     {
                         ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
                         currentKeysPressed.Clear(); // modal dialogs leave key-reading in odd states. Clears it.
-                        dialog.Close(); // TODO: need to add access to this method in PDN
+                        dialog.Close(); 
                     }
                 }
 
