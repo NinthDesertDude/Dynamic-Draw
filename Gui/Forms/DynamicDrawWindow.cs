@@ -1410,12 +1410,6 @@ namespace DynamicDraw
                     ManagedColor.Create((SrgbColorA)menuActiveColors.Swatches[0]),
                     ManagedColor.Create((SrgbColorA)menuActiveColors.Swatches[1]))
                 .CloneWithNewBrushSize(sliderBrushSize.Value)
-                // TODO: There are lifetime management issues with System.Drawing.Bitmap -> PaintDotNet.Imaging.IBitmap[Source] wrapping.
-                // In particular, S.D.Bitmap provides no "ref counting", so it's very easy to end up with an IBitmap[Source] that wraps
-                // an S.D.Bitmap that has been disposed. This very easily leads to crashing. Ways around this include never calling
-                // dispose on the S.D.Bitmap and writing an IBitmap wrapper for it, or converting over to use IBitmap in the first place.
-                // Surface does implement IBitmap, so that's an option too, although use of Surface outside of classic Effects (which are
-                // deprecated) is highly discouraged and will eventually be fully depracated via [Obsolete].
                 .CloneWithNewSource(bmpCommitted); 
 
             // Instantiates the effect and prepares all metadata for it.
@@ -1430,6 +1424,7 @@ namespace DynamicDraw
                 effectToDraw.PropertySettings = restoreEffect.PropertySettings;
             }
 
+            // TODO: not sure how this could be null? CreateInstance() does not return null
             if (effectToDraw.Effect == null)
             {
                 ThemedMessageBox.Show(Strings.EffectFailedToWorkError);
