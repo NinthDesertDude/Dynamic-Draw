@@ -1433,7 +1433,7 @@ namespace DynamicDraw
                 return;
             }
 
-            bool isEffectPropertyBased = effectToDraw.Effect is PropertyBasedEffect;
+            bool isEffectPropertyBased = effectToDraw.Effect is PropertyBasedEffect; // TODO: This will not work. Need to detect by looking at the Token on the IEffectConfigForm to see if it's a PropertyBasedEffectConfigToken
             bool isEffectConfigurable = effectToDraw.Effect.Options.IsConfigurable;
 
             bttnChooseEffectSettings.Enabled = isEffectConfigurable;
@@ -1450,7 +1450,7 @@ namespace DynamicDraw
             if (restoreEffect == null)
             {
                 effectToDraw.PropertySettings = isEffectPropertyBased
-                    ? ((PropertyBasedEffect)effectToDraw.Effect).CreatePropertyCollection()
+                    ? ((PropertyBasedEffect)effectToDraw.Effect).CreatePropertyCollection() // TODO: Will not work. Cannot cast IEffect to a concrete class like this. 
                     : null;
             }
 
