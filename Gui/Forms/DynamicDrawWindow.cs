@@ -1433,7 +1433,7 @@ namespace DynamicDraw
                 return;
             }
 
-            bool isEffectPropertyBased = effectToDraw.Effect is PropertyBasedEffect; // TODO: This will not work. Need to detect by looking at the Token on the IEffectConfigForm to see if it's a PropertyBasedEffectConfigToken
+            bool isEffectPropertyBased = effectToDraw.Effect is PropertyBasedEffect; // TODO: This will not work. Need to detect by looking at the initial Token on the IEffectConfigForm to see if it's a PropertyBasedEffectConfigToken
             bool isEffectConfigurable = effectToDraw.Effect.Options.IsConfigurable;
 
             bttnChooseEffectSettings.Enabled = isEffectConfigurable;
