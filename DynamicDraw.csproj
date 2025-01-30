@@ -71,10 +71,6 @@
       <HintPath>C:\Program Files\paint.net\PaintDotNet.PropertySystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PaintDotNet.SystemLayer">
-      <HintPath>C:\Program Files\paint.net\PaintDotNet.SystemLayer.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="PaintDotNet.Windows">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Windows.dll</HintPath>
       <Private>False</Private>
