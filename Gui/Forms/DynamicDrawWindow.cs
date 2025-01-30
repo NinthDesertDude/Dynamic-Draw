@@ -1330,6 +1330,8 @@ namespace DynamicDraw
                 effectToDraw.SrcArgs.Surface.CopyFromGdipBitmap(bmpCommitted.AsGdipBitmap());
             }
 
+            // TODO
+            /*
             // TODO: Cannot re-set IEffect.Environment. Must recreate via IEffectInfo2.CreateInstance(IServiceProvider, IEffectEnvironment)
             var envParams = effectToDraw.Effect.EnvironmentParameters;
             effectToDraw.Effect.EnvironmentParameters = effectToDraw.Effect.EnvironmentParameters
@@ -1355,6 +1357,7 @@ namespace DynamicDraw
                 isPreviewingEffect = (false, false);
                 return false;
             }
+            */
 
             DrawingUtils.OverwriteBits(effectToDraw.DstArgs.Bitmap, bmpStaged);
             return true;
