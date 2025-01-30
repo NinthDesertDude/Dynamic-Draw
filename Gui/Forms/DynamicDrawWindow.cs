@@ -7118,7 +7118,7 @@ namespace DynamicDraw
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
                 {
-                    if (area != Environment.Document.Size.Width * Environment.Document.Size.Height)
+                    if (area != Environment.Document.Size.Area)
                     {
                         selectionOutline = selection.ConstructOutline(
                             new RectangleF(0, 0,
