@@ -60,9 +60,6 @@
     <Reference Include="PaintDotNet.PropertySystem">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.PropertySystem.dll</HintPath>
     </Reference>
-    <Reference Include="PaintDotNet.Resources">
-      <HintPath>C:\Program Files\paint.net\PaintDotNet.Resources.dll</HintPath>
-    </Reference>
     <Reference Include="PaintDotNet.SystemLayer">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.SystemLayer.dll</HintPath>
     </Reference>
