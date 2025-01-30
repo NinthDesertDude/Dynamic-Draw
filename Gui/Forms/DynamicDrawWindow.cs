@@ -31,7 +31,7 @@ namespace DynamicDraw
     /// <summary>
     /// The dialog used for working with the effect.
     /// </summary>
-    public class WinDynamicDraw : EffectConfigDialog
+    public class WinDynamicDraw : EffectConfigForm2
     {
         #region Fields (Non Gui)
         #region Bitmaps
@@ -715,7 +715,7 @@ namespace DynamicDraw
         /// <c>true</c> to release both managed and unmanaged resources;
         /// <c>false</c> to release only unmanaged resources.
         /// </param>
-        protected override void Dispose(bool disposing)
+        protected override void OnDispose(bool disposing)
         {
             if (disposing)
             {
@@ -756,23 +756,23 @@ namespace DynamicDraw
                 SemanticTheme.Instance?.Dispose();
             }
 
-            base.Dispose(disposing);
+            base.OnDispose(disposing);
         }
 
         /// <summary>
         /// Configures settings so they can be stored between consecutive
         /// calls of the effect.
         /// </summary>
-        protected override void InitialInitToken()
+        protected override EffectConfigToken OnCreateInitialToken()
         {
-            theEffectToken = new PersistentSettings();
+            return new PersistentSettings();
         }
 
         /// <summary>
         /// Sets up the GUI to reflect the previously-used settings; i.e. this
         /// loads the settings. Called twice by a quirk of Paint.NET.
         /// </summary>
-        protected override void InitDialogFromToken(EffectConfigToken effectToken)
+        protected override void OnUpdateDialogFromToken(EffectConfigToken effectToken)
         {
             // Copies GUI values from the settings.
             PersistentSettings token = (PersistentSettings)effectToken;
@@ -837,9 +837,9 @@ namespace DynamicDraw
         /// Overwrites the settings with the dialog's current settings so they
         /// can be reused later; i.e. this saves the settings.
         /// </summary>
-        protected override void InitTokenFromDialog()
+        protected override void OnUpdateTokenFromDialog(EffectConfigToken dstToken)
         {
-            PersistentSettings token = (PersistentSettings)EffectToken;
+            PersistentSettings token = (PersistentSettings)dstToken;
             token.UserSettings = UserSettings;
             token.CustomShortcuts = KeyboardShortcuts;
             token.CustomBrushLocations = loadedBrushImagePaths;
@@ -897,15 +897,13 @@ namespace DynamicDraw
         /// <summary>
         /// Configures the drawing area and loads text localizations.
         /// </summary>
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoaded()
         {
-            base.OnLoad(e);
-
             //Sets the sizes of the canvas and drawing region.
-            canvas.width = EnvironmentParameters.SourceSurface.Size.Width;
-            canvas.height = EnvironmentParameters.SourceSurface.Size.Height;
+            canvas.width = Environment.Document.Size.Width;
+            canvas.height = Environment.Document.Size.Height;
 
-            bmpCommitted = InteropBitmap.CopyFrom(EnvironmentParameters.SourceSurface);
+            bmpCommitted = InteropBitmap.CopyFrom(Environment.GetSourceBitmapBgra32());
             bmpStaged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, GdipPixelFormat.Format32bppPArgb);
             bmpMerged = new Bitmap(bmpCommitted.Width, bmpCommitted.Height, GdipPixelFormat.Format32bppPArgb);
 
@@ -916,8 +914,8 @@ namespace DynamicDraw
             }
 
             symmetryOrigin = new PointF(
-                EnvironmentParameters.SourceSurface.Width / 2f,
-                EnvironmentParameters.SourceSurface.Height / 2f);
+                Environment.Document.Size.Width / 2f,
+                Environment.Document.Size.Height / 2f);
 
             //Sets the canvas dimensions.
             canvas.x = (displayCanvas.Width - canvas.width) / 2;
@@ -952,6 +950,8 @@ namespace DynamicDraw
             bttnSaveBrush.Text = Strings.SaveNewBrush;
 
             pluginHasLoaded = true;
+
+            base.OnLoaded();
         }
 
         /// <summary>
@@ -1408,7 +1408,7 @@ namespace DynamicDraw
             }
 
             // Create new environment
-            IEffectEnvironment2 effectEnvironment = this.EnvironmentParameters
+            IEffectEnvironment2 effectEnvironment = this.Environment
                 .CloneWithNewUserColors(
                     ManagedColor.Create((SrgbColorA)menuActiveColors.Swatches[0]),
                     ManagedColor.Create((SrgbColorA)menuActiveColors.Swatches[1]))
@@ -3341,7 +3341,7 @@ namespace DynamicDraw
             //Configures a dialog to get the brush image(s) path(s).
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
-            string defPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string defPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             openFileDialog.InitialDirectory = importBrushImagesLastDirectory ?? defPath;
             openFileDialog.Multiselect = true;
             openFileDialog.Title = Strings.CustomBrushImagesDirectoryTitle;
@@ -5365,8 +5365,7 @@ namespace DynamicDraw
         /// </summary>
         private void InitSettings()
         {
-            InitialInitToken();
-            InitDialogFromToken();
+            Token = OnCreateInitialToken();
         }
 
         /// <summary>
@@ -5405,12 +5404,12 @@ namespace DynamicDraw
             IUserFilesService userFilesService =
                 (IUserFilesService)Services.GetService(typeof(IUserFilesService));
 
-            string newPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files", "DynamicDrawSettings.json");
+            string newPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "paint.net User Files", "DynamicDrawSettings.json");
             settings = new SettingsSerialization(newPath);
 
             if (!File.Exists(newPath))
             {
-                string oldestPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "paint.net User Files", "BrushFactorySettings.xml");
+                string oldestPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "paint.net User Files", "BrushFactorySettings.xml");
                 string oldPath = Path.Combine(userFilesService.UserFilesPath ?? "", "DynamicDrawSettings.xml");
 
                 // Migrates settings from the old settings filepath.
@@ -6080,8 +6079,8 @@ namespace DynamicDraw
                     shortcuts.Add(string.Format(Strings.ShortcutsOver3Tip, extraCount));
                 }
 
-                finalTooltip += $"{Environment.NewLine}{Environment.NewLine}{Strings.ShortcutsTooltipTip}";
-                finalTooltip += $"{Environment.NewLine}{string.Join(Environment.NewLine, shortcuts)}";
+                finalTooltip += $"{System.Environment.NewLine}{System.Environment.NewLine}{Strings.ShortcutsTooltipTip}";
+                finalTooltip += $"{System.Environment.NewLine}{string.Join(System.Environment.NewLine, shortcuts)}";
             }
 
             UpdateTooltip(finalTooltip);
@@ -6996,8 +6995,8 @@ namespace DynamicDraw
             e.Graphics.SmoothingMode = SmoothingMode.None;
             e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
 
-            float drawingOffsetX = EnvironmentParameters.SourceSurface.Width * 0.5f * canvasZoom;
-            float drawingOffsetY = EnvironmentParameters.SourceSurface.Height * 0.5f * canvasZoom;
+            float drawingOffsetX = Environment.Document.Size.Width * 0.5f * canvasZoom;
+            float drawingOffsetY = Environment.Document.Size.Height * 0.5f * canvasZoom;
 
             e.Graphics.TranslateTransform(canvas.x + drawingOffsetX, canvas.y + drawingOffsetY);
             e.Graphics.RotateTransform(sliderCanvasAngle.ValueInt);
@@ -7042,8 +7041,8 @@ namespace DynamicDraw
                         visibleBounds,
                         lCutoffUnzoomed,
                         tCutoffUnzoomed,
-                        EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
-                        EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                        Environment.Document.Size.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                        Environment.Document.Size.Height - overshootY / canvasZoom - tCutoffUnzoomed,
                         GraphicsUnit.Pixel);
                 }
                 else
@@ -7099,8 +7098,8 @@ namespace DynamicDraw
                     visibleBounds,
                     lCutoffUnzoomed,
                     tCutoffUnzoomed,
-                    EnvironmentParameters.SourceSurface.Width - overshootX / canvasZoom - lCutoffUnzoomed,
-                    EnvironmentParameters.SourceSurface.Height - overshootY / canvasZoom - tCutoffUnzoomed,
+                    Environment.Document.Size.Width - overshootX / canvasZoom - lCutoffUnzoomed,
+                    Environment.Document.Size.Height - overshootY / canvasZoom - tCutoffUnzoomed,
                     GraphicsUnit.Pixel);
             }
             else
@@ -7119,12 +7118,12 @@ namespace DynamicDraw
                 //Calculates the outline once the selection becomes valid.
                 if (selectionOutline == null)
                 {
-                    if (area != EnvironmentParameters.SourceSurface.Width * EnvironmentParameters.SourceSurface.Height)
+                    if (area != Environment.Document.Size.Width * Environment.Document.Size.Height)
                     {
                         selectionOutline = selection.ConstructOutline(
                             new RectangleF(0, 0,
-                            EnvironmentParameters.SourceSurface.Width,
-                            EnvironmentParameters.SourceSurface.Height),
+                            Environment.Document.Size.Width,
+                            Environment.Document.Size.Height),
                             canvasZoom);
                     }
                 }
@@ -7134,7 +7133,7 @@ namespace DynamicDraw
 
                 //Creates the inverted region of the selection.
                 using var drawingArea = new Region(new Rectangle
-                    (0, 0, EnvironmentParameters.SourceSurface.Width, EnvironmentParameters.SourceSurface.Height));
+                    (0, 0, Environment.Document.Size.Width, Environment.Document.Size.Height));
                 drawingArea.Exclude(selectionRegion);
 
                 //Draws the region as a darkening over unselected pixels.
@@ -7234,11 +7233,11 @@ namespace DynamicDraw
                         e.Graphics.DrawLine(
                             Pens.Red,
                             new PointF(0, symmetryOrigin.Y * canvasZoom),
-                            new PointF(EnvironmentParameters.SourceSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
+                            new PointF(Environment.Document.Size.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                         e.Graphics.DrawLine(
                             Pens.Red,
                             new PointF(symmetryOrigin.X * canvasZoom, 0),
-                            new PointF(symmetryOrigin.X * canvasZoom, EnvironmentParameters.SourceSurface.Height * canvasZoom));
+                            new PointF(symmetryOrigin.X * canvasZoom, Environment.Document.Size.Height * canvasZoom));
                     }
 
                     e.Graphics.ScaleTransform(canvasZoom, canvasZoom);
@@ -7286,8 +7285,8 @@ namespace DynamicDraw
                         }
                         else
                         {
-                            pointsDrawnX = (mouseLoc.X / canvasZoom - EnvironmentParameters.SourceSurface.Width / 2);
-                            pointsDrawnY = (mouseLoc.Y / canvasZoom - EnvironmentParameters.SourceSurface.Height / 2);
+                            pointsDrawnX = (mouseLoc.X / canvasZoom - Environment.Document.Size.Width / 2);
+                            pointsDrawnY = (mouseLoc.Y / canvasZoom - Environment.Document.Size.Height / 2);
 
                             for (int i = 0; i < symmetryOrigins.Count; i++)
                             {
@@ -7298,8 +7297,8 @@ namespace DynamicDraw
                                 angle -= sliderCanvasAngle.ValueInt * Math.PI / 180;
                                 e.Graphics.DrawRectangle(
                                     Pens.Red,
-                                    (float)(EnvironmentParameters.SourceSurface.Width / 2 + dist * Math.Cos(angle) - 1),
-                                    (float)(EnvironmentParameters.SourceSurface.Height / 2 + dist * Math.Sin(angle) - 1),
+                                    (float)(Environment.Document.Size.Width / 2 + dist * Math.Cos(angle) - 1),
+                                    (float)(Environment.Document.Size.Height / 2 + dist * Math.Sin(angle) - 1),
                                     2, 2);
                             }
                         }
@@ -7312,11 +7311,11 @@ namespace DynamicDraw
                     e.Graphics.DrawLine(
                         Pens.Red,
                         new PointF(0, symmetryOrigin.Y * canvasZoom),
-                        new PointF(EnvironmentParameters.SourceSurface.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
+                        new PointF(Environment.Document.Size.Width * canvasZoom, symmetryOrigin.Y * canvasZoom));
                     e.Graphics.DrawLine(
                         Pens.Red,
                         new PointF(symmetryOrigin.X * canvasZoom, 0),
-                        new PointF(symmetryOrigin.X * canvasZoom, EnvironmentParameters.SourceSurface.Height * canvasZoom));
+                        new PointF(symmetryOrigin.X * canvasZoom, Environment.Document.Size.Height * canvasZoom));
                 }
             }
             #endregion
@@ -7804,7 +7803,7 @@ namespace DynamicDraw
 
             //Updates the saved effect settings and OKs the effect.
             RenderSettings.DoApplyEffect = true;
-            FinishTokenUpdate();
+            UpdateTokenFromDialog();
 
             Close();
         }
@@ -8255,12 +8254,12 @@ namespace DynamicDraw
         private void CmbxTabPressure_MouseHover(object sender, EventArgs e)
         {
             UpdateTooltip(
-                Strings.ValueInfluenceTip + Environment.NewLine + Environment.NewLine
-                + Strings.ValueTypeNothingTip + Environment.NewLine
-                + Strings.ValueTypeAddTip + Environment.NewLine
-                + Strings.ValueTypeAddPercentTip + Environment.NewLine
-                + Strings.ValueTypeAddPercentCurrentTip + Environment.NewLine
-                + Strings.ValueTypeMatchValueTip + Environment.NewLine
+                Strings.ValueInfluenceTip + System.Environment.NewLine + System.Environment.NewLine
+                + Strings.ValueTypeNothingTip + System.Environment.NewLine
+                + Strings.ValueTypeAddTip + System.Environment.NewLine
+                + Strings.ValueTypeAddPercentTip + System.Environment.NewLine
+                + Strings.ValueTypeAddPercentCurrentTip + System.Environment.NewLine
+                + Strings.ValueTypeMatchValueTip + System.Environment.NewLine
                 + Strings.ValueTypeMatchPercentTip);
         }
 
@@ -8296,7 +8295,7 @@ namespace DynamicDraw
 
                 BrushSelectorItem brushImage = loadedBrushImages[itemIndex];
                 string name = brushImage.Name;
-                string tooltipText = name + Environment.NewLine + brushImage.BrushWidth + "x" + brushImage.BrushHeight + Environment.NewLine;
+                string tooltipText = name + System.Environment.NewLine + brushImage.BrushWidth + "x" + brushImage.BrushHeight + System.Environment.NewLine;
 
                 tooltipText += !string.IsNullOrEmpty(brushImage.Location)
                     ? brushImage.Location
@@ -8400,11 +8399,11 @@ namespace DynamicDraw
 
                 if (!string.IsNullOrEmpty(brush.Location))
                 {
-                    tooltipText = name + Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + Environment.NewLine + brush.Location;
+                    tooltipText = name + System.Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + System.Environment.NewLine + brush.Location;
                 }
                 else
                 {
-                    tooltipText = name + Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + Environment.NewLine + Strings.BuiltIn;
+                    tooltipText = name + System.Environment.NewLine + brush.BrushWidth + 'x' + brush.BrushHeight + System.Environment.NewLine + Strings.BuiltIn;
                 }
 
                 e.Item = new ListViewItem

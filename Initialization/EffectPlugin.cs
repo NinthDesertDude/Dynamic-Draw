@@ -2,6 +2,7 @@ using PaintDotNet;
 using PaintDotNet.Effects;
 using System.Drawing;
 using DynamicDraw.Properties;
+using PaintDotNet.Imaging;
 
 namespace DynamicDraw
 {
@@ -13,7 +14,7 @@ namespace DynamicDraw
     /// draw the final result in Render.
     /// </summary>
     [PluginSupportInfo(typeof(PluginSupportInfo), DisplayName = "Dynamic Draw")]
-    public class EffectPlugin : Effect
+    public class EffectPlugin : BitmapEffect
     {
         #region Properties
         /// <summary>
@@ -59,21 +60,17 @@ namespace DynamicDraw
             StaticName,
             StaticImage,
             StaticSubMenuName,
-            new EffectOptions() { Flags = EffectFlags.Configurable })
+            BitmapEffectOptions.Create() with { IsConfigurable = true })
         {
         }
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Tells Paint.NET which form to instantiate as the plugin's GUI.
-        /// Called remotely by Paint.NET.
-        /// </summary>
-        public override EffectConfigDialog CreateConfigDialog()
+        protected override IEffectConfigForm OnCreateConfigForm()
         {
             //Copies necessary user variables for dialog access.
-            PdnUserSettings.userPrimaryColor = EnvironmentParameters.PrimaryColor;
-            PdnUserSettings.userSecondaryColor = EnvironmentParameters.SecondaryColor;
+            PdnUserSettings.userPrimaryColor = Environment.PrimaryColor.GetSrgb();
+            PdnUserSettings.userSecondaryColor = Environment.SecondaryColor.GetSrgb();
 
             //Static variables are remembered between plugin calls, so clear them.
             RenderSettings.Clear();
@@ -82,65 +79,24 @@ namespace DynamicDraw
             return new WinDynamicDraw();
         }
 
-        /// <summary>
-        /// Gets the render information.
-        /// </summary>
-        /// <param name="parameters">
-        /// Saved settings used to restore the GUI to the same settings it was
-        /// saved with last time the effect was applied.
-        /// </param>
-        /// <param name="dstArgs">The destination canvas.</param>
-        /// <param name="srcArgs">The source canvas.</param>
-        protected override void OnSetRenderInfo(
-            EffectConfigToken parameters,
-            RenderArgs dstArgs,
-            RenderArgs srcArgs)
+        protected override void OnInitializeRenderInfo(IBitmapEffectRenderInfo renderInfo)
         {
-            //Copies the render information to the base Effect class.
-            base.OnSetRenderInfo(parameters, dstArgs, srcArgs);
+            // TODO: set any properties on renderInfo, if you want/need
+            base.OnInitializeRenderInfo(renderInfo);
         }
 
-        /// <summary>
-        /// Renders the effect over rectangular regions automatically
-        /// determined and handled by Paint.NET for multithreading support.
-        /// </summary>
-        /// <param name="parameters">
-        /// Saved settings used to restore the GUI to the same settings it was
-        /// saved with last time the effect was applied.
-        /// </param>
-        /// <param name="dstArgs">The destination canvas.</param>
-        /// <param name="srcArgs">The source canvas.</param>
-        /// <param name="rois">
-        /// A list of rectangular regions to split this effect into so it can
-        /// be optimized by worker threads. Determined and managed by
-        /// Paint.NET.
-        /// </param>
-        /// <param name="startIndex">
-        /// The rectangle to begin rendering with. Used in Paint.NET's effect
-        /// multithreading process.
-        /// </param>
-        /// <param name="length">
-        /// The number of rectangles to render at once. Used in Paint.NET's
-        /// effect multithreading process.
-        /// </param>
-        public override void Render(
-            EffectConfigToken parameters,
-            RenderArgs dstArgs,
-            RenderArgs srcArgs,
-            Rectangle[] rois,
-            int startIndex,
-            int length)
+        protected override void OnRender(IBitmapEffectOutput output)
         {
-            //Renders the effect if the dialog is closed and accepted.
             if (!RenderSettings.EffectApplied &&
                 RenderSettings.DoApplyEffect && !IsCancelRequested)
             {
-                //The effect should only render once.
+                //The effect should only render once
                 RenderSettings.EffectApplied = true;
 
-                dstArgs.Surface.CopySurface(
-                    RenderSettings.SurfaceToRender,
-                    EnvironmentParameters.GetSelectionAsPdnRegion());
+                using IBitmapLock<ColorBgra32> outputLock = output.LockBgra32();
+                RenderSettings.SurfaceToRender.Render(
+                    outputLock.AsRegionPtr().Cast<ColorBgra>(), 
+                    output.Bounds.Location);
             }
         }
         #endregion
