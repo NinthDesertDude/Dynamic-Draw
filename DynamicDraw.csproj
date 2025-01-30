@@ -26,6 +26,10 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <OutputPath></OutputPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- MSB3277 removes the harmless and unhelpful warning about assembly version "conflicts" (e.g. System.Runtime.Serialization.Formatters) -->
+    <NoWarn>MSB3277</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PaintDotNet.Base">
       <HintPath>C:\Program Files\paint.net\PaintDotNet.Base.dll</HintPath>
