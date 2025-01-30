@@ -155,10 +155,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NoWarn>1701;1702;CA1416;IDE0090;IDE0063</NoWarn>
-    
-    <!-- "Found conflicts between different versions of "System.Runtime.Serialization.Formatters" that could not be resolved." -->
-    <!-- Hopefully this will be resolved in a future Paint.NET update. -->
-    <NoWarn>$(NoWarn);MSB3277</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
