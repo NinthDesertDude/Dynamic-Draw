@@ -28,7 +28,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <!-- MSB3277 removes the harmless and unhelpful warning about assembly version "conflicts" (e.g. System.Runtime.Serialization.Formatters) -->
-    <NoWarn>MSB3277</NoWarn>
+    <NoWarn>($NoWarn);MSB3277</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PaintDotNet.Base">
