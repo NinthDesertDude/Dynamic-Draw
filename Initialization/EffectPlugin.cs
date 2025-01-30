@@ -90,7 +90,7 @@ namespace DynamicDraw
             if (!RenderSettings.EffectApplied &&
                 RenderSettings.DoApplyEffect && !IsCancelRequested)
             {
-                //The effect should only render once
+                //The effect should only render once.
                 RenderSettings.EffectApplied = true;
 
                 using IBitmapLock<ColorBgra32> outputLock = output.LockBgra32();
