@@ -659,9 +659,9 @@ namespace DynamicDraw
                 alphaMask.PixelFormat);
 
             BitmapData srcData = src.bmp?.LockBits(
-                    src.bmp.GetBounds(),
-                    ImageLockMode.ReadOnly,
-                    src.bmp.PixelFormat);
+                src.bmp.GetBounds(),
+                ImageLockMode.ReadOnly,
+                src.bmp.PixelFormat);
 
             byte* destRow = (byte*)destData.Scan0;
             byte* alphaMaskRow = (byte*)alphaMaskData.Scan0;
