@@ -51,7 +51,7 @@ namespace DynamicDraw.Imaging
             // is garbage collected but the S.D.Bitmap is still referenced. This would
             // result in a crash because the S.D.Bitmap is now pointing to memory that
             // has been freed, or it would result in random image corruption if the
-            // bitmap is recycled.
+            // IBitmap's underlying allocation is recycled.
             ObjectStapler.Add(gdipBitmap, this);
         }
 
