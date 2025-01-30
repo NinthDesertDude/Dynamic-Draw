@@ -7109,9 +7109,9 @@ namespace DynamicDraw
             #endregion
 
             #region Draws the selection
-            PdnRegion selection = EnvironmentParameters.GetSelectionAsPdnRegion();
-            Region selectionRegion = selection?.GetRegionReadOnly();
-
+            using PdnRegion selection = PdnRegion.FromRectangles(Environment.Selection.RenderScans);
+            Region selectionRegion = selection.GetRegionReadOnly();
+            
             long area = selection.GetArea64();
             if (selectionRegion != null)
             {
